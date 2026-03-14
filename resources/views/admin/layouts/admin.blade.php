@@ -87,6 +87,11 @@
                 <div class="w-6 flex justify-center"><i class="fas fa-shapes text-base"></i></div>
                 <span class="font-bold ml-2 text-xs">Categories</span>
             </a>
+            
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Orders</span>
+            </a>
 
             <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-gem text-base"></i></div>
