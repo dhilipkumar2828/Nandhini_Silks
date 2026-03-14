@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -82,16 +83,45 @@
                 <div class="w-6 flex justify-center"><i class="fas fa-home text-base"></i></div>
                 <span class="font-bold ml-2 text-xs">Analytics</span>
             </a>
+        
+            <!-- Catalog Dropdown -->
+            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*') ? 'true' : 'false' }} }">
+                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+                    <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
+                    <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
+                    <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+                
+                <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
+                    <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Categories</span>
+                    </a>
 
-            <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-shapes text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Categories</span>
+                    <a href="{{ route('admin.sub-categories.index') }}" class="nav-link {{ request()->routeIs('admin.sub-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-indent text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Sub Categories</span>
+                    </a>
+
+                    <a href="{{ route('admin.child-categories.index') }}" class="nav-link {{ request()->routeIs('admin.child-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-outdent text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Child Categories</span>
+                    </a>
+
+                    <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-box text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Products</span>
+                    </a>
+                </div>
+            </div>
+
+
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Orders</span>
             </a>
 
-            <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-gem text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Inventory</span>
-            </a>
+           
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight</div>
 
