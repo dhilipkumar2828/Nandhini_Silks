@@ -4,13 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\OrderController;
-=======
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ChildCategoryController;
 use App\Http\Controllers\Admin\ProductController;
->>>>>>> 568a5524ccccd0390f1bf0c6b8855268daf336c5
 use App\Http\Controllers\FrontendController;
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
