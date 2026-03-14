@@ -29,6 +29,8 @@ Route::get('/fabric-care', [FrontendController::class, 'fabricCare'])->name('fab
 
 // User Account Pages
 Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
+Route::post('/login', [FrontendController::class, 'postLogin'])->name('login.submit');
+Route::post('/register', [FrontendController::class, 'postRegister'])->name('register');
 Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
 Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
 Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
@@ -51,8 +53,8 @@ Route::get('/kids', function() { return redirect()->route('category.show', 'kids
 Route::group(['prefix' => 'admin'], function () {
     // Guest Routes
     Route::group(['middleware' => 'guest:admin'], function () {
-        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-        Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+        Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+        Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
     });
 
     // Authenticated Routes

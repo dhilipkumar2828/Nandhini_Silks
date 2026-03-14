@@ -23,7 +23,7 @@
                 </div>
 
                 <!-- Login Form -->
-                <form id="loginForm" class="auth-form" method="post" action="{{ route('login.submit') }}" >
+                <form id="loginForm" class="auth-form" method="post" action="{{ route('login') }}" >
                     @csrf
                     <div class="form-group" id="loginEmailGroup">
                         <label class="form-label" for="loginEmail">Email Address</label>
