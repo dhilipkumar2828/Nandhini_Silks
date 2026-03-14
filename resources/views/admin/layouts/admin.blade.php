@@ -83,16 +83,7 @@
                 <div class="w-6 flex justify-center"><i class="fas fa-home text-base"></i></div>
                 <span class="font-bold ml-2 text-xs">Analytics</span>
             </a>
-
-            <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-shapes text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Categories</span>
-            </a>
-            
-            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Orders</span>
-            </a>
+        
             <!-- Catalog Dropdown -->
             <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
@@ -116,13 +107,21 @@
                         <div class="w-4 flex justify-center"><i class="fas fa-outdent text-[10px]"></i></div>
                         <span class="font-bold ml-2 text-[10px]">Child Categories</span>
                     </a>
+
+                    <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-box text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Products</span>
+                    </a>
                 </div>
             </div>
 
-            <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-box text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Products</span>
+
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Orders</span>
             </a>
+
+           
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight</div>
 
