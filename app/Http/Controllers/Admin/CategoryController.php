@@ -35,7 +35,9 @@ class CategoryController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            $imageName = time().'.'.$request->image->extension();
+            $request->image->move(public_path('uploads/categories'), $imageName);
+            $data['image'] = 'categories/'.$imageName;
         }
 
         Category::create($data);
@@ -61,10 +63,12 @@ class CategoryController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            if ($category->image) {
-                Storage::disk('public')->delete($category->image);
+            if ($category->image && file_exists(public_path('uploads/' . $category->image))) {
+                unlink(public_path('uploads/' . $category->image));
             }
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            $imageName = time().'.'.$request->image->extension();
+            $request->image->move(public_path('uploads/categories'), $imageName);
+            $data['image'] = 'categories/'.$imageName;
         }
 
         $category->update($data);
@@ -74,8 +78,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if ($category->image) {
-            Storage::disk('public')->delete($category->image);
+        if ($category->image && file_exists(public_path('uploads/' . $category->image))) {
+            unlink(public_path('uploads/' . $category->image));
         }
         $category->delete();
 
