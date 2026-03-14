@@ -84,8 +84,13 @@
                 <span class="font-bold ml-2 text-xs">Analytics</span>
             </a>
 
+            <a href="{{ route('admin.stock.index') }}" class="nav-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-warehouse text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Stock Manager</span>
+            </a>
+
             <!-- Catalog Dropdown -->
-            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*') ? 'true' : 'false' }} }">
+            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
                     <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
@@ -107,6 +112,11 @@
                         <div class="w-4 flex justify-center"><i class="fas fa-outdent text-[10px]"></i></div>
                         <span class="font-bold ml-2 text-[10px]">Child Categories</span>
                     </a>
+
+                    <a href="{{ route('admin.attributes.index') }}" class="nav-link {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-tags text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Attributes</span>
+                    </a>
                 </div>
             </div>
 
@@ -115,20 +125,45 @@
                 <span class="font-bold ml-2 text-xs">Products</span>
             </a>
 
-            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight</div>
+            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Appearance</div>
 
-            <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-user-tie text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Clients</span>
+            <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-image text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Banners</span>
             </a>
 
-            <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-truck-fast text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Logistics</span>
-                <span class="ml-auto bg-amber-100 text-amber-600 text-[10px] font-black px-2 py-0.5 rounded-lg">12</span>
+            <a href="{{ route('admin.ads.index') }}" class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-ad text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Advertisements</span>
+            </a>
+
+            <a href="{{ route('admin.testimonials.index') }}" class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-comment-dots text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Testimonials</span>
             </a>
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
+
+            <!-- Tax Settings Dropdown -->
+            <div x-data="{ open: {{ request()->routeIs('admin.tax-classes.*', 'admin.tax-rates.*') ? 'true' : 'false' }} }">
+                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+                    <div class="w-6 flex justify-center"><i class="fas fa-percent text-base"></i></div>
+                    <span class="font-bold ml-2 text-xs text-left flex-1">Tax Settings</span>
+                    <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+                
+                <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
+                    <a href="{{ route('admin.tax-classes.index') }}" class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Tax Classes</span>
+                    </a>
+
+                    <a href="{{ route('admin.tax-rates.index') }}" class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Tax Rates</span>
+                    </a>
+                </div>
+            </div>
 
             <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-sliders text-base"></i></div>
