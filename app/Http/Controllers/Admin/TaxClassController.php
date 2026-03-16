@@ -8,9 +8,10 @@ use App\Models\TaxClass;
 
 class TaxClassController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $taxClasses = TaxClass::withCount('rates')->get();
+        $perPage = $request->get('per_page', 10);
+        $taxClasses = TaxClass::withCount('rates')->latest()->paginate($perPage)->withQueryString();
         return view('admin.tax-classes.index', compact('taxClasses'));
     }
 

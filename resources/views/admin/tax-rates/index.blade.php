@@ -5,9 +5,19 @@
 @section('content')
 <div class="card-glass p-6 rounded-2xl">
     <div class="flex justify-between items-center mb-6">
-        <div>
-            <h2 class="text-lg font-bold text-slate-800">Tax Rates</h2>
-            <p class="text-xs text-slate-400 font-medium">Define specific rates based on location</p>
+        <div class="flex items-center space-x-4">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Tax Rates</h2>
+                <p class="text-xs text-slate-400 font-medium">Define specific rates based on location</p>
+            </div>
+            <form method="GET" action="{{ route('admin.tax-rates.index') }}" class="flex items-center pt-2">
+                <select name="per_page" onchange="this.form.submit()" class="bg-slate-50 border-none rounded-lg px-2 py-1 text-[10px] font-bold text-slate-500 focus:ring-0 cursor-pointer">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 rows</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 rows</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 rows</option>
+                    <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 rows</option>
+                </select>
+            </form>
         </div>
         <a href="{{ route('admin.tax-rates.create') }}" class="bg-[#a91b43] text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-[#940437] transition-all">
             <i class="fas fa-plus mr-1.5"></i> Add New Rate
@@ -18,6 +28,7 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+                    <th class="pb-3 px-2 font-bold">S.No</th>
                     <th class="pb-3 px-2">Rate Name</th>
                     <th class="pb-3">Class</th>
                     <th class="pb-3">Location (C/S/Z)</th>
@@ -31,6 +42,9 @@
             <tbody class="text-sm">
                 @foreach($taxRates as $rate)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
+                    <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                        {{ $taxRates->firstItem() + $loop->index }}
+                    </td>
                     <td class="py-3 px-2 font-bold text-slate-800">{{ $rate->name }}</td>
                     <td class="py-3">
                         <span class="text-[10px] font-bold text-slate-500 uppercase">{{ $rate->taxClass->name }}</span>
@@ -75,6 +89,9 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    <div class="mt-6">
+        {{ $taxRates->links() }}
     </div>
 </div>
 @endsection

@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Storage;
 
 class SubCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subCategories = SubCategory::with('category')->orderBy('display_order', 'asc')->get();
+        $perPage = $request->get('per_page', 10);
+        $subCategories = SubCategory::with('category')->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.sub_categories.index', compact('subCategories'));
     }
 

@@ -8,9 +8,10 @@ use App\Models\Ad;
 
 class AdController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $ads = Ad::latest()->get();
+        $perPage = $request->get('per_page', 10);
+        $ads = Ad::latest()->paginate($perPage)->withQueryString();
         return view('admin.appearance.ads.index', compact('ads'));
     }
 

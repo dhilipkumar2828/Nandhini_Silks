@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['category', 'subCategory', 'childCategory'])->orderBy('id', 'desc')->get();
+        $perPage = $request->get('per_page', 10);
+        $products = Product::with(['category', 'subCategory', 'childCategory'])->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
         return view('admin.products.index', compact('products'));
     }
 
@@ -44,9 +45,9 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             $images = [];
             foreach ($request->file('images') as $image) {
-                $imageName = time().'_'.uniqid().'.'.$image->extension();
+                $imageName = time() . '_' . uniqid() . '.' . $image->extension();
                 $image->move(public_path('uploads/products'), $imageName);
-                $images[] = 'products/'.$imageName;
+                $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
         }
@@ -61,7 +62,7 @@ class ProductController extends Controller
         $categories = Category::where('status', '=', 1, 'and')->get();
         $subCategories = SubCategory::where('category_id', '=', $product->category_id, 'and')->get();
         $childCategories = ChildCategory::where('sub_category_id', '=', $product->sub_category_id, 'and')->get();
-        
+
         return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories'));
     }
 
@@ -92,9 +93,9 @@ class ProductController extends Controller
             }
             $images = [];
             foreach ($request->file('images') as $image) {
-                $imageName = time().'_'.uniqid().'.'.$image->extension();
+                $imageName = time() . '_' . uniqid() . '.' . $image->extension();
                 $image->move(public_path('uploads/products'), $imageName);
-                $images[] = 'products/'.$imageName;
+                $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
         }
