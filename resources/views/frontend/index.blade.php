@@ -536,12 +536,15 @@
     <section class="hero" aria-label="Hero Banner">
         <div class="swiper hero-swiper">
             <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <img src="{{ asset('images/banner 1.png') }}" alt="Banner 1" />
-                </div>
-                <div class="swiper-slide">
-                    <img src="{{ asset('images/banner 1.jpg') }}" alt="Banner 2" />
-                </div>
+                @forelse($banners as $banner)
+                    <div class="swiper-slide">
+                        <img src="{{ asset('uploads/'.$banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" />
+                    </div>
+                @empty
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/banner 1.png') }}" alt="Default Banner" />
+                    </div>
+                @endforelse
             </div>
             <!-- Add Navigation and Pagination -->
             <div class="swiper-button-next hero-next"></div>
@@ -811,36 +814,39 @@
         <div class="testimonial-swiper-wrap">
             <div class="swiper testimonial-swiper">
                 <div class="swiper-wrapper">
-                    @for ($copy = 0; $copy < 2; $copy++)
-                        <div class="swiper-slide" @if ($copy === 1) aria-hidden="true" tabindex="-1" @endif>
+                    @forelse($testimonials as $testimonial)
+                        <div class="swiper-slide">
                             <article class="testimonial-card">
-                                <h3 class="testimonial-card-title">Beautiful elegant <br>saree</h3>
-                                <p class="testimonial-text">I recently ordered this saree online, and I am extremely happy with my
-                                    purchase. The saree looked exactly like the pictures shown on the website. The color was
-                                    vibrant,
-                                    and the fabric quality was even better than I expected.</p>
-                                <p class="testimonial-name">Ramya</p>
+                                <div class="mb-4">
+                                    <p class="testimonial-name !mt-0 !pt-0">{{ $testimonial->name }}</p>
+                                    <div class="flex items-center gap-1">
+                                        @for($i = 0; $i < ($testimonial->rating ?? 5); $i++)
+                                            <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <h3 class="testimonial-card-title">{{ $testimonial->review_title ?? 'Excellent Quality' }}</h3>
+                                <p class="testimonial-text">{{ $testimonial->review }}</p>
                             </article>
                         </div>
-                        <div class="swiper-slide" @if ($copy === 1) aria-hidden="true" tabindex="-1" @endif>
+                    @empty
+                        <div class="swiper-slide">
                             <article class="testimonial-card">
-                                <h3 class="testimonial-card-title">Stunning Design <br>& Quality</h3>
-                                <p class="testimonial-text">The craftsmanship is truly exceptional. I wore it for a wedding and
-                                    received so many compliments. The delivery was prompt and the packaging was premium. Highly
-                                    recommend Nandhini Silks!</p>
-                                <p class="testimonial-name">Priya</p>
+                                <div class="mb-4">
+                                    <p class="testimonial-name !mt-0 !pt-0">Ramya</p>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                    </div>
+                                </div>
+                                <h3 class="testimonial-card-title">Authentic Collection</h3>
+                                <p class="testimonial-text">The quality of the silk sarees is absolutely stunning. Truly premium craftsmanship.</p>
                             </article>
                         </div>
-                        <div class="swiper-slide" @if ($copy === 1) aria-hidden="true" tabindex="-1" @endif>
-                            <article class="testimonial-card">
-                                <h3 class="testimonial-card-title">Perfect for <br>Occasions</h3>
-                                <p class="testimonial-text">Finding authentic silk sarees online can be tricky, but this was a
-                                    great experience. The texture is soft and the pallu design is intricate. Will definitely buy
-                                    more in the future.</p>
-                                <p class="testimonial-name">Deepika</p>
-                            </article>
-                        </div>
-                    @endfor
+                    @endforelse
                 </div>
             </div>
             <!-- Navigation outside swiper for correct button positioning -->

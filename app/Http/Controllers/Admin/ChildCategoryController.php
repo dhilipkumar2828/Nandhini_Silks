@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ChildCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $childCategories = ChildCategory::with(['category', 'subCategory'])->orderBy('display_order', 'asc')->get();
+        $perPage = $request->get('per_page', 10);
+        $childCategories = ChildCategory::with(['category', 'subCategory'])->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.child_categories.index', compact('childCategories'));
     }
 

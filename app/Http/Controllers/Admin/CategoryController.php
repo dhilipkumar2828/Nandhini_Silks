@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::orderBy('display_order', 'asc')->get();
+        $perPage = $request->get('per_page', 10);
+        $categories = Category::orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.categories.index', compact('categories'));
     }
 

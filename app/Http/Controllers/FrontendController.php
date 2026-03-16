@@ -6,12 +6,18 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+use App\Models\Banner;
+use App\Models\Testimonial;
+
 class FrontendController extends Controller
 {
     public function index()
     {
+        $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
+        $testimonials = Testimonial::where('status', '=', 1, 'and')->where('display_homepage', '=', true, 'and')->latest()->get();
         $featuredProducts = Product::where('is_featured', '=', true, 'and')->get();
-        return view('frontend.index', compact('featuredProducts'));
+        
+        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts'));
     }
 
     public function category($slug)

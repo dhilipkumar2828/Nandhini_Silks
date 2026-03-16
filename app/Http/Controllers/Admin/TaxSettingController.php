@@ -8,9 +8,10 @@ use App\Models\TaxSetting;
 
 class TaxSettingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $taxSettings = TaxSetting::all();
+        $perPage = $request->get('per_page', 10);
+        $taxSettings = TaxSetting::latest()->paginate($perPage)->withQueryString();
         return view('admin.tax-settings.index', compact('taxSettings'));
     }
 

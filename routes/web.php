@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ChildCategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -40,9 +39,8 @@ Route::post('/login', [FrontendController::class, 'postLogin'])->name('login.sub
 Route::post('/register', [FrontendController::class, 'postRegister'])->name('register');
 Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
 Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
-Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
-Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
 Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
+Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
 Route::get('/order-confirmation', [FrontendController::class, 'orderConfirmation'])->name('order-confirmation');
 Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 
@@ -51,10 +49,14 @@ Route::get('/category/{slug}', [FrontendController::class, 'category'])->name('c
 Route::get('/product/{slug}', [FrontendController::class, 'productShow'])->name('product.show');
 
 // Special Category Routes (to match existing links if needed)
-Route::get('/sarees', function() { return redirect()->route('category.show', 'sarees'); });
-Route::get('/women', function() { return redirect()->route('category.show', 'women'); });
-Route::get('/mens', function() { return redirect()->route('category.show', 'mens'); });
-Route::get('/kids', function() { return redirect()->route('category.show', 'kids'); });
+Route::get('/sarees', function () {
+    return redirect()->route('category.show', 'sarees'); });
+Route::get('/women', function () {
+    return redirect()->route('category.show', 'women'); });
+Route::get('/mens', function () {
+    return redirect()->route('category.show', 'mens'); });
+Route::get('/kids', function () {
+    return redirect()->route('category.show', 'kids'); });
 
 // Admin Routes
 Route::group(['prefix' => 'admin'], function () {
@@ -66,42 +68,41 @@ Route::group(['prefix' => 'admin'], function () {
 
     // Authenticated Routes
     Route::group(['middleware' => 'auth:admin'], function () {
-        Route::get('/', function() {
+        Route::get('/', function () {
             return redirect()->route('admin.dashboard');
         });
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-        
+
         // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');
 
         // Orders
-        Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
-        Route::resource('orders', OrderController::class)->names('admin.orders');
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
-        
+
         // Attributes
         Route::resource('attributes', \App\Http\Controllers\Admin\AttributeController::class)->names('admin.attributes');
         Route::resource('attribute-values', \App\Http\Controllers\Admin\AttributeValueController::class)->names('admin.attribute-values');
-        
+
         // Appearance
         Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class)->names('admin.banners');
         Route::resource('ads', \App\Http\Controllers\Admin\AdController::class)->names('admin.ads');
         Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonials');
-        
+
         // Tax Settings
+        Route::resource('tax-settings', \App\Http\Controllers\Admin\TaxSettingController::class)->names('admin.tax-settings');
         Route::resource('tax-classes', \App\Http\Controllers\Admin\TaxClassController::class)->names('admin.tax-classes');
         Route::resource('tax-rates', \App\Http\Controllers\Admin\TaxRateController::class)->names('admin.tax-rates');
-        
+
         // Stock Maintenance
         Route::get('/stock', [\App\Http\Controllers\Admin\StockController::class, 'index'])->name('admin.stock.index');
         Route::post('/stock/update-bulk', [\App\Http\Controllers\Admin\StockController::class, 'updateBulk'])->name('admin.stock.update-bulk');
         Route::get('/stock/{product}/logs', [\App\Http\Controllers\Admin\StockController::class, 'showLogs'])->name('admin.stock.logs');
-        
+
         // Products
         Route::resource('products', ProductController::class)->names('admin.products');
-        
+
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
         Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);

@@ -9,9 +9,10 @@ use App\Models\TaxClass;
 
 class TaxRateController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $taxRates = TaxRate::with('taxClass')->get();
+        $perPage = $request->get('per_page', 10);
+        $taxRates = TaxRate::with('taxClass')->latest()->paginate($perPage)->withQueryString();
         return view('admin.tax-rates.index', compact('taxRates'));
     }
 

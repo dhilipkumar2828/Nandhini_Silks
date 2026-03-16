@@ -8,9 +8,10 @@ use App\Models\Testimonial;
 
 class TestimonialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $testimonials = Testimonial::latest()->get();
+        $perPage = $request->get('per_page', 10);
+        $testimonials = Testimonial::latest()->paginate($perPage)->withQueryString();
         return view('admin.appearance.testimonials.index', compact('testimonials'));
     }
 

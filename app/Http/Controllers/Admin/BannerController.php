@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\File;
 
 class BannerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $banners = Banner::orderBy('display_order', 'asc')->get();
+        $perPage = $request->get('per_page', 10);
+        $banners = Banner::orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.appearance.banners.index', compact('banners'));
     }
 
@@ -23,31 +24,33 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image_desktop' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'title' => 'nullable|string|max:255',
-            'link' => 'nullable|string|max:255',
-            'display_order' => 'required|integer',
-            'status' => 'required|boolean',
+            'banners' => 'required|array',
+            'banners.*.image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banners.*.title' => 'nullable|string|max:255',
+            'banners.*.link' => 'nullable|string|max:255',
+            'banners.*.display_order' => 'required|integer',
+            'banners.*.status' => 'required|boolean',
         ]);
 
-        $data = $request->except(['image_desktop', 'image_mobile']);
+        foreach ($request->banners as $index => $bannerData) {
+            $data = [
+                'title' => $bannerData['title'],
+                'link' => $bannerData['link'],
+                'display_order' => $bannerData['display_order'],
+                'status' => $bannerData['status'],
+            ];
 
-        if ($request->hasFile('image_desktop')) {
-            $imageName = 'desktop_'.time().'.'.$request->image_desktop->extension();
-            $request->image_desktop->move(public_path('uploads/banners'), $imageName);
-            $data['image_desktop'] = 'banners/'.$imageName;
+            if ($request->hasFile("banners.$index.image")) {
+                $file = $request->file("banners.$index.image");
+                $imageName = 'banner_'.time().'_'.$index.'.'.$file->extension();
+                $file->move(public_path('uploads/banners'), $imageName);
+                $data['image'] = 'banners/'.$imageName;
+            }
+
+            Banner::create($data);
         }
 
-        if ($request->hasFile('image_mobile')) {
-            $imageName = 'mobile_'.time().'.'.$request->image_mobile->extension();
-            $request->image_mobile->move(public_path('uploads/banners'), $imageName);
-            $data['image_mobile'] = 'banners/'.$imageName;
-        }
-
-        Banner::create($data);
-
-        return redirect()->route('admin.banners.index')->with('success', 'Banner created successfully.');
+        return redirect()->route('admin.banners.index')->with('success', 'Banners created successfully.');
     }
 
     public function edit(Banner $banner)
@@ -58,32 +61,22 @@ class BannerController extends Controller
     public function update(Request $request, Banner $banner)
     {
         $request->validate([
-            'image_desktop' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'title' => 'nullable|string|max:255',
             'link' => 'nullable|string|max:255',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ]);
 
-        $data = $request->except(['image_desktop', 'image_mobile']);
+        $data = $request->except(['image']);
 
-        if ($request->hasFile('image_desktop')) {
-            if ($banner->image_desktop && file_exists(public_path('uploads/' . $banner->image_desktop))) {
-                unlink(public_path('uploads/' . $banner->image_desktop));
+        if ($request->hasFile('image')) {
+            if ($banner->image && file_exists(public_path('uploads/' . $banner->image))) {
+                unlink(public_path('uploads/' . $banner->image));
             }
-            $imageName = 'desktop_'.time().'.'.$request->image_desktop->extension();
-            $request->image_desktop->move(public_path('uploads/banners'), $imageName);
-            $data['image_desktop'] = 'banners/'.$imageName;
-        }
-
-        if ($request->hasFile('image_mobile')) {
-            if ($banner->image_mobile && file_exists(public_path('uploads/' . $banner->image_mobile))) {
-                unlink(public_path('uploads/' . $banner->image_mobile));
-            }
-            $imageName = 'mobile_'.time().'.'.$request->image_mobile->extension();
-            $request->image_mobile->move(public_path('uploads/banners'), $imageName);
-            $data['image_mobile'] = 'banners/'.$imageName;
+            $imageName = 'banner_'.time().'.'.$request->image->extension();
+            $request->image->move(public_path('uploads/banners'), $imageName);
+            $data['image'] = 'banners/'.$imageName;
         }
 
         $banner->update($data);
@@ -93,11 +86,8 @@ class BannerController extends Controller
 
     public function destroy(Banner $banner)
     {
-        if ($banner->image_desktop && file_exists(public_path('uploads/' . $banner->image_desktop))) {
-            unlink(public_path('uploads/' . $banner->image_desktop));
-        }
-        if ($banner->image_mobile && file_exists(public_path('uploads/' . $banner->image_mobile))) {
-            unlink(public_path('uploads/' . $banner->image_mobile));
+        if ($banner->image && file_exists(public_path('uploads/' . $banner->image))) {
+            unlink(public_path('uploads/' . $banner->image));
         }
         $banner->delete();
 
