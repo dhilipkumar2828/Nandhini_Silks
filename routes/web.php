@@ -9,8 +9,14 @@ use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ChildCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Auth\UserAuthController;
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
+
+// User Authentication
+Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit');
+Route::post('/register', [UserAuthController::class, 'register'])->name('register');
+Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 
 // Frontend Static Pages
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
@@ -74,6 +80,24 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('orders', OrderController::class)->names('admin.orders');
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
+        
+        // Attributes
+        Route::resource('attributes', \App\Http\Controllers\Admin\AttributeController::class)->names('admin.attributes');
+        Route::resource('attribute-values', \App\Http\Controllers\Admin\AttributeValueController::class)->names('admin.attribute-values');
+        
+        // Appearance
+        Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class)->names('admin.banners');
+        Route::resource('ads', \App\Http\Controllers\Admin\AdController::class)->names('admin.ads');
+        Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->names('admin.testimonials');
+        
+        // Tax Settings
+        Route::resource('tax-classes', \App\Http\Controllers\Admin\TaxClassController::class)->names('admin.tax-classes');
+        Route::resource('tax-rates', \App\Http\Controllers\Admin\TaxRateController::class)->names('admin.tax-rates');
+        
+        // Stock Maintenance
+        Route::get('/stock', [\App\Http\Controllers\Admin\StockController::class, 'index'])->name('admin.stock.index');
+        Route::post('/stock/update-bulk', [\App\Http\Controllers\Admin\StockController::class, 'updateBulk'])->name('admin.stock.update-bulk');
+        Route::get('/stock/{product}/logs', [\App\Http\Controllers\Admin\StockController::class, 'showLogs'])->name('admin.stock.logs');
         
         // Products
         Route::resource('products', ProductController::class)->names('admin.products');

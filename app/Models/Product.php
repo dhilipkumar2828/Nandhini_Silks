@@ -24,8 +24,12 @@ class Product extends Model
         'discount_percent',
         'tax_class',
         'stock_quantity',
+        'reserved_stock',
         'low_stock_threshold',
         'stock_status',
+        'restock_quantity',
+        'restock_date',
+        'supplier',
         'weight',
         'dimensions',
         'shipping_class',
@@ -45,7 +49,8 @@ class Product extends Model
         'attributes' => 'array',
         'variants' => 'array',
         'status' => 'boolean',
-        'is_featured' => 'boolean'
+        'is_featured' => 'boolean',
+        'restock_date' => 'date'
     ];
 
     public function category()
@@ -61,5 +66,15 @@ class Product extends Model
     public function childCategory()
     {
         return $this->belongsTo(ChildCategory::class);
+    }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function getAvailableStockAttribute()
+    {
+        return $this->stock_quantity - $this->reserved_stock;
     }
 }
