@@ -54,8 +54,8 @@ Route::get('/kids', function() { return redirect()->route('category.show', 'kids
 Route::group(['prefix' => 'admin'], function () {
     // Guest Routes
     Route::group(['middleware' => 'guest:admin'], function () {
-        Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-        Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+        Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
     });
 
     // Authenticated Routes

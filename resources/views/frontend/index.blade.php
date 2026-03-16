@@ -613,14 +613,19 @@
 
                     <div class="swiper-slide">
                         <article class="collection-card">
-                            <a href="{{ url('product/exquisite-silk-saree') }}" class="card-link-wrapper">
+                            @php
+                                $firstProduct = \App\Models\Product::first();
+                                $productUrl = $firstProduct ? route('product.show', $firstProduct->slug) : url('sarees');
+                                $productName = $firstProduct ? $firstProduct->name : 'Exquisite Silk Saree';
+                            @endphp
+                            <a href="{{ $productUrl }}" class="card-link-wrapper">
                                 <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/product1_1.jpg') }}" alt="Exquisite Silk Saree" />
+                                    <img src="{{ asset('images/product1_1.jpg') }}" alt="{{ $productName }}" />
                                 </div>
-                                <h3 class="collection-name">Exquisite Silk Saree</h3>
+                                <h3 class="collection-name">{{ $productName }}</h3>
                             </a>
                             <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ url('product/exquisite-silk-saree') }}'">Shop
+                                onclick="window.location.href='{{ $productUrl }}'">Shop
                                 Now</button>
                         </article>
                     </div>
