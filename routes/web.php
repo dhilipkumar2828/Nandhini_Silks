@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ChildCategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -35,6 +36,8 @@ Route::get('/fabric-care', [FrontendController::class, 'fabricCare'])->name('fab
 
 // User Account Pages
 Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
+Route::post('/login', [FrontendController::class, 'postLogin'])->name('login.submit');
+Route::post('/register', [FrontendController::class, 'postRegister'])->name('register');
 Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
 Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
 Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
@@ -63,11 +66,18 @@ Route::group(['prefix' => 'admin'], function () {
 
     // Authenticated Routes
     Route::group(['middleware' => 'auth:admin'], function () {
+        Route::get('/', function() {
+            return redirect()->route('admin.dashboard');
+        });
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
         
         // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');
+
+        // Orders
+        Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
+        Route::resource('orders', OrderController::class)->names('admin.orders');
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
         

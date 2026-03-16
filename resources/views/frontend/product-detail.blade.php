@@ -14,21 +14,26 @@
             <div class="product-detail-grid">
                 <!-- Gallery Section -->
                 <div class="product-gallery">
+                    @php
+                        $allImages = [];
+                        if ($product->images && count($product->images) > 0) {
+                            foreach ($product->images as $img) {
+                                $allImages[] = asset('images/' . $img);
+                            }
+                        } else {
+                            $allImages[] = asset('images/pro.png');
+                        }
+                        $mainImage = $allImages[0];
+                    @endphp
                     <div class="main-product-image" id="zoomContainer">
-                        <img src="{{ $product->image_path ? asset('images/' . $product->image_path) : asset('images/pro.png') }}" alt="{{ $product->name }}" id="mainImg">
+                        <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
                     </div>
                     <div class="product-thumbnails">
-                        <div class="thumbnail active" onclick="changeImg('{{ $product->image_path ? asset('images/' . $product->image_path) : asset('images/pro.png') }}', this)">
-                            <img src="{{ $product->image_path ? asset('images/' . $product->image_path) : asset('images/pro.png') }}" alt="Main View">
-                        </div>
-                        @if($product->slug === 'exquisite-silk-saree')
-                            <div class="thumbnail" onclick="changeImg('{{ asset('images/product1_2.jpg') }}', this)">
-                                <img src="{{ asset('images/product1_2.jpg') }}" alt="View 2">
+                        @foreach($allImages as $i => $imgUrl)
+                            <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" onclick="changeImg('{{ $imgUrl }}', this)">
+                                <img src="{{ $imgUrl }}" alt="View {{ $i + 1 }}">
                             </div>
-                            <div class="thumbnail" onclick="changeImg('{{ asset('images/product1_3.jpg') }}', this)">
-                                <img src="{{ asset('images/product1_3.jpg') }}" alt="View 3">
-                            </div>
-                        @endif
+                        @endforeach
                     </div>
                 </div>
 

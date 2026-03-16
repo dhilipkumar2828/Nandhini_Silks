@@ -24,25 +24,27 @@
                 <img class="brand" src="{{ asset('images/image 1.png') }}" alt="Logo" />
             </a>
 
-            <div class="search-wrap">
-                <div class="search-box">
-                    <img src="{{ asset('images/search.svg') }}" alt="Search" />
-                    <input type="text" placeholder="Search" aria-label="Search" />
+            <div class="header-right">
+                <div class="search-wrap">
+                    <div class="search-box">
+                        <img src="{{ asset('images/search.svg') }}" alt="Search" />
+                        <input type="text" placeholder="Search" aria-label="Search" />
+                    </div>
                 </div>
-            </div>
 
-            <div class="actions">
-                <button class="icon-btn" type="button" aria-label="Favorites"
-                    onclick="window.location.href='{{ url('wishlist') }}'">
-                    <img src="{{ asset('images/favorite.svg') }}" alt="" width="18" height="23">
-                </button>
-                <button class="icon-btn" type="button" aria-label="Cart"
-                    onclick="window.location.href='{{ url('cart') }}'">
-                    <img src="{{ asset('images/local_mall.svg') }}" alt="" width="14" height="20" />
-                    <span class="cart-count">5</span>
-                </button>
-                <button class="login-btn" type="button" onclick="window.location.href='{{ url('login') }}'">Sign in /
-                    Login</button>
+                <div class="actions">
+                    <button class="icon-btn" type="button" aria-label="Favorites"
+                        onclick="window.location.href='{{ url('wishlist') }}'">
+                        <img src="{{ asset('images/favorite.svg') }}" alt="" width="18" height="23">
+                    </button>
+                    <button class="icon-btn" type="button" aria-label="Cart"
+                        onclick="window.location.href='{{ url('cart') }}'">
+                        <img src="{{ asset('images/local_mall.svg') }}" alt="" width="14" height="20" />
+                        <span class="cart-count">5</span>
+                    </button>
+                    <button class="login-btn" type="button" onclick="window.location.href='{{ route('login') }}'">Sign in /
+                        Login</button>
+                </div>
             </div>
         </div>
     </header>
