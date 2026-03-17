@@ -69,3 +69,5 @@ class UserAuthController extends Controller
         return redirect()->route('home')->with('success', 'Logged out successfully.');
     }
 }
+
+

@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserAddressController;
+use App\Http\Controllers\Admin\OrderController;
 
 Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
 
@@ -90,6 +91,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('categories', CategoryController::class)->names('admin.categories');
 
         // Orders
+        Route::resource('orders', OrderController::class)->names('admin.orders');
+        Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
+
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
 
