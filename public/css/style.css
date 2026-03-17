@@ -3453,8 +3453,10 @@ body {
 
 .product-actions {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 25px;
+  width: 100%;
 }
 
 .btn-add-cart {
@@ -4067,7 +4069,8 @@ input:checked+.toggle-switch .toggle-dot {
 
 /* Attributes */
 .attribute-section {
-  margin-top: 25px;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
 .attribute-title {
@@ -4115,16 +4118,17 @@ input:checked+.toggle-switch .toggle-dot {
 
 /* Buttons */
 .btn-buy-now {
-  flex: 1;
+  width: 100%;
   padding: 16px;
-  background: #333;
+  background: #111;
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
 
 .btn-buy-now:hover {
