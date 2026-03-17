@@ -166,8 +166,8 @@
                         <div class="account-avatar">
                             <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
+                        <p class="account-user-email">{{ Auth::user()->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -177,7 +177,8 @@
                         <li class="account-nav-item"><a href="{{ url('my-addresses') }}" class="account-nav-link"><span>Addresses</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('my-reviews') }}" class="account-nav-link"><span>My Reviews</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('wishlist') }}" class="account-nav-link"><span>Wishlist</span></a></li>
-                        <li class="account-nav-item"><a href="{{ url('login') }}" class="account-nav-link logout"><span>Logout</span></a></li>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form">@csrf</form>
+                        <li class="account-nav-item"><a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit()" class="account-nav-link logout"><span>Logout</span></a></li>
                     </ul>
                 </aside>
 
@@ -187,94 +188,56 @@
                     </div>
 
                     <div class="orders-container">
+                        @forelse(Auth::user()->orders()->latest()->get() as $order)
                         <div class="order-card">
                             <div class="order-header">
                                 <div class="order-meta">
                                     <div class="meta-item">
                                         <span class="meta-label">Order ID</span>
-                                        <span class="meta-value">#NS7842</span>
+                                        <span class="meta-value">#NS{{ $order->id }}</span>
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">Date Placed</span>
-                                        <span class="meta-value">Oct 12, 2023</span>
+                                        <span class="meta-value">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value">&#8377;7,490 <span class="payment-status pay-paid">Paid</span></span>
+                                        <span class="meta-value">&#8377;{{ number_format($order->grand_total, 0) }} 
+                                            <span class="payment-status pay-{{ strtolower($order->payment_status) }}">
+                                                {{ ucfirst($order->payment_status) }}
+                                            </span>
+                                        </span>
                                     </div>
                                 </div>
-                                <span class="status-badge status-processing">Processing</span>
+                                <span class="status-badge status-{{ strtolower($order->order_status) }}">{{ ucfirst($order->order_status) }}</span>
                             </div>
                             <div class="order-body">
                                 <div class="order-items-preview">
-                                    <img src="{{ asset('images/pro1.png') }}" alt="" class="order-img">
-                                    <span class="order-items-count">+ 2 other items</span>
+                                    @php $firstItem = $order->items->first(); @endphp
+                                    @if($firstItem && $firstItem->product && $firstItem->product->image_path)
+                                        <img src="{{ asset('images/' . $firstItem->product->image_path) }}" alt="" class="order-img">
+                                    @else
+                                        <img src="{{ asset('images/pro1.png') }}" alt="" class="order-img">
+                                    @endif
+                                    
+                                    @if($order->items->count() > 1)
+                                        <span class="order-items-count">+ {{ $order->items->count() - 1 }} other item(s)</span>
+                                    @endif
                                 </div>
                                 <div class="order-actions">
-                                    <a href="{{ url('order-detail') }}" class="btn-outline">View Details</a>
+                                    <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="btn-outline">View Details</a>
                                     <button class="btn-action">Track Order</button>
-                                    <button class="btn-action" style="color: #f5222d;">Cancel Order</button>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div class="order-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">Order ID</span>
-                                        <span class="meta-value">#NS7839</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Date Placed</span>
-                                        <span class="meta-value">Sep 28, 2023</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value">&#8377;4,290 <span class="payment-status pay-paid">Paid</span></span>
-                                    </div>
-                                </div>
-                                <span class="status-badge status-delivered">Delivered</span>
+                        @empty
+                            <div style="text-align: center; padding: 50px; background: #fff; border-radius: 15px;">
+                                <div style="font-size: 50px; margin-bottom: 20px;">&#128230;</div>
+                                <h3 style="color: #333;">No orders yet</h3>
+                                <p style="color: #999;">When you place an order, it will appear here.</p>
+                                <a href="{{ url('shop') }}" class="btn-outline" style="display: inline-block; margin-top: 20px;">Start Shopping</a>
                             </div>
-                            <div class="order-body">
-                                <div class="order-items-preview">
-                                    <img src="{{ asset('images/pro2.png') }}" alt="" class="order-img">
-                                </div>
-                                <div class="order-actions">
-                                    <a href="{{ url('order-detail') }}" class="btn-outline">View Details</a>
-                                    <button class="btn-action">Buy it Again</button>
-                                    <button class="btn-action">Return / Refund</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="order-card">
-                            <div class="order-header">
-                                <div class="order-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">Order ID</span>
-                                        <span class="meta-value">#NS7835</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Date Placed</span>
-                                        <span class="meta-value">Sep 15, 2023</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value">&#8377;2,890 <span class="payment-status pay-pending">Refunded</span></span>
-                                    </div>
-                                </div>
-                                <span class="status-badge status-cancelled">Cancelled</span>
-                            </div>
-                            <div class="order-body">
-                                <div class="order-items-preview">
-                                    <img src="{{ asset('images/pro3.png') }}" alt="" class="order-img">
-                                </div>
-                                <div class="order-actions">
-                                    <a href="{{ url('order-detail') }}" class="btn-outline">View Details</a>
-                                </div>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

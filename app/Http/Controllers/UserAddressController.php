@@ -33,6 +33,6 @@ class UserAddressController extends Controller
             'landmark' => $request->landmark,
         ]);
 
-        return back()->with('success', 'Address saved successfully.');
+        return back()->with('success', 'Address saved successfully. It is now available for your orders.');
     }
 }

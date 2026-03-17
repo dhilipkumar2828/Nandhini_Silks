@@ -49,13 +49,17 @@ Route::get('/fabric-care', [FrontendController::class, 'fabricCare'])->name('fab
 
 // User Account Pages
 Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
-Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
-Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
-Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
-Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
-Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
+    Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
+    Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
+    Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
+    Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
+    Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
+});
+
 Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
-Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 
 // Dynamic Products/Categories
 Route::get('/category/{slug}', [FrontendController::class, 'category'])->name('category.show');

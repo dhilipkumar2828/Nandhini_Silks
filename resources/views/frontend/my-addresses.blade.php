@@ -17,8 +17,8 @@
                         <div class="account-avatar">
                             <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
-                        <p class="account-user-email">{{ Auth::user()->email }}</p>
+                        <h2 class="account-user-name">{{ Auth::user() ? Auth::user()->name : 'Guest User' }}</h2>
+                        <p class="account-user-email">{{ Auth::user() ? Auth::user()->email : '' }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -43,13 +43,13 @@
                         @foreach($addresses as $addr)
                         <div class="address-card-v3 {{ $addr->is_default ? 'default' : '' }}" id="addr-{{ $addr->id }}">
                             @if($addr->is_default)<span class="default-badge-v3">Default</span>@endif
-                            <h3 class="address-name-v3">{{ Auth::user()->name }} ({{ $addr->label }})</h3>
+                            <h3 class="address-name-v3">{{ optional(Auth::user())->name }} ({{ $addr->label }})</h3>
                             <div class="address-details-v3">
                                 <span class="addr-street">{{ $addr->address1 }}</span><br>
                                 @if($addr->address2)<span class="addr-street">{{ $addr->address2 }}</span><br>@endif
                                 <span class="addr-city-state">{{ $addr->city }}, {{ $addr->state }} - {{ $addr->zip }}</span><br>
                                 <span class="addr-country">{{ $addr->country }}</span><br>
-                                Phone: <span class="addr-phone">{{ Auth::user()->phone }}</span>
+                                Phone: <span class="addr-phone">{{ optional(Auth::user())->phone }}</span>
                             </div>
                         </div>
                         @endforeach
@@ -81,7 +81,7 @@
                         </div>
                         <div>
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Phone Number</label>
-                            <input type="tel" value="{{ Auth::user()->phone }}" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
+                            <input type="tel" value="{{ optional(Auth::user())->phone }}" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
                         </div>
                     </div>
 

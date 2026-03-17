@@ -214,7 +214,27 @@
     <div class="page-shell">
         <div class="checkout-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 40px;">
             <div class="checkout-main">
-                
+                @if(session('success'))
+                    <div style="background: #e8f5e9; color: #2e7d32; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; font-weight: 500; border: 1px solid #c8e6c9;">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div style="background: #ffebee; color: #c62828; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; font-weight: 500; border: 1px solid #ffcdd2;">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div style="background: #ffebee; color: #c62828; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 14px; font-weight: 500; border: 1px solid #ffcdd2;">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <!-- STEP 1: ADDRESS -->
                 <div id="step-1" class="checkout-step-content">
                     <div class="card-v4">

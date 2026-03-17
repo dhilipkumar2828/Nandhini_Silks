@@ -15,8 +15,8 @@
                         <div class="account-avatar">
                             <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
+                        <p class="account-user-email">{{ Auth::user()->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -26,13 +26,14 @@
                         <li class="account-nav-item"><a href="{{ url('my-addresses') }}" class="account-nav-link"><span>Addresses</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('my-reviews') }}" class="account-nav-link"><span>My Reviews</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('wishlist') }}" class="account-nav-link"><span>Wishlist</span></a></li>
-                        <li class="account-nav-item"><a href="{{ url('login') }}" class="account-nav-link logout"><span>Logout</span></a></li>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form">@csrf</form>
+                        <li class="account-nav-item"><a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit()" class="account-nav-link logout"><span>Logout</span></a></li>
                     </ul>
                 </aside>
 
                 <div class="account-content">
                     <div class="dashboard-welcome">
-                        <h1 class="dashboard-title">Welcome back, John!</h1>
+                        <h1 class="dashboard-title">Welcome back, {{ explode(' ', Auth::user()->name)[0] }}!</h1>
                         <p class="dashboard-subtitle">From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.</p>
                     </div>
 
@@ -40,21 +41,21 @@
                         <a href="{{ url('my-orders') }}" class="stat-card">
                             <div class="stat-icon">&#128230;</div>
                             <div class="stat-info">
-                                <span class="stat-value">12</span>
+                                <span class="stat-value">{{ Auth::user()->orders()->count() }}</span>
                                 <span class="stat-label">Total Orders</span>
                             </div>
                         </a>
                         <a href="{{ url('wishlist') }}" class="stat-card">
                             <div class="stat-icon">&#10084;&#65039;</div>
                             <div class="stat-info">
-                                <span class="stat-value">25</span>
+                                <span class="stat-value">0</span>
                                 <span class="stat-label">In Wishlist</span>
                             </div>
                         </a>
                         <a href="{{ url('my-addresses') }}" class="stat-card">
                             <div class="stat-icon">&#127968;</div>
                             <div class="stat-info">
-                                <span class="stat-value">2</span>
+                                <span class="stat-value">{{ Auth::user()->addresses()->count() }}</span>
                                 <span class="stat-label">Saved Addresses</span>
                             </div>
                         </a>
@@ -67,22 +68,17 @@
                                 <a href="{{ url('my-orders') }}" class="view-all-link">View All</a>
                             </div>
                             <div class="order-list">
-                                <a href="{{ url('order-detail') }}" class="order-item-mini">
-                                    <img src="{{ asset('images/pro1.png') }}" alt="" class="mini-order-img">
-                                    <div class="mini-order-info">
-                                        <span class="mini-order-id">#NS7842</span>
-                                        <span class="mini-order-date">Oct 12, 2023</span>
+                                @forelse(Auth::user()->orders()->latest()->limit(5)->get() as $order)
+                                <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="order-item-mini">
+                                    <div class="mini-order-info" style="padding-left: 10px;">
+                                        <span class="mini-order-id">#NS{{ $order->id }}</span>
+                                        <span class="mini-order-date">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
-                                    <span class="status-badge status-processing">Processing</span>
+                                    <span class="status-badge status-{{ strtolower($order->order_status) }}">{{ ucfirst($order->order_status) }}</span>
                                 </a>
-                                <a href="{{ url('order-detail') }}" class="order-item-mini">
-                                    <img src="{{ asset('images/pro2.png') }}" alt="" class="mini-order-img">
-                                    <div class="mini-order-info">
-                                        <span class="mini-order-id">#NS7839</span>
-                                        <span class="mini-order-date">Sep 28, 2023</span>
-                                    </div>
-                                    <span class="status-badge status-delivered">Delivered</span>
-                                </a>
+                                @empty
+                                    <p style="padding: 20px; color: #999; text-align: center;">No orders found yet.</p>
+                                @endforelse
                             </div>
                         </div>
 
@@ -92,10 +88,10 @@
                                 <a href="{{ url('my-profile') }}" class="view-all-link">Edit Profile</a>
                             </div>
                             <div class="account-summary-mini">
-                                <p><strong>Name:</strong> John Doe</p>
-                                <p><strong>Email:</strong> john.doe@example.com</p>
-                                <p><strong>Phone:</strong> +91 98765 43210</p>
-                                <p style="margin-top: 20px; font-size: 13px; color: #777;">Member since: January 2023</p>
+                                <p><strong>Name:</strong> {{ Auth::user()->name }}</p>
+                                <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
+                                <p><strong>Phone:</strong> {{ Auth::user()->phone ?? 'Not provided' }}</p>
+                                <p style="margin-top: 20px; font-size: 13px; color: #777;">Member since: {{ Auth::user()->created_at->format('F Y') }}</p>
                             </div>
                         </div>
                     </div>
