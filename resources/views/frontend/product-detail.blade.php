@@ -77,8 +77,11 @@
                         }
                         $mainImage = $allImages[0];
                     @endphp
-                    <div class="main-product-image" id="zoomContainer">
+                    <div class="main-product-image" id="zoomContainer" style="position: relative;">
                         <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
+                        <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                            <i class="fa-solid fa-heart" style="color: #A91B43; font-size: 18px;"></i>
+                        </button>
                     </div>
                     <div class="product-thumbnails">
                         @foreach($allImages as $i => $imgUrl)
@@ -125,7 +128,7 @@
                         @endif
                     </div>
 
-                    <div class="product-description-short" style="margin-bottom: 20px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
+                    <div class="product-description-short" style="margin-bottom: 0px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
                         {!! Str::limit(strip_tags($product->description), 150) !!}
                     </div>
 
@@ -195,16 +198,11 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="product-actions-group" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
-                            <div style="display: flex; gap: 10px;">
-                                <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px;">
-                                    ADD TO CART
-                                </button>
-                                <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="width: 48px; height: 48px; background: #fff; border: 1.5px solid #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer;">
-                                    <i class="far fa-heart" style="color: #A91B43; font-size: 18px;"></i>
-                                </button>
-                            </div>
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="width: 100%; background: #111; color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px;">
+                        <div class="product-actions-group" style="display: flex; gap: 12px; max-width: 500px;">
+                            <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px; transition: background 0.2s;">
+                                ADD TO CART
+                            </button>
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #111; color: #fff; padding: 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px; transition: background 0.2s;">
                                 BUY IT NOW
                             </button>
                         </div>
