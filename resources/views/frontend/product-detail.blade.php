@@ -44,6 +44,15 @@
                 display: none;
             }
         }
+        .attribute-option.active.color-swatch {
+            box-shadow: 0 0 0 2px #A91B43 !important;
+            transform: scale(1.1);
+        }
+        .attribute-option.active.size-btn {
+            background: #A91B43 !important;
+            color: #fff !important;
+            border-color: #A91B43 !important;
+        }
     </style>
     @endpush
     <main class="product-detail-page">
@@ -82,99 +91,124 @@
 
                 <!-- Info Section -->
                 <div class="product-info-details">
-                    <div class="product-meta" style="margin-bottom: 3px;">
-                        <p class="product-brand" style="margin: 0 0 10px; line-height: 1; font-size: 13px;">{{ $product->category->name ?? 'Nandhini Silks Exclusive' }}</p>
-                        <p class="product-meta-item" style="margin: 0; font-size: 11px; color: #999;">SKU: <span
-                                class="product-sku">NS-{{ strtoupper(Str::slug($product->name)) }}</span></p>
+                    <div class="product-meta" style="margin-bottom: 5px;">
+                        <p class="product-brand" style="margin: 0; line-height: 1; font-size: 13px; color: #ad8b4e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">{{ $product->category->name ?? 'Nandhini Silks Exclusive' }}</p>
+                        <p class="product-meta-item" style="margin: 4px 0 0; font-size: 11px; color: #999; font-weight: 500;">SKU: <span class="product-sku">{{ strtoupper($product->sku) ?: 'NS-' . strtoupper(Str::slug($product->name)) }}</span></p>
                     </div>
 
-                    <h1 class="product-title-detail" style="margin: 0 0 5px; line-height: 1.1; font-size: 28px;">{{ $product->name }}</h1>
+                    <h1 class="product-title-detail" style="margin: 0 0 5px; line-height: 1.1; font-size: 32px; font-weight: 700; color: #1a1a1a;">{{ $product->name }}</h1>
 
-                    <div class="product-rating" style="margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
-                        <div class="stars" style="line-height: 1;">★★★★★</div>
-                        <span style="font-size: 12px;">(4.8 Rating • 12 Reviews)</span>
+                    <div class="product-rating" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <div class="stars" style="line-height: 1; color: #FFB800; font-size: 13px;">★★★★★</div>
+                        <span style="font-size: 12px; color: #888; font-weight: 500;">4.8 (12 Reviews)</span>
                     </div>
 
-                    <div class="product-price-section" style="margin-bottom: 3px; display: flex; align-items: center; line-height: 1;">
-                        <span class="current-price" style="font-size: 24px; font-weight: 700;">₹{{ number_format($product->price, 0) }}</span>
-                        <span class="old-price"
-                            style="text-decoration: line-through; color: #999; margin-left: 10px; font-size: 0.9em;">₹{{ number_format($product->price * 1.25, 0) }}</span>
-                        <span class="discount-badge"
-                            style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin-left: 10px; vertical-align: middle;">20%
-                            OFF</span>
-                    </div>
-
-                    <div class="stock-status" style="margin-top: 15px;">
-                        @if($product->stock_quantity > 0)
-                            <span class="stock-badge stock-in">● In Stock ({{ $product->stock_quantity }} left)</span>
+                    <div class="product-price-section" style="margin-bottom: 12px; display: flex; align-items: baseline; line-height: 1;">
+                        <span class="current-price" style="font-size: 28px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
+                        @if($product->regular_price > $product->price)
+                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->regular_price, 0) }}</span>
                         @else
-                            <span class="stock-badge stock-out"
-                                style="background: #fff1f2; color: #e11d48; padding: 6px 16px; border-radius: 20px; font-size: 16px; font-weight: 700; border: 1px solid #fecdd3; display: inline-flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-exclamation-circle"></i> Out of Stock
+                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->price * 1.25, 0) }}</span>
+                        @endif
+                        <span class="discount-badge" style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-left: 10px; text-transform: uppercase;">20% OFF</span>
+                    </div>
+
+                    <div class="stock-status" style="margin-bottom: 15px;">
+                        @if($product->stock_quantity > 0)
+                            <span class="stock-badge stock-in" style="font-size: 12px; font-weight: 600; color: #2ecc71; background: #f0fff4; padding: 4px 10px; border-radius: 4px; border: 1px solid #c6f6d5;">
+                                IN STOCK
+                            </span>
+                        @else
+                            <span class="stock-badge stock-out" style="font-size: 12px; font-weight: 600; color: #e74c3c; background: #fff5f5; padding: 4px 10px; border-radius: 4px; border: 1px solid #fed7d7;">
+                                OUT OF STOCK
                             </span>
                         @endif
                     </div>
 
-                    <div class="product-description-short"
-                        style="margin-top: 10px; color: #555; line-height: 1.3; font-size: 14px;">
-                        {!! Str::limit(strip_tags($product->description), 250) !!}
+                    <div class="product-description-short" style="margin-bottom: 20px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
+                        {!! Str::limit(strip_tags($product->description), 150) !!}
                     </div>
 
-                    @if(!empty($attributeGroups))
-                        @foreach($attributeGroups as $group)
-                            <div class="attribute-section" style="margin-top: 20px;">
-                                <h3 class="attribute-title" style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">
-                                    {{ $group['attribute']->name }}
-                                </h3>
-                                <div class="swatch-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                    @foreach($group['values'] as $value)
-                                        @php
-                                            $swatch = $value->swatch_value;
-                                            $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
-                                        @endphp
-                                        @if($swatch)
-                                            @if($isColor)
-                                                <div class="color-swatch" style="background: {{ $swatch }}; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="{{ $value->name }}"></div>
-                                            @else
-                                                <div class="color-swatch" style="background-image: url('{{ asset('uploads/' . $swatch) }}'); background-size: cover; background-position: center; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;" title="{{ $value->name }}"></div>
-                                            @endif
-                                        @else
-                                            <button type="button" class="size-btn" style="padding: 8px 15px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 5px; cursor: pointer;">
-                                                {{ $value->name }}
-                                            </button>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
+                    <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" id="pdpForm" style="display: block; width: 100%;">
+                        @csrf
+                        <input type="hidden" name="quantity" id="qtyInput" value="1">
 
-                    <!-- Quantity / Actions -->
-                    <div class="product-actions-group" style="margin-top: 15px;">
-                        <div class="quantity-picker"
-                            style="margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #ddd; width: fit-content; border-radius: 5px;">
-                            <button class="qty-btn" onclick="updateQty(-1)"
-                                style="padding: 5px 15px; background: none; border: none; font-size: 20px; cursor: pointer;">−</button>
-                            <input type="text" class="qty-input" value="1" readonly id="qtyDisp"
-                                style="width: 40px; text-align: center; border: none; font-weight: 600;">
-                            <button class="qty-btn" onclick="updateQty(1)"
-                                style="padding: 5px 15px; background: none; border: none; font-size: 20px; cursor: pointer;">+</button>
+                        @if(!empty($attributeGroups))
+                            <div class="product-selections" style="margin-bottom: 20px;">
+                                @foreach($attributeGroups as $group)
+                                    @php
+                                        $attrId = $group['attribute']->id;
+                                        $attrName = $group['attribute']->name;
+                                    @endphp
+                                    <div class="attribute-section" style="margin-bottom: 15px;">
+                                        <h3 class="attribute-title" style="font-size: 11px; margin-bottom: 8px; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">
+                                            Select {{ $attrName }}
+                                        </h3>
+                                        <input type="hidden" name="attributes[{{ $attrId }}]" id="attr_{{ $attrId }}" value="">
+                                        <div class="swatch-container" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                            @foreach($group['values'] as $value)
+                                                @php
+                                                    $swatch = $value->swatch_value;
+                                                    $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                                @endphp
+                                                @if($swatch)
+                                                    @if($isColor)
+                                                        <div class="attribute-option color-swatch" 
+                                                             data-attr-id="{{ $attrId }}" 
+                                                             data-value-id="{{ $value->id }}"
+                                                             onclick="selectAttribute(this)"
+                                                             style="background: {{ $swatch }}; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: all 0.2s;" 
+                                                             title="{{ $value->name }}"></div>
+                                                    @else
+                                                        <div class="attribute-option color-swatch" 
+                                                             data-attr-id="{{ $attrId }}" 
+                                                             data-value-id="{{ $value->id }}"
+                                                             onclick="selectAttribute(this)"
+                                                             style="background-image: url('{{ asset('uploads/' . $swatch) }}'); background-size: cover; background-position: center; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer; transition: all 0.2s;" 
+                                                             title="{{ $value->name }}"></div>
+                                                    @endif
+                                                @else
+                                                    <button type="button" 
+                                                            class="attribute-option size-btn" 
+                                                            data-attr-id="{{ $attrId }}" 
+                                                            data-value-id="{{ $value->id }}"
+                                                            onclick="selectAttribute(this)"
+                                                            style="padding: 6px 16px; border: 1.5px solid #eee; background: #fff; color: #333; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+                                                        {{ $value->name }}
+                                                    </button>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <!-- Quantity Selector -->
+                        <div class="quantity-section" style="margin-bottom: 20px;">
+                            <h3 style="font-size: 11px; margin-bottom: 8px; text-transform: uppercase; color: #999; font-weight: 700; letter-spacing: 0.5px;">Quantity</h3>
+                            <div class="quantity-picker" style="display: flex; align-items: center; border: 1.5px solid #eee; width: fit-content; border-radius: 8px; overflow: hidden; background: #fff;">
+                                <button type="button" class="qty-btn" onclick="updateQty(-1)" style="padding: 8px 15px; background: none; border: none; font-size: 16px; cursor: pointer; color: #333;">−</button>
+                                <input type="text" class="qty-input" value="1" readonly id="qtyDisp" style="width: 40px; text-align: center; border: none; font-weight: 700; font-size: 14px; background: transparent;">
+                                <button type="button" class="qty-btn" onclick="updateQty(1)" style="padding: 8px 15px; background: none; border: none; font-size: 16px; cursor: pointer; color: #333;">+</button>
+                            </div>
                         </div>
 
-                        <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" style="display: flex; gap: 15px; align-items: center;">
-    @csrf
-    <input type="hidden" name="quantity" id="qtyInput" value="1">
-    <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-        Add to Cart
-    </button>
-    <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #333; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-        Buy It Now
-    </button>
-    <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="background: #fdf2f5; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-        <img src="{{ asset('images/favorite.svg') }}" alt="" width="24">
-    </button>
-</form>
-                    </div>
+                        <!-- Action Buttons -->
+                        <div class="product-actions-group" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1; background: #A91B43; color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px;">
+                                    ADD TO CART
+                                </button>
+                                <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="width: 48px; height: 48px; background: #fff; border: 1.5px solid #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer;">
+                                    <i class="far fa-heart" style="color: #A91B43; font-size: 18px;"></i>
+                                </button>
+                            </div>
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="width: 100%; background: #111; color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; letter-spacing: 0.5px;">
+                                BUY IT NOW
+                            </button>
+                        </div>
+                    </form>
 
                     <div class="share-section" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
                         <span class="share-title" style="font-size: 14px; color: #888;">Share this product:</span>
@@ -347,6 +381,21 @@
             if (current < 1) current = 1;
             input.value = current;
             if (hiddenInput) hiddenInput.value = current;
+        }
+        function selectAttribute(element) {
+            const attrId = element.getAttribute('data-attr-id');
+            const valueId = element.getAttribute('data-value-id');
+            
+            // Remove active from peers
+            const container = element.parentElement;
+            container.querySelectorAll('.attribute-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Add active to current
+            element.classList.add('active');
+            
+            // Update hidden input
+            const input = document.getElementById('attr_' + attrId);
+            if (input) input.value = valueId;
         }
         function switchTab(e, tabId) {
             const btns = document.querySelectorAll('.tab-btn');
