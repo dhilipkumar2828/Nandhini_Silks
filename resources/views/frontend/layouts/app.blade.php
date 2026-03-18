@@ -22,7 +22,7 @@
 <body>
     <header class="top-header">
         <div class="page-shell header-row">
-            <a href="{{ url('/') }}" class="brand-link">
+            <a href="{{ route('home') }}" class="brand-link">
                 <img class="brand" src="{{ asset('images/image 1.png') }}" alt="Logo" />
             </a>
 

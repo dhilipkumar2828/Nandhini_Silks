@@ -6,7 +6,7 @@
     <main class="account-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp; <span>My Account</span>
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>My Account</span>
             </div>
 
             <div class="account-layout">

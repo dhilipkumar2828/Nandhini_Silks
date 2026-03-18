@@ -58,7 +58,7 @@
     <main class="product-detail-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp;
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
                 <a href="{{ url('sarees') }}">Sarees</a> &nbsp; / &nbsp;
                 <span>{{ $product->name }}</span>
             </div>

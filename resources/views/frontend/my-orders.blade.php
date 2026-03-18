@@ -157,7 +157,7 @@
     <main class="account-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp; <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp; <span>My Orders</span>
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp; <span>My Orders</span>
             </div>
 
             <div class="account-layout">
