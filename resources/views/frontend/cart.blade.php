@@ -6,7 +6,7 @@
     <main class="cart-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp; <span>Shopping Cart</span>
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>Shopping Cart</span>
             </div>
 
             <h1 class="auth-title" style="text-align: left; margin-bottom: 40px;">Your Shopping Cart</h1>

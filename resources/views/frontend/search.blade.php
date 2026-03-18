@@ -6,7 +6,7 @@
     <main class="category-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp; <span>Search Results</span>
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>Search Results</span>
             </div>
 
             <div class="search-query-header">

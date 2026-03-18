@@ -221,7 +221,7 @@
             </table>
 
             <div class="conf-actions">
-                <a href="{{ url('/') }}" class="btn-conf btn-secondary-conf">Continue Shopping</a>
+                <a href="{{ route('home') }}" class="btn-conf btn-secondary-conf">Continue Shopping</a>
                 <button onclick="handleDownload()" class="btn-conf btn-primary-conf" style="cursor: pointer;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>

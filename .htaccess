@@ -11,6 +11,8 @@
     # Prevent loop if already inside public
     RewriteRule ^public/ - [L]
     
-    # Forward all requests to the public directory
+    # Forward all requests to the public directory if the file doesn't exist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ public/$1 [L,QSA]
 </IfModule>
