@@ -20,7 +20,7 @@ class SubCategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', 1)->get();
         return view('admin.sub_categories.create', compact('categories'));
     }
 
@@ -50,7 +50,7 @@ class SubCategoryController extends Controller
 
     public function edit(SubCategory $subCategory)
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', 1)->get();
         return view('admin.sub_categories.edit', compact('subCategory', 'categories'));
     }
 

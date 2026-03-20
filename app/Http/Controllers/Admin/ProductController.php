@@ -23,7 +23,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', 1)->get();
         $attributes = Attribute::with(['values' => function ($query) {
             $query->where('status', true)->orderBy('display_order', 'asc');
         }])->where('status', true)->orderBy('group')->orderBy('name')->get();
@@ -46,11 +46,11 @@ class ProductController extends Controller
             'attributes.*.*' => 'integer|exists:attribute_values,id',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['color_images']);
         $data['slug'] = Str::slug($request->name);
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
 
-        // Handle Dynamic Multiple Images
+        // Handle General Multiple Images
         if ($request->hasFile('images')) {
             $images = [];
             foreach ($request->file('images') as $image) {
@@ -61,6 +61,20 @@ class ProductController extends Controller
             $data['images'] = $images;
         }
 
+        // Handle Color-specific Images: color_images[colorValueId][] = files
+        if ($request->hasFile('color_images')) {
+            $colorImages = [];
+            foreach ($request->file('color_images') as $colorValueId => $files) {
+                $colorImages[$colorValueId] = [];
+                foreach ($files as $file) {
+                    $imageName = time() . '_' . uniqid() . '.' . $file->extension();
+                    $file->move(public_path('uploads/products'), $imageName);
+                    $colorImages[$colorValueId][] = 'products/' . $imageName;
+                }
+            }
+            $data['color_images'] = $colorImages;
+        }
+
         Product::create($data);
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
@@ -68,9 +82,9 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
-        $subCategories = SubCategory::where('category_id', '=', $product->category_id, 'and')->get();
-        $childCategories = ChildCategory::where('sub_category_id', '=', $product->sub_category_id, 'and')->get();
+        $categories = Category::where('status', 1)->get();
+        $subCategories = SubCategory::where('category_id', $product->category_id)->get();
+        $childCategories = ChildCategory::where('sub_category_id', $product->sub_category_id)->get();
         $attributes = Attribute::with(['values' => function ($query) {
             $query->where('status', true)->orderBy('display_order', 'asc');
         }])->where('status', true)->orderBy('group')->orderBy('name')->get();
@@ -93,18 +107,16 @@ class ProductController extends Controller
             'attributes.*.*' => 'integer|exists:attribute_values,id',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['color_images']);
         $data['slug'] = Str::slug($request->name);
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
 
-        // Handle Images
+        // Handle General Images
         if ($request->hasFile('images')) {
-            // Delete old images
+            // Delete old general images
             if ($product->images) {
                 foreach ($product->images as $oldImage) {
-                    if (file_exists(public_path('uploads/' . $oldImage))) {
-                        unlink(public_path('uploads/' . $oldImage));
-                    }
+                    if (file_exists(public_path('uploads/' . $oldImage))) unlink(public_path('uploads/' . $oldImage));
                 }
             }
             $images = [];
@@ -114,6 +126,26 @@ class ProductController extends Controller
                 $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
+        }
+
+        // Handle Color-specific Images (merge with existing, override per color)
+        if ($request->hasFile('color_images')) {
+            $existing = $product->color_images ?? [];
+            foreach ($request->file('color_images') as $colorValueId => $files) {
+                // Delete old images for this specific color
+                if (!empty($existing[$colorValueId])) {
+                    foreach ($existing[$colorValueId] as $old) {
+                        if (file_exists(public_path('uploads/' . $old))) unlink(public_path('uploads/' . $old));
+                    }
+                }
+                $existing[$colorValueId] = [];
+                foreach ($files as $file) {
+                    $imageName = time() . '_' . uniqid() . '.' . $file->extension();
+                    $file->move(public_path('uploads/products'), $imageName);
+                    $existing[$colorValueId][] = 'products/' . $imageName;
+                }
+            }
+            $data['color_images'] = $existing;
         }
 
         $product->update($data);
@@ -137,13 +169,13 @@ class ProductController extends Controller
 
     public function getSubCategories($category_id)
     {
-        $subCategories = SubCategory::where('category_id', '=', $category_id, 'and')->where('status', '=', 1, 'and')->get();
+        $subCategories = SubCategory::where('category_id', $category_id)->where('status', 1)->get();
         return response()->json($subCategories);
     }
 
     public function getChildCategories($sub_category_id)
     {
-        $childCategories = ChildCategory::where('sub_category_id', '=', $sub_category_id, 'and')->where('status', '=', 1, 'and')->get();
+        $childCategories = ChildCategory::where('sub_category_id', $sub_category_id)->where('status', 1)->get();
         return response()->json($childCategories);
     }
 

@@ -36,6 +36,7 @@ class Product extends Model
         'attributes',
         'variants',
         'related_products',
+        'color_images',
         'tags',
         'meta_title',
         'meta_description',
@@ -45,12 +46,13 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'images' => 'array',
-        'attributes' => 'array',
-        'variants' => 'array',
-        'status' => 'boolean',
-        'is_featured' => 'boolean',
-        'restock_date' => 'date'
+        'images'           => 'array',
+        'attributes'       => 'array',
+        'variants'         => 'array',
+        'color_images'     => 'array',
+        'status'           => 'boolean',
+        'is_featured'      => 'boolean',
+        'restock_date'     => 'date'
     ];
 
     public function category()

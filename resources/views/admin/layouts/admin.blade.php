@@ -224,6 +224,11 @@
                 <span class="font-bold ml-2 text-xs">Coupons</span>
             </a>
 
+            <a href="{{ route('admin.stock.index') }}" class="nav-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-boxes-stacked text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Stock Maintenance</span>
+            </a>
+
             <!-- Sidebar Profile -->
             <div class="mt-auto border-t border-slate-50 p-4">
                 <a href="{{ route('admin.profile.index') }}" class="nav-link flex items-center p-2 rounded-xl {{ request()->routeIs('admin.profile.*') ? 'bg-slate-50 text-[#a91b43]' : '' }}">

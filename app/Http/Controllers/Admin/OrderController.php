@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -19,7 +20,7 @@ class OrderController extends Controller
             if ($request->status == 'paid') {
                 $query->where('payment_status', 'paid');
             } elseif ($request->status == 'unpaid') {
-                $query->where('payment_status', 'pending');
+                $query->whereIn('payment_status', ['pending', 'failed']);
             } else {
                 $query->where('order_status', $request->status);
             }
@@ -95,8 +96,17 @@ class OrderController extends Controller
 
     public function downloadInvoice(Order $order)
     {
-        // This would typically use a PDF library like DomPDF
-        // For now, we'll just redirect to a print view or return a simple response
-        return "Invoice Download for Order #{$order->id} (Feature coming soon)";
+        $order->load('items.product');
+        $filename = 'invoice-' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . '.pdf';
+
+        $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont'    => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => false,
+            ]);
+
+        return $pdf->download($filename);
     }
 }

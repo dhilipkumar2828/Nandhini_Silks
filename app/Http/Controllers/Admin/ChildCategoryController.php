@@ -21,7 +21,7 @@ class ChildCategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', 1)->get();
         return view('admin.child_categories.create', compact('categories'));
     }
 
@@ -52,8 +52,8 @@ class ChildCategoryController extends Controller
 
     public function edit(ChildCategory $childCategory)
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
-        $subCategories = SubCategory::where('category_id', '=', $childCategory->category_id, 'and')->get();
+        $categories = Category::where('status', 1)->get();
+        $subCategories = SubCategory::where('category_id', $childCategory->category_id)->get();
         return view('admin.child_categories.edit', compact('childCategory', 'categories', 'subCategories'));
     }
 
@@ -97,7 +97,7 @@ class ChildCategoryController extends Controller
 
     public function getSubCategories($category_id)
     {
-        $subCategories = SubCategory::where('category_id', '=', $category_id, 'and')->where('status', '=', 1, 'and')->get();
+        $subCategories = SubCategory::where('category_id', $category_id)->where('status', 1)->get();
         return response()->json($subCategories);
     }
 }
