@@ -61,6 +61,12 @@
                     <textarea name="meta_description" rows="2"
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">{{ old('meta_description', $category->meta_description) }}</textarea>
                 </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Meta Keywords</label>
+                    <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $category->meta_keywords) }}"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                        placeholder="Keyword1, Keyword2">
+                </div>
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">

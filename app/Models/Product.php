@@ -19,6 +19,7 @@ class Product extends Model
         'full_description',
         'images',
         'video_url',
+        'price',
         'regular_price',
         'sale_price',
         'discount_percent',
@@ -35,8 +36,8 @@ class Product extends Model
         'shipping_class',
         'attributes',
         'variants',
-        'related_products',
         'color_images',
+        'related_products',
         'tags',
         'meta_title',
         'meta_description',
@@ -50,9 +51,15 @@ class Product extends Model
         'attributes'       => 'array',
         'variants'         => 'array',
         'color_images'     => 'array',
-        'status'           => 'boolean',
+        'related_products' => 'array',
+        'tags'             => 'array',
+        'status'           => 'string',
         'is_featured'      => 'boolean',
-        'restock_date'     => 'date'
+        'restock_date'     => 'date',
+        'regular_price'    => 'decimal:2',
+        'sale_price'       => 'decimal:2',
+        'price'            => 'decimal:2',
+        'discount_percent' => 'decimal:2',
     ];
 
     public function category()
@@ -75,8 +82,23 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function getAvailableStockAttribute()
     {
-        return $this->stock_quantity - $this->reserved_stock;
+        return max(0, $this->stock_quantity - ($this->reserved_stock ?? 0));
+    }
+
+    public function getDiscountPercentAttribute($value)
+    {
+        if ($value) return $value;
+        if ($this->regular_price > 0 && $this->sale_price && $this->sale_price < $this->regular_price) {
+            return round((($this->regular_price - $this->sale_price) / $this->regular_price) * 100, 2);
+        }
+        return 0;
     }
 }
+

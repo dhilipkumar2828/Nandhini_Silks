@@ -20,7 +20,7 @@ class SubCategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', 1)->get();
+        $categories = Category::where('status', '=', 1)->get();
         return view('admin.sub_categories.create', compact('categories'));
     }
 
@@ -30,7 +30,11 @@ class SubCategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -38,9 +42,9 @@ class SubCategoryController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/subcategories'), $imageName);
-            $data['image'] = 'subcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/sub-categories'), $imageName);
+            $data['image'] = 'sub-categories/'.$imageName;
         }
 
         SubCategory::create($data);
@@ -50,7 +54,7 @@ class SubCategoryController extends Controller
 
     public function edit(SubCategory $subCategory)
     {
-        $categories = Category::where('status', 1)->get();
+        $categories = Category::where('status', '=', 1)->get();
         return view('admin.sub_categories.edit', compact('subCategory', 'categories'));
     }
 
@@ -60,7 +64,11 @@ class SubCategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -71,9 +79,9 @@ class SubCategoryController extends Controller
             if ($subCategory->image && file_exists(public_path('uploads/' . $subCategory->image))) {
                 unlink(public_path('uploads/' . $subCategory->image));
             }
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/subcategories'), $imageName);
-            $data['image'] = 'subcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/sub-categories'), $imageName);
+            $data['image'] = 'sub-categories/'.$imageName;
         }
 
         $subCategory->update($data);
@@ -91,3 +99,4 @@ class SubCategoryController extends Controller
         return redirect()->route('admin.sub-categories.index')->with('success', 'Sub Category deleted successfully.');
     }
 }
+

@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Coupon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -16,17 +18,31 @@ class OrderController extends Controller
         $query = Order::query();
 
         // Apply Filters
-        if ($request->has('status') && $request->status != 'all') {
+        if ($request->filled('status') && $request->status != 'all') {
             if ($request->status == 'paid') {
-                $query->where('payment_status', 'paid');
+                $query->where('payment_status', '=', 'paid');
             } elseif ($request->status == 'unpaid') {
-                $query->whereIn('payment_status', ['pending', 'failed']);
+                $query->where('payment_status', '=', 'pending');
+            } elseif ($request->status == 'processing') {
+                $query->where('order_status', '=', 'processing');
+            } elseif ($request->status == 'dispatched') {
+                $query->where('order_status', '=', 'dispatched');
             } else {
-                $query->where('order_status', $request->status);
+                $query->where('order_status', '=', $request->status);
             }
         }
 
-        $orders = $query->latest()->paginate(15);
+        if ($request->filled('search')) {
+            $term = trim($request->search);
+            $query->where(function($q) use ($term) {
+                $q->where('order_number', 'like', "%{$term}%")
+                  ->orWhere('customer_name', 'like', "%{$term}%")
+                  ->orWhere('customer_email', 'like', "%{$term}%")
+                  ->orWhere('customer_phone', 'like', "%{$term}%");
+            });
+        }
+
+        $orders = $query->latest('created_at')->paginate(15)->withQueryString();
         
         return view('admin.orders.index', compact('orders'));
     }
@@ -42,15 +58,24 @@ class OrderController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
+            'sub_total' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'shipping' => 'nullable|numeric|min:0',
             'grand_total' => 'required|numeric|min:0',
             'delivery_address' => 'required|string',
             'payment_method' => 'required|string',
+            'payment_status' => 'required|string',
             'order_status' => 'required|string',
         ]);
 
         $data = $request->all();
-        $data['sub_total'] = $request->grand_total; // Simplified for manual entry
         
+        // Generate Order Number if not exists
+        if (!$request->filled('order_number')) {
+            $data['order_number'] = 'ORD-' . strtoupper(Str::random(8)) . '-' . time();
+        }
+
         $order = Order::create($data);
 
         return redirect()->route('admin.orders.index')->with('success', 'Order created successfully.');
@@ -58,7 +83,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items.product');
+        $order->load(['items.product', 'user', 'coupon']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -71,7 +96,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_status' => 'required|in:pending,processing,dispatched,delivered,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed,refunded',
+            'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',
             'admin_notes' => 'nullable|string',
@@ -85,7 +110,7 @@ class OrderController extends Controller
             'admin_notes'
         ]));
 
-        return redirect()->route('admin.orders.index')->with('success', 'Order updated successfully.');
+        return redirect()->route('admin.orders.show', $order->id)->with('success', 'Order updated successfully.');
     }
 
     public function destroy(Order $order)
@@ -97,14 +122,14 @@ class OrderController extends Controller
     public function downloadInvoice(Order $order)
     {
         $order->load('items.product');
-        $filename = 'invoice-' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . '.pdf';
+        $filename = 'invoice-' . ($order->order_number ?? $order->id) . '.pdf';
 
         $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))
             ->setPaper('a4', 'portrait')
             ->setOptions([
                 'defaultFont'    => 'DejaVu Sans',
                 'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => false,
+                'isRemoteEnabled' => true,
             ]);
 
         return $pdf->download($filename);

@@ -9,6 +9,7 @@ use App\Models\SubCategory;
 use App\Models\ChildCategory;
 use App\Models\Product;
 use App\Models\Attribute;
+use App\Models\TaxClass;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,12 +24,14 @@ class ProductController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', 1)->get();
+        $categories = Category::where('status', '=', 1)->get();
         $attributes = Attribute::with(['values' => function ($query) {
-            $query->where('status', true)->orderBy('display_order', 'asc');
-        }])->where('status', true)->orderBy('group')->orderBy('name')->get();
+            $query->where('status', '=', true)->orderBy('display_order', 'asc');
+        }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
+        $taxClasses = TaxClass::where('status', '=', 1)->get();
+        $products = Product::where('status', '=', 1)->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.products.create', compact('categories', 'attributes'));
+        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'products'));
     }
 
     public function store(Request $request)
@@ -40,15 +43,23 @@ class ProductController extends Controller
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-            'status' => 'required|boolean',
+            'status' => 'required',
             'attributes' => 'nullable|array',
-            'attributes.*' => 'nullable|array',
-            'attributes.*.*' => 'integer|exists:attribute_values,id',
+            'tax_class' => 'nullable|string',
+            'related_products' => 'nullable|array',
+            'tags' => 'nullable|string',
         ]);
 
-        $data = $request->except(['color_images']);
+        $data = $request->except(['color_images', 'images']);
         $data['slug'] = Str::slug($request->name);
+        $data['price'] = $request->sale_price ?: $request->regular_price;
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
+        $data['related_products'] = $request->input('related_products', []);
+        
+        // Handle Tags (stored as string in DB but model has array cast, let's store as array)
+        if ($request->filled('tags')) {
+            $data['tags'] = array_map('trim', explode(',', $request->tags));
+        }
 
         // Handle General Multiple Images
         if ($request->hasFile('images')) {
@@ -61,7 +72,7 @@ class ProductController extends Controller
             $data['images'] = $images;
         }
 
-        // Handle Color-specific Images: color_images[colorValueId][] = files
+        // Handle Color-specific Images
         if ($request->hasFile('color_images')) {
             $colorImages = [];
             foreach ($request->file('color_images') as $colorValueId => $files) {
@@ -82,14 +93,16 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::where('status', 1)->get();
-        $subCategories = SubCategory::where('category_id', $product->category_id)->get();
-        $childCategories = ChildCategory::where('sub_category_id', $product->sub_category_id)->get();
+        $categories = Category::where('status', '=', 1)->get();
+        $subCategories = SubCategory::where('category_id', '=', $product->category_id)->get();
+        $childCategories = ChildCategory::where('sub_category_id', '=', $product->sub_category_id)->get();
         $attributes = Attribute::with(['values' => function ($query) {
-            $query->where('status', true)->orderBy('display_order', 'asc');
-        }])->where('status', true)->orderBy('group')->orderBy('name')->get();
+            $query->where('status', '=', true)->orderBy('display_order', 'asc');
+        }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
+        $taxClasses = TaxClass::where('status', '=', 1)->get();
+        $products = Product::where('status', '=', 1)->where('id', '!=', $product->id)->orderBy('name')->get(['id', 'name']);
         
-        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes'));
+        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'products'));
     }
 
     public function update(Request $request, Product $product)
@@ -101,19 +114,27 @@ class ProductController extends Controller
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-            'status' => 'required|boolean',
+            'status' => 'required',
             'attributes' => 'nullable|array',
-            'attributes.*' => 'nullable|array',
-            'attributes.*.*' => 'integer|exists:attribute_values,id',
+            'tax_class' => 'nullable|string',
+            'related_products' => 'nullable|array',
+            'tags' => 'nullable|string',
         ]);
 
-        $data = $request->except(['color_images']);
+        $data = $request->except(['color_images', 'images']);
         $data['slug'] = Str::slug($request->name);
+        $data['price'] = $request->sale_price ?: $request->regular_price;
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
+        $data['related_products'] = $request->input('related_products', []);
+
+        if ($request->filled('tags')) {
+            $data['tags'] = array_map('trim', explode(',', $request->tags));
+        } else {
+            $data['tags'] = [];
+        }
 
         // Handle General Images
         if ($request->hasFile('images')) {
-            // Delete old general images
             if ($product->images) {
                 foreach ($product->images as $oldImage) {
                     if (file_exists(public_path('uploads/' . $oldImage))) unlink(public_path('uploads/' . $oldImage));
@@ -128,11 +149,10 @@ class ProductController extends Controller
             $data['images'] = $images;
         }
 
-        // Handle Color-specific Images (merge with existing, override per color)
+        // Handle Color-specific Images
         if ($request->hasFile('color_images')) {
             $existing = $product->color_images ?? [];
             foreach ($request->file('color_images') as $colorValueId => $files) {
-                // Delete old images for this specific color
                 if (!empty($existing[$colorValueId])) {
                     foreach ($existing[$colorValueId] as $old) {
                         if (file_exists(public_path('uploads/' . $old))) unlink(public_path('uploads/' . $old));
@@ -169,13 +189,13 @@ class ProductController extends Controller
 
     public function getSubCategories($category_id)
     {
-        $subCategories = SubCategory::where('category_id', $category_id)->where('status', 1)->get();
+        $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
     }
 
     public function getChildCategories($sub_category_id)
     {
-        $childCategories = ChildCategory::where('sub_category_id', $sub_category_id)->where('status', 1)->get();
+        $childCategories = ChildCategory::where('sub_category_id', '=', $sub_category_id)->where('status', '=', 1)->get();
         return response()->json($childCategories);
     }
 

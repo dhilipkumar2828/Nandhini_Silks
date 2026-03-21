@@ -24,13 +24,27 @@
                 <!-- Initial Row -->
                 <div class="banner-row relative bg-slate-50/50 p-6 rounded-xl border border-slate-100 group">
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                        <div class="md:col-span-4 space-y-2">
-                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Banner Image (1920x800) <span class="text-rose-500">*</span></label>
-                            <div class="relative group/img">
-                                <input type="file" name="banners[0][image]" required
-                                    class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                                <div class="mt-2 hidden preview-container">
-                                    <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                        <div class="md:col-span-4 space-y-4">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Desktop Image (1920x800) <span class="text-rose-500">*</span></label>
+                                <div class="relative group/img">
+                                    <input type="file" name="banners[0][image]" required
+                                        class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                                        onchange="previewImage(this)">
+                                    <div class="mt-2 hidden preview-container">
+                                        <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Mobile Image (800x1200)</label>
+                                <div class="relative group/img">
+                                    <input type="file" name="banners[0][image_mobile]"
+                                        class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                                        onchange="previewImage(this)">
+                                    <div class="mt-2 hidden preview-container">
+                                        <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -92,14 +106,27 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div class="md:col-span-4 space-y-2">
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Banner Image (1920x800) <span class="text-rose-500">*</span></label>
-                    <div class="relative group/img">
-                        <input type="file" name="banners[${rowCount}][image]" required
-                            class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800"
-                            onchange="previewImage(this)">
-                        <div class="mt-2 hidden preview-container">
-                            <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                <div class="md:col-span-4 space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Desktop Image (1920x800) <span class="text-rose-500">*</span></label>
+                        <div class="relative group/img">
+                            <input type="file" name="banners[${rowCount}][image]" required
+                                class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                                onchange="previewImage(this)">
+                            <div class="mt-2 hidden preview-container">
+                                <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Mobile Image (800x1200)</label>
+                        <div class="relative group/img">
+                            <input type="file" name="banners[${rowCount}][image_mobile]"
+                                class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                                onchange="previewImage(this)">
+                            <div class="mt-2 hidden preview-container">
+                                <img src="" class="w-full h-24 object-cover rounded-lg border border-slate-200 shadow-sm">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,7 +147,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-440">Display Order</label>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Display Order</label>
                         <input type="number" name="banners[${rowCount}][display_order]" value="${rowCount}" required
                             class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-xs outline-none focus:border-[#a91b43] transition-all text-slate-800">
                     </div>
@@ -138,6 +165,7 @@
         container.appendChild(newRow);
         rowCount++;
     }
+
 
     function previewImage(input) {
         const container = input.nextElementSibling;

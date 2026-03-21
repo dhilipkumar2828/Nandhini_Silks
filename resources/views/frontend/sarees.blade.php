@@ -17,12 +17,12 @@
                         <div class="price-range-container">
                             <div class="slider-track">
                                 <div class="slider-fill"></div>
-                                <div class="slider-handle" style="left: 20%;"></div>
-                                <div class="slider-handle" style="left: 80%;"></div>
+                                <div class="slider-handle" style="left: 0%;"></div>
+                                <div class="slider-handle" style="left: 100%;"></div>
                             </div>
                             <div class="range-values">
-                                <span>₹500</span>
-                                <span>₹20,000</span>
+                                <span>₹{{ number_format($filterData['min_price'] ?? 0, 0) }}</span>
+                                <span>₹{{ number_format($filterData['max_price'] ?? 50000, 0) }}</span>
                             </div>
                         </div>
                     </div>
@@ -30,43 +30,55 @@
                     <div class="filter-group">
                         <h3 class="filter-title">Category</h3>
                         <ul class="filter-list">
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> All Sarees</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Silk Sarees</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Cotton Sarees</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Fancy Sarees</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Wedding Collection</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Daily Wear</label></li>
+                            @foreach($filterData['categories'] as $cat)
+                                <li class="filter-item">
+                                    <label class="filter-label">
+                                        <input type="checkbox" name="categories[]" value="{{ $cat->id }}"> {{ $cat->name }}
+                                    </label>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
 
-                    <div class="filter-group">
-                        <h3 class="filter-title">Fabric / Material</h3>
-                        <ul class="filter-list">
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Pure Silk</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Cotton Silk</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Tissue Silk</label></li>
-                            <li class="filter-item"><label class="filter-label"><input type="checkbox"> Banarasi Silk</label></li>
-                        </ul>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3 class="filter-title">Color</h3>
-                        <style>
-                            .color-dots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-                            .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; }
-                        </style>
-                        <div class="color-dots">
-                            <div class="color-dot" style="background: #A91B43;" title="Red"></div>
-                            <div class="color-dot" style="background: #D4AF37;" title="Gold"></div>
-                            <div class="color-dot" style="background: #000080;" title="Navy"></div>
-                            <div class="color-dot" style="background: #000;" title="Black"></div>
+                    @foreach($filterData['attributes'] as $attr)
+                        <div class="filter-group">
+                            <h3 class="filter-title">{{ $attr->name }}</h3>
+                            @if(strtolower($attr->name) == 'color')
+                                <style>
+                                    .color-dots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+                                    .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; position: relative; }
+                                    .color-dot.active { border-color: #A91B43; box-shadow: 0 0 0 2px #A91B43; }
+                                </style>
+                                <div class="color-dots">
+                                    @foreach($attr->values as $val)
+                                        @php
+                                            $swatch = $val->swatch_value;
+                                            $isHex = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                        @endphp
+                                        <div class="color-dot" 
+                                             style="background: {{ $isHex ? $swatch : ($swatch ? 'url('.asset('uploads/'.$swatch).') center/cover' : '#eee') }};" 
+                                             title="{{ $val->name }}"
+                                             data-value-id="{{ $val->id }}"></div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <ul class="filter-list">
+                                    @foreach($attr->values as $val)
+                                        <li class="filter-item">
+                                            <label class="filter-label">
+                                                <input type="checkbox" name="attr[{{ $attr->id }}][]" value="{{ $val->id }}"> {{ $val->name }}
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </div>
-                    </div>
+                    @endforeach
 
                     <div class="filter-group">
                         <label class="stock-toggle">
                             <span>In Stock Only</span>
-                            <input type="checkbox" hidden checked>
+                            <input type="checkbox" name="in_stock" hidden checked>
                             <div class="toggle-switch">
                                 <div class="toggle-dot"></div>
                             </div>
@@ -126,9 +138,17 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
+                                 <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
                                     <div class="product-image-v2">
-                                        <img src="{{ $product->image_path ? asset('images/' . $product->image_path) : asset('images/pro.png') }}" alt="{{ $product->name }}">
+                                        @php
+                                            $productImage = 'images/pro.png';
+                                            if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                $productImage = 'uploads/' . $product->images[0];
+                                            } elseif ($product->image_path) {
+                                                $productImage = 'images/' . $product->image_path;
+                                            }
+                                        @endphp
+                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
                                     </div>
                                     <div class="product-info-v2">
                                         <div class="product-rating-v2">★★★★★</div>
@@ -137,8 +157,8 @@
                                         <p class="product-desc-v2">{{ Str::limit(strip_tags($product->description), 80) }}</p>
                                         <p class="product-price-v2">
                                             ₹{{ number_format($product->price, 0) }}
-                                            @if($loop->index % 3 == 0)
-                                                <span class="product-price-old">₹{{ number_format($product->price * 1.2, 0) }}</span>
+                                            @if($product->regular_price > $product->price)
+                                                <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
                                             @endif
                                         </p>
                                     </div>

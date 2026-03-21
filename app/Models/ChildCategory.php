@@ -15,8 +15,13 @@ class ChildCategory extends Model
         'description',
         'meta_title',
         'meta_description',
+        'meta_keywords',
         'status',
         'display_order'
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
 
     public function category()
@@ -27,5 +32,10 @@ class ChildCategory extends Model
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 }

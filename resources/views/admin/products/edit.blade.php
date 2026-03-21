@@ -311,10 +311,32 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('meta_description', $product->meta_description) }}</textarea>
                     </div>
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Meta Keywords</label>
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $product->meta_keywords) }}"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="Enter keywords separated by commas">
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tags <span class="text-slate-400 font-normal">(comma separated)</span></label>
-                        <input type="text" name="tags" value="{{ old('tags', $product->tags) }}"
+                        @php $tagsString = is_array($product->tags) ? implode(', ', $product->tags) : $product->tags; @endphp
+                        <input type="text" name="tags" value="{{ old('tags', $tagsString) }}"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                     </div>
+                </div>
+            </div>
+
+            {{-- Related Products --}}
+            <div class="card-glass p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-link mr-2 text-[#a91b43]"></i> Related Products
+                </h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Select Related Products</label>
+                    <select name="related_products[]" multiple class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" style="height: 120px;">
+                        @foreach($products as $p)
+                            <option value="{{ $p->id }}" {{ in_array($p->id, old('related_products', $product->related_products ?? [])) ? 'selected' : '' }}>{{ $p->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple products.</p>
                 </div>
             </div>
 
@@ -330,17 +352,32 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Status</label>
                         <select name="status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            <option value="1" {{ $product->status ? 'selected':'' }}>Published / Active</option>
-                            <option value="0" {{ !$product->status ? 'selected':'' }}>Draft</option>
+                            <option value="1" {{ old('status', $product->status) == '1' ? 'selected' : '' }}>Published / Active</option>
+                            <option value="0" {{ old('status', $product->status) == '0' ? 'selected' : '' }}>Draft</option>
+                            <option value="archived" {{ old('status', $product->status) == 'archived' ? 'selected' : '' }}>Archived</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Featured</label>
                         <select name="is_featured" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            <option value="0" {{ !$product->is_featured ? 'selected':'' }}>No</option>
-                            <option value="1" {{ $product->is_featured ? 'selected':'' }}>Yes — Show on Homepage</option>
+                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>Yes — Show on Homepage</option>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            {{-- Tax Settings --}}
+            <div class="card-glass p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-slate-800 mb-4">Tax Settings</h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tax Class</label>
+                    <select name="tax_class" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        <option value="">No Tax / Standard</option>
+                        @foreach($taxClasses as $tax)
+                            <option value="{{ $tax->slug }}" {{ old('tax_class', $product->tax_class) == $tax->slug ? 'selected' : '' }}>{{ $tax->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
@@ -354,7 +391,7 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                             <option value="">Select Category</option>
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected':'' }}>{{ $cat->name }}</option>
+                                <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -364,7 +401,7 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                             <option value="">Select Sub Category</option>
                             @foreach($subCategories as $sub)
-                                <option value="{{ $sub->id }}" {{ $product->sub_category_id == $sub->id ? 'selected':'' }}>{{ $sub->name }}</option>
+                                <option value="{{ $sub->id }}" {{ old('sub_category_id', $product->sub_category_id) == $sub->id ? 'selected' : '' }}>{{ $sub->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -374,7 +411,7 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                             <option value="">Select Child Category</option>
                             @foreach($childCategories as $child)
-                                <option value="{{ $child->id }}" {{ $product->child_category_id == $child->id ? 'selected':'' }}>{{ $child->name }}</option>
+                                <option value="{{ $child->id }}" {{ old('child_category_id', $product->child_category_id) == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>
                             @endforeach
                         </select>
                     </div>

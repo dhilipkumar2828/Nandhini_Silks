@@ -16,7 +16,6 @@ class UserController extends Controller
     {
         $query = User::query();
 
-        // Check if orders table exists before trying to count/sum
         if (Schema::hasTable('orders')) {
             $query->withCount('orders')
                   ->withSum('orders', 'grand_total');
@@ -56,7 +55,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:20',
-            'account_status' => 'required|in:active,inactive',
+            'account_status' => 'required|in:active,blocked,unverified',
             'role' => 'required|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -73,7 +72,7 @@ class UserController extends Controller
         ]);
 
         if ($request->filled('password')) {
-            $data['password'] = $request->input('password'); // Let model cast hash it
+            $data['password'] = $request->input('password'); 
         }
 
         if ($request->hasFile('profile_picture')) {
@@ -85,22 +84,24 @@ class UserController extends Controller
             }
             $image->move($uploadPath, $imageName);
 
-            if ($user->profile_picture && file_exists(public_path('uploads/users/' . $user->profile_picture))) {
-                unlink(public_path('uploads/users/' . $user->profile_picture));
+            if ($user->profile_picture && file_exists(public_path('uploads/' . $user->profile_picture))) {
+                unlink(public_path('uploads/' . $user->profile_picture));
             }
 
-            $data['profile_picture'] = $imageName;
+            $data['profile_picture'] = 'users/' . $imageName;
         }
 
         $user->update($data);
 
-        return redirect()->route('admin.users.edit', $user->id)->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
     public function storeAddress(Request $request, User $user)
     {
         $request->validate([
             'label' => 'nullable|string|max:50',
+            'recipient_name' => 'required|string|max:255',
+            'recipient_phone' => 'required|string|max:255',
             'address1' => 'required|string|max:255',
             'address2' => 'nullable|string|max:255',
             'city' => 'required|string|max:100',
@@ -116,17 +117,7 @@ class UserController extends Controller
             $user->addresses()->update(['is_default' => false]);
         }
 
-        $user->addresses()->create([
-            'label' => $request->input('label'),
-            'address1' => $request->input('address1'),
-            'address2' => $request->input('address2'),
-            'city' => $request->input('city'),
-            'state' => $request->input('state'),
-            'zip' => $request->input('zip'),
-            'country' => $request->input('country', 'India'),
-            'landmark' => $request->input('landmark'),
-            'is_default' => $isDefault,
-        ]);
+        $user->addresses()->create($request->all());
 
         return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address added.');
     }

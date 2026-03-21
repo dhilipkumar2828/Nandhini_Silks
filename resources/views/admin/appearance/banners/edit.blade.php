@@ -16,12 +16,25 @@
             @csrf
             @method('PUT')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1.5 md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest">Banner Image (1920x800)</label>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest">Desktop Image (1920x800)</label>
                     <div class="mb-3">
                          <img src="{{ asset('uploads/'.$banner->image) }}" class="h-32 w-full object-cover rounded-xl border border-slate-100 shadow-sm">
                     </div>
                     <input type="file" name="image"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest">Mobile Image (800x1200)</label>
+                    <div class="mb-3">
+                        @if($banner->image_mobile)
+                            <img src="{{ asset('uploads/'.$banner->image_mobile) }}" class="h-32 w-full object-contain bg-slate-100 rounded-xl border border-slate-100 shadow-sm">
+                        @else
+                            <div class="h-32 w-full bg-slate-50 rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">No mobile image</div>
+                        @endif
+                    </div>
+                    <input type="file" name="image_mobile"
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
                 </div>
 

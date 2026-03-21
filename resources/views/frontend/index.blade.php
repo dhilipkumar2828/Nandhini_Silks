@@ -558,81 +558,36 @@
         <div class="collection-swiper-wrap">
             <div class="swiper collection-swiper">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <article class="collection-card">
-                            <a href="{{ route('shop') }}" class="card-link-wrapper">
-                                <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/Image.png') }}" alt="Pure Silk Saree" />
-                                </div>
-                                <h3 class="collection-name">Pure Silk Saree</h3>
-                            </a>
-                            <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ route('shop') }}'">Shop
-                                Now</button>
-                        </article>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <article class="collection-card">
-                            <a href="{{ route('shop') }}" class="card-link-wrapper">
-                                <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/Image (1).png') }}" alt="Tissue Silk Saree" />
-                                </div>
-                                <h3 class="collection-name">Tissue Silk Saree</h3>
-                            </a>
-                            <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ route('shop') }}'">Shop
-                                Now</button>
-                        </article>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <article class="collection-card">
-                            <a href="{{ route('shop') }}" class="card-link-wrapper">
-                                <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/Image (2).png') }}" alt="Cotton Sarees" />
-                                </div>
-                                <h3 class="collection-name">Cotton Sarees</h3>
-                            </a>
-                            <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ route('shop') }}'">Shop
-                                Now</button>
-                        </article>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <article class="collection-card">
-                            <a href="{{ route('shop') }}" class="card-link-wrapper">
-                                <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/Image (3).png') }}" alt="Soft Silk Saree" />
-                                </div>
-                                <h3 class="collection-name">Soft Silk Saree</h3>
-                            </a>
-                            <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ route('shop') }}'">Shop
-                                Now</button>
-                        </article>
-                    </div>
-
-                    
-                    <div class="swiper-slide">
-                        <article class="collection-card">
-                            @php
-                                $firstProduct = \App\Models\Product::first();
-                                $productUrl = $firstProduct ? route('product.show', $firstProduct->slug) : route('shop');
-                                $productName = $firstProduct ? $firstProduct->name : 'Exquisite Silk Saree';
-                            @endphp
-                            <a href="{{ $productUrl }}" class="card-link-wrapper">
-                                <div class="collection-image-wrap">
-                                    <img src="{{ asset('images/product1_1.jpg') }}" alt="{{ $productName }}" />
-                                </div>
-                                <h3 class="collection-name">{{ $productName }}</h3>
-                            </a>
-                            <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ $productUrl }}'">Shop
-                                Now</button>
-                        </article>
-                    </div>
+                    @forelse($subCategories as $sub)
+                        <div class="swiper-slide">
+                            <article class="collection-card">
+                                <a href="{{ route('category.show', $sub->slug) }}" class="card-link-wrapper">
+                                    <div class="collection-image-wrap">
+                                        <img src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Image.png') }}" alt="{{ $sub->name }}" />
+                                    </div>
+                                    <h3 class="collection-name">{{ $sub->name }}</h3>
+                                </a>
+                                <button class="collection-cta" type="button"
+                                    onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
+                                    Now</button>
+                            </article>
+                        </div>
+                    @empty
+                        <!-- Fallback static content if no subcategories exist -->
+                        <div class="swiper-slide">
+                            <article class="collection-card">
+                                <a href="{{ route('shop') }}" class="card-link-wrapper">
+                                    <div class="collection-image-wrap">
+                                        <img src="{{ asset('images/Image.png') }}" alt="Pure Silk Saree" />
+                                    </div>
+                                    <h3 class="collection-name">Pure Silk Saree</h3>
+                                </a>
+                                <button class="collection-cta" type="button"
+                                    onclick="window.location.href='{{ route('shop') }}'">Shop
+                                    Now</button>
+                            </article>
+                        </div>
+                    @endforelse
                 </div>
             </div>
             <!-- Navigation outside swiper for correct button positioning -->
@@ -657,32 +612,23 @@
                         @foreach ($featuredProducts as $product)
                             <div class="swiper-slide">
                                 <article class="featured-card">
-                                    <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
                                     <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
                                         <div class="featured-media">
                                             @php
-                                                $fallbackImage = 'images/pro' . ($loop->index % 4 > 0 ? $loop->index % 4 : '') . '.png';
-                                                if ($loop->index % 4 == 0) {
-                                                    $fallbackImage = 'images/pro3.png';
-                                                }
-                                                if ($loop->index % 4 == 1) {
-                                                    $fallbackImage = 'images/pro2.png';
-                                                }
-                                                if ($loop->index % 4 == 2) {
-                                                    $fallbackImage = 'images/pro1.png';
-                                                }
-                                                if ($loop->index % 4 == 3) {
-                                                    $fallbackImage = 'images/pro.png';
+                                                $productImage = 'images/pro.png';
+                                                if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                    $productImage = 'uploads/' . $product->images[0];
+                                                } elseif ($product->image_path) {
+                                                    $productImage = 'images/' . $product->image_path;
                                                 }
                                             @endphp
-                                            <img src="{{ $product->image_path ? asset('images/' . $product->image_path) : asset($fallbackImage) }}"
+                                            <img src="{{ asset($productImage) }}"
                                                 alt="{{ $product->name }}" />
-                                            @if ($loop->index % 4 == 0)
+                                            @if ($product->is_featured)
                                                 <span class="featured-badge">New Arrival</span>
-                                            @elseif($loop->index % 4 == 1)
-                                                <span class="featured-badge">10% Off</span>
-                                            @elseif($loop->index % 4 == 3)
-                                                <span class="featured-badge">Hot Deal</span>
+                                            @endif
+                                            @if ($product->discount_percent > 0)
+                                                <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
                                             @endif
                                         </div>
                                         <h3 class="featured-name">{{ $product->name }}</h3>
@@ -718,36 +664,25 @@
 
     <section class="category-section" aria-labelledby="browse-categories-title">
         <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
-        @php
-            $homeCategories = [
-                ['href' => url('women'), 'image' => asset('images/Rectangle 9.png'), 'alt' => 'Sarees', 'name' => 'Sarees', 'imageClass' => 'category-image'],
-                ['href' => url('mens'), 'image' => asset('images/Rectangle 9 (1).png'), 'alt' => 'Shirts', 'name' => 'Shirts', 'imageClass' => 'category-image'],
-                ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (2).png'), 'alt' => 'Girl', 'name' => 'Girl', 'imageClass' => 'category-image'],
-                ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (3).png'), 'alt' => 'Boy', 'name' => 'Boy', 'imageClass' => 'category-image'],
-                ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (4).png'), 'alt' => 'Half Saree', 'name' => 'Half Saree', 'imageClass' => 'category-image'],
-                ['href' => url('mens'), 'image' => asset('images/Rectangle 9 (5).png'), 'alt' => 'Dhoti', 'name' => 'Dhoti', 'imageClass' => 'category-image category-image--dhoti'],
-            ];
-        @endphp
         <div class="category-swiper-wrap">
             <div class="swiper category-swiper">
                 <div class="swiper-wrapper">
-                    @for ($copy = 0; $copy < 2; $copy++)
-                        @foreach ($homeCategories as $category)
-                            <div class="swiper-slide">
-                                <a class="category-link" href="{{ $category['href'] }}" style="text-decoration: none;"
-                                    @if ($copy === 1) aria-hidden="true" tabindex="-1" @endif>
-                                    <article class="category-card">
-                                        <div class="category-image-shell">
-                                            <img class="{{ $category['imageClass'] }}" src="{{ $category['image'] }}"
-                                                alt="{{ $category['alt'] }}" />
-                                            <span class="category-ring"></span>
-                                        </div>
-                                        <h3 class="category-name">{{ $category['name'] }}</h3>
-                                    </article>
-                                </a>
-                            </div>
-                        @endforeach
-                    @endfor
+                    @forelse ($categories as $cat)
+                        <div class="swiper-slide">
+                            <a class="category-link" href="{{ route('category.show', $cat->slug) }}" style="text-decoration: none;">
+                                <article class="category-card">
+                                    <div class="category-image-shell">
+                                        <img class="category-image" src="{{ $cat->image ? asset('uploads/'.$cat->image) : asset('images/Rectangle 9.png') }}"
+                                            alt="{{ $cat->name }}" />
+                                        <span class="category-ring"></span>
+                                    </div>
+                                    <h3 class="category-name">{{ $cat->name }}</h3>
+                                </article>
+                            </a>
+                        </div>
+                    @empty
+                        <!-- Fallback static categories if needed -->
+                    @endforelse
                 </div>
             </div>
             <!-- Navigation outside swiper for correct button positioning -->

@@ -28,7 +28,11 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -36,7 +40,7 @@ class CategoryController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/categories'), $imageName);
             $data['image'] = 'categories/'.$imageName;
         }
@@ -56,7 +60,11 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -67,7 +75,7 @@ class CategoryController extends Controller
             if ($category->image && file_exists(public_path('uploads/' . $category->image))) {
                 unlink(public_path('uploads/' . $category->image));
             }
-            $imageName = time().'.'.$request->image->extension();
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/categories'), $imageName);
             $data['image'] = 'categories/'.$imageName;
         }
@@ -87,3 +95,4 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 }
+

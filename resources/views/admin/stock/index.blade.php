@@ -28,6 +28,8 @@
                         <th class="py-4 px-4 text-center">Reserved</th>
                         <th class="py-4 px-4 text-center">Available</th>
                         <th class="py-4 px-4 text-center">Low Threshold</th>
+                        <th class="py-4 px-4 text-center">Restock Qty</th>
+                        <th class="py-4 px-4 text-center">Restock Date</th>
                         <th class="py-4 px-4">Supplier</th>
                         <th class="py-4 px-6 text-right">Status / History</th>
                     </tr>
@@ -64,9 +66,19 @@
                                 class="w-14 text-center bg-amber-50/50 border border-amber-100 px-1 py-1 rounded-md text-[11px] font-bold text-amber-600 outline-none">
                         </td>
 
+                        <td class="py-4 px-4 text-center">
+                             <input type="number" name="stock[{{ $product->id }}][restock_quantity]" value="{{ $product->restock_quantity }}" 
+                                class="w-14 text-center bg-slate-50 border border-slate-100 px-1 py-1 rounded-md text-[11px] font-medium text-slate-600 outline-none">
+                        </td>
+
+                        <td class="py-4 px-4 text-center">
+                             <input type="date" name="stock[{{ $product->id }}][restock_date]" value="{{ $product->restock_date ? $product->restock_date->format('Y-m-d') : '' }}" 
+                                class="w-24 text-center bg-slate-50 border border-slate-100 px-1 py-1 rounded-md text-[10px] font-medium text-slate-600 outline-none">
+                        </td>
+
                         <td class="py-4 px-4">
                             <input type="text" name="stock[{{ $product->id }}][supplier]" value="{{ $product->supplier }}" 
-                                class="w-28 bg-transparent border-b border-slate-100 hover:border-slate-200 focus:border-[#a91b43] px-1 py-1 text-[11px] text-slate-500 italic outline-none transition-all" placeholder="Add supplier...">
+                                class="w-24 bg-transparent border-b border-slate-100 hover:border-slate-200 focus:border-[#a91b43] px-1 py-1 text-[11px] text-slate-500 italic outline-none transition-all" placeholder="Supplier...">
                         </td>
 
                         <td class="py-4 px-6 text-right">

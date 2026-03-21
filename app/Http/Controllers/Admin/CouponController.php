@@ -18,8 +18,8 @@ class CouponController extends Controller
 
     public function create()
     {
-        $products = Product::orderBy('name')->get();
-        $categories = Category::orderBy('name')->get();
+        $products = Product::where('status', '=', 1)->orderBy('name')->get();
+        $categories = Category::where('status', '=', 1)->orderBy('name')->get();
         return view('admin.coupons.create', compact('products', 'categories'));
     }
 
@@ -27,6 +27,7 @@ class CouponController extends Controller
     {
         $data = $this->validateData($request);
         $data['code'] = strtoupper(trim($data['code']));
+        $data['applicable_on'] = $request->input('applicable_on', 'all');
         $data['applicable_products'] = array_values($request->input('applicable_products', []));
         $data['applicable_categories'] = array_values($request->input('applicable_categories', []));
         $data['first_order_only'] = $request->boolean('first_order_only');
@@ -39,8 +40,8 @@ class CouponController extends Controller
 
     public function edit(Coupon $coupon)
     {
-        $products = Product::orderBy('name')->get();
-        $categories = Category::orderBy('name')->get();
+        $products = Product::where('status', '=', 1)->orderBy('name')->get();
+        $categories = Category::where('status', '=', 1)->orderBy('name')->get();
         return view('admin.coupons.edit', compact('coupon', 'products', 'categories'));
     }
 
@@ -48,6 +49,7 @@ class CouponController extends Controller
     {
         $data = $this->validateData($request, $coupon->id);
         $data['code'] = strtoupper(trim($data['code']));
+        $data['applicable_on'] = $request->input('applicable_on', 'all');
         $data['applicable_products'] = array_values($request->input('applicable_products', []));
         $data['applicable_categories'] = array_values($request->input('applicable_categories', []));
         $data['first_order_only'] = $request->boolean('first_order_only');
@@ -71,20 +73,23 @@ class CouponController extends Controller
             $uniqueRule .= ',' . $couponId;
         }
 
+        $isFreeShipping = $request->input('type') === 'free_shipping';
+
         return $request->validate([
-            'code' => ['required', 'string', 'max:50', $uniqueRule],
-            'type' => 'required|in:percentage,fixed',
-            'discount_value' => 'required|numeric|min:0',
-            'min_order_amount' => 'nullable|numeric|min:0',
-            'max_discount' => 'nullable|numeric|min:0',
-            'applicable_products' => 'nullable|array',
-            'applicable_categories' => 'nullable|array',
-            'usage_limit' => 'nullable|integer|min:1',
-            'per_user_limit' => 'nullable|integer|min:1',
-            'valid_from' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:valid_from',
-            'first_order_only' => 'nullable|boolean',
-            'status' => 'nullable|boolean',
+            'code'                   => ['required', 'string', 'max:50', $uniqueRule],
+            'type'                   => 'required|in:percentage,fixed,free_shipping',
+            'discount_value'         => $isFreeShipping ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+            'min_order_amount'       => 'nullable|numeric|min:0',
+            'max_discount'           => 'nullable|numeric|min:0',
+            'applicable_on'          => 'nullable|in:all,category,product',
+            'applicable_products'    => 'nullable|array',
+            'applicable_categories'  => 'nullable|array',
+            'usage_limit'            => 'nullable|integer|min:1',
+            'per_user_limit'         => 'nullable|integer|min:1',
+            'valid_from'             => 'nullable|date',
+            'expires_at'             => 'nullable|date|after_or_equal:valid_from',
+            'first_order_only'       => 'nullable|boolean',
+            'status'                 => 'nullable|boolean',
         ]);
     }
 }

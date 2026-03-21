@@ -241,10 +241,31 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('meta_description') }}</textarea>
                     </div>
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Meta Keywords</label>
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords') }}"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="Enter keywords separated by commas">
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tags <span class="text-slate-400 font-normal">(comma separated)</span></label>
                         <input type="text" name="tags" value="{{ old('tags') }}"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="silk, saree, kanjivaram">
                     </div>
+                </div>
+            </div>
+
+            {{-- Related Products --}}
+            <div class="card-glass p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-link mr-2 text-[#a91b43]"></i> Related Products
+                </h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Select Related Products</label>
+                    <select name="related_products[]" multiple class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" style="height: 120px;">
+                        @foreach($products as $p)
+                            <option value="{{ $p->id }}" {{ in_array($p->id, old('related_products', [])) ? 'selected' : '' }}>{{ $p->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple products.</p>
                 </div>
             </div>
 
@@ -262,6 +283,7 @@
                         <select name="status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                             <option value="1">Published / Active</option>
                             <option value="0">Draft</option>
+                            <option value="archived">Archived</option>
                         </select>
                     </div>
                     <div>
@@ -271,6 +293,20 @@
                             <option value="1">Yes — Show on Homepage</option>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            {{-- Tax Settings --}}
+            <div class="card-glass p-6 rounded-2xl">
+                <h3 class="text-base font-bold text-slate-800 mb-4">Tax Settings</h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tax Class</label>
+                    <select name="tax_class" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        <option value="">No Tax / Standard</option>
+                        @foreach($taxClasses as $tax)
+                            <option value="{{ $tax->slug }}" {{ old('tax_class') == $tax->slug ? 'selected' : '' }}>{{ $tax->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 

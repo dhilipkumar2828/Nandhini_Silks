@@ -68,14 +68,37 @@
                 <div class="product-gallery">
                     @php
                         $allImages = [];
-                        if ($product->images && count($product->images) > 0) {
+                        // Main Images
+                        if ($product->images && is_array($product->images) && count($product->images) > 0) {
                             foreach ($product->images as $img) {
-                                $allImages[] = asset('images/' . $img);
+                                $allImages[] = [
+                                    'url' => asset('uploads/' . (str_starts_with($img, 'products/') ? $img : 'products/' . $img)),
+                                    'color_id' => null
+                                ];
                             }
-                        } else {
-                            $allImages[] = asset('images/pro.png');
+                        } elseif ($product->image_path) {
+                            $allImages[] = [
+                                'url' => asset('images/' . $product->image_path),
+                                'color_id' => null
+                            ];
                         }
-                        $mainImage = $allImages[0];
+
+                        // Color-specific Images
+                        $colorImagesMap = $product->color_images ?? [];
+                        foreach ($colorImagesMap as $colorId => $imgs) {
+                            foreach ((array)$imgs as $img) {
+                                $allImages[] = [
+                                    'url' => asset('uploads/' . (str_starts_with($img, 'products/') ? $img : 'products/' . $img)),
+                                    'color_id' => $colorId
+                                ];
+                            }
+                        }
+
+                        if (empty($allImages)) {
+                            $allImages[] = ['url' => asset('images/pro.png'), 'color_id' => null];
+                        }
+                        
+                        $mainImage = $allImages[0]['url'];
                     @endphp
                     <div class="main-product-image" id="zoomContainer" style="position: relative;">
                         <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
@@ -84,9 +107,11 @@
                         </button>
                     </div>
                     <div class="product-thumbnails">
-                        @foreach($allImages as $i => $imgUrl)
-                            <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" onclick="changeImg('{{ $imgUrl }}', this)">
-                                <img src="{{ $imgUrl }}" alt="View {{ $i + 1 }}">
+                        @foreach($allImages as $i => $imgData)
+                            <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" 
+                                 data-color-id="{{ $imgData['color_id'] }}"
+                                 onclick="changeImg('{{ $imgData['url'] }}', this)">
+                                <img src="{{ $imgData['url'] }}" alt="View {{ $i + 1 }}">
                             </div>
                         @endforeach
                     </div>
@@ -152,6 +177,10 @@
                                             @foreach($group['values'] as $value)
                                                 @php
                                                     $swatch = $value->swatch_value;
+                                                    // Fallback to variant image for color swatch if swatch_value is missing
+                                                    if(!$swatch && strtolower($attrName) == 'color' && isset($colorImagesMap[$value->id])) {
+                                                        $swatch = $colorImagesMap[$value->id][0];
+                                                    }
                                                     $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
                                                 @endphp
                                                 @if($swatch)
@@ -394,6 +423,32 @@
             // Update hidden input
             const input = document.getElementById('attr_' + attrId);
             if (input) input.value = valueId;
+
+            // Update Gallery if Color
+            if(element.classList.contains('color-swatch')) {
+                updateGallery(valueId);
+            }
+        }
+
+        function updateGallery(colorId) {
+            const thumbs = document.querySelectorAll('.thumbnail');
+            let firstFound = null;
+            
+            thumbs.forEach(t => {
+                const thumbColorId = t.getAttribute('data-color-id');
+                // Show if generic (null) OR matches colorId
+                if(!thumbColorId || thumbColorId === 'null' || thumbColorId == colorId) {
+                    t.style.display = 'block';
+                    if(!firstFound) firstFound = t;
+                } else {
+                    t.style.display = 'none';
+                }
+            });
+
+            if(firstFound) {
+                const img = firstFound.querySelector('img');
+                if(img) changeImg(img.src, firstFound);
+            }
         }
         function switchTab(e, tabId) {
             const btns = document.querySelectorAll('.tab-btn');

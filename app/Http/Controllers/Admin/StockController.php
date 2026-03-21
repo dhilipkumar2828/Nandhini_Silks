@@ -38,6 +38,8 @@ class StockController extends Controller
                             'stock_quantity' => $newQuantity,
                             'reserved_stock' => $stockData['reserved_stock'] ?? $product->reserved_stock,
                             'low_stock_threshold' => $stockData['low_stock_threshold'] ?? $product->low_stock_threshold,
+                            'restock_quantity' => $stockData['restock_quantity'] ?? $product->restock_quantity,
+                            'restock_date' => $stockData['restock_date'] ?? $product->restock_date,
                             'supplier' => $stockData['supplier'] ?? $product->supplier,
                             'stock_status' => $newQuantity > ($stockData['low_stock_threshold'] ?? $product->low_stock_threshold) ? 'instock' : ($newQuantity > 0 ? 'lowstock' : 'outofstock'),
                         ]);
@@ -55,6 +57,8 @@ class StockController extends Controller
                          $product->update([
                             'reserved_stock' => $stockData['reserved_stock'] ?? $product->reserved_stock,
                             'low_stock_threshold' => $stockData['low_stock_threshold'] ?? $product->low_stock_threshold,
+                            'restock_quantity' => $stockData['restock_quantity'] ?? $product->restock_quantity,
+                            'restock_date' => $stockData['restock_date'] ?? $product->restock_date,
                             'supplier' => $stockData['supplier'] ?? $product->supplier,
                         ]);
                     }

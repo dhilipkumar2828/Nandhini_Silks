@@ -21,7 +21,7 @@ class ChildCategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('status', 1)->get();
+        $categories = Category::where('status', '=', 1)->get();
         return view('admin.child_categories.create', compact('categories'));
     }
 
@@ -32,7 +32,11 @@ class ChildCategoryController extends Controller
             'sub_category_id' => 'required|exists:sub_categories,id',
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -40,9 +44,9 @@ class ChildCategoryController extends Controller
         $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/childcategories'), $imageName);
-            $data['image'] = 'childcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/child-categories'), $imageName);
+            $data['image'] = 'child-categories/'.$imageName;
         }
 
         ChildCategory::create($data);
@@ -52,8 +56,8 @@ class ChildCategoryController extends Controller
 
     public function edit(ChildCategory $childCategory)
     {
-        $categories = Category::where('status', 1)->get();
-        $subCategories = SubCategory::where('category_id', $childCategory->category_id)->get();
+        $categories = Category::where('status', '=', 1)->get();
+        $subCategories = SubCategory::where('category_id', '=', $childCategory->category_id)->get();
         return view('admin.child_categories.edit', compact('childCategory', 'categories', 'subCategories'));
     }
 
@@ -64,7 +68,11 @@ class ChildCategoryController extends Controller
             'sub_category_id' => 'required|exists:sub_categories,id',
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
             'display_order' => 'required|integer',
         ]);
 
@@ -75,9 +83,9 @@ class ChildCategoryController extends Controller
             if ($childCategory->image && file_exists(public_path('uploads/' . $childCategory->image))) {
                 unlink(public_path('uploads/' . $childCategory->image));
             }
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/childcategories'), $imageName);
-            $data['image'] = 'childcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/child-categories'), $imageName);
+            $data['image'] = 'child-categories/'.$imageName;
         }
 
         $childCategory->update($data);
@@ -97,7 +105,8 @@ class ChildCategoryController extends Controller
 
     public function getSubCategories($category_id)
     {
-        $subCategories = SubCategory::where('category_id', $category_id)->where('status', 1)->get();
+        $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
     }
 }
+

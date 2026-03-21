@@ -15,31 +15,39 @@ class FrontendController extends Controller
 {
     public function index()
     {
-        $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
-        $testimonials = Testimonial::where('status', '=', 1, 'and')->where('display_homepage', '=', true, 'and')->latest()->get();
-        $featuredProducts = Product::where('is_featured', '=', true, 'and')->get();
+        $banners = Banner::where('status', '=', 1)->orderBy('display_order', 'asc')->get();
+        $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
+        $featuredProducts = Product::where('is_featured', '=', true)->where('status', '=', 1)->get();
         
-        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts'));
+        // Fetch categories for "Browse Our Categories"
+        $categories = Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get();
+        
+        // Fetch subcategories for "Saree Collections" (Top 5 for homepage)
+        $subCategories = \App\Models\SubCategory::where('status', '=', 1)->orderBy('display_order', 'asc')->limit(8)->get();
+
+        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories'));
     }
 
     public function shop()
     {
-        $products = Product::paginate(12);
+        $products = Product::where('status', '=', 1)->paginate(12);
         $category = new Category(['name' => 'Shop']);
+        $filterData = $this->getFilterData();
 
-        return view('frontend.sarees', compact('category', 'products'));
+        return view('frontend.sarees', compact('category', 'products', 'filterData'));
     }
 
     public function category($slug)
     {
-        $category = Category::where('slug', '=', $slug, 'and')->first();
+        $category = Category::where('slug', '=', $slug)->first();
         if (!$category) {
             if ($slug === 'sarees') {
                 return $this->shop();
             }
             abort(404);
         }
-        $products = Product::where('category_id', '=', $category->id, 'and')->paginate(12);
+        $products = Product::where('category_id', '=', $category->id)->where('status', '=', 1)->paginate(12);
+        $filterData = $this->getFilterData();
         
         // Map slug to specific views if needed, or use a default
         $view = 'frontend.' . $slug;
@@ -47,14 +55,15 @@ class FrontendController extends Controller
             $view = 'frontend.sarees'; // Fallback
         }
         
-        return view($view, compact('category', 'products'));
+        return view($view, compact('category', 'products', 'filterData'));
     }
 
     public function productShow($slug)
     {
-        $product = Product::with('category')->where('slug', '=', $slug, 'and')->firstOrFail();
-        $relatedProducts = Product::where('category_id', '=', $product->category_id, 'and')
-            ->where('id', '!=', $product->id, 'and')
+        $product = Product::with('category')->where('slug', '=', $slug)->where('status', '=', 1)->firstOrFail();
+        $relatedProducts = Product::where('category_id', '=', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('status', '=', 1)
             ->limit(4)
             ->get();
 
@@ -91,6 +100,18 @@ class FrontendController extends Controller
     public function myReviews() { return view('frontend.my-reviews'); }
     public function orderDetail() { return view('frontend.order-detail'); }
 
+    private function getFilterData(): array
+    {
+        return [
+            'categories' => Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get(),
+            'attributes' => Attribute::with(['values' => function($q) {
+                $q->where('status', '=', 1)->orderBy('display_order', 'asc');
+            }])->where('status', '=', 1)->orderBy('group')->get(),
+            'max_price' => Product::where('status', '=', 1)->max('price') ?? 50000,
+            'min_price' => Product::where('status', '=', 1)->min('price') ?? 0,
+        ];
+    }
+
     private function buildAttributeGroups(Product $product): array
     {
         $productAttributes = $product->getAttribute('attributes') ?? [];
@@ -113,7 +134,7 @@ class FrontendController extends Controller
 
             $values = AttributeValue::with('attribute')
                 ->whereIn('id', $valueIds)
-                ->where('status', true)
+                ->where('status', '=', 1)
                 ->orderBy('display_order', 'asc')
                 ->get();
 
@@ -125,7 +146,7 @@ class FrontendController extends Controller
             $grouped = $values->groupBy('attribute_id');
             foreach ($grouped as $valueGroup) {
                 $attribute = $valueGroup->first()->attribute;
-                if (!$attribute || !$attribute->status) {
+                if (!$attribute || $attribute->status != 1) {
                     continue;
                 }
                 $groups[] = [
@@ -172,8 +193,8 @@ class FrontendController extends Controller
         }
 
         $attributes = Attribute::with(['values' => function ($query) use ($valueIds) {
-            $query->whereIn('id', $valueIds)->where('status', true)->orderBy('display_order', 'asc');
-        }])->whereIn('id', $attributeIds)->where('status', true)->orderBy('group')->orderBy('name')->get();
+            $query->whereIn('id', $valueIds)->where('status', '=', 1)->orderBy('display_order', 'asc');
+        }])->whereIn('id', $attributeIds)->where('status', '=', 1)->orderBy('group')->orderBy('name')->get();
 
         $groups = [];
         foreach ($attributes as $attribute) {
