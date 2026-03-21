@@ -35,30 +35,45 @@
                         <h1 class="section-title" style="font-size: 24px;">My Wishlist</h1>
                     </div>
 
-                    <div class="wishlist-grid" id="wishlistGrid">
-                        <article class="product-card-v2">
+                    <div class="wishlist-grid" id="wishlistGrid" style="display: {{ $products->isEmpty() ? 'none' : 'grid' }}; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                        @foreach($products as $product)
+                        <article class="product-card-v2" data-product-id="{{ $product->id }}">
                             <div class="card-actions-overlay">
-                                <button class="overlay-btn remove-from-wishlist" title="Remove" style="color: #ff4444;">&times;</button>
+                                <button class="overlay-btn remove-from-wishlist wishlist-btn" data-product-id="{{ $product->id }}" title="Remove" style="color: #ff4444;">&times;</button>
                             </div>
-                            <a href="{{ url('product-detail') }}" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
                                 <div class="product-image-v2">
-                                    <img src="{{ asset('images/saree_royal_gold_handloom_silk_1773214820441.png') }}" alt="Royal Gold Silk Saree">
+                                    @php
+                                        $productImage = 'images/pro.png';
+                                        if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                            $productImage = 'uploads/' . $product->images[0];
+                                        } elseif ($product->image_path) {
+                                            $productImage = 'images/' . $product->image_path;
+                                        }
+                                    @endphp
+                                    <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
                                 </div>
                                 <div class="product-info-v2">
-                                    <span class="product-category-v2" style="color: #2e7d32;">&#9679; In Stock</span>
-                                    <h3 class="product-name-v2">Royal Gold Handloom Silk</h3>
-                                    <p class="product-price-v2">&#8377;7,490</p>
+                                    <span class="product-category-v2" style="color: {{ $product->stock_quantity > 0 ? '#2e7d32' : '#d32f2f' }};">
+                                        &#9679; {{ $product->stock_quantity > 0 ? 'In Stock' : 'Out of Stock' }}
+                                    </span>
+                                    <h3 class="product-name-v2">{{ $product->name }}</h3>
+                                    <p class="product-price-v2">&#8377;{{ number_format($product->price, 0) }}</p>
                                 </div>
                             </a>
-                            <button class="add-to-cart-v2">Move to Cart</button>
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="add-to-cart-v2">Add to Cart</button>
+                            </form>
                         </article>
+                        @endforeach
                     </div>
 
-                    <div id="emptyState" style="display: none; text-align: center; padding: 60px 0;">
+                    <div id="emptyState" style="display: {{ $products->isEmpty() ? 'block' : 'none' }}; text-align: center; padding: 60px 0;">
                         <div style="font-size: 60px; color: #eee; margin-bottom: 20px;">&#10084;</div>
                         <h2 style="color: #333; margin-bottom: 10px;">Your wishlist is empty</h2>
-                        <a href="{{ url('sarees') }}" class="auth-submit"
-                            style="display: inline-block; width: auto; padding: 12px 40px; text-decoration: none;">Explore
+                        <a href="{{ url('shop') }}" class="auth-submit"
+                            style="display: inline-block; width: auto; padding: 12px 40px; text-decoration: none; background: #A91B43; color: white; border-radius: 5px;">Explore
                             Collections</a>
                     </div>
                 </div>
@@ -68,19 +83,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.querySelectorAll('.remove-from-wishlist').forEach(btn => {
-            btn.onclick = function () {
-                const card = this.closest('.product-card-v2');
-                card.style.opacity = '0';
-                setTimeout(() => {
-                    card.remove();
-                    if (document.querySelectorAll('.product-card-v2').length === 0) {
-                        document.getElementById('wishlistGrid').style.display = 'none';
-                        document.getElementById('emptyState').style.display = 'block';
-                    }
-                }, 300);
-            };
-        });
-    </script>
+    <!-- No specific scripts needed, handled globally -->
 @endpush

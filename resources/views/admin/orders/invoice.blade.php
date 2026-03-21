@@ -8,7 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
 
-        .page { padding: 40px; }
+        @page { margin: 0px; }
+        .page { padding: 10px 40px 40px; }
 
         /* Header */
         .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 3px solid #a91b43; padding-bottom: 20px; }

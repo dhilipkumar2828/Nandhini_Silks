@@ -102,8 +102,10 @@
                     @endphp
                     <div class="main-product-image" id="zoomContainer" style="position: relative;">
                         <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
-                        <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-                            <i class="fa-solid fa-heart" style="color: #A91B43; font-size: 18px;"></i>
+                        <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn" aria-label="Add to Wishlist" 
+                                data-product-id="{{ $product->id }}"
+                                style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                            <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon" style="color: #A91B43; font-size: 18px;"></i>
                         </button>
                     </div>
                     <div class="product-thumbnails">
@@ -494,6 +496,8 @@
                         prevEl: '.recently-prev',
                     }
                 });
+            }
+
             }
         });
     </script>

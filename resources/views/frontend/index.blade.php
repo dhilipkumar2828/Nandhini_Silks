@@ -553,114 +553,115 @@
         </div>
     </section>
 
-    <section class="collection-section" aria-labelledby="saree-collections-title">
-        <h2 id="saree-collections-title" class="collection-title">Saree Collections</h2>
-        <div class="collection-swiper-wrap">
-            <div class="swiper collection-swiper">
-                <div class="swiper-wrapper">
-                    @forelse($subCategories as $sub)
-                        <div class="swiper-slide">
-                            <article class="collection-card">
-                                <a href="{{ route('category.show', $sub->slug) }}" class="card-link-wrapper">
-                                    <div class="collection-image-wrap">
-                                        <img src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Image.png') }}" alt="{{ $sub->name }}" />
-                                    </div>
-                                    <h3 class="collection-name">{{ $sub->name }}</h3>
-                                </a>
-                                <button class="collection-cta" type="button"
-                                    onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
-                                    Now</button>
-                            </article>
-                        </div>
-                    @empty
-                        <!-- Fallback static content if no subcategories exist -->
-                        <div class="swiper-slide">
-                            <article class="collection-card">
-                                <a href="{{ route('shop') }}" class="card-link-wrapper">
-                                    <div class="collection-image-wrap">
-                                        <img src="{{ asset('images/Image.png') }}" alt="Pure Silk Saree" />
-                                    </div>
-                                    <h3 class="collection-name">Pure Silk Saree</h3>
-                                </a>
-                                <button class="collection-cta" type="button"
-                                    onclick="window.location.href='{{ route('shop') }}'">Shop
-                                    Now</button>
-                            </article>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-            <!-- Navigation outside swiper for correct button positioning -->
-            <div class="swiper-button-next collection-next"></div>
-            <div class="swiper-button-prev collection-prev"></div>
-        </div>
-    </section>
-
-    <section class="featured-section" aria-labelledby="featured-title">
-        <img class="featured-decor featured-decor-left"
-            src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
-        <img class="featured-decor featured-decor-right"
-            src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
-
-        <div class="featured-inner">
-            <h2 id="featured-title" class="featured-title">New Arrivals</h2>
-            <p class="featured-subtitle">Fresh weaves, added daily - discover sarees handwoven just for you</p>
-
-            <div class="featured-swiper-container" style="position: relative;">
-                <div class="swiper featured-swiper">
+    @if($subCategories->count() > 0)
+        <section class="collection-section" aria-labelledby="saree-collections-title">
+            <h2 id="saree-collections-title" class="collection-title">Saree Collections</h2>
+            <div class="collection-swiper-wrap">
+                <div class="swiper collection-swiper">
                     <div class="swiper-wrapper">
-                        @foreach ($featuredProducts as $product)
+                        @forelse($subCategories as $sub)
                             <div class="swiper-slide">
-                                <article class="featured-card">
-                                    <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
-                                        <div class="featured-media">
-                                            @php
-                                                $productImage = 'images/pro.png';
-                                                if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                                                    $productImage = 'uploads/' . $product->images[0];
-                                                } elseif ($product->image_path) {
-                                                    $productImage = 'images/' . $product->image_path;
-                                                }
-                                            @endphp
-                                            <img src="{{ asset($productImage) }}"
-                                                alt="{{ $product->name }}" />
-                                            @if ($product->is_featured)
-                                                <span class="featured-badge">New Arrival</span>
-                                            @endif
-                                            @if ($product->discount_percent > 0)
-                                                <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
-                                            @endif
+                                <article class="collection-card">
+                                    <a href="{{ route('category.show', $sub->slug) }}" class="card-link-wrapper">
+                                        <div class="collection-image-wrap">
+                                            <img src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Image.png') }}" alt="{{ $sub->name }}" />
                                         </div>
-                                        <h3 class="featured-name">{{ $product->name }}</h3>
+                                        <h3 class="collection-name">{{ $sub->name }}</h3>
                                     </a>
-                                    <div class="featured-footer">
-                                        <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}
-                                            INR</span>
-                                        <button class="featured-cart" type="button"
-                                            aria-label="Add {{ $product->name }} to cart">
-                                            <img src="{{ asset('images/Vector.svg') }}" alt="" />
-                                        </button>
-                                    </div>
+                                    <button class="collection-cta" type="button"
+                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
+                                        Now</button>
                                 </article>
                             </div>
-                        @endforeach
+                        @empty
+                            No Sub Categories
+                        @endforelse
                     </div>
                 </div>
-                <!-- Add Navigation Outside Swiper -->
-                <div class="swiper-button-next featured-next"></div>
-                <div class="swiper-button-prev featured-prev"></div>
+                <!-- Navigation outside swiper for correct button positioning -->
+                <div class="swiper-button-next collection-next"></div>
+                <div class="swiper-button-prev collection-prev"></div>
             </div>
+        </section>
+    @endif
 
-            <div class="featured-progress" id="featuredProgress">
-                <span id="currentSlide">01</span>
-                <div class="featured-progress-track" id="progressTrack">
-                    <div class="featured-progress-bg"></div>
-                    <div class="featured-progress-fill" id="progressFill"></div>
+    @if($featuredProducts->count() > 0)
+        <section class="featured-section" aria-labelledby="featured-title">
+            <img class="featured-decor featured-decor-left"
+                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
+            <img class="featured-decor featured-decor-right"
+                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
+
+            <div class="featured-inner">
+                <h2 id="featured-title" class="featured-title">New Arrivals</h2>
+                <p class="featured-subtitle">Fresh weaves, added daily - discover sarees handwoven just for you</p>
+
+                <div class="featured-swiper-container" style="position: relative;">
+                    <div class="swiper featured-swiper">
+                        <div class="swiper-wrapper">
+                            @foreach ($featuredProducts as $product)
+                                <div class="swiper-slide">
+                                    <article class="featured-card">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
+                                            <div class="featured-media">
+                                                @php
+                                                    $productImage = 'images/pro.png';
+                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                        $productImage = 'uploads/' . $product->images[0];
+                                                    } elseif ($product->image_path) {
+                                                        $productImage = 'images/' . $product->image_path;
+                                                    }
+                                                @endphp
+                                                <img src="{{ asset($productImage) }}"
+                                                    alt="{{ $product->name }}" />
+                                                @if ($product->is_featured)
+                                                    <span class="featured-badge">New Arrival</span>
+                                                @endif
+                                                @if ($product->discount_percent > 0)
+                                                    <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
+                                                @endif
+                                            </div>
+                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                        </a>
+                                        <div class="featured-footer">
+                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }} INR</span>
+                                            <div style="display: flex; gap: 8px;">
+                                                @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                                <button class="wishlist-btn" type="button" 
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add to wishlist"
+                                                    style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="featured-cart" type="button"
+                                                    aria-label="Add {{ $product->name }} to cart">
+                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <!-- Add Navigation Outside Swiper -->
+                    <div class="swiper-button-next featured-next"></div>
+                    <div class="swiper-button-prev featured-prev"></div>
                 </div>
-                <span>{{ sprintf('%02d', count($featuredProducts)) }}</span>
+
+                <div class="featured-progress" id="featuredProgress">
+                    <span id="currentSlide">01</span>
+                    <div class="featured-progress-track" id="progressTrack">
+                        <div class="featured-progress-bg"></div>
+                        <div class="featured-progress-fill" id="progressFill"></div>
+                    </div>
+                    <span>{{ sprintf('%02d', count($featuredProducts)) }}</span>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     <section class="category-section" aria-labelledby="browse-categories-title">
         <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
@@ -740,56 +741,44 @@
         </article>
     </section>
 
-    <section class="testimonial-section" aria-labelledby="testimonial-title">
-        <p class="testimonial-kicker">Testimonial</p>
-        <h2 id="testimonial-title" class="testimonial-title">Speaking from their hearts</h2>
-        <div class="testimonial-vector-wrap">
-            <img class="testimonial-vector" src="{{ asset('images/Vector2.svg') }}" alt="Quote icon" />
-        </div>
 
-        <div class="testimonial-swiper-wrap">
-            <div class="swiper testimonial-swiper">
-                <div class="swiper-wrapper">
-                    @forelse($testimonials as $testimonial)
-                        <div class="swiper-slide">
-                            <article class="testimonial-card">
-                                <div class="mb-4">
-                                    <p class="testimonial-name !mt-0 !pt-0">{{ $testimonial->name }}</p>
-                                    <div class="flex items-center gap-1">
-                                        @for($i = 0; $i < ($testimonial->rating ?? 5); $i++)
-                                            <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                        @endfor
-                                    </div>
-                                </div>
-                                <h3 class="testimonial-card-title">{{ $testimonial->review_title ?? 'Excellent Quality' }}</h3>
-                                <p class="testimonial-text">{{ $testimonial->review }}</p>
-                            </article>
-                        </div>
-                    @empty
-                        <div class="swiper-slide">
-                            <article class="testimonial-card">
-                                <div class="mb-4">
-                                    <p class="testimonial-name !mt-0 !pt-0">Ramya</p>
-                                    <div class="flex items-center gap-1">
-                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                        <i class="fas fa-star text-amber-500 text-[8px]"></i>
-                                    </div>
-                                </div>
-                                <h3 class="testimonial-card-title">Authentic Collection</h3>
-                                <p class="testimonial-text">The quality of the silk sarees is absolutely stunning. Truly premium craftsmanship.</p>
-                            </article>
-                        </div>
-                    @endforelse
-                </div>
+    @if($testimonials->count() > 0)
+        <section class="testimonial-section" aria-labelledby="testimonial-title">
+            <p class="testimonial-kicker">Testimonial</p>
+            <h2 id="testimonial-title" class="testimonial-title">Speaking from their hearts</h2>
+            <div class="testimonial-vector-wrap">
+                <img class="testimonial-vector" src="{{ asset('images/Vector2.svg') }}" alt="Quote icon" />
             </div>
-            <!-- Navigation outside swiper for correct button positioning -->
-            <div class="swiper-button-next testimonial-next"></div>
-            <div class="swiper-button-prev testimonial-prev"></div>
-        </div>
-    </section>
+
+            <div class="testimonial-swiper-wrap">
+                <div class="swiper testimonial-swiper">
+                    <div class="swiper-wrapper">
+                        @forelse($testimonials as $testimonial)
+                            <div class="swiper-slide">
+                                <article class="testimonial-card">
+                                    <div class="mb-4">
+                                        <p class="testimonial-name !mt-0 !pt-0">{{ $testimonial->name }}</p>
+                                        <div class="flex items-center gap-1">
+                                            @for($i = 0; $i < ($testimonial->rating ?? 5); $i++)
+                                                <i class="fas fa-star text-amber-500 text-[8px]"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <h3 class="testimonial-card-title">{{ $testimonial->review_title ?? 'Excellent Quality' }}</h3>
+                                    <p class="testimonial-text">{{ $testimonial->review }}</p>
+                                </article>
+                            </div>
+                        @empty
+                            No reviews yet
+                        @endforelse
+                    </div>
+                </div>
+                <!-- Navigation outside swiper for correct button positioning -->
+                <div class="swiper-button-next testimonial-next"></div>
+                <div class="swiper-button-prev testimonial-prev"></div>
+            </div>
+        </section>
+    @endif
 
     @push('scripts')
         <script>

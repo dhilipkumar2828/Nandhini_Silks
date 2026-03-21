@@ -41,21 +41,21 @@
                         <a href="{{ url('my-orders') }}" class="stat-card">
                             <div class="stat-icon">&#128230;</div>
                             <div class="stat-info">
-                                <span class="stat-value">{{ Auth::user()->orders()->count() }}</span>
+                                <span class="stat-value">{{ $orderCount }}</span>
                                 <span class="stat-label">Total Orders</span>
                             </div>
                         </a>
                         <a href="{{ url('wishlist') }}" class="stat-card">
                             <div class="stat-icon">&#10084;&#65039;</div>
                             <div class="stat-info">
-                                <span class="stat-value">0</span>
+                                <span class="stat-value">{{ $wishlistCount }}</span>
                                 <span class="stat-label">In Wishlist</span>
                             </div>
                         </a>
                         <a href="{{ url('my-addresses') }}" class="stat-card">
                             <div class="stat-icon">&#127968;</div>
                             <div class="stat-info">
-                                <span class="stat-value">{{ Auth::user()->addresses()->count() }}</span>
+                                <span class="stat-value">{{ $addressCount }}</span>
                                 <span class="stat-label">Saved Addresses</span>
                             </div>
                         </a>
@@ -68,7 +68,7 @@
                                 <a href="{{ url('my-orders') }}" class="view-all-link">View All</a>
                             </div>
                             <div class="order-list">
-                                @forelse(Auth::user()->orders()->latest()->limit(5)->get() as $order)
+                                @forelse($recentOrders as $order)
                                 <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="order-item-mini">
                                     <div class="mini-order-info" style="padding-left: 10px;">
                                         <span class="mini-order-id">#NS{{ $order->id }}</span>
