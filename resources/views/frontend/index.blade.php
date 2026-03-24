@@ -319,6 +319,11 @@
                 margin-bottom: 30px;
             }
 
+            .category-section {
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
             .featured-inner,
             .promo-section,
             .testimonial-section {
@@ -419,6 +424,21 @@
                 padding-right: 0;
             }
 
+            .category-swiper-wrap {
+                overflow: hidden;
+                padding: 0 36px;
+            }
+
+            .category-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .category-swiper .swiper-wrapper {
+                align-items: flex-start;
+            }
+
             .category-link {
                 flex: none !important;
                 max-width: 100% !important;
@@ -434,29 +454,67 @@
                 text-align: center !important;
                 padding-bottom: 10px;
                 height: 100% !important;
+                width: 100% !important;
+                max-width: 106px !important;
                 margin: 0 auto !important;
             }
 
             .category-image-shell {
-                width: 85px !important;
-                height: 85px !important;
+                width: clamp(74px, 20vw, 92px) !important;
+                height: clamp(74px, 20vw, 92px) !important;
                 margin: 0 auto !important;
             }
 
             .category-name {
-                font-size: 13px !important;
+                font-size: clamp(11px, 2.9vw, 13px) !important;
                 margin-top: 8px !important;
-                white-space: nowrap;
+                white-space: normal;
+                line-height: 1.35;
+                min-height: 2.7em;
+                text-wrap: balance;
             }
 
             .category-prev {
-                left: -35px;
+                left: 0 !important;
                 top: 45%;
             }
 
             .category-next {
-                right: -35px;
+                right: 0 !important;
                 top: 45%;
+            }
+
+            @media (max-width: 575px) {
+                .category-section {
+                    padding-left: 16px !important;
+                    padding-right: 16px !important;
+                }
+
+                .category-swiper-wrap {
+                    padding: 0 32px;
+                }
+            }
+
+            @media (max-width: 399px) {
+                .category-section {
+                    padding-left: 12px !important;
+                    padding-right: 12px !important;
+                }
+
+                .category-swiper-wrap {
+                    padding: 0 28px;
+                }
+
+                .category-prev,
+                .category-next {
+                    width: 28px !important;
+                    height: 28px !important;
+                }
+
+                .category-prev::after,
+                .category-next::after {
+                    font-size: 11px !important;
+                }
             }
 
             /* ── Promo section (Offer & Wedding) ── */
@@ -978,9 +1036,12 @@
                 });
 
                 new Swiper('.category-swiper', {
-                    slidesPerView: 3, // Base mobile specifically
+                    slidesPerView: 3,
                     slidesPerGroup: 1,
-                    spaceBetween: 8,
+                    spaceBetween: 4,
+                    centeredSlides: true,
+                    centeredSlidesBounds: true,
+                    centerInsufficientSlides: true,
                     loop: true,
                     autoplay: {
                         delay: 3500,
@@ -991,6 +1052,8 @@
                         prevEl: '.category-prev',
                     },
                     breakpoints: {
+                        400: { slidesPerView: 3, spaceBetween: 4 },
+                        480: { slidesPerView: 3, spaceBetween: 6 },
                         640: { slidesPerView: 3, spaceBetween: 12 },
                         768: { slidesPerView: 4, spaceBetween: 15 },
                         1024: { slidesPerView: 5, spaceBetween: 20 },
@@ -1002,7 +1065,7 @@
                     slidesPerView: 1,
                     spaceBetween: 20,
                     loop: true,
-                    centeredSlides: true,
+                    centeredSlides: false,
                     watchOverflow: false,
                     autoplay: {
                         delay: 3500,
@@ -1013,8 +1076,8 @@
                         prevEl: '.testimonial-prev',
                     },
                     breakpoints: {
-                        768: { slidesPerView: 2, spaceBetween: 30 },
-                        1024: { slidesPerView: 3, spaceBetween: 40 },
+                        768: { slidesPerView: 2, spaceBetween: 24 },
+                        1280: { slidesPerView: 3, spaceBetween: 40 },
                     }
                 });
                 const featuredSwiper = new Swiper('.featured-swiper', {
