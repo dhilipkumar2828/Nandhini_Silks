@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('frontend.layouts.app', function ($view) {
             $categories = \App\Models\Category::with('subCategories.childCategories')
                 ->where('status', 1)
-                ->whereIn('name', ['Sarees', 'Men', 'Kids', 'Women']) // Added Filter
+                // ->whereIn('name', ['Sarees', 'Men', 'Kids', 'Women']) // Added Filter
                 ->orderBy('display_order', 'asc')
                 ->get();
             $view->with('headerCategories', $categories);

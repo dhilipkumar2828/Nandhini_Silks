@@ -26,7 +26,7 @@ class FrontendController extends Controller
         $featuredProducts = Product::where('is_featured', '=', true)->where('status', '=', 1)->get();
         
         // Fetch categories for "Browse Our Categories"
-        $categories = Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get();
+        $categories = Category::with('subCategories')->where('status', '=', 1)->orderBy('display_order', 'asc')->get();
         
         // Fetch subcategories for "Saree Collections" (Top 5 for homepage)
         $subCategories = \App\Models\SubCategory::where('status', '=', 1)->orderBy('display_order', 'asc')->limit(8)->get();

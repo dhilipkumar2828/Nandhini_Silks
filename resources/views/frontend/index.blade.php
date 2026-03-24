@@ -529,6 +529,54 @@
                 z-index: 1001;
             }
         }
+        /* Category Slider Alignment Pixes */
+        .category-swiper .swiper-slide {
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .category-image-shell {
+            width: 110px !important;
+            height: 110px !important;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-image {
+            width: 100% !important;
+            height: 100% !important;
+        .category-name {
+            font-size: 14px !important;
+            margin-top: 15px !important;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+        }
+
+        .sub-category-card .category-name {
+            color: #f3a349 !important;
+        }
+
+        .sub-category-card .category-ring {
+            background: none !important;
+            border: 2px solid #f3a349 !important;
+            -webkit-mask: none !important;
+            mask: none !important;
+        }
+
+        .category-ring {
+            border-width: 2px !important;
+        }
     </style>
 @endpush
 
@@ -668,7 +716,7 @@
         <div class="category-swiper-wrap">
             <div class="swiper category-swiper">
                 <div class="swiper-wrapper">
-                    @forelse ($categories as $cat)
+                    @foreach ($categories as $cat)
                         <div class="swiper-slide">
                             <a class="category-link" href="{{ route('category.show', $cat->slug) }}" style="text-decoration: none;">
                                 <article class="category-card">
@@ -681,9 +729,22 @@
                                 </article>
                             </a>
                         </div>
-                    @empty
-                        <!-- Fallback static categories if needed -->
-                    @endforelse
+                        
+                        @foreach($cat->subCategories as $sub)
+                        <div class="swiper-slide">
+                            <a class="category-link" href="{{ route('category.show', $sub->slug) }}" style="text-decoration: none;">
+                                <article class="category-card sub-category-card">
+                                    <div class="category-image-shell">
+                                        <img class="category-image" src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Rectangle 9.png') }}"
+                                            alt="{{ $sub->name }}" />
+                                        <span class="category-ring"></span>
+                                    </div>
+                                    <h3 class="category-name">{{ $sub->name }}</h3>
+                                </article>
+                            </a>
+                        </div>
+                        @endforeach
+                    @endforeach
                 </div>
             </div>
             <!-- Navigation outside swiper for correct button positioning -->
