@@ -10,9 +10,12 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_name',
+        'product_image',
         'price',
         'quantity',
         'total',
+        'size',
+        'color',
     ];
 
     public function order()
@@ -23,5 +26,34 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getImageUrl()
+    {
+        $path = $this->product_image;
+        if (!$path && $this->product) {
+            $path = $this->product->image_path;
+            
+            // Fallback to images[0] if image_path is empty
+            if (!$path && !empty($this->product->images)) {
+                $images = $this->product->images;
+                if (is_string($images)) {
+                    $images = json_decode($images, true);
+                }
+                if (is_array($images) && count($images) > 0) {
+                    $path = $images[0];
+                }
+            }
+        }
+
+        if (!$path) {
+            return asset('images/pro1.png');
+        }
+
+        if (\Illuminate\Support\Str::startsWith($path, 'products/') || \Illuminate\Support\Str::startsWith($path, 'categories/')) {
+            return asset('uploads/' . $path);
+        }
+
+        return asset('images/' . $path);
     }
 }

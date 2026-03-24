@@ -152,10 +152,10 @@
                 <aside class="account-sidebar">
                     <div class="account-user-info">
                         <div class="account-avatar">
-                            <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
+                            <img src="{{ $user->profile_picture ? asset('uploads/'.$user->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ $user->name }}</h2>
+                        <p class="account-user-email">{{ $user->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -165,7 +165,8 @@
                         <li class="account-nav-item"><a href="{{ url('my-addresses') }}" class="account-nav-link"><span>Addresses</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('my-reviews') }}" class="account-nav-link"><span>My Reviews</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('wishlist') }}" class="account-nav-link"><span>Wishlist</span></a></li>
-                        <li class="account-nav-item"><a href="{{ url('login') }}" class="account-nav-link logout"><span>Logout</span></a></li>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form">@csrf</form>
+                        <li class="account-nav-item"><a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit()" class="account-nav-link logout"><span>Logout</span></a></li>
                     </ul>
                 </aside>
 
@@ -174,14 +175,33 @@
                         <h1 class="section-title" style="font-size: 24px;">My Profile</h1>
                     </div>
 
-                    <form class="profile-card" onsubmit="event.preventDefault()">
+                    @if(session('success'))
+                        <div style="background: #f6ffed; color: #52c41a; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #b7eb8f;">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div style="background: #fff2f0; color: #f5222d; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffccc7;">
+                            <ul style="margin: 0; padding-left: 20px;">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form class="profile-card" action="{{ route('profile.update') }}" method="POST">
+                        @csrf
                         <div class="profile-header-edit">
                             <div class="profile-pic-container">
-                                <img src="{{ asset('images/user-avatar.svg') }}" alt="John Doe" class="profile-pic">
-                                <div class="edit-pic-btn">&#128247;</div>
+                                <img src="{{ $user->profile_picture ? asset('uploads/'.$user->profile_picture) : asset('images/user-avatar.svg') }}" 
+                                     alt="{{ $user->name }}" class="profile-pic" id="profilePicPreview">
+                                <div class="edit-pic-btn" onclick="document.getElementById('profilePhotoInput').click()">&#128247;</div>
+                                <input type="file" id="profilePhotoInput" style="display: none;" accept="image/*" onchange="uploadProfilePhoto(this)">
                             </div>
                             <div>
-                                <h3 style="margin-bottom: 5px;">John Doe</h3>
+                                <h3 style="margin-bottom: 5px;">{{ $user->name }}</h3>
                                 <p style="color: #999; font-size: 13px;">Manage your personal information and security.</p>
                             </div>
                         </div>
@@ -189,25 +209,25 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" value="John Doe">
+                                <input type="text" class="form-control" name="name" value="{{ $user->name }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="email" class="form-control" value="john.doe@example.com">
+                                <input type="email" class="form-control" name="email" value="{{ $user->email }}" readonly>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Phone Number <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="tel" class="form-control" value="+91 98765 43210">
+                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Gender</label>
-                                <select class="form-control">
-                                    <option selected>Male</option>
-                                    <option>Female</option>
-                                    <option>Other</option>
+                                <select class="form-control" name="gender">
+                                    <option value="Male" {{ ($user->gender == 'Male') ? 'selected' : '' }}>Male</option>
+                                    <option value="Female" {{ ($user->gender == 'Female') ? 'selected' : '' }}>Female</option>
+                                    <option value="Other" {{ ($user->gender == 'Other') ? 'selected' : '' }}>Other</option>
                                 </select>
                             </div>
                         </div>
@@ -215,7 +235,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Date of Birth</label>
-                                <input type="date" class="form-control" value="1990-05-15">
+                                <input type="date" class="form-control" name="dob" value="{{ $user->dob ? $user->dob->format('Y-m-d') : '' }}">
                             </div>
                         </div>
 
@@ -252,3 +272,52 @@
         </div>
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        function uploadProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                const formData = new FormData();
+                formData.append('photo', input.files[0]);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                // Visual feedback
+                const btn = document.querySelector('.edit-pic-btn');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '...';
+                btn.style.pointerEvents = 'none';
+
+                fetch('{{ route("profile.photo") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('profilePicPreview').src = data.url;
+                        // Also update sidebar avatar and header icon if they exist
+                        const sidebarAvatar = document.querySelector('.account-avatar img');
+                        if (sidebarAvatar) sidebarAvatar.src = data.url;
+                        const headerProfilePic = document.getElementById('headerProfilePic');
+                        if (headerProfilePic) headerProfilePic.src = data.url;
+                        
+                        toastr.success('Profile picture updated successfully!');
+                    } else {
+                        toastr.error(data.message || 'Error updating profile picture.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while uploading.');
+                })
+                .finally(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.pointerEvents = 'auto';
+                });
+            }
+        }
+    </script>
+@endpush

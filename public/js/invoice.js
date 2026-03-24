@@ -136,26 +136,28 @@ const InvoiceGenerator = {
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #eee; overflow: hidden; border-radius: 8px;">
                         <thead>
                             <tr style="background: #a91b43; color: white;">
-                                <th style="padding: 12px; text-align: left; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">SNo</th>
-                                <th style="padding: 12px; text-align: left; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Items Description</th>
-                                <th style="padding: 12px; text-align: center; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Qty</th>
-                                <th style="padding: 12px; text-align: right; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Rate</th>
-                                <th style="padding: 12px; text-align: right; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Disc.</th>
-                                <th style="padding: 12px; text-align: right; border: 1px solid #a91b43; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Total</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">SNo</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Image</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Items Description</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Qty</th>
+                                <th style="padding: 10px; text-align: right; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Rate</th>
+                                <th style="padding: 10px; text-align: right; border: 1px solid #a91b43; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${items.map((item, i) => `
                                 <tr style="background: ${i % 2 === 0 ? '#fff' : '#fafafa'};">
-                                    <td style="padding: 12px; border: 1px solid #eee; text-align: center;">${i + 1}</td>
-                                    <td style="padding: 12px; border: 1px solid #eee;">
-                                        <strong style="color: #333;">${item.name}</strong><br>
-                                        <span style="font-size: 11px; color: #888;">Variant: ${item.variant} | HSN: ${item.hsn || '5007'}</span>
+                                    <td style="padding: 10px; border: 1px solid #eee; text-align: center;">${i + 1}</td>
+                                    <td style="padding: 10px; border: 1px solid #eee; text-align: center;">
+                                        <img src="${item.image || 'images/pro1.png'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
                                     </td>
-                                    <td style="padding: 12px; border: 1px solid #eee; text-align: center; font-weight: 600;">${item.qty}</td>
-                                    <td style="padding: 12px; border: 1px solid #eee; text-align: right;">₹${InvoiceGenerator.formatCurrency(item.rate)}</td>
-                                    <td style="padding: 12px; border: 1px solid #eee; text-align: right; color: #999;">₹0.00</td>
-                                    <td style="padding: 12px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #333;">₹${InvoiceGenerator.formatCurrency(item.qty * item.rate)}</td>
+                                    <td style="padding: 10px; border: 1px solid #eee;">
+                                        <strong style="color: #333;">${item.name}</strong><br>
+                                        <span style="font-size: 10px; color: #888;">${item.variant}</span>
+                                    </td>
+                                    <td style="padding: 10px; border: 1px solid #eee; text-align: center; font-weight: 600;">${item.qty}</td>
+                                    <td style="padding: 10px; border: 1px solid #eee; text-align: right;">₹${InvoiceGenerator.formatCurrency(item.rate)}</td>
+                                    <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #333;">₹${InvoiceGenerator.formatCurrency(item.qty * item.rate)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>

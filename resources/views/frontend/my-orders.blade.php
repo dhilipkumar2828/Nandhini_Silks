@@ -214,14 +214,14 @@
                             <div class="order-body">
                                 <div class="order-items-preview">
                                     @php $firstItem = $order->items->first(); @endphp
-                                    @if($firstItem && $firstItem->product && $firstItem->product->image_path)
-                                        <img src="{{ asset('images/' . $firstItem->product->image_path) }}" alt="" class="order-img">
+                                    @if($firstItem)
+                                        <img src="{{ $firstItem->getImageUrl() }}" alt="" class="order-img">
                                     @else
                                         <img src="{{ asset('images/pro1.png') }}" alt="" class="order-img">
                                     @endif
                                     
                                     @if($order->items->count() > 1)
-                                        <span class="order-items-count">+ {{ $order->items->count() - 1 }} other item(s)</span>
+                                        <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="order-items-count" style="text-decoration: none;">+ {{ $order->items->count() - 1 }} other item(s)</a>
                                     @endif
                                 </div>
                                 <div class="order-actions">

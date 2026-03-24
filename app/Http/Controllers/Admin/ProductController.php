@@ -38,14 +38,19 @@ class ProductController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|unique:products,sku',
+            'barcode' => 'nullable|string',
+            'isbn' => 'nullable|string',
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'status' => 'required',
+            'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
-            'tax_class' => 'nullable|string',
+            'tax_class_id' => 'nullable|exists:tax_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
         ]);
@@ -70,6 +75,8 @@ class ProductController extends Controller
                 $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
+            $primaryIndex = $request->input('primary_image_index', 0);
+            $data['primary_image'] = $images[$primaryIndex] ?? $images[0];
         }
 
         // Handle Color-specific Images
@@ -86,7 +93,68 @@ class ProductController extends Controller
             $data['color_images'] = $colorImages;
         }
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        // Handle Variant Matrix Storage
+        // Handle Variant Matrix
+        if ($request->has('variant_combinations')) {
+            $combs = $request->input('variant_combinations');
+            $prices = $request->input('v_price');
+            $stocks = $request->input('v_stock');
+            $skus = $request->input('v_sku');
+            $variantImagesFiles = $request->file('v_images');
+
+            $usedSkus = [];
+
+            foreach ($combs as $index => $idsString) {
+                if(empty($idsString)) continue;
+                $idsArray = explode(',', $idsString);
+                $combJson = [];
+                $attrValuesJson = [];
+                foreach ($idsArray as $valId) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($valId);
+                    if ($val) {
+                        $combJson[$val->attribute_id] = [$val->id];
+                        $attrValuesJson[Str::slug($val->attribute->name)] = $val->name;
+                    }
+                }
+
+                // Auto-deduplicate SKU
+                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $variantSku = $baseSku;
+                $skuCounter = 1;
+                while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
+                    $variantSku = $baseSku . '-' . $skuCounter;
+                    $skuCounter++;
+                }
+                $usedSkus[] = $variantSku;
+
+                $variantData = [
+                    'product_id' => $product->id,
+                    'combination' => $combJson,
+                    'attribute_values' => $attrValuesJson,
+                    'price' => $prices[$index] ?? $product->price,
+                    'sale_price' => $prices[$index] ?? $product->price,
+                    'stock_quantity' => $stocks[$index] ?? 0,
+                    'sku' => $variantSku,
+                    'status' => 'active'
+                ];
+
+                // Handle Multiple Variant Images
+                $vUploadedImages = [];
+                if (isset($variantImagesFiles[$index])) {
+                    foreach ($variantImagesFiles[$index] as $file) {
+                        $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
+                        $file->move(public_path('uploads/products/variants'), $imgName);
+                        $vUploadedImages[] = 'products/variants/' . $imgName;
+                    }
+                    $variantData['images'] = $vUploadedImages;
+                    $variantData['image'] = $vUploadedImages[0] ?? null; // For legacy
+                }
+
+                \App\Models\ProductVariant::create($variantData);
+            }
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
@@ -109,14 +177,19 @@ class ProductController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'sub_category_id' => 'nullable|exists:sub_categories,id',
+            'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
+            'barcode' => 'nullable|string',
+            'isbn' => 'nullable|string',
             'regular_price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'status' => 'required',
+            'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
-            'tax_class' => 'nullable|string',
+            'tax_class_id' => 'nullable|exists:tax_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
         ]);
@@ -135,6 +208,7 @@ class ProductController extends Controller
 
         // Handle General Images
         if ($request->hasFile('images')) {
+            // Delete old images if new ones uploaded
             if ($product->images) {
                 foreach ($product->images as $oldImage) {
                     if (file_exists(public_path('uploads/' . $oldImage))) unlink(public_path('uploads/' . $oldImage));
@@ -147,25 +221,105 @@ class ProductController extends Controller
                 $images[] = 'products/' . $imageName;
             }
             $data['images'] = $images;
+            $primaryIndex = $request->input('primary_image_index', 0);
+            $data['primary_image'] = $images[$primaryIndex] ?? $images[0];
         }
 
-        // Handle Color-specific Images
+        // Handle Color-specific Images (Merge with existing)
+        $colorImages = $product->color_images ?? [];
+        if(!is_array($colorImages)) {
+            $colorImages = json_decode($colorImages, true) ?? [];
+        }
+
         if ($request->hasFile('color_images')) {
-            $existing = $product->color_images ?? [];
             foreach ($request->file('color_images') as $colorValueId => $files) {
-                if (!empty($existing[$colorValueId])) {
-                    foreach ($existing[$colorValueId] as $old) {
-                        if (file_exists(public_path('uploads/' . $old))) unlink(public_path('uploads/' . $old));
-                    }
-                }
-                $existing[$colorValueId] = [];
+                // If new files for this color are uploaded, we append them or replace?
+                // The user said "Update", usually means append or replace for that color.
+                // Let's replace only for that specific color if images are sent.
+                $colorImages[$colorValueId] = []; 
                 foreach ($files as $file) {
                     $imageName = time() . '_' . uniqid() . '.' . $file->extension();
                     $file->move(public_path('uploads/products'), $imageName);
-                    $existing[$colorValueId][] = 'products/' . $imageName;
+                    $colorImages[$colorValueId][] = 'products/' . $imageName;
                 }
             }
-            $data['color_images'] = $existing;
+        }
+        $data['color_images'] = $colorImages;
+
+        // Handle Variant Matrix
+        if ($request->has('variant_combinations')) {
+            $product->product_variants()->delete(); 
+            $combinations = $request->variant_combinations;
+            $prices = $request->v_price;
+            $stocks = $request->v_stock;
+            $skus = $request->v_sku;
+            $variantImagesFiles = $request->file('v_images');
+            $existingImages = $request->v_existing_image;
+
+            $usedSkus = [];
+
+            foreach ($combinations as $index => $idsString) {
+                if(empty($idsString)) continue;
+                $idsArray = explode(',', $idsString);
+                $combJson = [];
+                $attrValuesJson = [];
+                foreach ($idsArray as $valId) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($valId);
+                    if ($val) {
+                        $combJson[$val->attribute_id] = [$val->id];
+                        $attrValuesJson[Str::slug($val->attribute->name)] = $val->name;
+                    }
+                }
+
+                // Auto-deduplicate SKU
+                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $variantSku = $baseSku;
+                $skuCounter = 1;
+                while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
+                    $variantSku = $baseSku . '-' . $skuCounter;
+                    $skuCounter++;
+                }
+                $usedSkus[] = $variantSku;
+
+                $variantData = [
+                    'product_id' => $product->id,
+                    'combination' => $combJson,
+                    'attribute_values' => $attrValuesJson,
+                    'price' => $prices[$index] ?? $product->price,
+                    'sale_price' => $prices[$index] ?? $product->price,
+                    'stock_quantity' => $stocks[$index] ?? 0,
+                    'sku' => $variantSku,
+                    'status' => 'active'
+                ];
+
+                // Handle Multiple Variant Images
+                $vUploadedImages = [];
+                $vExistingArray = [];
+                
+                // Get existing images from hidden input if present
+                if ($request->has('v_existing_images') && isset($request->v_existing_images[$index])) {
+                    $val = $request->v_existing_images[$index];
+                    if ($val) {
+                        $vExistingArray = json_decode($val, true) ?? [];
+                        if (!is_array($vExistingArray) && !empty($val)) $vExistingArray = [$val];
+                    }
+                }
+
+                if (isset($variantImagesFiles[$index])) {
+                    foreach ($variantImagesFiles[$index] as $file) {
+                        $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
+                        $file->move(public_path('uploads/products/variants'), $imgName);
+                        $vUploadedImages[] = 'products/variants/' . $imgName;
+                    }
+                    $variantData['images'] = $vUploadedImages;
+                    $variantData['image'] = $vUploadedImages[0] ?? null; 
+                } else {
+                    $variantData['images'] = $vExistingArray;
+                    $variantData['image'] = $vExistingArray[0] ?? null;
+                }
+
+                $product->product_variants()->create($variantData);
+            }
         }
 
         $product->update($data);

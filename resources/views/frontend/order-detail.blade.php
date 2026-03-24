@@ -273,11 +273,35 @@
 
         <div class="order-detail-header">
             <div>
-                <h1 class="order-id-badge">Order #NS7842</h1>
-                <p style="color: #999; margin-top: 5px;">Placed on Oct 12, 2023 &middot; 10:45 AM</p>
+                <h1 class="order-id-badge">Order #NS{{ $order->id }}</h1>
+                <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot; {{ $order->created_at->format('h:i A') }}</p>
             </div>
             <div class="order-actions-top">
-                <button onclick="handleDownload()" class="account-nav-link"
+                <button onclick="handleDownload({{ json_encode([
+                    'orderNumber' => 'NS' . $order->id,
+                    'date' => $order->created_at->format('M d, Y'),
+                    'customer' => [
+                        'name' => $order->billing_name ?: $order->customer_name,
+                        'address' => str_replace(["\r", "\n"], ', ', $order->delivery_address),
+                        'phone' => $order->billing_phone ?: $order->customer_phone
+                    ],
+                    'items' => $order->items->map(function($item) {
+                        return [
+                            'name' => $item->product_name,
+                            'image' => $item->getImageUrl(),
+                            'variant' => ($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : ''),
+                            'hsn' => "5007",
+                            'qty' => $item->quantity,
+                            'rate' => (float)$item->price,
+                            'taxRate' => 12
+                        ];
+                    })->toArray(),
+                    'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
+                    'subtotal' => (float)$order->sub_total,
+                    'taxAmount' => (float)$order->tax,
+                    'shipping' => (float)$order->shipping,
+                    'total' => (float)$order->grand_total
+                ]) }})" class="account-nav-link"
                     style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
@@ -286,10 +310,10 @@
                     </svg>
                     Download Invoice
                 </button>
-                <button class="account-nav-link"
-                    style="background: var(--pink); color: #fff; border: none; cursor: pointer;">
-                    Buy it Again
-                </button>
+                <a href="{{ route('shop') }}" class="account-nav-link"
+                    style="background: var(--pink); color: #fff; border: none; cursor: pointer; text-decoration: none; display: inline-block;">
+                    Buy More
+                </a>
             </div>
         </div>
 
@@ -299,30 +323,32 @@
                 <div class="timeline-step completed">
                     <div class="step-icon">&#10003;</div>
                     <span class="step-label">Order Placed</span>
-                    <span class="step-date">Oct 12</span>
+                    <span class="step-date">{{ $order->created_at->format('M d') }}</span>
                 </div>
-                <div class="timeline-step completed">
-                    <div class="step-icon">&#10003;</div>
+                <div class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'pending' ? 'active' : '') }}">
+                    <div class="step-icon">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}</div>
                     <span class="step-label">Confirmed</span>
-                    <span class="step-date">Oct 12</span>
+                    <span class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Pending' }}</span>
                 </div>
-                <div class="timeline-step active">
-                    <div class="step-icon">&#9679;</div>
+                <div class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
+                    <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}</div>
                     <span class="step-label">Shipped</span>
-                    <span class="step-date">Processing</span>
+                    <span class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
                 </div>
-                <div class="timeline-step">
-                    <div class="step-icon">&#9675;</div>
+                <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
+                    <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
                     <span class="step-label">Delivered</span>
-                    <span class="step-date">Est Oct 15</span>
+                    <span class="step-date">{{ $order->order_status == 'delivered' ? 'Completed' : 'Expected' }}</span>
                 </div>
             </div>
 
+            @if($order->tracking_number)
             <div class="tracking-info">
-                <p style="font-size: 14px;"><strong>Tracking ID:</strong> DN678429103 <span
-                        style="margin: 0 10px; color: #ccc;">|</span> <strong>Courier:</strong> Delhivery <a href="#"
+                <p style="font-size: 14px;"><strong>Tracking ID:</strong> {{ $order->tracking_number }} <span
+                        style="margin: 0 10px; color: #ccc;">|</span> <strong>Courier:</strong> {{ $order->courier_name ?? 'Standard' }} <a href="#"
                         class="courier-link" style="margin-left: 10px;">Track on Website</a></p>
             </div>
+            @endif
         </div>
 
         <div class="order-info-grid">
@@ -340,24 +366,30 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($order->items as $item)
                             <tr>
                                 <td>
                                     <div class="item-cell">
-                                        <img src="{{ asset('images/pro1.png') }}" alt="" class="item-img">
+                                        <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
                                         <div>
-                                            <div class="item-name">Royal Gold Handloom Silk Saree</div>
-                                            <div class="item-meta">Color: Gold Jari | Size: Free Size</div>
+                                            <div class="item-name">{{ $item->product_name }}</div>
+                                            <div class="item-meta">
+                                                @if($item->color) Color: {{ $item->color }} | @endif 
+                                                @if($item->size) Size: {{ $item->size }} @endif
+                                                @if(!$item->color && !$item->size) Regular Type @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>&#8377;7,490</td>
-                                <td class="item-qty">1</td>
-                                <td>&#8377;7,490</td>
+                                <td>&#8377;{{ number_format($item->price, 0) }}</td>
+                                <td class="item-qty">{{ $item->quantity }}</td>
+                                <td>&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
                                 <td class="item-actions-cell">
                                     <a href="#" class="action-link">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -369,19 +401,25 @@
                     <div class="summary-details">
                         <div class="summary-row subtotal-row">
                             <span>Subtotal</span>
-                            <span class="subtotal-val">&#8377;7,490</span>
+                            <span class="subtotal-val">&#8377;{{ number_format($order->sub_total, 0) }}</span>
                         </div>
                         <div class="summary-row">
                             <span>Shipping</span>
-                            <span style="color: #52c41a;">FREE</span>
+                            <span style="color: #52c41a;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 0) : 'FREE' }}</span>
                         </div>
                         <div class="summary-row tax-row">
-                            <span>Tax (GST 12%)</span>
-                            <span class="tax-val">&#8377;898</span>
+                            <span>Tax (GST)</span>
+                            <span class="tax-val">&#8377;{{ number_format($order->tax, 0) }}</span>
                         </div>
+                        @if($order->discount > 0)
+                        <div class="summary-row">
+                            <span>Discount</span>
+                            <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 0) }}</span>
+                        </div>
+                        @endif
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span class="total-val">&#8377;8,388</span>
+                            <span class="total-val">&#8377;{{ number_format($order->grand_total, 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -389,20 +427,24 @@
                 <div class="info-section">
                     <h3 class="info-title">Delivery Address</h3>
                     <div class="address-card">
-                        <p><strong class="cust-name">John Doe</strong></p>
-                        <p class="addr-line">45, Rajaji Street, T-Nagar</p>
-                        <p class="city-line">Chennai, Tamil Nadu - 600017</p>
-                        <p class="phone-line">Phone: +91 98765 43210</p>
+                        <p><strong class="cust-name">{{ $order->billing_name ?: $order->customer_name }}</strong></p>
+                        <div class="addr-lines" style="font-size: 14px; color: #666;">
+                            {!! nl2br(e($order->delivery_address)) !!}
+                        </div>
+                        <p class="phone-line" style="margin-top: 10px;">Phone: {{ $order->billing_phone ?: $order->customer_phone }}</p>
                     </div>
                 </div>
 
                 <div class="info-section">
                     <h3 class="info-title">Payment Method</h3>
                     <div class="payment-info-card">
-                        <p class="pay-method" style="font-size: 14px; font-weight: 600;">Credit Card (Ending in 4242)</p>
-                        <p style="font-size: 12px; color: #999;">Transaction ID: #TRX9023485</p>
-                        <span class="status-badge status-delivered" style="display: inline-block; margin-top: 10px;">Payment
-                            Successful</span>
+                        <p class="pay-method" style="font-size: 14px; font-weight: 600; text-transform: uppercase;">
+                            {{ str_replace('_', ' ', $order->payment_method) }}
+                        </p>
+                        <p style="font-size: 12px; color: #999;">Status: {{ ucfirst($order->payment_status) }}</p>
+                        <span class="status-badge {{ $order->payment_status == 'paid' ? 'status-delivered' : '' }}" style="display: inline-block; margin-top: 10px;">
+                            {{ $order->payment_status == 'paid' ? 'Payment Successful' : 'Payment '.ucfirst($order->payment_status) }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -415,45 +457,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="{{ asset('js/invoice.js') }}"></script>
 <script>
-    function handleDownload() {
-        const orderNo = document.querySelector('.order-id-badge').innerText.replace('Order ', '').replace('#', '').trim();
-        const totalText = document.querySelector('.total-val').innerText.replace('₹', '').replace(',', '').trim();
-        const subtotalText = document.querySelector('.subtotal-val').innerText.replace('₹', '').replace(',', '').trim();
-        const gstText = document.querySelector('.tax-val').innerText.replace('₹', '').replace(',', '').trim();
-
-        const customerName = document.querySelector('.cust-name').innerText;
-        const addrLine = document.querySelector('.addr-line').innerText;
-        const cityLine = document.querySelector('.city-line').innerText;
-        const phone = document.querySelector('.phone-line').innerText.replace('Phone: ', '').trim();
-
-        const orderData = {
-            orderNumber: orderNo,
-            date: new Date().toLocaleDateString(),
-            customer: {
-                name: customerName,
-                address: addrLine + ', ' + cityLine,
-                phone: phone
-            },
-            items: [
-                {
-                    name: document.querySelector('.item-name').innerText,
-                    variant: document.querySelector('.item-meta').innerText,
-                    hsn: "5007",
-                    qty: parseInt(document.querySelector('.item-qty').innerText),
-                    rate: parseFloat(subtotalText),
-                    taxRate: 12
-                }
-            ],
-            paymentMethod: document.querySelector('.pay-method').innerText,
-            subtotal: parseFloat(subtotalText),
-            taxAmount: parseFloat(gstText),
-            shipping: 0,
-            total: parseFloat(totalText)
-        };
-
+    function handleDownload(orderData) {
         if (typeof InvoiceGenerator !== 'undefined') {
             InvoiceGenerator.download(orderData);
         } else {
+            console.error('InvoiceGenerator not found. Please check if invoice.js is loaded.');
             alert('Invoice generator is still loading. Please try again.');
         }
     }

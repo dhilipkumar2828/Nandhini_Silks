@@ -25,18 +25,25 @@ Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit'
 Route::post('/register', [UserAuthController::class, 'register'])->name('register');
 Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 
+use App\Http\Controllers\WishlistController;
+
 // Frontend Static Pages
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [CartController::class, 'placeOrder'])->name('checkout.place');
-Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
+Route::post('/payment/razorpay/verify', [CartController::class, 'verifyRazorpay'])->name('razorpay.verify');
+
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+Route::post('/wishlist/add/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
+Route::post('/wishlist/remove/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+
 Route::get('/search', [FrontendController::class, 'search'])->name('search');
 
 // Policy Pages
@@ -55,6 +62,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
     Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
     Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
+    Route::post('/my-profile/update', [FrontendController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/my-profile/photo', [FrontendController::class, 'updateProfilePhoto'])->name('profile.photo');
+    Route::delete('/my-reviews/{id}', [FrontendController::class, 'deleteReview'])->name('profile.review.delete');
+    Route::put('/my-reviews/{id}', [FrontendController::class, 'updateReview'])->name('profile.review.update');
     Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
     Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 });
@@ -63,6 +74,9 @@ Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirm
 
 // Dynamic Products/Categories
 Route::get('/category/{slug}', [FrontendController::class, 'category'])->name('category.show');
+Route::get('/category/{cat_slug}/{sub_slug}', [FrontendController::class, 'category'])->name('subCategory.show');
+Route::get('/category/{cat_slug}/{sub_slug}/{child_slug}', [FrontendController::class, 'category'])->name('childCategory.show');
+Route::get('/search', [FrontendController::class, 'search'])->name('search');
 Route::get('/product/{slug}', [FrontendController::class, 'productShow'])->name('product.show');
 
 // Special Category Routes (to match existing links if needed)

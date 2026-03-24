@@ -10,9 +10,11 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -82,6 +84,59 @@
         select.error,
         textarea.error {
             border-color: #ef4444 !important;
+        }
+
+        /* Select2 Custom Styles to match your theme */
+        .select2-container--default .select2-selection--single, 
+        .select2-container--default .select2-selection--multiple {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            min-height: 38px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #a91b43 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+            font-size: 0.875rem;
+            color: #1e293b;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #a91b43;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 5px;
+        }
+        .select2-dropdown {
+            border-color: #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .select2-results__option--highlighted[aria-selected] {
+            background-color: #a91b43 !important;
+        }
+
+        /* Custom Toastr Colors */
+        #toast-container > .toast {
+            background-image: none !important;
+            padding: 15px 20px 15px 50px !important;
+            box-shadow: 0 5px 15px rgba(169, 27, 67, 0.2) !important;
+            opacity: 1 !important;
+        }
+        #toast-container > .toast-success, 
+        #toast-container > .toast-error, 
+        #toast-container > .toast-info, 
+        #toast-container > .toast-warning {
+            background-color: #a91b43 !important;
         }
     </style>
 </head>

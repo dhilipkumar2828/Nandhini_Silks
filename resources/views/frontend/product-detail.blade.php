@@ -53,6 +53,92 @@
             color: #fff !important;
             border-color: #A91B43 !important;
         }
+
+        /* Unavailable/Out of Stock Swatch Style */
+        .attribute-option.unavailable {
+            position: relative !important;
+            opacity: 0.4 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            filter: grayscale(1);
+            background: #f5f5f5 !important;
+            color: #999 !important;
+            border-color: #ddd !important;
+            overflow: hidden;
+        }
+        .attribute-option.unavailable::after {
+            content: "SOLD OUT";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 8px;
+            font-weight: 800;
+            color: #e74c3c;
+            background: rgba(255,255,255,0.9);
+            padding: 1px 4px;
+            border: 1px solid #e74c3c;
+            border-radius: 2px;
+            white-space: nowrap;
+            z-index: 5;
+            letter-spacing: 0.5px;
+        }
+        .attribute-option.unavailable.color-swatch::after {
+            font-size: 6px;
+            padding: 0px 1px;
+            background: #fff;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+        .attribute-option.unavailable.size-btn {
+            border-style: dashed !important;
+        }
+
+        /* Override cache for thumbnails */
+        .product-thumbnails {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            width: 70px !important;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .product-thumbnails::-webkit-scrollbar {
+            width: 3px;
+        }
+        .product-thumbnails::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+        .thumbnail {
+            width: 70px !important;
+            height: 87.5px !important; /* 4:5 ratio */
+            border-radius: 6px !important;
+            overflow: hidden;
+            border: 2px solid transparent !important;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+            background: #f9f9f9;
+        }
+        .thumbnail.active, .thumbnail:hover {
+            border-color: #A91B43 !important;
+            transform: scale(1.02);
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 900px) {
+            .product-thumbnails {
+                flex-direction: row !important;
+                width: 100% !important;
+                max-height: auto;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
     </style>
     @endpush
     <main class="product-detail-page">
@@ -83,7 +169,7 @@
                             ];
                         }
 
-                        // Color-specific Images
+                        // Color-specific Images (Legacy)
                         $colorImagesMap = $product->color_images ?? [];
                         foreach ($colorImagesMap as $colorId => $imgs) {
                             foreach ((array)$imgs as $img) {
@@ -91,6 +177,22 @@
                                     'url' => asset('uploads/' . (str_starts_with($img, 'products/') ? $img : 'products/' . $img)),
                                     'color_id' => $colorId
                                 ];
+                            }
+                        }
+
+                        // Variant-specific Images (Multiple)
+                        if ($product->product_variants) {
+                            foreach($product->product_variants as $variant) {
+                                $vImgs = is_array($variant->images) ? $variant->images : (json_decode($variant->images ?? '[]', true) ?? []);
+                                if(empty($vImgs) && $variant->image) $vImgs = [$variant->image];
+                                
+                                foreach($vImgs as $vImg) {
+                                    $allImages[] = [
+                                        'url' => asset('uploads/' . $vImg),
+                                        'color_id' => null,
+                                        'variant_id' => $variant->id
+                                    ];
+                                }
                             }
                         }
 
@@ -102,14 +204,17 @@
                     @endphp
                     <div class="main-product-image" id="zoomContainer" style="position: relative;">
                         <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
-                        <button type="button" class="btn-wishlist-detail" aria-label="Add to Wishlist" style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-                            <i class="fa-solid fa-heart" style="color: #A91B43; font-size: 18px;"></i>
+                        <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn" aria-label="Add to Wishlist" 
+                                data-product-id="{{ $product->id }}"
+                                style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                            <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon" style="color: #A91B43; font-size: 18px;"></i>
                         </button>
                     </div>
-                    <div class="product-thumbnails">
+                    <div class="product-thumbnails" id="thumbnailsContainer" style="display: none;">
                         @foreach($allImages as $i => $imgData)
                             <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" 
                                  data-color-id="{{ $imgData['color_id'] }}"
+                                 data-variant-id="{{ $imgData['variant_id'] ?? '' }}"
                                  onclick="changeImg('{{ $imgData['url'] }}', this)">
                                 <img src="{{ $imgData['url'] }}" alt="View {{ $i + 1 }}">
                             </div>
@@ -126,36 +231,40 @@
 
                     <h1 class="product-title-detail" style="margin: 0 0 5px; line-height: 1.1; font-size: 32px; font-weight: 700; color: #1a1a1a;">{{ $product->name }}</h1>
 
-                    <div class="product-rating" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <div class="stars" style="line-height: 1; color: #FFB800; font-size: 13px;">★★★★★</div>
-                        <span style="font-size: 12px; color: #888; font-weight: 500;">4.8 (12 Reviews)</span>
-                    </div>
-
-                    <div class="product-price-section" style="margin-bottom: 12px; display: flex; align-items: baseline; line-height: 1;">
-                        <span class="current-price" style="font-size: 28px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
-                        @if($product->regular_price > $product->price)
-                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->regular_price, 0) }}</span>
-                        @else
-                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->price * 1.25, 0) }}</span>
-                        @endif
-                        <span class="discount-badge" style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-left: 10px; text-transform: uppercase;">20% OFF</span>
-                    </div>
-
-                    <div class="stock-status" style="margin-bottom: 15px;">
-                        @if($product->stock_quantity > 0)
-                            <span class="stock-badge stock-in" style="font-size: 12px; font-weight: 600; color: #2ecc71; background: #f0fff4; padding: 4px 10px; border-radius: 4px; border: 1px solid #c6f6d5;">
-                                IN STOCK
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                        <div class="product-rating flex items-center gap-2">
+                            <div class="stars flex" style="line-height: 1; color: #FFB800; font-size: 12px;">
+                                @for($i=1; $i<=5; $i++)
+                                    <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                @endfor
+                            </div>
+                            <span style="font-size: 11px; color: #888; font-weight: 500;">{{ number_format($product->average_rating, 1) }} ({{ $product->reviews_count }} Reviews)</span>
+                        </div>
+                        <div class="product-price-section flex items-baseline gap-2">
+                            <span class="current-price" id="displayPrice" style="font-size: 24px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
+                            @if($product->regular_price > $product->price)
+                                <span class="old-price" id="displayRegularPrice" style="text-decoration: line-through; color: #bbb; font-size: 14px;">₹{{ number_format($product->regular_price, 0) }}</span>
+                                <span class="discount-badge" id="displayDiscount" style="background: #e74c3c; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase;">{{ $product->discount_percent }}% OFF</span>
+                            @endif
+                        </div>
+                        <div class="stock-status">
+                            @php
+                                $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                                $isInStock = ($product->product_variants->count() > 0) ? ($totalVariantStock > 0) : ($product->stock_quantity > 0);
+                            @endphp
+                            <span id="stockStatus" class="stock-badge {{ $isInStock ? 'stock-in' : 'stock-out' }}" 
+                                   style="font-size: 9px; font-weight: 700; {{ $isInStock ? 'color: #2ecc71; background: #c0fbe15e; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 2px 6px; border-radius: 3px; text-transform: uppercase;">
+                                {{ $isInStock ? 'IN STOCK' : 'OUT OF STOCK' }}
                             </span>
-                        @else
-                            <span class="stock-badge stock-out" style="font-size: 12px; font-weight: 600; color: #e74c3c; background: #fff5f5; padding: 4px 10px; border-radius: 4px; border: 1px solid #fed7d7;">
-                                OUT OF STOCK
-                            </span>
-                        @endif
+                        </div>
                     </div>
+                    <p style="font-size: 10px; color: #999; margin-bottom: 8px; font-weight: 500; margin-top: -5px;">(Inclusive of all taxes)</p>
 
+                    @if($product->description)
                     <div class="product-description-short" style="margin-bottom: 0px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
                         {!! Str::limit(strip_tags($product->description), 150) !!}
                     </div>
+                    @endif
 
                     <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" id="pdpForm" style="display: block; width: 100%;">
                         @csrf
@@ -314,7 +423,37 @@
                 </div>
 
                 <div class="tab-pane" id="tabReviews" style="display: none; padding-top: 30px;">
-                    <p>No reviews yet for this product.</p>
+                    <div class="reviews-container">
+                        @if($product->reviews()->count() > 0)
+                            <div class="space-y-6">
+                                @foreach($product->reviews as $review)
+                                    <div class="review-item border-b border-gray-100 pb-6">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <div class="text-[#FFB800] text-sm">
+                                                @for($i=1; $i<=5; $i++)
+                                                    <i class="{{ $i <= $review->stars ? 'fas' : 'far' }} fa-star"></i>
+                                                @endfor
+                                            </div>
+                                            <span class="font-bold text-sm text-gray-800">{{ $review->user->name ?? 'User' }}</span>
+                                            <span class="text-xs text-gray-400">{{ $review->created_at->format('M d, Y') }}</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 leading-relaxed">{{ $review->review }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4">
+                                    <i class="far fa-comments text-2xl text-[#a91b43]"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-800 mb-1">No reviews yet</h4>
+                                <p class="text-xs text-slate-500 mb-6">Be the first to share your thoughts about this product!</p>
+                                <button class="px-6 py-2.5 bg-[#a91b43] text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-[#940437] transition-all shadow-md active:scale-95" onclick="alert('Review form coming soon!')">
+                                    Write a Review
+                                </button>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="tab-pane" id="tabShipping" style="display: none; padding-top: 30px;">
@@ -360,36 +499,26 @@
                         <div class="swiper-button-prev related-prev"></div>
                     </div>
                 </section>
-@endif
+            @endif
 
-            <!-- Recently Viewed Section (Mocked) -->
-            <section class="recently-viewed" style="margin-top: 60px; margin-bottom: 60px; overflow: hidden;">
-                <h2 style="font-size: 32px; color: #ad8b4e; margin-bottom: 40px; font-weight: 600; text-align: center;">
-                    Recently Viewed</h2>
-                <div class="swiper-wrap-outer" style="position: relative; padding: 0 60px;">
-                    <div class="swiper recently-swiper" style="padding: 10px 5px;">
-                        <div class="swiper-wrapper">
-                            @for($i = 0; $i < 6; $i++) {{-- Mock 6 items --}}
-                                <div class="swiper-slide">
-                                    <article class="product-card-v2" style="height: 100%;">
-                                        <div class="product-image-v2">
-                                            <img src="{{ asset('images/pro'.(($i%4)+1).'.png') }}" alt="Silk Saree" onerror="this.src='{{ asset('images/pro1.png') }}'">
-                                        </div>
-                                        <div class="product-info-v2">
-                                            <h3 class="product-name-v2">Pure Silk Saree</h3>
-                                            <p class="product-price-v2">₹4,290</p>
-                                        </div>
-                                    </article>
-                                </div>
-                            @endfor
-                        </div>
+            {{-- Recently Viewed Section --}}
+            @if(isset($recentlyViewed) && count($recentlyViewed) > 0)
+                <section class="recently-viewed" style="margin-top: 60px; margin-bottom: 60px; overflow: hidden;">
+                    <h2 style="font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 30px; text-align: left;">
+                        Recently Viewed
+                        <div style="width: 40px; height: 3px; background: #a91b43; margin-top: 8px;"></div>
+                    </h2>
+                    
+                    <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
+                        @foreach($recentlyViewed as $recent)
+                            @include('frontend.partials.product-card', ['product' => $recent])
+                        @endforeach
                     </div>
-                    <div class="swiper-button-next recently-next"></div>
-                    <div class="swiper-button-prev recently-prev"></div>
-                </div>
-            </section>
+                </section>
+            @endif
         </div>
     </main>
+</div>
 @endsection
 
 @push('scripts')
@@ -409,6 +538,11 @@
             input.value = current;
             if (hiddenInput) hiddenInput.value = current;
         }
+        const productVariants = {!! json_encode($product->product_variants) !!};
+        const basePrice = {{ $product->price }};
+        const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
+        const baseSku = "{{ $product->sku }}";
+
         function selectAttribute(element) {
             const attrId = element.getAttribute('data-attr-id');
             const valueId = element.getAttribute('data-value-id');
@@ -428,22 +562,185 @@
             if(element.classList.contains('color-swatch')) {
                 updateGallery(valueId);
             }
+
+            // Sync Variants and Availability
+            updateOptionsAvailability();
+            checkVariant();
         }
 
-        function updateGallery(colorId) {
+        function updateOptionsAvailability() {
+            const allSections = document.querySelectorAll('.attribute-section');
+            const selectedAttrs = {};
+            
+            // Collect currently selected attributes
+            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                const attrId = input.id.replace('attr_', '');
+                if(input.value) selectedAttrs[attrId] = parseInt(input.value);
+            });
+
+            allSections.forEach(section => {
+                const sectionAttrId = section.querySelector('input[id^="attr_"]').id.replace('attr_', '');
+                const options = section.querySelectorAll('.attribute-option');
+
+                options.forEach(opt => {
+                    const valueId = parseInt(opt.getAttribute('data-value-id'));
+                    
+                    // Assume we selected this option, can we find ANY variant that matches it 
+                    // COMBINED with other currently selected attributes?
+                    let testSelection = {...selectedAttrs};
+                    testSelection[sectionAttrId] = valueId;
+
+                    let isAvailable = productVariants.some(v => {
+                        if(!v.combination) return false;
+                        
+                        // Check if this variant matches ALL our testSelection criteria
+                        let matches = Object.entries(testSelection).every(([aid, vid]) => {
+                           if(!v.combination[aid]) return false;
+                           return v.combination[aid].includes(vid);
+                        });
+
+                        // It's ONLY available if it exists AND has stock > 0
+                        return matches && v.stock_quantity > 0;
+                    });
+
+                    if(isAvailable) {
+                        opt.style.opacity = '1';
+                        opt.style.pointerEvents = 'auto';
+                        opt.classList.remove('unavailable');
+                    } else {
+                        opt.style.opacity = '0.3';
+                        opt.style.pointerEvents = 'none'; // Optional: disable clicking
+                        opt.classList.add('unavailable');
+                        // If it's the currently active one but now unavailable, mark it
+                        if(opt.classList.contains('active')) {
+                           // opt.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function updatePriceDisplay(sale, regular) {
+            document.getElementById('displayPrice').innerText = '₹' + new Intl.NumberFormat().format(sale);
+            const regEl = document.getElementById('displayRegularPrice');
+            const discEl = document.getElementById('displayDiscount');
+            
+            if(regEl && regular > sale) {
+                regEl.innerText = '₹' + new Intl.NumberFormat().format(regular);
+                regEl.style.display = 'inline';
+                if(discEl) {
+                    let pct = Math.round(((regular - sale) / regular) * 100);
+                    if(pct > 0) {
+                        discEl.innerText = pct + '% OFF';
+                        discEl.style.display = 'inline';
+                    } else {
+                        discEl.style.display = 'none';
+                    }
+                }
+            } else if(regEl) {
+                regEl.style.display = 'none';
+                if(discEl) discEl.style.display = 'none';
+            }
+        }
+
+        function checkVariant() {
+            let selectedAttrs = [];
+            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                if(input.value) selectedAttrs.push(parseInt(input.value));
+            });
+
+            // Match against v.combination (e.g. { "1": [10], "2": [15] })
+            let matched = productVariants.find(v => {
+                if(!v.combination) return false;
+                let vValues = Object.values(v.combination).flat().map(Number);
+                return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
+            });
+
+            if(matched) {
+                // If variant has only one price column, assume it's the 'Sale price' 
+                // and compare with Main Regular Price or its own if available
+                let vSale = parseFloat(matched.sale_price || matched.price || basePrice);
+                let vRegular = parseFloat(matched.price && matched.sale_price && matched.price > matched.sale_price ? matched.price : baseRegularPrice);
+                
+                updatePriceDisplay(vSale, vRegular);
+                document.querySelector('.product-sku').innerText = matched.sku || baseSku;
+                updateStockStatus(matched.stock_quantity);
+                
+                // Swap Main Image and filter thumbnails for this variant
+                updateGallery(null, matched.id);
+            } else {
+                 updatePriceDisplay(basePrice, baseRegularPrice);
+                 document.querySelector('.product-sku').innerText = baseSku;
+                 updateStockStatus({{ $product->stock_quantity }});
+                 updateGallery(null, null); // Show general images
+            }
+        }
+
+        window.onload = function() {
+            // Auto-select first option for each attribute section
+            document.querySelectorAll('.attribute-section').forEach(section => {
+                const firstOption = section.querySelector('.attribute-option:not(.unavailable)');
+                if (firstOption) {
+                    selectAttribute(firstOption);
+                }
+            });
+            // Initial check
+            checkVariant();
+        };
+
+        function updateStockStatus(qty) {
+            const el = document.getElementById('stockStatus');
+            if(qty > 0) {
+                el.innerText = 'IN STOCK';
+                el.className = 'stock-badge stock-in';
+                el.style.color = '#2ecc71'; el.style.background = '#f0fff4'; el.style.borderColor = '#c6f6d5';
+            } else {
+                el.innerText = 'OUT OF STOCK';
+                el.className = 'stock-badge stock-out';
+                el.style.color = '#e74c3c'; el.style.background = '#fff5f5'; el.style.borderColor = '#fed7d7';
+            }
+        }
+
+        function updateGallery(colorId, variantId) {
             const thumbs = document.querySelectorAll('.thumbnail');
             let firstFound = null;
-            
+            let countVisible = 0;
+
+            // First pass: try to find exact matches
             thumbs.forEach(t => {
                 const thumbColorId = t.getAttribute('data-color-id');
-                // Show if generic (null) OR matches colorId
-                if(!thumbColorId || thumbColorId === 'null' || thumbColorId == colorId) {
+                const thumbVariantId = t.getAttribute('data-variant-id');
+                
+                let show = false;
+                if(variantId && thumbVariantId == variantId) {
+                    show = true;
+                } else if(!variantId && colorId && (thumbColorId == colorId)) {
+                    show = true;
+                }
+
+                if(show) {
                     t.style.display = 'block';
                     if(!firstFound) firstFound = t;
+                    countVisible++;
                 } else {
                     t.style.display = 'none';
                 }
             });
+
+            // Fallback: If no specific images found, show general images
+            if(countVisible === 0) {
+                thumbs.forEach(t => {
+                    const thumbColorId = t.getAttribute('data-color-id');
+                    const thumbVariantId = t.getAttribute('data-variant-id');
+                    
+                    // Show images that aren't tied to a specific color or variant
+                    if((!thumbColorId || thumbColorId === 'null') && !thumbVariantId) {
+                        t.style.display = 'block';
+                        if(!firstFound) firstFound = t;
+                        countVisible++;
+                    }
+                });
+            }
 
             if(firstFound) {
                 const img = firstFound.querySelector('img');
@@ -461,6 +758,25 @@
 
         // Initialize Swipers
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto Select First Options
+            let hasSelection = false;
+            document.querySelectorAll('.swatch-container').forEach(container => {
+                const firstOpt = container.querySelector('.attribute-option');
+                if (firstOpt) {
+                    firstOpt.click();
+                    hasSelection = true;
+                }
+            });
+
+            if (!hasSelection) {
+                // If simple product without attributes, just load base images
+                updateGallery(null, null);
+            }
+
+            // Unhide the thumbnails container after JS filters it
+            const tc = document.getElementById('thumbnailsContainer');
+            if (tc) tc.style.display = 'flex';
+
             const swiperOptions = {
                 slidesPerView: 2,
                 spaceBetween: 20,
@@ -495,6 +811,7 @@
                     }
                 });
             }
+
         });
     </script>
 @endpush

@@ -47,7 +47,7 @@
 
                         <td class="py-4 px-4 text-center">
                             <input type="number" name="stock[{{ $product->id }}][quantity]" value="{{ $product->stock_quantity }}" 
-                                class="w-16 text-center bg-slate-50 border border-slate-200 px-2 py-1.5 rounded-lg text-sm font-bold text-slate-800 focus:border-[#a91b43] outline-none transition-all">
+                                class="w-16 text-center {{ $product->stock_quantity < 0 ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-200 text-slate-800' }} px-2 py-1.5 rounded-lg text-sm font-bold focus:border-[#a91b43] outline-none transition-all">
                         </td>
 
                         <td class="py-4 px-4 text-center">
@@ -95,10 +95,31 @@
                             </div>
                         </td>
                     </tr>
+                    
+                    @if($product->product_variants->count() > 0)
+                        @foreach($product->product_variants as $variant)
+                        <tr class="bg-indigo-50/10 border-b border-indigo-50 transition-all hover:bg-indigo-50/20">
+                            <td class="py-3 px-6 pl-12 border-l-4 border-indigo-400">
+                                <div class="text-[11px] font-black text-indigo-600 uppercase tracking-tight">Variant: {{ $variant->combination }}</div>
+                                <div class="text-[10px] font-medium text-slate-400 mt-0.5">SKU: {{ $variant->sku }}</div>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <input type="number" name="variants[{{ $variant->id }}][quantity]" value="{{ $variant->stock_quantity }}" 
+                                    class="w-16 text-center {{ $variant->stock_quantity <= 0 ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-white border-slate-200 text-slate-700' }} px-2 py-1 rounded text-[11px] font-black focus:border-indigo-400 outline-none shadow-sm">
+                            </td>
+                            <td colspan="7" class="py-3 px-6 text-[10px] italic text-slate-400 font-medium">
+                                Individual variant stock management
+                            </td>
+                        </tr>
+                        @endforeach
+                    @endif
                     @endforeach
                 </tbody>
             </table>
         </div>
     </form>
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+        {{ $products->appends(request()->query())->links() }}
+    </div>
 </div>
 @endsection

@@ -6,17 +6,33 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Coupon;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    private const TAX_RATE = 0.05;
+    private function getTaxRate(Product $product): float
+    {
+        if ($product->taxClass && $product->taxClass->rates->isNotEmpty()) {
+            $activeRate = $product->taxClass->rates->where('status', 1)->first();
+            return $activeRate ? ($activeRate->rate / 100) : 0.05;
+        }
+        return 0.05;
+    }
 
     public function index()
     {
         $cart = $this->getCart();
-        $items = array_values($cart);
+        $items = [];
+        foreach ($cart as $key => $item) {
+            $item['key'] = $key;
+            $items[] = $item;
+        }
         $totals = $this->calculateTotals($items);
 
         return view('frontend.cart', [
@@ -33,15 +49,67 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product)
     {
+        Log::info('ADD TO CART REQUEST:', $request->all());
         $quantity = max(1, (int) $request->input('quantity', 1));
+        $attributes = $request->input('attributes', []);
         $cart = $this->getCart();
 
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $quantity;
+        // Create a unique key for the cart item based on product ID and attributes
+        $cartKey = $product->id;
+        if (!empty($attributes)) {
+            ksort($attributes);
+            foreach ($attributes as $id => $val) {
+                $cartKey .= '_' . $id . '_' . $val;
+            }
+        }
+
+        if (isset($cart[$cartKey])) {
+            $cart[$cartKey]['quantity'] += $quantity;
         } else {
             $price = $this->productPrice($product);
             $imagePath = $this->productImagePath($product);
-            $cart[$product->id] = [
+            $size = '';
+            $color = '';
+
+            // Try to find matching variant for specific image/price
+            if (!empty($attributes)) {
+                $variants = $product->product_variants;
+                foreach ($variants as $variant) {
+                    $combination = $variant->combination; 
+                    if (!is_array($combination)) {
+                        $combination = is_string($combination) ? json_decode($combination, true) : [];
+                    }
+
+                    Log::info("CHECKING VARIANT {$variant->id}:", ['combination' => $combination, 'attributes' => $attributes]);
+                    $match = true;
+                    foreach ($attributes as $aid => $avid) {
+                        $avidInt = (int) $avid;
+                        if (!isset($combination[$aid]) || !in_array($avidInt, $combination[$aid])) {
+                            $match = false;
+                            break;
+                        }
+                    }
+                    if ($match) {
+                        Log::info("MATCH FOUND! Variant ID: {$variant->id}");
+                        if ($variant->price > 0) $price = $variant->price;
+                        if ($variant->sale_price > 0) $price = $variant->sale_price;
+                        if ($variant->image) $imagePath = $variant->image;
+                        break;
+                    }
+                }
+
+                // Get size and color names for display
+                foreach($attributes as $aid => $avid) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($avid);
+                    if($val && $val->attribute) {
+                        $attrName = strtolower($val->attribute->name);
+                        if(str_contains($attrName, 'size')) $size = $val->name;
+                        if(str_contains($attrName, 'color')) $color = $val->name;
+                    }
+                }
+            }
+
+            $cart[$cartKey] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'slug' => $product->slug,
@@ -49,6 +117,9 @@ class CartController extends Controller
                 'image_path' => $imagePath,
                 'image_url' => $this->productImageUrl($imagePath),
                 'quantity' => $quantity,
+                'attributes' => $attributes,
+                'size' => $size,
+                'color' => $color,
             ];
         }
 
@@ -67,16 +138,16 @@ class CartController extends Controller
         $quantities = $request->input('quantities', []);
         $cart = $this->getCart();
 
-        foreach ($quantities as $productId => $qty) {
-            if (!isset($cart[$productId])) {
+        foreach ($quantities as $key => $qty) {
+            if (!isset($cart[$key])) {
                 continue;
             }
 
             $qty = (int) $qty;
             if ($qty <= 0) {
-                unset($cart[$productId]);
+                unset($cart[$key]);
             } else {
-                $cart[$productId]['quantity'] = $qty;
+                $cart[$key]['quantity'] = $qty;
             }
         }
 
@@ -89,10 +160,12 @@ class CartController extends Controller
         return redirect()->route('cart')->with('success', 'Cart updated.');
     }
 
-    public function remove(Product $product)
+    public function remove($key)
     {
         $cart = $this->getCart();
-        unset($cart[$product->id]);
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+        }
         $this->putCart($cart);
 
         return redirect()->route('cart')->with('success', 'Item removed.');
@@ -134,7 +207,11 @@ class CartController extends Controller
     public function checkout()
     {
         $cart = $this->getCart();
-        $items = array_values($cart);
+        $items = [];
+        foreach ($cart as $key => $item) {
+            $item['key'] = $key;
+            $items[] = $item;
+        }
 
         if (count($items) === 0) {
             return redirect()->route('shop')->with('error', 'Your cart is empty.');
@@ -177,6 +254,7 @@ class CartController extends Controller
         $coupon = $totals['coupon'];
 
         if ($coupon) {
+            // Coupon logic already implemented as requested
             if ($coupon->first_order_only) {
                 $hasOrders = Order::where('customer_email', $request->input('customer_email'))->exists();
                 if ($hasOrders) {
@@ -197,49 +275,139 @@ class CartController extends Controller
         }
 
         $isDifferentBilling = !$request->has('same_as_shipping');
-        
-        $order = Order::create([
-            'user_id' => auth()->id(),
-            'coupon_id' => $coupon ? $coupon->id : null,
-            'coupon_code' => $coupon ? $coupon->code : null,
-            'customer_name' => $request->input('customer_name'),
-            'customer_email' => $request->input('customer_email'),
-            'customer_phone' => $request->input('customer_phone'),
-            'billing_name' => $isDifferentBilling ? $request->input('billing_name') : $request->input('customer_name'),
-            'billing_email' => $isDifferentBilling ? $request->input('billing_email') : $request->input('customer_email'),
-            'billing_phone' => $isDifferentBilling ? $request->input('billing_phone') : $request->input('customer_phone'),
-            'different_billing_address' => $isDifferentBilling,
-            'sub_total' => $totals['subTotal'],
-            'discount' => $totals['discount'],
-            'tax' => $totals['tax'],
-            'shipping' => $totals['shipping'],
-            'grand_total' => $totals['grandTotal'],
-            'payment_method' => $request->input('payment_method', 'cod'),
-            'payment_status' => 'pending',
-            'order_status' => 'pending',
-            'delivery_address' => $request->input('delivery_address'),
-            'billing_address' => $isDifferentBilling ? $request->input('billing_address') : $request->input('delivery_address'),
+        $paymentMethod = $request->input('payment_method', 'cod');
+
+        DB::beginTransaction();
+        try {
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+                'coupon_id' => $coupon ? $coupon->id : null,
+                'coupon_code' => $coupon ? $coupon->code : null,
+                'customer_name' => $request->input('customer_name'),
+                'customer_email' => $request->input('customer_email'),
+                'customer_phone' => $request->input('customer_phone'),
+                'billing_name' => $isDifferentBilling ? $request->input('billing_name') : $request->input('customer_name'),
+                'billing_email' => $isDifferentBilling ? $request->input('billing_email') : $request->input('customer_email'),
+                'billing_phone' => $isDifferentBilling ? $request->input('billing_phone') : $request->input('customer_phone'),
+                'different_billing_address' => $isDifferentBilling,
+                'sub_total' => $totals['subTotal'],
+                'discount' => $totals['discount'],
+                'tax' => $totals['tax'],
+                'shipping' => $totals['shipping'],
+                'grand_total' => $totals['grandTotal'],
+                'payment_method' => $paymentMethod,
+                'payment_status' => 'pending',
+                'order_status' => 'pending',
+                'delivery_address' => $request->input('delivery_address'),
+                'billing_address' => $isDifferentBilling ? $request->input('billing_address') : $request->input('delivery_address'),
+            ]);
+
+            // Increment Coupon usage if applicable
+            $coupon = $totals['coupon'];
+            if ($coupon) {
+                $coupon->increment('times_used');
+            }
+
+            foreach ($items as $item) {
+                $product = Product::find($item['product_id']);
+                
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'product_name' => $item['name'],
+                    'product_image' => $item['image_path'] ?? null,
+                    'size' => $item['size'] ?? null,
+                    'color' => $item['color'] ?? null,
+                    'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'total' => $item['price'] * $item['quantity'],
+                ]);
+
+                // Deduction of Stock with Movement Log [PERFECT FIX]
+                if ($product) {
+                    $oldStock = (int) $product->stock_quantity;
+                    $itemQty = (int) $item['quantity'];
+                    $newStock = max(0, $oldStock - $itemQty);
+
+                    $product->update(['stock_quantity' => $newStock]);
+                    
+                    StockMovement::create([
+                        'product_id' => $product->id,
+                        'type' => 'sale',
+                        'quantity' => $itemQty,
+                        'balance_after' => $newStock,
+                        'reason' => 'Sold in Order #' . $order->order_number,
+                    ]);
+
+                    // Update Status to Out of Stock if zero
+                    if ($product->stock_quantity <= 0) {
+                        $product->update(['stock_status' => 'outofstock']);
+                    }
+                }
+            }
+
+            if ($coupon) {
+                $coupon->increment('times_used');
+            }
+
+            DB::commit();
+            if ($paymentMethod === 'razorpay') {
+                return $this->processRazorpay($order);
+            }
+
+            // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
+            session()->forget(['cart', 'coupon_id']);
+            return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Order Placement Failed: ' . $e->getMessage());
+            // Show the actual error message to help the user debug (e.g. Razorpay keys)
+            return redirect()->route('checkout')->with('error', 'Order failed: ' . $e->getMessage());
+        }
+    }
+
+    private function processRazorpay(Order $order)
+    {
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $razorOrder = $api->order->create([
+            'receipt' => (string) $order->id,
+            'amount' => (int) ($order->grand_total * 100),
+            'currency' => 'INR'
         ]);
 
-        foreach ($items as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'product_name' => $item['name'],
-                'price' => $item['price'],
-                'quantity' => $item['quantity'],
-                'total' => $item['price'] * $item['quantity'],
-            ]);
+        $order->update(['payment_id' => $razorOrder['id']]);
+
+        return view('frontend.razorpay-payment', compact('order', 'razorOrder'));
+    }
+
+    public function verifyRazorpay(Request $request)
+    {
+        $signatureStatus = true;
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        try {
+            $attributes = [
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature
+            ];
+            $api->utility->verifyPaymentSignature($attributes);
+        } catch (\Exception $e) {
+            $signatureStatus = false;
         }
 
-        session()->forget('cart');
-        session()->forget('coupon_id');
-
-        if ($coupon) {
-            $coupon->increment('times_used');
+        if ($signatureStatus) {
+            $order = Order::where('payment_id', $request->razorpay_order_id)->first();
+            if ($order) {
+                $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
+                session()->forget(['cart', 'coupon_id']);
+                return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
+            }
         }
 
-        return redirect()->route('order-confirmation', $order);
+        return redirect()->route('checkout')->with('error', 'Payment failed or signature mismatch.');
     }
 
     public function orderConfirmation(Order $order = null)
@@ -279,7 +447,18 @@ class CartController extends Controller
         $discount = $couponResult['discount'];
         $coupon = $couponResult['coupon'];
         $taxableAmount = max(0, $subTotal - $discount);
-        $tax = round($taxableAmount * self::TAX_RATE, 2);
+        
+        // DYNAMIC TAX CALCULATION [PERFECT FIX]
+        $tax = 0;
+        foreach ($items as $item) {
+            $product = Product::with('taxClass.rates')->find($item['product_id']);
+            if ($product) {
+                $rate = $this->getTaxRate($product);
+                $tax += ($item['price'] * $item['quantity']) * $rate;
+            }
+        }
+
+        $tax = round($tax, 2);
         $grandTotal = round($taxableAmount + $tax + $shipping, 2);
 
         return compact('subTotal', 'discount', 'tax', 'shipping', 'grandTotal', 'itemCount', 'coupon');

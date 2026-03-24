@@ -9,7 +9,7 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>Shopping Cart</span>
             </div>
 
-            <h1 class="auth-title" style="text-align: left; margin-bottom: 40px;">Your Shopping Cart</h1>
+            <h1 class="auth-title" style="text-align: left; margin-bottom: 20px;">Your Shopping Cart</h1>
 
             @php
                 $hasItems = isset($items) && count($items) > 0;
@@ -21,7 +21,7 @@
                         <form id="cartForm" method="POST" action="{{ route('cart.update') }}">
                             @csrf
                             <div class="cart-header-row"
-                                style="display: grid; grid-template-columns: 100px 1fr 120px 150px 40px; gap: 20px; padding-bottom: 15px; border-bottom: 2px solid #eee; margin-bottom: 10px; font-weight: 700; color: #333;">
+                                style="display: grid; grid-template-columns: 80px 1fr 120px 150px 40px; gap: 20px; padding-bottom: 8px; border-bottom: 2px solid #eee; margin-bottom: 10px; font-weight: 700; color: #333;">
                                 <span>Product</span>
                                 <span style="padding-left: 20px;">Details</span>
                                 <span style="margin-left: -15px;">Unit Price</span>
@@ -30,22 +30,26 @@
                             </div>
 
                             @foreach ($items as $item)
-                                <div class="cart-item-row" id="item-{{ $item['product_id'] }}">
+                                <div class="cart-item-row" id="item-{{ $item['key'] }}">
                                     <div class="cart-item-img">
                                         <img src="{{ $item['image_url'] }}" alt="{{ $item['name'] }}">
                                     </div>
-                                    <div class="cart-item-info">
-                                        <h3>{{ $item['name'] }}</h3>
-                                        <div class="cart-item-variant">SKU: {{ $item['product_id'] }}</div>
-                                        <button type="button" class="save-for-later">Save for later</button>
+                                    <div class="cart-item-info" style="padding-left: 20px;">
+                                        <h3 style="margin-bottom: 5px;">{{ $item['name'] }}</h3>
+                                        @if(!empty($item['size']) || !empty($item['color']))
+                                            <div class="item-variants" style="font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                @if(!empty($item['size'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Size: {{ $item['size'] }}</span> @endif
+                                                @if(!empty($item['color'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">Color: {{ $item['color'] }}</span> @endif
+                                            </div>
+                                        @endif
                                     </div>
-                                    <div class="cart-item-price">&#8377;{{ number_format($item['price'], 0) }}</div>
+                                    <div class="cart-item-price" style="margin-left: -15px;">&#8377;{{ number_format($item['price'], 0) }}</div>
                                     <div class="quantity-picker">
-                                        <button type="button" class="qty-btn" onclick="updateCartQty({{ $item['product_id'] }}, -1)">-</button>
-                                        <input type="text" class="qty-input" name="quantities[{{ $item['product_id'] }}]" value="{{ $item['quantity'] }}" readonly>
-                                        <button type="button" class="qty-btn" onclick="updateCartQty({{ $item['product_id'] }}, 1)">+</button>
+                                        <button type="button" class="qty-btn" onclick="updateCartQty('{{ $item['key'] }}', -1)">-</button>
+                                        <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]" value="{{ $item['quantity'] }}" readonly>
+                                        <button type="button" class="qty-btn" onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
                                     </div>
-                                    <button type="button" class="remove-item" onclick="removeItem({{ $item['product_id'] }})" aria-label="Remove item">x</button>
+                                    <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')" aria-label="Remove item">x</button>
                                 </div>
                             @endforeach
                         </form>
@@ -113,7 +117,6 @@
 
                     <div class="cart-footer-btns">
                         @if ($hasItems)
-                            <button type="submit" form="cartForm" name="action" value="update" class="btn-apply-coupon" style="width: 100%;">Update Cart</button>
                             <button type="submit" form="cartForm" name="action" value="checkout" class="btn-checkout"
                                 style="width: 100%; text-decoration: none; text-align: center;">Proceed to Checkout</button>
                         @endif
@@ -127,8 +130,8 @@
 
 @push('scripts')
     <script>
-        function updateCartQty(productId, val) {
-            const input = document.querySelector(`input[name="quantities[${productId}]"]`);
+        function updateCartQty(key, val) {
+            const input = document.querySelector(`input[name="quantities[${key}]"]`);
             if (!input) return;
             let current = parseInt(input.value) || 0;
             current += val;
@@ -136,11 +139,18 @@
             input.value = current;
         }
 
-        function removeItem(productId) {
-            const input = document.querySelector(`input[name="quantities[${productId}]"]`);
-            const form = document.getElementById('cartForm');
-            if (!input || !form) return;
-            input.value = 0;
+        function removeItem(key) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ url('cart/remove') }}/" + key;
+            
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = "{{ csrf_token() }}";
+            
+            form.appendChild(csrf);
+            document.body.appendChild(form);
             form.submit();
         }
 

@@ -8,7 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
 
-        .page { padding: 40px; }
+        @page { margin: 0px; }
+        .page { padding: 10px 40px 40px; }
 
         /* Header */
         .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 3px solid #a91b43; padding-bottom: 20px; }
@@ -139,7 +140,8 @@
         <thead>
             <tr>
                 <th style="width:5%">#</th>
-                <th style="width:50%">Product</th>
+                <th style="width:10%; text-align:center;">Image</th>
+                <th style="width:40%">Product</th>
                 <th style="width:15%; text-align:center;">Qty</th>
                 <th style="width:15%; text-align:right;">Unit Price</th>
                 <th style="width:15%; text-align:right;">Total</th>
@@ -148,11 +150,46 @@
         <tbody>
             @foreach($order->items as $i => $item)
             <tr>
-                <td>{{ $i + 1 }}</td>
-                <td class="product-name">{{ $item->product_name }}</td>
-                <td style="text-align:center;">{{ $item->quantity }}</td>
-                <td style="text-align:right;">&#8377;{{ number_format($item->price, 2) }}</td>
-                <td>&#8377;{{ number_format($item->total, 2) }}</td>
+                <td style="vertical-align: middle;">{{ $i + 1 }}</td>
+                <td style="text-align:center; vertical-align: middle; padding: 5px;">
+                    @php
+                        $itemPath = $item->product_image;
+                        if (!$itemPath && $item->product) {
+                            $itemPath = $item->product->image_path;
+                            if (!$itemPath && !empty($item->product->images)) {
+                                $images = $item->product->images;
+                                if (is_string($images)) $images = json_decode($images, true);
+                                if (is_array($images) && count($images) > 0) $itemPath = $images[0];
+                            }
+                        }
+                        
+                        $fullPath = null;
+                        if ($itemPath) {
+                            if (Str::startsWith($itemPath, 'products/') || Str::startsWith($itemPath, 'categories/')) {
+                                $fullPath = public_path('uploads/' . $itemPath);
+                            } else {
+                                $fullPath = public_path('images/' . $itemPath);
+                            }
+                        }
+                        
+                        if (!$fullPath || !file_exists($fullPath)) {
+                            $fullPath = public_path('images/pro1.png');
+                        }
+                    @endphp
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents($fullPath)) }}" style="width: 40px; height: 40px; border-radius: 4px;">
+                </td>
+                <td class="product-name" style="vertical-align: middle;">
+                    {{ $item->product_name }}
+                    @if($item->size || $item->color)
+                    <div style="font-size: 8px; color: #64748b; font-weight: normal; margin-top: 2px;">
+                        @if($item->size) Size: {{ $item->size }} @endif
+                        @if($item->color) {{ $item->size ? '|' : '' }} Color: {{ $item->color }} @endif
+                    </div>
+                    @endif
+                </td>
+                <td style="text-align:center; vertical-align: middle;">{{ $item->quantity }}</td>
+                <td style="text-align:right; vertical-align: middle;">&#8377;{{ number_format($item->price, 2) }}</td>
+                <td style="vertical-align: middle;">&#8377;{{ number_format($item->total, 2) }}</td>
             </tr>
             @endforeach
         </tbody>

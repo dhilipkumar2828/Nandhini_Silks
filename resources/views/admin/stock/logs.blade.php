@@ -80,5 +80,8 @@
             </tbody>
         </table>
     </div>
+    <div class="mt-6">
+        {{ $logs->appends(request()->query())->links() }}
+    </div>
 </div>
 @endsection

@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
 
 </head>
@@ -28,16 +33,23 @@
 
             <div class="header-right">
                 <div class="search-wrap">
-                    <div class="search-box">
+                    <form action="{{ route('search') }}" method="GET" class="search-box">
                         <img src="{{ asset('images/search.svg') }}" alt="Search" />
-                        <input type="text" placeholder="Search" aria-label="Search" />
-                    </div>
+                        <input type="text" name="q" placeholder="Search" aria-label="Search" value="{{ request('q') }}" />
+                        <button type="submit" style="display: none;"></button>
+                    </form>
                 </div>
 
                 <div class="actions">
                     <button class="icon-btn" type="button" aria-label="Favorites"
-                        onclick="window.location.href='{{ url('wishlist') }}'">
+                        onclick="window.location.href='{{ route('wishlist') }}'">
                         <img src="{{ asset('images/favorite.svg') }}" alt="" width="18" height="23">
+                        @php
+                            $wishlistCount = count(session('wishlist', []));
+                        @endphp
+                        @if($wishlistCount > 0)
+                            <span class="cart-count wishlist-count">{{ $wishlistCount }}</span>
+                        @endif
                     </button>
                     <button class="icon-btn" type="button" aria-label="Cart"
                         onclick="window.location.href='{{ route('cart') }}'">
@@ -47,8 +59,16 @@
                         @endphp
                         <span class="cart-count">{{ $cartCount }}</span>
                     </button>
-                    <button class="login-btn" type="button" onclick="window.location.href='{{ route('login') }}'">Sign in /
-                        Login</button>
+                    @auth
+                        <button class="icon-btn" type="button" aria-label="Profile"
+                            onclick="window.location.href='{{ route('my-account') }}'">
+                            <img id="headerProfilePic" src="{{ Auth::user()->profile_picture ? asset('uploads/'.Auth::user()->profile_picture) : asset('images/user-avatar.svg') }}" 
+                                 alt="Profile" width="22" height="22" style="border-radius: 50%; object-fit: cover;">
+                        </button>
+                    @else
+                        <button class="login-btn" type="button" onclick="window.location.href='{{ route('login') }}'">Sign in /
+                            Login</button>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -62,70 +82,35 @@
                 <span class="hamburger-bar"></span>
             </button>
             <div class="nav-links" id="navLinks">
-                <div class="nav-item-wrapper">
-                    <a href="{{ url('sarees') }}" class="nav-item nav-dropdown-toggle">Sarees</a>
-                    <div class="dropdown-content">
-                        <a href="{{ url('sarees') }}">All Sarees</a>
-                        <div class="has-children">
-                            <a href="#">Silk Sarees</a>
-                            <div class="child-dropdown">
-                                <a href="{{ url('sarees') }}">Kanchipuram Silk</a>
-                                <a href="{{ url('sarees') }}">Banarasi Silk</a>
-                                <a href="{{ url('sarees') }}">Soft Silk</a>
+                @foreach($headerCategories as $category)
+                    <div class="nav-item-wrapper">
+                        <a href="{{ url('category/'.$category->slug) }}" class="nav-item @if($category->subCategories->count() > 0) nav-dropdown-toggle @endif">{{ $category->name }}</a>
+                        @if($category->subCategories->count() > 0)
+                            <div class="dropdown-content">
+                                @foreach($category->subCategories as $subCategory)
+                                    @if($subCategory->childCategories->count() > 0)
+                                        <div class="has-children">
+                                            <a href="{{ url('category/'.$category->slug.'/'.$subCategory->slug) }}">{{ $subCategory->name }}</a>
+                                            <div class="child-dropdown">
+                                                @foreach($subCategory->childCategories as $child)
+                                                    <a href="{{ url('category/'.$category->slug.'/'.$subCategory->slug.'/'.$child->slug) }}">{{ $child->name }}</a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @else
+                                        <a href="{{ url('category/'.$category->slug.'/'.$subCategory->slug) }}">{{ $subCategory->name }}</a>
+                                    @endif
+                                @endforeach
                             </div>
-                        </div>
-                        <a href="{{ url('sarees') }}">Cotton Sarees</a>
-                        <a href="{{ url('sarees') }}">Fancy Sarees</a>
-                        <a href="{{ url('sarees') }}">Wedding Collections</a>
+                        @endif
                     </div>
-                </div>
+                @endforeach
 
-                <div class="nav-item-wrapper">
-                    <a href="{{ url('women') }}" class="nav-item nav-dropdown-toggle">Women</a>
-                    <div class="dropdown-content">
-                        <a href="{{ url('women') }}">All Clothing</a>
-                        <div class="has-children">
-                            <a href="#">Ethnic Wear</a>
-                            <div class="child-dropdown">
-                                <a href="{{ url('women') }}">Kurtas</a>
-                                <a href="{{ url('women') }}">Lehengas</a>
-                                <a href="{{ url('women') }}">Salwar Suits</a>
-                            </div>
-                        </div>
-                        <a href="{{ url('women') }}">Ready Made</a>
-                        <a href="{{ url('women') }}">Dress Materials</a>
-                    </div>
-                </div>
-
-                <div class="nav-item-wrapper">
-                    <a href="{{ url('mens') }}" class="nav-item nav-dropdown-toggle">Mens</a>
-                    <div class="dropdown-content">
-                        <a href="{{ url('mens') }}">Shirts</a>
-                        <a href="{{ url('mens') }}">Dhotis</a>
-                        <a href="{{ url('mens') }}">Ethnic Wear</a>
-                        <div class="has-children">
-                            <a href="#">Wedding Wear</a>
-                            <div class="child-dropdown">
-                                <a href="{{ url('mens') }}">Silk Shirts</a>
-                                <a href="{{ url('mens') }}">Pattu Dhotis</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="nav-item-wrapper">
-                    <a href="{{ url('kids') }}" class="nav-item nav-dropdown-toggle">Kids</a>
-                    <div class="dropdown-content">
-                        <a href="{{ url('kids') }}">Boys Wear</a>
-                        <a href="{{ url('kids') }}">Girls Wear</a>
-                        <a href="{{ url('kids') }}">Pattu Paavadai</a>
-                    </div>
-                </div>
 
                 <a href="{{ url('about') }}" class="nav-item">About</a>
                 <a href="{{ url('contact') }}" class="nav-item">Contact us</a>
+                </div>
             </div>
-        </div>
     </nav>
 
     <script>
@@ -244,9 +229,95 @@
             backToTop.addEventListener('click', () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
+
+            // Global Wishlist Logic
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.wishlist-btn');
+                if (btn) {
+                    const productId = btn.getAttribute('data-product-id');
+                    const svg = btn.querySelector('svg');
+                    const icon = btn.querySelector('i');
+                    
+                    let isInWishlist = false;
+                    if (svg) {
+                        isInWishlist = svg.getAttribute('fill') === '#A91B43';
+                    } else if (icon) {
+                        isInWishlist = icon.classList.contains('fa-solid');
+                    }
+
+                    const url = isInWishlist ? `/wishlist/remove/${productId}` : `/wishlist/add/${productId}`;
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update all buttons for this product
+                            const allBtns = document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`);
+                            allBtns.forEach(b => {
+                                const s = b.querySelector('svg');
+                                const i = b.querySelector('i');
+                                if (s) s.setAttribute('fill', isInWishlist ? '#666' : '#A91B43');
+                                if (i) {
+                                    if (isInWishlist) {
+                                        i.classList.replace('fa-solid', 'fa-regular');
+                                    } else {
+                                        i.classList.replace('fa-regular', 'fa-solid');
+                                    }
+                                }
+                            });
+
+                            // Update Header Count
+                            const wishlistCountBadges = document.querySelectorAll('.wishlist-count');
+                            if (wishlistCountBadges.length > 0) {
+                                wishlistCountBadges.forEach(badge => {
+                                    badge.textContent = data.count;
+                                    badge.style.display = data.count > 0 ? 'inline-block' : 'none';
+                                });
+                            } else if (data.count > 0) {
+                                window.location.reload();
+                            }
+
+                            // Specific logic for Wishlist Page: Remove card if on wishlist page
+                            if (window.location.pathname.includes('/wishlist') && isInWishlist) {
+                                const card = document.querySelector(`.product-card-v2[data-product-id="${productId}"]`);
+                                if (card) {
+                                    card.style.opacity = '0';
+                                    card.style.transform = 'scale(0.9)';
+                                    card.style.transition = 'all 0.3s ease';
+                                    setTimeout(() => {
+                                        card.remove();
+                                        const grid = document.getElementById('wishlistGrid');
+                                        const emptyState = document.getElementById('emptyState');
+                                        if (grid && document.querySelectorAll('#wishlistGrid .product-card-v2').length === 0) {
+                                            grid.style.display = 'none';
+                                            if (emptyState) emptyState.style.display = 'block';
+                                        }
+                                    }, 300);
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            });
         });
     </script>
-@stack('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        toastr.options = {"closeButton": true, "progressBar": true, "positionClass": "toast-top-right", "timeOut": "5000"};
+        @if(session('success')) toastr.success("{{ session('success') }}"); @endif
+        @if(session('error')) toastr.error("{{ session('error') }}"); @endif
+        @if($errors->any()) @foreach($errors->all() as $error) toastr.error("{{ $error }}"); @endforeach @endif
+    </script>
+    @stack('scripts')
 </body>
 
 </html>

@@ -43,27 +43,42 @@
                     </div>
 
                     <div class="product-grid-main" id="resultsGrid">
-                        <article class="product-card-v2">
-                            <a href="{{ url('product-detail') }}" style="text-decoration: none; color: inherit;">
-                                <div class="product-image-v2">
-                                    <img src="{{ asset('images/saree_royal_gold_handloom_silk_1773214820441.png') }}"
-                                        alt="Pure Silk Saree">
-                                </div>
-                                <div class="product-info-v2">
-                                    <span class="product-category-v2">Pure Silk</span>
-                                    <h3 class="product-name-v2">Royal Gold Handloom Silk</h3>
-                                    <p class="product-price-v2">₹7,490</p>
-                                </div>
-                            </a>
-                        </article>
+                        @forelse($products as $product)
+                            <article class="product-card-v2">
+                                <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
+                                    <div class="product-image-v2">
+                                        @php
+                                            $productImage = 'images/pro.png';
+                                            if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                $productImage = 'uploads/' . $product->images[0];
+                                            } elseif ($product->image_path) {
+                                                $productImage = 'images/' . $product->image_path;
+                                            }
+                                        @endphp
+                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
+                                    </div>
+                                    <div class="product-info-v2">
+                                        <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
+                                        <h3 class="product-name-v2">{{ $product->name }}</h3>
+                                        <p class="product-price-v2">₹{{ number_format($product->price, 0) }}</p>
+                                    </div>
+                                </a>
+                            </article>
+                        @empty
+                            <div class="no-results-state" id="noResults" style="display: block; width: 100%; grid-column: 1 / -1; text-align: center; padding: 60px 0;">
+                                <h2 class="no-results-title">No results found</h2>
+                                <p class="no-results-text">We couldn't find anything matching your search query "{{ request('q') }}".</p>
+                                <a href="{{ url('shop') }}" class="btn-load-more" style="text-decoration: none; display: inline-block; margin-top: 20px;">Browse
+                                    Collections</a>
+                            </div>
+                        @endforelse
                     </div>
 
-                    <div class="no-results-state" id="noResults" style="display: none;">
-                        <h2 class="no-results-title">No results found</h2>
-                        <p class="no-results-text">We couldn't find anything matching your search.</p>
-                        <a href="{{ url('sarees') }}" class="btn-load-more" style="text-decoration: none;">Browse
-                            Collections</a>
-                    </div>
+                    @if($products->hasPages())
+                        <div class="pagination-wrap" style="margin-top: 40px; display: flex; justify-content: center;">
+                            {{ $products->appends(['q' => request('q')])->links() }}
+                        </div>
+                    @endif
                 </section>
             </div>
         </div>

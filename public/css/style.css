@@ -3099,7 +3099,7 @@ body {
 }
 
 .breadcrumb {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   font-size: 14px;
   color: #666;
 }
@@ -3317,16 +3317,16 @@ body {
 
 /* Product Detail Page Styles */
 .product-detail-page {
-  padding: 40px 0;
+  padding: 20px 0;
   background: #fffcf0;
 }
 
 .product-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 40px;
   background: #fff;
-  padding: 40px;
+  padding: 25px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
@@ -3337,7 +3337,7 @@ body {
   /* Thumbnails on left, Main on right */
   gap: 20px;
   position: sticky;
-  top: 100px;
+  top: 20px;
   height: fit-content;
 }
 
@@ -3365,8 +3365,8 @@ body {
 }
 
 .thumbnail {
-  width: 80px;
-  height: 80px;
+  width: 85px;
+  aspect-ratio: 4/5;
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid transparent;
@@ -3590,7 +3590,7 @@ body {
 
 /* Cart and Checkout Styles */
 .cart-page {
-  padding: 60px 0;
+  padding: 30px 0;
   background: #fffcf0;
 }
 
@@ -3602,17 +3602,18 @@ body {
 
 .cart-items-list {
   background: #fff;
-  padding: 30px;
+  padding: 20px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  height: fit-content;
 }
 
 .cart-item-row {
   display: grid;
-  grid-template-columns: 100px 1fr 120px 150px 40px;
+  grid-template-columns: 80px 1fr 120px 150px 40px;
   align-items: center;
   gap: 20px;
-  padding: 20px 0;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -3621,8 +3622,8 @@ body {
 }
 
 .cart-item-img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -5244,3 +5245,7 @@ input:checked+.toggle-switch .toggle-dot {
     font-size: 20px;
   }
 }
+/* Custom Toastr Colors */
+#toast-container > .toast { background-image: none !important; padding: 15px 20px 15px 50px !important; box-shadow: 0 5px 15px rgba(169, 27, 67, 0.2) !important; opacity: 1 !important; }
+#toast-container > .toast-success, #toast-container > .toast-error, #toast-container > .toast-info, #toast-container > .toast-warning { background-color: #A91B43 !important; }
+

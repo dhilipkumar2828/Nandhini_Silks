@@ -33,6 +33,11 @@
                             <input type="text" name="barcode" value="{{ old('barcode') }}"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                         </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ISBN</label>
+                            <input type="text" name="isbn" value="{{ old('isbn') }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="Optional ISBN">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Brand</label>
@@ -70,6 +75,7 @@
                     <span class="text-xs font-bold text-slate-400 group-hover:text-[#a91b43]">Click to upload images</span>
                     <span class="text-[10px] text-slate-300 mt-0.5">PNG, JPG, WEBP • Multiple files allowed • Max 2MB each</span>
                     <input type="file" name="images[]" id="generalImagesInput" multiple accept="image/*" class="hidden">
+                    <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
                 </label>
 
                 {{-- Video URL --}}
@@ -81,90 +87,79 @@
                 </div>
             </div>
 
-            {{-- ===== ATTRIBUTES + VARIANT IMAGES ===== --}}
-            @if(isset($attributes) && $attributes->count())
-            <div class="card-glass p-6 rounded-2xl">
-                <h3 class="text-base font-bold text-slate-800 mb-1 flex items-center">
-                    <i class="fas fa-tags mr-2 text-[#a91b43]"></i> Attributes & Variant Images
-                </h3>
-                <p class="text-[10px] text-slate-400 mb-5">
-                    Select attribute values (Color, Size, etc.). After selecting, click <strong class="text-[#a91b43]">"+ Add Images"</strong> on any variant to upload images specific to that variant.
+            {{-- ===== VARIANT MATRIX (PERFECT CONCEPT) ===== --}}
+            <div class="card-glass p-6 rounded-2xl border-2 border-[#a91b43]/10">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center">
+                        <i class="fas fa-th mr-2 text-[#a91b43]"></i> Product Variants
+                    </h3>
+                    <span class="text-[10px] font-bold text-[#a91b43] bg-rose-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Dynamic Matrix</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mb-5 italic">
+                    Select attributes below to generate the variant matrix. Each combination will have its own price, stock, and multiple images.
                 </p>
 
-                @php $selectedAttributes = old('attributes', []); @endphp
-                <div class="space-y-6">
+                <div id="variantMatrixContainer" class="hidden space-y-4">
+                    <div class="overflow-x-auto rounded-xl border border-slate-100 shadow-sm bg-slate-50/30">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200">
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter">Variant</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">Price</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-20 text-center">Stock</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-24 text-center">SKU</th>
+                                    <th class="px-3 py-2.5 font-black text-slate-700 uppercase tracking-tighter w-12 text-center">
+                                        <button type="button" id="resetVariantMatrix" class="text-slate-400 hover:text-[#a91b43] transition-colors" title="Reset Matrix (Restore Deleted Rows)">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="variantMatrixBody">
+                                {{-- JS injects rows here --}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- New Color Images Section --}}
+                <div id="colorImagesSection" class="mt-6 hidden border-t border-slate-100 pt-5">
+                    <h4 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-palette text-[#a91b43] mr-2"></i> Upload Images per Color
+                    </h4>
+                    <div id="colorImagesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {{-- JS injects color cards here --}}
+                    </div>
+                </div>
+
+                {{-- Attribute Selectors --}}
+                <div class="mt-8 space-y-6">
                     @foreach($attributes as $attribute)
                     <div>
-                        {{-- Attribute Label --}}
                         <div class="flex items-center gap-2 mb-3">
                             <span class="text-xs font-black text-slate-700 uppercase tracking-wider">
                                 {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
                             </span>
-                            @php
-                                $hasSwatchColors = false;
-                                foreach ($attribute->values as $_v) {
-                                    if ($_v->swatch_value && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $_v->swatch_value)) {
-                                        $hasSwatchColors = true; break;
-                                    }
-                                }
-                            @endphp
-                            @if($hasSwatchColors)
-                                <span class="text-[9px] bg-rose-50 text-[#a91b43] px-2 py-0.5 rounded font-bold">COLOR</span>
-                            @endif
                         </div>
-
-                        {{-- Attribute Value Chips --}}
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            @forelse($attribute->values as $value)
-                                @php
-                                    $checked = in_array($value->id, $selectedAttributes[$attribute->id] ?? []);
-                                    $swatch  = $value->swatch_value;
-                                    $isHex   = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
-                                @endphp
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($attribute->values as $value)
                                 <label class="attr-chip inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 border-slate-200 bg-white text-xs cursor-pointer hover:border-[#a91b43] transition-all select-none"
                                     data-attr-id="{{ $attribute->id }}"
+                                    data-attr-name="{{ $attribute->name }}"
                                     data-value-id="{{ $value->id }}"
-                                    data-value-name="{{ $value->name }}"
-                                    data-swatch="{{ $swatch }}">
+                                    data-value-name="{{ $value->name }}">
                                     <input type="checkbox"
                                         name="attributes[{{ $attribute->id }}][]"
                                         value="{{ $value->id }}"
-                                        class="accent-[#a91b43] attr-checkbox"
-                                        id="attr_{{ $attribute->id }}_{{ $value->id }}"
-                                        {{ $checked ? 'checked' : '' }}>
-                                    
-                                    @if($isHex)
-                                        <span class="w-4 h-4 rounded-full border border-slate-200 flex-shrink-0 shadow-sm" style="background:{{ $swatch }}"></span>
-                                    @elseif($swatch)
-                                        <img src="{{ asset('uploads/'.$swatch) }}" class="w-4 h-4 rounded-full object-cover flex-shrink-0">
-                                    @endif
+                                        class="accent-[#a91b43] attr-checkbox-matrix">
                                     <span class="font-semibold text-slate-700">{{ $value->name }}</span>
                                 </label>
-                            @empty
-                                <span class="text-[10px] text-slate-400 italic">No values added yet.</span>
-                            @endforelse
-                        </div>
-
-                        {{-- Variant Image Slots (appear when checkbox is checked) --}}
-                        <div id="variantSlots_{{ $attribute->id }}" class="space-y-3">
-                            {{-- JS injects slots here for checked values --}}
+                            @endforeach
                         </div>
                     </div>
-
-                    @if(!$loop->last)
-                        <hr class="border-slate-100">
-                    @endif
                     @endforeach
                 </div>
-            </div>{{-- end card-glass --}}
-            @else
-            <div class="card-glass p-5 rounded-2xl">
-                <p class="text-xs text-slate-400 text-center italic">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    No attributes created yet. Go to <a href="{{ route('admin.attributes.index') }}" class="text-[#a91b43] font-bold underline">Attributes</a> to add Color, Size, etc.
-                </p>
             </div>
-            @endif
 
             {{-- Pricing --}}
             <div class="card-glass p-6 rounded-2xl">
@@ -260,12 +255,12 @@
                 </h3>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Select Related Products</label>
-                    <select name="related_products[]" multiple class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" style="height: 120px;">
+                    <select name="related_products[]" id="related_products" multiple class="w-full select2-searchable">
                         @foreach($products as $p)
                             <option value="{{ $p->id }}" {{ in_array($p->id, old('related_products', [])) ? 'selected' : '' }}>{{ $p->name }}</option>
                         @endforeach
                     </select>
-                    <p class="text-[10px] text-slate-400 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple products.</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Search and select multiple products.</p>
                 </div>
             </div>
 
@@ -287,6 +282,11 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Display Order</label>
+                        <input type="number" name="display_order" value="{{ old('display_order', 0) }}"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Featured</label>
                         <select name="is_featured" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                             <option value="0">No</option>
@@ -301,10 +301,10 @@
                 <h3 class="text-base font-bold text-slate-800 mb-4">Tax Settings</h3>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tax Class</label>
-                    <select name="tax_class" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                    <select name="tax_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                         <option value="">No Tax / Standard</option>
                         @foreach($taxClasses as $tax)
-                            <option value="{{ $tax->slug }}" {{ old('tax_class') == $tax->slug ? 'selected' : '' }}>{{ $tax->name }}</option>
+                            <option value="{{ $tax->id }}" {{ old('tax_class_id') == $tax->id ? 'selected' : '' }}>{{ $tax->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -357,37 +357,56 @@
 </form>
 </div>
 
-{{-- ===== VARIANT IMAGE SLOT TEMPLATE (hidden) ===== --}}
-<template id="variantSlotTemplate">
-    <div class="variant-slot rounded-xl border border-slate-200 bg-white overflow-hidden" data-slot-value-id="__VID__" data-slot-attr-id="__AID__">
-        <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-            <span class="text-xs font-bold text-slate-700 flex items-center gap-2">
-                <span class="swatch-preview"></span>
-                <i class="fas fa-layer-group text-[#a91b43]"></i>
-                Images for: <strong class="text-[#a91b43] variant-name-label"></strong>
-            </span>
-            <span class="text-[9px] text-slate-400">These images show when customer selects this variant</span>
-        </div>
-        <div class="p-4">
-            <div class="variant-preview flex flex-wrap gap-2 mb-3 min-h-[2px]"></div>
-            <label class="variant-upload-label flex items-center gap-3 border-2 border-dashed border-slate-200 rounded-xl p-3 cursor-pointer hover:border-[#a91b43] hover:bg-rose-50/20 transition-all group">
-                <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-rose-50 transition-all flex-shrink-0">
-                    <i class="fas fa-upload text-slate-400 group-hover:text-[#a91b43] transition-colors"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-600 group-hover:text-[#a91b43] transition-colors">Upload variant images</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP • Multiple allowed</p>
-                </div>
-                <input type="file" name="color_images[__VID__][]" multiple accept="image/*" class="hidden variant-file-input">
-            </label>
-        </div>
-    </div>
+{{-- ===== VARIANT MATRIX ROW TEMPLATE ===== --}}
+<template id="variantRowTemplate">
+    <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+        <td class="px-3 py-3">
+            <span class="font-bold text-slate-800 variant-name"></span>
+            <input type="hidden" name="variant_combinations[]" class="variant-comb-input">
+        </td>
+        <td class="px-3 py-3 text-center">
+            <input type="number" name="v_price[]" step="0.01" class="w-full bg-white border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#a91b43] text-center font-bold text-indigo-900" placeholder="₹">
+        </td>
+        <td class="px-3 py-3 text-center">
+            <input type="number" name="v_stock[]" class="w-full bg-white border border-slate-200 rounded px-2 py-1 outline-none focus:border-[#a91b43] text-center" value="10">
+        </td>
+        <td class="px-3 py-3 text-center">
+            <input type="text" name="v_sku[]" class="w-full bg-slate-50/50 border-slate-200 hover:bg-white focus:bg-white border rounded px-2 py-1 outline-none text-center text-[10px]" placeholder="SKU">
+        </td>
+        <td class="px-3 py-3 text-center">
+            <button type="button" class="text-rose-400 hover:text-rose-600 remove-variant-row transition-all" title="Remove this combination">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </td>
+    </tr>
 </template>
 @endsection
 
 @push('scripts')
 <script>
 $(document).ready(function () {
+
+    // ── Initialize Select2 ─────────────────────────────────────────────
+    $('.select2-searchable, #category_id, #sub_category_id, #child_category_id, #tax_class_id').select2({
+        width: '100%',
+        placeholder: "Select or search..."
+    });
+
+    // Tracking for manually removed variant rows
+    var removedCombinations = new Set();
+    
+    $(document).on('click', '.remove-variant-row', function() {
+        var combId = $(this).closest('tr').find('.variant-comb-input').val();
+        removedCombinations.add(combId);
+        generateVariantMatrix();
+    });
+
+    $(document).on('click', '#resetVariantMatrix', function() {
+        if(confirm("Restore all previously removed variant rows?")) {
+            removedCombinations.clear();
+            generateVariantMatrix();
+        }
+    });
 
     // ── General images preview ─────────────────────────────────────────
     $('#generalImagesInput').on('change', function () {
@@ -419,60 +438,205 @@ $(document).ready(function () {
         });
     });
 
-    // ── Attribute checkbox → variant image slots ───────────────────────
-    $(document).on('change', '.attr-checkbox', function () {
-        var chip    = $(this).closest('.attr-chip');
-        var attrId  = chip.data('attr-id');
-        var valueId = chip.data('value-id');
-        var name    = chip.data('value-name');
-        var swatch  = chip.data('swatch') || '';
-        var container = $('#variantSlots_' + attrId);
+    // ── Variant Matrix Logic ─────────────────────────────────────────
+    $(document).on('change', '.attr-checkbox-matrix', function () {
+        generateVariantMatrix();
+    });
 
-        if ($(this).is(':checked')) {
-            // Don't add duplicate
-            if (container.find('.variant-slot[data-slot-value-id="' + valueId + '"]').length === 0) {
-                container.append(buildVariantSlot(attrId, valueId, name, swatch));
-                // Mark chip as "has slot"
-                chip.addClass('border-[#a91b43] bg-rose-50/30');
+    function generateVariantMatrix() {
+        var selected = {};
+        $('.attr-checkbox-matrix:checked').each(function() {
+            var chip   = $(this).closest('.attr-chip');
+            var attrId = chip.data('attr-id');
+            var valId  = $(this).val();
+            var name   = chip.data('value-name');
+            var attrName = chip.data('attr-name') || '';
+            if(!selected[attrId]) selected[attrId] = [];
+            selected[attrId].push({id: valId, name: name, attrName: attrName});
+            chip.addClass('border-[#a91b43] bg-rose-50/30 shadow-sm');
+        });
+        
+        $('.attr-checkbox-matrix:not(:checked)').each(function(){
+            $(this).closest('.attr-chip').removeClass('border-[#a91b43] bg-rose-50/30 shadow-sm');
+        });
+
+        var attrIds = Object.keys(selected);
+        if(attrIds.length === 0) {
+            $('#variantMatrixContainer').addClass('hidden');
+            $('#variantMatrixBody').empty();
+            return;
+        }
+
+        // Store existing rows to preserve data/images
+        var existingRows = {};
+        $('#variantMatrixBody tr').each(function() {
+            var combId = $(this).find('.variant-comb-input').val();
+            existingRows[combId] = $(this).detach();
+        });
+
+        // Extract Color attribute if exists
+        var colorAttrId = null;
+        var colorValues = [];
+        Object.keys(selected).forEach(attrId => {
+            if(selected[attrId][0].attrName.toLowerCase().indexOf('color') !== -1) {
+                colorAttrId = attrId;
+                colorValues = selected[attrId];
             }
+        });
+
+        // 1. Generate Variant Matrix combinations
+        var combinations = cartesian(Object.values(selected));
+        $('#variantMatrixBody').empty();
+        $('#variantMatrixContainer').removeClass('hidden');
+
+        var template = document.getElementById('variantRowTemplate').content;
+        var activeRowIndex = 0;
+
+        combinations.forEach(function(comb) {
+            var names = comb.map(v => v.name).join(' - ');
+            var ids   = comb.map(v => v.id).join(',');
+            
+            // Skip manually removed combinations
+            if(removedCombinations.has(ids)) return;
+
+            var $row;
+            if(existingRows[ids]) {
+                $row = existingRows[ids];
+            } else {
+                var clone = document.importNode(template, true);
+                $row = $(clone.querySelector('tr'));
+                $row.find('.variant-name').html(names + '<input type="file" class="hidden-v-file hidden" multiple accept="image/*">');
+                $row.find('.variant-comb-input').val(ids);
+
+                var mainPrice = $('#sale_price').val() || $('#regular_price').val();
+                if(mainPrice) $row.find('input[name="v_price[]"]').val(mainPrice);
+            }
+            
+            var colorVal = comb.find(v => v.attrName.toLowerCase().indexOf('color') !== -1);
+            if (colorVal) {
+                $row.attr('data-color-name', colorVal.name);
+            }
+            
+            // Critical: Re-index hidden image inputs correctly using activeRowIndex
+            $row.find('.hidden-v-file').attr('name', 'v_images[' + activeRowIndex + '][]');
+            activeRowIndex++;
+
+            $('#variantMatrixBody').append($row);
+        });
+
+        // 2. Generate Color Image Sections (Flipkart style)
+        var $colorGrid = $('#colorImagesGrid');
+        // Save old file inputs to avoid losing selected files on re-render
+        var oldColorInputs = {};
+        $('.color-group-file-input').each(function() {
+            oldColorInputs[$(this).closest('.color-image-card').data('color-name')] = this.files;
+        });
+
+        $colorGrid.empty();
+        if(colorValues.length > 0) {
+            $('#colorImagesSection').removeClass('hidden');
+            colorValues.forEach(c => {
+                var tpl = `
+                    <div class="color-image-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden group" data-color-name="${c.name}">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-[#a91b43]"></div>
+                        <div class="font-bold text-sm text-slate-800 mb-3 ml-2 flex items-center justify-between">
+                            <span><i class="fas fa-fill-drip text-[#a91b43]/50 mr-1 text-xs"></i> ${c.name}</span>
+                        </div>
+                        <label class="cursor-pointer bg-slate-50 border border-dashed border-slate-300 rounded-lg block p-6 text-center hover:bg-[#a91b43]/5 hover:border-[#a91b43]/30 transition-all mb-2">
+                            <i class="fas fa-cloud-upload-alt text-slate-400 mb-2 text-xl group-hover:text-[#a91b43] transition-colors"></i>
+                            <div class="text-[11px] font-bold text-slate-600">Select Images for ${c.name}</div>
+                            <input type="file" class="color-group-file-input hidden" multiple accept="image/*">
+                        </label>
+                        <div class="color-preview-container flex flex-wrap gap-2"></div>
+                    </div>
+                `;
+                var $card = $(tpl);
+                
+                // Restore old files if they existed
+                if(oldColorInputs[c.name] && oldColorInputs[c.name].length > 0) {
+                    var $input = $card.find('.color-group-file-input')[0];
+                    var dt = new DataTransfer();
+                    for(let i=0; i<oldColorInputs[c.name].length; i++) dt.items.add(oldColorInputs[c.name][i]);
+                    $input.files = dt.files;
+                    renderColorPreviews($input.files, $card.find('.color-preview-container'));
+                }
+
+                $colorGrid.append($card);
+            });
         } else {
-            container.find('.variant-slot[data-slot-value-id="' + valueId + '"]').slideUp(200, function () { $(this).remove(); });
-            chip.removeClass('border-[#a91b43] bg-rose-50/30');
+            $('#colorImagesSection').addClass('hidden');
+        }
+    }
+
+    // ── Apply Images to Matrix Rows ─────────────────────
+    $(document).on('change', '.color-group-file-input', function() {
+        var files = this.files;
+        var $card = $(this).closest('.color-image-card');
+        var colorName = $card.data('color-name');
+        
+        renderColorPreviews(files, $card.find('.color-preview-container'));
+
+        // Magic: Map these files to the hidden inputs of ALL matrix rows with this color
+        var dt = new DataTransfer();
+        if(files && files.length > 0) {
+            for (var i = 0; i < files.length; i++) dt.items.add(files[i]);
         }
 
-        // Highlight chip when checked
-        chip.toggleClass('border-[#a91b43] bg-rose-50/30', $(this).is(':checked'));
+        $('#variantMatrixBody tr').each(function() {
+            if($(this).attr('data-color-name') === colorName) {
+                var hiddenInput = $(this).find('.hidden-v-file')[0];
+                if(hiddenInput) hiddenInput.files = dt.files;
+                
+                // Flash row to indicate it received the files
+                $(this).addClass('bg-emerald-50/50');
+                setTimeout(() => $(this).removeClass('bg-emerald-50/50'), 500);
+            }
+        });
     });
 
-    // Live preview for variant file inputs (event delegation)
-    $(document).on('change', '.variant-file-input', function () {
-        var preview = $(this).closest('.variant-slot').find('.variant-preview')[0];
-        previewFiles(this.files, preview);
-    });
+    function renderColorPreviews(files, $container) {
+        $container.empty();
+        if (files && files.length > 0) {
+            Array.from(files).forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(e){
+                    $container.append('<img src="'+e.target.result+'" class="w-12 h-12 rounded object-cover border border-slate-200 shadow-sm">');
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+    }
 
-    // ── Validation ─────────────────────────────────────────────────────
-    $('#productForm').validate({
-        rules: {
-            name          : 'required',
-            category_id   : 'required',
-            regular_price : { required: true, number: true, min: 0 },
-            stock_quantity: { required: true, digits: true, min: 0 }
+    function cartesian(args) {
+        var r = [], max = args.length - 1;
+        function helper(arr, i) {
+            for (var j = 0, l = args[i].length; j < l; j++) {
+                var a = arr.slice(0);
+                a.push(args[i][j]);
+                if (i == max) r.push(a);
+                else helper(a, i + 1);
+            }
+        }
+        helper([], 0);
+        return r;
+    }
+
+    $(document).on('change', '.v-file-input', function() {
+        var files = this.files;
+        var $container = $(this).closest('td').find('.v-preview-container');
+        $container.empty();
+        if (files && files.length > 0) {
+            Array.from(files).forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(e){
+                    $container.append('<div class="v-preview w-8 h-8 rounded border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden"><img src="'+e.target.result+'" class="w-full h-full object-cover"></div>');
+                }
+                reader.readAsDataURL(file);
+            });
         }
     });
+ 
 
-    // ── Init: mark already-checked chips ──────────────────────────────
-    $('.attr-checkbox:checked').each(function () {
-        var chip    = $(this).closest('.attr-chip');
-        var attrId  = chip.data('attr-id');
-        var valueId = chip.data('value-id');
-        var name    = chip.data('value-name');
-        var swatch  = chip.data('swatch') || '';
-        var container = $('#variantSlots_' + attrId);
-        chip.addClass('border-[#a91b43] bg-rose-50/30');
-        if (container.length && container.find('.variant-slot[data-slot-value-id="' + valueId + '"]').length === 0) {
-            container.append(buildVariantSlot(attrId, valueId, name, swatch));
-        }
-    });
 });
 
 // ── Build one variant slot HTML ────────────────────────────────────────
@@ -506,8 +670,39 @@ function previewFiles(files, previewEl) {
             wrap.className = 'relative';
             var img = document.createElement('img');
             img.src = e.target.result;
-            img.className = 'w-16 h-16 rounded-lg object-cover border border-slate-200 shadow-sm';
+            img.className = 'w-16 h-16 rounded-lg object-cover border border-slate-200 shadow-sm transition-all';
+            
+            // Primary Selector
+            var selector = document.createElement('div');
+            selector.className = 'absolute -top-1 -right-1 bg-white rounded-full border border-slate-200 shadow-sm cursor-pointer z-10 w-5 h-5 flex items-center justify-center hover:scale-110 transition-all primary-badge';
+            selector.innerHTML = '<i class="fas fa-check text-[8px] text-slate-300"></i>';
+            selector.title = "Make Primary";
+            
+            var index = previewEl.children.length;
+            if(index === 0) { 
+                selector.classList.add('bg-pink-100', 'border-pink-500'); 
+                selector.querySelector('i').classList.remove('text-slate-300');
+                selector.querySelector('i').classList.add('text-pink-600');
+                img.classList.add('ring-2', 'ring-pink-500');
+            }
+
+            selector.onclick = function() {
+                document.querySelectorAll('.primary-badge').forEach(b => {
+                    b.classList.remove('bg-pink-100', 'border-pink-500');
+                    b.querySelector('i').classList.remove('text-pink-600');
+                    b.querySelector('i').classList.add('text-slate-300');
+                });
+                document.querySelectorAll('.relative img').forEach(i => i.classList.remove('ring-2', 'ring-pink-500'));
+                
+                this.classList.add('bg-pink-100', 'border-pink-500');
+                this.querySelector('i').classList.remove('text-slate-300');
+                this.querySelector('i').classList.add('text-pink-600');
+                img.classList.add('ring-2', 'ring-pink-500');
+                document.getElementById('primary_image_index').value = index;
+            };
+
             wrap.appendChild(img);
+            wrap.appendChild(selector);
             previewEl.appendChild(wrap);
         };
         reader.readAsDataURL(file);
