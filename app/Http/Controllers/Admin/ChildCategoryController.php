@@ -15,7 +15,18 @@ class ChildCategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $childCategories = ChildCategory::with(['category', 'subCategory'])->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = ChildCategory::with(['category', 'subCategory']);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $childCategories = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.child_categories.index', compact('childCategories'));
     }
 

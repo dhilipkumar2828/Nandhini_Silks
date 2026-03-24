@@ -18,7 +18,22 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $products = Product::with(['category', 'subCategory', 'childCategory'])->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
+        $query = Product::with(['category', 'subCategory', 'childCategory']);
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('sku', 'like', "%{$term}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $products = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
         return view('admin.products.index', compact('products'));
     }
 
@@ -29,9 +44,10 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
+        $shippingClasses = \App\Models\ShippingClass::where('status', 1)->get();
         $products = Product::where('status', '=', 1)->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'products'));
+        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
     }
 
     public function store(Request $request)
@@ -51,6 +67,7 @@ class ProductController extends Controller
             'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
+            'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
         ]);
@@ -168,9 +185,10 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
+        $shippingClasses = \App\Models\ShippingClass::where('status', 1)->get();
         $products = Product::where('status', '=', 1)->where('id', '!=', $product->id)->orderBy('name')->get(['id', 'name']);
         
-        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'products'));
+        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
     }
 
     public function update(Request $request, Product $product)
@@ -190,6 +208,7 @@ class ProductController extends Controller
             'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
+            'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
         ]);

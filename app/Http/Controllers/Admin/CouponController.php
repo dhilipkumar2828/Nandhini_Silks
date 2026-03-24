@@ -10,9 +10,21 @@ use Illuminate\Http\Request;
 
 class CouponController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $coupons = Coupon::orderBy('id', 'desc')->paginate(20);
+        $perPage = $request->get('per_page', 20);
+        $query = Coupon::query();
+
+        if ($request->filled('search')) {
+            $query->where('code', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $coupons = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
         return view('admin.coupons.index', compact('coupons'));
     }
 

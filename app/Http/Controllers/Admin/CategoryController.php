@@ -14,7 +14,18 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $categories = Category::orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = Category::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $categories = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.categories.index', compact('categories'));
     }
 

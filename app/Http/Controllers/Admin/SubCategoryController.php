@@ -14,7 +14,18 @@ class SubCategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $subCategories = SubCategory::with('category')->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = SubCategory::with('category');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $subCategories = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.sub_categories.index', compact('subCategories'));
     }
 

@@ -13,14 +13,32 @@ class AttributeValueController extends Controller
     public function index(Request $request)
     {
         $attributeId = $request->query('attribute_id');
+        $perPage = $request->get('per_page', 10);
         $attribute = null;
         
+        $query = AttributeValue::query();
+
         if ($attributeId) {
             $attribute = Attribute::findOrFail($attributeId);
-            $attributeValues = AttributeValue::where('attribute_id', $attributeId)->orderBy('display_order', 'asc')->get();
+            $query->where('attribute_id', $attributeId);
         } else {
-            $attributeValues = AttributeValue::with('attribute')->orderBy('attribute_id')->orderBy('display_order', 'asc')->get();
+            $query->with('attribute');
         }
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        if (!$attributeId) {
+            $query->orderBy('attribute_id');
+        }
+
+        $attributeValues = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
 
         return view('admin.attribute-values.index', compact('attributeValues', 'attribute'));
     }

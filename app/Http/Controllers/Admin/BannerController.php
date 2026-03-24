@@ -13,7 +13,18 @@ class BannerController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $banners = Banner::orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = Banner::query();
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $banners = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.appearance.banners.index', compact('banners'));
     }
 

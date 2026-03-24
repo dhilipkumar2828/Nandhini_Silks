@@ -386,11 +386,13 @@
                         </div>
                         <div class="summary-row-v4">
                             <span>Delivery Charges</span>
-                            <span style="color: #2ecc71; font-weight: 700; font-size: 12px;">FREE</span>
+                            <span id="shipping_cost_display" style="{{ $shipping > 0 ? '' : 'color: #2ecc71; font-weight: 700;' }} font-size: 12px;">
+                                {{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}
+                            </span>
                         </div>
                         <div class="summary-row-v4">
                             <span>GST (5%)</span>
-                            <span>₹{{ number_format($tax, 0) }}</span>
+                            <span id="tax_cost_display">₹{{ number_format($tax, 0) }}</span>
                         </div>
                         @if($discount > 0)
                         <div class="summary-row-v4" style="color: #2ecc71; font-weight: 600;">
@@ -495,6 +497,43 @@
 
         // Scroll to form for visibility
         window.scrollTo({ top: document.getElementById('checkoutAddressForm').offsetTop - 100, behavior: 'smooth' });
+        updateShipping();
+    }
+
+    // Dynamic Shipping Calculation
+    $('#field_state, #field_zip').on('change', function() {
+        updateShipping();
+    });
+
+    function updateShipping() {
+        const state = $('#field_state').val();
+        const zip = $('#field_zip').val();
+        
+        if (!state && !zip) return;
+
+        $.ajax({
+            url: "{{ route('cart.shipping.update') }}",
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                state: state,
+                zip: zip,
+                country: 'India' // Currently assuming India
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#shipping_cost_display').text(response.shippingFormatted);
+                    $('#tax_cost_display').text(response.taxFormatted);
+                    $('.grand-total-v4 span:last-child').text(response.grandTotalFormatted);
+                    
+                    if (response.shipping > 0) {
+                        $('#shipping_cost_display').css({'color': '', 'font-weight': ''});
+                    } else {
+                        $('#shipping_cost_display').css({'color': '#2ecc71', 'font-weight': '700'});
+                    }
+                }
+            }
+        });
     }
 
     $('#singleCheckoutForm').on('submit', function(e) {

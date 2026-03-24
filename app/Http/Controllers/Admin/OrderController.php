@@ -42,7 +42,8 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest('created_at')->paginate(15)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $orders = $query->latest('created_at')->paginate($perPage)->withQueryString();
         
         return view('admin.orders.index', compact('orders'));
     }

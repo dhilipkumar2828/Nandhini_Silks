@@ -73,8 +73,9 @@ Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.a
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/mini-cart', [CartController::class, 'getMiniCart'])->name('cart.mini-cart');
-Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+ Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+Route::post('/cart/shipping', [CartController::class, 'updateShippingDestination'])->name('cart.shipping.update');
 
 Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
 
@@ -131,6 +132,10 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('tax-classes', \App\Http\Controllers\Admin\TaxClassController::class)->names('admin.tax-classes');
         Route::resource('tax-rates', \App\Http\Controllers\Admin\TaxRateController::class)->names('admin.tax-rates');
         Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class)->names('admin.coupons');
+
+        // Shipping Management
+        Route::resource('shipping-classes', \App\Http\Controllers\Admin\ShippingClassController::class)->names('admin.shipping-classes');
+        Route::resource('shipping-rates', \App\Http\Controllers\Admin\ShippingRateController::class)->names('admin.shipping-rates');
 
         // Users
         Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.users');

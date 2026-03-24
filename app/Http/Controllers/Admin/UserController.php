@@ -14,6 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        $perPage = $request->get('per_page', 10);
         $query = User::query();
 
         if (Schema::hasTable('orders')) {
@@ -30,7 +31,11 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('id', 'desc')->paginate(10);
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('account_status', '=', $request->status);
+        }
+
+        $users = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
 
         return view('admin.users.index', compact('users'));
     }

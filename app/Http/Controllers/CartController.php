@@ -275,6 +275,31 @@ class CartController extends Controller
         ]);
     }
 
+    public function updateShippingDestination(Request $request)
+    {
+        $destination = [
+            'country' => $request->input('country', 'India'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+        ];
+
+        session()->put('shipping_destination', $destination);
+
+        $cart = $this->getCart();
+        $items = array_values($cart);
+        $totals = $this->calculateTotals($items);
+
+        return response()->json([
+            'success' => true,
+            'shipping' => $totals['shipping'],
+            'tax' => $totals['tax'],
+            'grandTotal' => $totals['grandTotal'],
+            'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 0) : 'FREE',
+            'taxFormatted' => '₹' . number_format($totals['tax'], 0),
+            'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 0),
+        ]);
+    }
+
     public function placeOrder(Request $request)
     {
         $cart = $this->getCart();
@@ -603,7 +628,10 @@ class CartController extends Controller
         }
 
         $subTotal = round($subTotal, 2);
-        $shipping = 0;
+        
+        // Shipping Calculation
+        $shipping = $this->calculateShipping($items);
+        
         $couponResult = $this->resolveCoupon($items, $subTotal);
         $discount = $couponResult['discount'];
         $coupon = $couponResult['coupon'];
@@ -751,6 +779,45 @@ class CartController extends Controller
         }
 
         return round($sum, 2);
+    }
+
+    private function calculateShipping(array $items): float
+    {
+        $totalShipping = 0;
+        
+        // Get shipping info from session if available (set during checkout)
+        $destination = session()->get('shipping_destination', [
+            'country' => 'India', // Default
+            'state' => null,
+            'zip' => null
+        ]);
+
+        foreach ($items as $item) {
+            $product = Product::find($item['product_id']);
+            if (!$product || !$product->shipping_class_id) continue;
+
+            $shippingClass = $product->shippingClass;
+            if (!$shippingClass || !$shippingClass->status) continue;
+
+            // Find best matching rate
+            $rate = \App\Models\ShippingRate::where('shipping_class_id', $shippingClass->id)
+                ->where('status', 1)
+                ->where(function($query) use ($destination) {
+                    $query->where('country', $destination['country'])
+                          ->orWhere('country', 'All')
+                          ->orWhereNull('country');
+                })
+                ->orderByRaw("CASE WHEN country = ? THEN 0 ELSE 1 END", [$destination['country']])
+                ->first();
+
+            if ($rate) {
+                // For now, let's assume the rate is per item. 
+                // Alternatively, it could be per order per class.
+                $totalShipping += $rate->cost * $item['quantity'];
+            }
+        }
+
+        return round($totalShipping, 2);
     }
 
     private function invalidateCoupon(): array

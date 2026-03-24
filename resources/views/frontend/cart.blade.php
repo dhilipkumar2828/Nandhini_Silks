@@ -172,7 +172,7 @@
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
-                        <span>FREE</span>
+                        <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}</span>
                     </div>
                     <div class="summary-row">
                         <span>Estimated Tax (GST 5%)</span>

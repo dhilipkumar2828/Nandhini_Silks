@@ -310,18 +310,17 @@
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
 
-            <!-- Tax Settings Dropdown -->
+            <!-- Tax & Shipping Settings Dropdown -->
             <div
-                x-data="{ open: {{ request()->routeIs('admin.tax-classes.*', 'admin.tax-rates.*') ? 'true' : 'false' }} }">
+                x-data="{ open: {{ request()->routeIs('admin.tax-classes.*', 'admin.tax-rates.*', 'admin.shipping-classes.*', 'admin.shipping-rates.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
                     :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
-                    <div class="w-6 flex justify-center"><i class="fas fa-percent text-base"></i></div>
-                    <span class="font-bold ml-2 text-xs text-left flex-1">Tax Settings</span>
+                    <div class="w-6 flex justify-center"><i class="fas fa-truck text-base"></i></div>
+                    <span class="font-bold ml-2 text-xs text-left flex-1">Tax & Shipping</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
                         :class="open ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="open" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
@@ -336,6 +335,18 @@
                         class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
                         <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-[10px]"></i></div>
                         <span class="font-bold ml-2 text-[10px]">Tax Rates</span>
+                    </a>
+
+                    <a href="{{ route('admin.shipping-classes.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.shipping-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-shipping-fast text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Shipping Classes</span>
+                    </a>
+
+                    <a href="{{ route('admin.shipping-rates.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.shipping-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-coins text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Shipping Rates</span>
                     </a>
                 </div>
             </div>

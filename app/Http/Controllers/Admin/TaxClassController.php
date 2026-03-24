@@ -11,7 +11,18 @@ class TaxClassController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $taxClasses = TaxClass::withCount('rates')->latest()->paginate($perPage)->withQueryString();
+        $query = TaxClass::withCount('rates');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $taxClasses = $query->latest()->paginate($perPage)->withQueryString();
         return view('admin.tax-classes.index', compact('taxClasses'));
     }
 

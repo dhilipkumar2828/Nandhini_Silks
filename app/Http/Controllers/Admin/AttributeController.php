@@ -9,9 +9,25 @@ use Illuminate\Support\Str;
 
 class AttributeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $attributes = Attribute::withCount('values')->get();
+        $perPage = $request->get('per_page', 10);
+        $query = Attribute::withCount('values');
+
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('group', 'like', "%{$term}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $attributes = $query->orderBy('group', 'asc')->orderBy('name', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.attributes.index', compact('attributes'));
     }
 

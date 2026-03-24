@@ -11,7 +11,18 @@ class AdController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $ads = Ad::latest()->paginate($perPage)->withQueryString();
+        $query = Ad::query();
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $ads = $query->latest()->paginate($perPage)->withQueryString();
         return view('admin.appearance.ads.index', compact('ads'));
     }
 
