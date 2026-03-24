@@ -71,6 +71,7 @@ class CartController extends Controller
             $size = '';
             $color = '';
 
+            $matchedVariant = null;
             // Try to find matching variant for specific image/price
             if (!empty($attributes)) {
                 $variants = $product->product_variants;
@@ -91,6 +92,7 @@ class CartController extends Controller
                     }
                     if ($match) {
                         Log::info("MATCH FOUND! Variant ID: {$variant->id}");
+                        $matchedVariant = $variant;
                         if ($variant->price > 0) $price = $variant->price;
                         if ($variant->sale_price > 0) $price = $variant->sale_price;
                         if ($variant->image) $imagePath = $variant->image;
@@ -111,6 +113,7 @@ class CartController extends Controller
 
             $cart[$cartKey] = [
                 'product_id' => $product->id,
+                'variant_id' => $matchedVariant ? $matchedVariant->id : null,
                 'name' => $product->name,
                 'slug' => $product->slug,
                 'price' => $price,
@@ -124,13 +127,42 @@ class CartController extends Controller
         }
 
         $this->putCart($cart);
+        $itemCount = collect($cart)->sum('quantity');
 
         $action = $request->input('action', 'cart');
         if ($action === 'checkout') {
             return redirect()->route('checkout');
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            $totalCount = collect($cart)->sum('quantity');
+            return response()->json([
+                'success' => true,
+                'message' => 'Added to cart.',
+                'cartCount' => $totalCount
+            ]);
+        }
+
         return redirect()->route('cart')->with('success', 'Added to cart.');
+    }
+
+    public function getMiniCart()
+    {
+        $cart = $this->getCart();
+        $items = [];
+        $totalItems = 0;
+        foreach ($cart as $key => $item) {
+            $item['key'] = $key;
+            $items[] = $item;
+            $totalItems += $item['quantity'];
+        }
+        $totals = $this->calculateTotals($items);
+        
+        return response()->json([
+            'items' => $items,
+            'subTotal' => $totals['subTotal'],
+            'totalItems' => $totalItems
+        ]);
     }
 
     public function update(Request $request)
@@ -167,6 +199,16 @@ class CartController extends Controller
             unset($cart[$key]);
         }
         $this->putCart($cart);
+        
+        $totalItems = collect($cart)->sum('quantity');
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed.',
+                'count' => $totalItems
+            ]);
+        }
 
         return redirect()->route('cart')->with('success', 'Item removed.');
     }
@@ -304,10 +346,7 @@ class CartController extends Controller
             ]);
 
             // Increment Coupon usage if applicable
-            $coupon = $totals['coupon'];
-            if ($coupon) {
-                $coupon->increment('times_used');
-            }
+            // (We'll do this once, after saving the order items)
 
             foreach ($items as $item) {
                 $product = Product::find($item['product_id']);
@@ -324,25 +363,53 @@ class CartController extends Controller
                     'total' => $item['price'] * $item['quantity'],
                 ]);
 
-                // Deduction of Stock with Movement Log [PERFECT FIX]
+                // Deduction of Stock with Movement Log [VARIANT AWARE FIX]
                 if ($product) {
-                    $oldStock = (int) $product->stock_quantity;
+                    $variantId = $item['variant_id'] ?? null;
                     $itemQty = (int) $item['quantity'];
-                    $newStock = max(0, $oldStock - $itemQty);
-
-                    $product->update(['stock_quantity' => $newStock]);
                     
-                    StockMovement::create([
-                        'product_id' => $product->id,
-                        'type' => 'sale',
-                        'quantity' => $itemQty,
-                        'balance_after' => $newStock,
-                        'reason' => 'Sold in Order #' . $order->order_number,
-                    ]);
+                    if ($variantId) {
+                        $variant = \App\Models\ProductVariant::find($variantId);
+                        if ($variant) {
+                            $oldVStock = (int) $variant->stock_quantity;
+                            $newVStock = max(0, $oldVStock - $itemQty);
+                            $variant->update(['stock_quantity' => $newVStock]);
+                            
+                            StockMovement::create([
+                                'product_id' => $product->id,
+                                'type' => 'sale',
+                                'quantity' => $itemQty,
+                                'balance_after' => $newVStock,
+                                'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $order->order_number,
+                            ]);
+                        }
+                    } else {
+                        // Regular product (no variants)
+                        $oldStock = (int) $product->stock_quantity;
+                        $newStock = max(0, $oldStock - $itemQty);
+                        $product->update(['stock_quantity' => $newStock]);
+                        
+                        StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => 'sale',
+                            'quantity' => $itemQty,
+                            'balance_after' => $newStock,
+                            'reason' => 'Sold in Order #' . $order->order_number,
+                        ]);
+                    }
 
-                    // Update Status to Out of Stock if zero
-                    if ($product->stock_quantity <= 0) {
-                        $product->update(['stock_status' => 'outofstock']);
+                    // Always sync parent product stock as the sum of its variants if it has any
+                    if ($product->product_variants->count() > 0) {
+                        $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                        $product->update([
+                            'stock_quantity' => $totalVariantStock,
+                            'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+                        ]);
+                    } else {
+                        // For simple products without variants
+                        if ($product->stock_quantity <= 0) {
+                            $product->update(['stock_status' => 'outofstock']);
+                        }
                     }
                 }
             }
@@ -357,6 +424,10 @@ class CartController extends Controller
             }
 
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
+            // Clear cart from both session and DB for auth users
+            if (auth()->check()) {
+                \App\Models\CartItem::where('user_id', auth()->id())->delete();
+            }
             session()->forget(['cart', 'coupon_id']);
             return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
 
@@ -402,7 +473,13 @@ class CartController extends Controller
             $order = Order::where('payment_id', $request->razorpay_order_id)->first();
             if ($order) {
                 $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
+                
+                // Clear cart for the authenticated user (payment verified)
+                if (auth()->check()) {
+                    \App\Models\CartItem::where('user_id', auth()->id())->delete();
+                }
                 session()->forget(['cart', 'coupon_id']);
+                
                 return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
             }
         }
@@ -423,12 +500,96 @@ class CartController extends Controller
 
     private function getCart(): array
     {
+        if (auth()->check()) {
+            $dbItems = \App\Models\CartItem::where('user_id', auth()->id())->get();
+            $cart = [];
+            foreach ($dbItems as $item) {
+                // Determine a unique key for the cart item
+                $cartKey = $item->product_id;
+                $attributes = $item->attributes ?? [];
+                if (!empty($attributes)) {
+                    ksort($attributes);
+                    foreach ($attributes as $id => $val) {
+                        $cartKey .= '_' . $id . '_' . $val;
+                    }
+                }
+
+                $product = $item->product;
+                if (!$product) continue;
+
+                $price = $item->variant ? ($item->variant->sale_price ?: $item->variant->price) : ($product->sale_price ?: $product->regular_price ?: $product->price);
+                $imagePath = $item->variant ? $item->variant->image : $product->image_path;
+                
+                // Get size and color names for display
+                $size = '';
+                $color = '';
+                foreach($attributes as $aid => $avid) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($avid);
+                    if($val && $val->attribute) {
+                        $attrName = strtolower($val->attribute->name);
+                        if(str_contains($attrName, 'size')) $size = $val->name;
+                        if(str_contains($attrName, 'color')) $color = $val->name;
+                    }
+                }
+
+                $cart[$cartKey] = [
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->product_variant_id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'price' => (float) $price,
+                    'image_path' => $imagePath,
+                    'image_url' => $this->productImageUrl($imagePath),
+                    'quantity' => (int) $item->quantity,
+                    'attributes' => $attributes,
+                    'size' => $size,
+                    'color' => $color,
+                ];
+            }
+            return $cart;
+        }
         return session()->get('cart', []);
     }
 
     private function putCart(array $cart): void
     {
-        session()->put('cart', $cart);
+        if (auth()->check()) {
+            $userId = auth()->id();
+            // This is a simplified "replace all" approach for sync.
+            // Ideally should update specifically, but for now we'll match by user.
+            \App\Models\CartItem::where('user_id', $userId)->delete();
+            foreach ($cart as $item) {
+                \App\Models\CartItem::create([
+                    'user_id' => $userId,
+                    'product_id' => $item['product_id'],
+                    'product_variant_id' => $item['variant_id'],
+                    'quantity' => $item['quantity'],
+                    'attributes' => $item['attributes'],
+                ]);
+            }
+        } else {
+            session()->put('cart', $cart);
+        }
+    }
+
+    public function syncCartOnLogin()
+    {
+        if (auth()->check()) {
+            $sessionCart = session()->get('cart', []);
+            if (!empty($sessionCart)) {
+                $dbCart = $this->getCart(); // gets current DB items
+                // Merge session items into DB
+                foreach ($sessionCart as $key => $sItem) {
+                    if (isset($dbCart[$key])) {
+                        $dbCart[$key]['quantity'] += $sItem['quantity'];
+                    } else {
+                        $dbCart[$key] = $sItem;
+                    }
+                }
+                $this->putCart($dbCart);
+                session()->forget('cart');
+            }
+        }
     }
 
     private function calculateTotals(array $items): array

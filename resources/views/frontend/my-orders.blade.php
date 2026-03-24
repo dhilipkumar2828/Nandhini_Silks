@@ -29,6 +29,12 @@
         gap: 15px;
     }
 
+    .order-status-row {
+        display: flex;
+        justify-content: flex-end;
+        align-self: center;
+    }
+
     .order-meta {
         display: flex;
         gap: 30px;
@@ -39,6 +45,7 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+        min-width: 0;
     }
 
     .meta-label {
@@ -46,12 +53,21 @@
         color: #999;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        white-space: nowrap;
     }
 
     .meta-value {
         font-size: 14px;
         font-weight: 600;
         color: #333;
+        white-space: nowrap;
+    }
+
+    .meta-value-total {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .order-body {
@@ -121,11 +137,16 @@
     }
 
     .payment-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 4px 10px;
         border-radius: 4px;
         font-size: 11px;
         font-weight: 700;
         margin-left: 10px;
+        line-height: 1;
+        white-space: nowrap;
     }
 
     .pay-paid {
@@ -138,10 +159,158 @@
         color: #d48806;
     }
 
+    .pay-failed {
+        background: #fff1f0;
+        color: #cf1322;
+    }
+
+    .pay-refunded {
+        background: #f9f0ff;
+        color: #722ed1;
+    }
+
+    .pay-partial {
+        background: #e6f4ff;
+        color: #1677ff;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fff7e6;
+        color: #d46b08;
+    }
+
+    .status-processing {
+        background: #fffbe6;
+        color: #d48806;
+    }
+
+    .status-dispatched,
+    .status-shipped {
+        background: #e6f4ff;
+        color: #1677ff;
+    }
+
+    .status-delivered {
+        background: #f6ffed;
+        color: #389e0d;
+    }
+
+    .status-failed,
+    .status-cancelled {
+        background: #fff1f0;
+        color: #cf1322;
+    }
+
+    .status-refunded {
+        background: #f9f0ff;
+        color: #722ed1;
+    }
+
     @media (max-width: 600px) {
+        .order-card {
+            padding: 16px;
+        }
+
+        .order-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .order-status-row {
+            justify-content: flex-start;
+            align-self: stretch;
+        }
+
+        .order-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            column-gap: 10px;
+            row-gap: 6px;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .meta-item {
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .meta-item:nth-child(2) {
+            align-items: center;
+            text-align: center;
+        }
+
+        .meta-item:last-child {
+            align-items: flex-end;
+            justify-self: end;
+            text-align: right;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            letter-spacing: 0.03em;
+        }
+
+        .meta-value {
+            font-size: 12px;
+        }
+
+        .meta-value-total {
+            gap: 4px;
+            align-items: flex-start;
+            justify-content: flex-end;
+        }
+
+        .payment-status,
+        .status-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .order-body {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+        }
+
+        .order-items-preview {
+            width: 100%;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .order-img {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+
+        .order-items-count {
+            display: block;
+            line-height: 1.5;
+            text-align: left;
+            word-break: break-word;
+        }
+
         .order-actions {
             width: 100%;
             flex-direction: column;
+            gap: 8px;
         }
 
         .order-actions .btn-outline,
@@ -189,6 +358,29 @@
 
                     <div class="orders-container">
                         @forelse(Auth::user()->orders()->latest()->get() as $order)
+                        @php
+                            $paymentStatus = strtolower(trim((string) $order->payment_status));
+                            $orderStatus = strtolower(trim((string) $order->order_status));
+
+                            $paymentStatusClass = match($paymentStatus) {
+                                'paid' => 'pay-paid',
+                                'failed' => 'pay-failed',
+                                'refunded' => 'pay-refunded',
+                                'partial' => 'pay-partial',
+                                default => 'pay-pending',
+                            };
+
+                            $orderStatusClass = match($orderStatus) {
+                                'processing' => 'status-processing',
+                                'dispatched' => 'status-dispatched',
+                                'shipped' => 'status-shipped',
+                                'delivered' => 'status-delivered',
+                                'failed' => 'status-failed',
+                                'cancelled' => 'status-cancelled',
+                                'refunded' => 'status-refunded',
+                                default => 'status-pending',
+                            };
+                        @endphp
                         <div class="order-card">
                             <div class="order-header">
                                 <div class="order-meta">
@@ -202,14 +394,16 @@
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value">&#8377;{{ number_format($order->grand_total, 0) }} 
-                                            <span class="payment-status pay-{{ strtolower($order->payment_status) }}">
-                                                {{ ucfirst($order->payment_status) }}
+                                        <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 0) }} 
+                                            <span class="payment-status {{ $paymentStatusClass }}">
+                                                {{ ucfirst($paymentStatus) }}
                                             </span>
                                         </span>
                                     </div>
                                 </div>
-                                <span class="status-badge status-{{ strtolower($order->order_status) }}">{{ ucfirst($order->order_status) }}</span>
+                                <div class="order-status-row">
+                                    <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                </div>
                             </div>
                             <div class="order-body">
                                 <div class="order-items-preview">

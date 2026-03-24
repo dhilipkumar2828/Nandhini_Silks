@@ -54,43 +54,41 @@
             border-color: #A91B43 !important;
         }
 
-        /* Unavailable/Out of Stock Swatch Style */
+        /* Unavailable/Out of Stock Swatch Style - Strike-through & Dashed */
         .attribute-option.unavailable {
             position: relative !important;
-            opacity: 0.4 !important;
+            opacity: 0.6 !important;
             cursor: not-allowed !important;
             pointer-events: none !important;
-            filter: grayscale(1);
-            background: #f5f5f5 !important;
-            color: #999 !important;
-            border-color: #ddd !important;
+            background: #f8f9fa !important;
+            color: #adb5bd !important;
+            border: 1px dashed #dee2e6 !important;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
+
         .attribute-option.unavailable::after {
-            content: "SOLD OUT";
+            content: "";
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 8px;
-            font-weight: 800;
-            color: #e74c3c;
-            background: rgba(255,255,255,0.9);
-            padding: 1px 4px;
-            border: 1px solid #e74c3c;
-            border-radius: 2px;
-            white-space: nowrap;
-            z-index: 5;
-            letter-spacing: 0.5px;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: #adb5bd;
+            transform: translateY(-50%);
+            z-index: 10;
         }
+
+        /* Diagonal line for color swatches instead of horizontal */
         .attribute-option.unavailable.color-swatch::after {
-            font-size: 6px;
-            padding: 0px 1px;
-            background: #fff;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
         }
+
         .attribute-option.unavailable.size-btn {
-            border-style: dashed !important;
+            background-color: #f1f3f5 !important;
         }
 
         /* Override cache for thumbnails */
@@ -137,6 +135,273 @@
                 max-height: auto;
                 overflow-x: auto;
                 padding-bottom: 10px;
+            }
+        }
+
+        .review-empty-state {
+            text-align: center;
+            padding: 56px 24px;
+            background: linear-gradient(180deg, #fffdf8 0%, #fff7ef 100%);
+            border: 1px solid rgba(169, 27, 67, 0.12);
+            border-radius: 28px;
+            box-shadow: 0 14px 32px rgba(169, 27, 67, 0.06);
+        }
+
+        .review-empty-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 18px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #a91b43;
+            box-shadow: 0 10px 20px rgba(169, 27, 67, 0.12);
+            font-size: 28px;
+        }
+
+        .review-empty-title {
+            margin: 0 0 8px;
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .review-empty-text {
+            margin: 0 0 24px;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .review-write-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 46px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #a91b43 0%, #c62355 100%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(169, 27, 67, 0.22);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .review-write-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px rgba(169, 27, 67, 0.28);
+            filter: brightness(1.02);
+        }
+
+        .review-write-btn:active {
+            transform: translateY(0);
+        }
+
+        .review-inline-panel {
+            display: none;
+            width: min(100%, 560px);
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px;
+            border: 1px solid rgba(169, 27, 67, 0.12);
+            box-shadow: 0 18px 36px rgba(169, 27, 67, 0.08);
+            margin-top: 24px;
+        }
+
+        .review-inline-panel.open {
+            display: block;
+        }
+
+        .review-entry-state.hidden {
+            display: none;
+        }
+
+        .review-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .review-modal-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .review-modal-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 999px;
+            background: #f8e8ee;
+            color: #a91b43;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .review-form-group {
+            margin-bottom: 18px;
+        }
+
+        .review-form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .review-form-select,
+        .review-form-textarea {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #fff;
+            color: #111827;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .review-form-select {
+            height: 48px;
+            padding: 0 14px;
+        }
+
+        .review-form-textarea {
+            min-height: 150px;
+            padding: 14px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .review-form-select:focus,
+        .review-form-textarea:focus {
+            border-color: #a91b43;
+            box-shadow: 0 0 0 3px rgba(169, 27, 67, 0.12);
+        }
+
+        .review-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .review-form-cancel,
+        .review-form-submit {
+            min-height: 46px;
+            padding: 0 22px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .review-form-cancel {
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #4b5563;
+        }
+
+        .review-form-submit {
+            border: none;
+            background: linear-gradient(90deg, #a91b43 0%, #c62355 100%);
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(169, 27, 67, 0.2);
+        }
+
+        .quantity-section {
+            width: 100%;
+        }
+
+        .quantity-picker {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center;
+            min-height: 34px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 34px;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px !important;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .qty-input {
+            width: 36px !important;
+            min-width: 36px;
+            height: 34px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 34px;
+            font-size: 13px !important;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .quantity-section {
+                margin-bottom: 18px !important;
+            }
+
+            .quantity-picker {
+                width: 100% !important;
+                max-width: 118px;
+            }
+
+            .product-actions-group {
+                max-width: 100% !important;
+            }
+
+            .review-empty-state {
+                padding: 42px 18px;
+                border-radius: 22px;
+            }
+
+            .review-empty-title {
+                font-size: 16px;
+            }
+
+            .review-empty-text {
+                font-size: 13px;
+            }
+
+            .review-write-btn {
+                width: 100%;
+            }
+
+            .review-inline-panel {
+                padding: 22px 18px;
+                border-radius: 20px;
+            }
+
+            .review-form-actions {
+                flex-direction: column;
+            }
+
+            .review-form-cancel,
+            .review-form-submit {
+                width: 100%;
             }
         }
     </style>
@@ -424,6 +689,7 @@
 
                 <div class="tab-pane" id="tabReviews" style="display: none; padding-top: 30px;">
                     <div class="reviews-container">
+                        <div class="review-entry-state {{ ($errors->has('stars') || $errors->has('review')) ? 'hidden' : '' }}" id="reviewEntryState">
                         @if($product->reviews()->count() > 0)
                             <div class="space-y-6">
                                 @foreach($product->reviews as $review)
@@ -441,18 +707,67 @@
                                     </div>
                                 @endforeach
                             </div>
+                            @auth
+                            <button type="button" class="review-write-btn" id="openReviewFormBtn" style="margin-top: 24px;">
+                                <i class="far fa-pen-to-square"></i>
+                                {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
+                            </button>
+                            @else
+                            <a href="{{ route('login') }}" class="review-write-btn" style="margin-top: 24px; text-decoration: none;">
+                                <i class="far fa-pen-to-square"></i>
+                                Write a Review
+                            </a>
+                            @endauth
                         @else
-                            <div class="text-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4">
-                                    <i class="far fa-comments text-2xl text-[#a91b43]"></i>
+                            <div class="review-empty-state">
+                                <div class="review-empty-icon">
+                                    <i class="far fa-comments"></i>
                                 </div>
-                                <h4 class="text-sm font-bold text-slate-800 mb-1">No reviews yet</h4>
-                                <p class="text-xs text-slate-500 mb-6">Be the first to share your thoughts about this product!</p>
-                                <button class="px-6 py-2.5 bg-[#a91b43] text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-[#940437] transition-all shadow-md active:scale-95" onclick="alert('Review form coming soon!')">
+                                <h4 class="review-empty-title">No reviews yet</h4>
+                                <p class="review-empty-text">Be the first to share your thoughts about this product.</p>
+                                @auth
+                                <button type="button" class="review-write-btn" id="openReviewFormBtn">
+                                    <i class="far fa-pen-to-square"></i>
                                     Write a Review
                                 </button>
+                                @else
+                                <a href="{{ route('login') }}" class="review-write-btn" style="text-decoration: none;">
+                                    <i class="far fa-pen-to-square"></i>
+                                    Write a Review
+                                </a>
+                                @endauth
                             </div>
                         @endif
+                        </div>
+
+                        @auth
+                        <div class="review-inline-panel {{ ($errors->has('stars') || $errors->has('review')) ? 'open' : '' }}" id="reviewInlinePanel">
+                            <div class="review-modal-header">
+                                <h3 class="review-modal-title">{{ $userReview ? 'Update Your Review' : 'Write a Review' }}</h3>
+                                <button type="button" class="review-modal-close" id="closeReviewFormBtn" aria-label="Close review form">&times;</button>
+                            </div>
+                            <form method="POST" action="{{ route('product.review.store', $product) }}">
+                                @csrf
+                                <div class="review-form-group">
+                                    <label class="review-form-label" for="reviewStars">Your Rating</label>
+                                    <select class="review-form-select" name="stars" id="reviewStars" required>
+                                        <option value="">Select rating</option>
+                                        @for($i = 5; $i >= 1; $i--)
+                                            <option value="{{ $i }}" {{ old('stars', $userReview->stars ?? '') == $i ? 'selected' : '' }}>{{ $i }} Star{{ $i > 1 ? 's' : '' }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <div class="review-form-group">
+                                    <label class="review-form-label" for="reviewText">Your Review</label>
+                                    <textarea class="review-form-textarea" name="review" id="reviewText" required minlength="10" placeholder="Share your experience with this product...">{{ old('review', $userReview->review ?? '') }}</textarea>
+                                </div>
+                                <div class="review-form-actions">
+                                    <button type="button" class="review-form-cancel" id="cancelReviewFormBtn">Cancel</button>
+                                    <button type="submit" class="review-form-submit">{{ $userReview ? 'Update Review' : 'Submit Review' }}</button>
+                                </div>
+                            </form>
+                        </div>
+                        @endauth
                     </div>
                 </div>
 
@@ -518,6 +833,7 @@
             @endif
         </div>
     </main>
+
 </div>
 @endsection
 
@@ -532,9 +848,11 @@
         function updateQty(val) {
             const input = document.getElementById('qtyDisp');
             const hiddenInput = document.getElementById('qtyInput');
+            const maxQuantity = 10;
             let current = parseInt(input.value);
             current += val;
             if (current < 1) current = 1;
+            if (current > maxQuantity) current = maxQuantity;
             input.value = current;
             if (hiddenInput) hiddenInput.value = current;
         }
@@ -758,6 +1076,43 @@
 
         // Initialize Swipers
         document.addEventListener('DOMContentLoaded', function() {
+            const reviewEntryState = document.getElementById('reviewEntryState');
+            const reviewInlinePanel = document.getElementById('reviewInlinePanel');
+            const openReviewFormBtn = document.getElementById('openReviewFormBtn');
+            const closeReviewFormBtn = document.getElementById('closeReviewFormBtn');
+            const cancelReviewFormBtn = document.getElementById('cancelReviewFormBtn');
+
+            const openReviewForm = () => {
+                if (reviewInlinePanel) {
+                    reviewInlinePanel.classList.add('open');
+                    if (reviewEntryState) {
+                        reviewEntryState.classList.add('hidden');
+                    }
+                    reviewInlinePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            };
+
+            const closeReviewForm = () => {
+                if (reviewInlinePanel) {
+                    reviewInlinePanel.classList.remove('open');
+                    if (reviewEntryState) {
+                        reviewEntryState.classList.remove('hidden');
+                    }
+                }
+            };
+
+            if (openReviewFormBtn) {
+                openReviewFormBtn.addEventListener('click', openReviewForm);
+            }
+
+            if (closeReviewFormBtn) {
+                closeReviewFormBtn.addEventListener('click', closeReviewForm);
+            }
+
+            if (cancelReviewFormBtn) {
+                cancelReviewFormBtn.addEventListener('click', closeReviewForm);
+            }
+
             // Auto Select First Options
             let hasSelection = false;
             document.querySelectorAll('.swatch-container').forEach(container => {
@@ -813,6 +1168,38 @@
             }
 
         });
+        // AJAX Add to Cart
+        document.getElementById('pdpForm').addEventListener('submit', function(e) {
+            const action = e.submitter ? e.submitter.value : 'cart';
+            
+            if (action === 'cart') {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                formData.append('action', 'cart');
+
+                fetch(this.getAttribute('action'), {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message || 'Added to cart.');
+                        if (window.openCartDrawer) window.openCartDrawer();
+                    } else {
+                        toastr.error(data.message || 'Error adding to cart.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Something went wrong.');
+                });
+            }
+        });
     </script>
 @endpush
-

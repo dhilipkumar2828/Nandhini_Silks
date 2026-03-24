@@ -138,6 +138,72 @@
         #toast-container > .toast-warning {
             background-color: #a91b43 !important;
         }
+
+        /* Mandatory Field marker */
+        .required-label::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        input.error-border, select.error-border, textarea.error-border {
+            border-color: #ef4444 !important;
+        }
+        input[type="file"]::file-selector-button {
+            background-color: #a91b43;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            margin-right: 1rem;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: #940437;
+        }
+    </style>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+    <style>
+
+        /* Flatpickr Custom Styles */
+        .flatpickr-calendar {
+            width: 307.875px !important;
+        }
+        .dayContainer {
+            min-width: 307.875px !important;
+            max-width: 307.875px !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #a91b43 !important;
+            border-color: #a91b43 !important;
+        }
+        .flatpickr-months .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #a91b43 !important;
+        }
+        .flatpickr-weekdays {
+            background: #a91b43 !important;
+        }
+        span.flatpickr-weekday {
+            background: #a91b43 !important;
+            color: white !important;
+        }
+        .flatpickr-months .flatpickr-prev-month svg, 
+        .flatpickr-months .flatpickr-next-month svg {
+            width: 14px !important;
+            height: 14px !important;
+            fill: #fff !important;
+        }
     </style>
 </head>
 
@@ -405,7 +471,64 @@
         @yield('content')
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+        $(document).ready(function() {
+            // Initialize Flatpickr for dates
+            $('input[type="date"]').flatpickr({
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+            });
+            $('input[type="datetime-local"]').flatpickr({
+                enableTime: true,
+                altInput: true,
+                altFormat: "F j, Y H:i",
+                dateFormat: "Y-m-d H:i",
+            });
+        });
+
+        $(document).ready(function() {
+            // Auto-add <span>*</span> to required labels
+            $('input[required], select[required], textarea[required], input[data-rule-required="true"]').each(function() {
+                var label = $(this).closest('.form-group, .mb-4, .mb-3, .space-y-1\\.5, .mb-1').find('label').first();
+                if (label.length) {
+                    // Only add if no star already exists
+                    if (!label.find('.text-rose-500').length && !label.find('.text-red-500').length && label.text().indexOf('*') === -1) {
+                        label.append('<span class="text-rose-500 ml-1">*</span>');
+                    }
+                }
+            });
+
+            // Initialize validation on all admin forms
+            $('form:not(.no-validate)').each(function() {
+                $(this).validate({
+                    errorElement: 'span',
+                    errorClass: 'error-text',
+                    highlight: function(element) {
+                        $(element).addClass('error-border');
+                    },
+                    unhighlight: function(element) {
+                        $(element).removeClass('error-border');
+                    },
+                    errorPlacement: function(error, element) {
+                        if (element.hasClass('select2-hidden-accessible')) {
+                            error.insertAfter(element.next('.select2-container'));
+                        } else if (element.parent('.input-group').length) {
+                            error.insertAfter(element.parent());
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    }
+                });
+            });
+
+            // Re-validate select2 on change
+            $('.select2-hidden-accessible').on('change', function() {
+                $(this).valid();
+            });
+        });
+
         // Toastr Configuration
         toastr.options = {
             "closeButton": true,

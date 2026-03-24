@@ -12,78 +12,95 @@
             <div class="category-layout">
                 <!-- Sidebar Filters -->
                 <aside class="filters-sidebar">
-                    <div class="filter-group">
-                        <h3 class="filter-title">Price Range</h3>
-                        <div class="price-range-container">
-                            <div class="slider-track">
-                                <div class="slider-fill"></div>
-                                <div class="slider-handle" style="left: 0%;"></div>
-                                <div class="slider-handle" style="left: 100%;"></div>
-                            </div>
-                            <div class="range-values">
-                                <span>₹{{ number_format($filterData['min_price'] ?? 0, 0) }}</span>
-                                <span>₹{{ number_format($filterData['max_price'] ?? 50000, 0) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3 class="filter-title">Category</h3>
-                        <ul class="filter-list">
-                            @foreach($filterData['categories'] as $cat)
-                                <li class="filter-item">
-                                    <label class="filter-label">
-                                        <input type="checkbox" name="categories[]" value="{{ $cat->id }}"> {{ $cat->name }}
-                                    </label>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-
-                    @foreach($filterData['attributes'] as $attr)
+                    <form action="{{ url()->current() }}" method="GET" id="filterForm">
                         <div class="filter-group">
-                            <h3 class="filter-title">{{ $attr->name }}</h3>
-                            @if(strtolower($attr->name) == 'color')
-                                <style>
-                                    .color-dots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-                                    .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; position: relative; }
-                                    .color-dot.active { border-color: #A91B43; box-shadow: 0 0 0 2px #A91B43; }
-                                </style>
-                                <div class="color-dots">
-                                    @foreach($attr->values as $val)
-                                        @php
-                                            $swatch = $val->swatch_value;
-                                            $isHex = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
-                                        @endphp
-                                        <div class="color-dot" 
-                                             style="background: {{ $isHex ? $swatch : ($swatch ? 'url('.asset('uploads/'.$swatch).') center/cover' : '#eee') }};" 
-                                             title="{{ $val->name }}"
-                                             data-value-id="{{ $val->id }}"></div>
-                                    @endforeach
+                            <h3 class="filter-title">Price Range</h3>
+                            <div class="price-range-container">
+                                <div class="slider-track-modern">
+                                    <div class="slider-fill-modern" id="sliderFill"></div>
+                                    <input type="range" name="min_price" id="min_price_input" min="{{ $filterData['min_price'] }}" max="{{ $filterData['max_price'] }}" value="{{ request('min_price', $filterData['min_price']) }}" class="range-slider-modern">
+                                    <input type="range" name="max_price" id="max_price_input" min="{{ $filterData['min_price'] }}" max="{{ $filterData['max_price'] }}" value="{{ request('max_price', $filterData['max_price']) }}" class="range-slider-modern">
                                 </div>
-                            @else
-                                <ul class="filter-list">
-                                    @foreach($attr->values as $val)
-                                        <li class="filter-item">
-                                            <label class="filter-label">
-                                                <input type="checkbox" name="attr[{{ $attr->id }}][]" value="{{ $val->id }}"> {{ $val->name }}
-                                            </label>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                        </div>
-                    @endforeach
-
-                    <div class="filter-group">
-                        <label class="stock-toggle">
-                            <span>In Stock Only</span>
-                            <input type="checkbox" name="in_stock" hidden checked>
-                            <div class="toggle-switch">
-                                <div class="toggle-dot"></div>
+                                <div class="range-values-modern">
+                                    <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $filterData['min_price'] ?? 0), 0) }}</span></span>
+                                    <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $filterData['max_price'] ?? 50000), 0) }}</span></span>
+                                </div>
                             </div>
-                        </label>
-                    </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-title">Category</h3>
+                            <ul class="filter-list">
+                                @foreach($filterData['categories'] as $cat)
+                                    <li class="filter-item">
+                                        <label class="custom-checkbox">
+                                            <input type="checkbox" name="categories[]" value="{{ $cat->id }}" {{ in_array($cat->id, (array)request('categories')) ? 'checked' : '' }} onchange="this.form.submit()">
+                                            <span class="checkmark"></span>
+                                            <span class="label-text">{{ $cat->name }}</span>
+                                        </label>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        @foreach($filterData['attributes'] as $attr)
+                            @if($attr->values->isNotEmpty())
+                                <div class="filter-group">
+                                    <h3 class="filter-title">{{ $attr->name }}</h3>
+                                    @if(strtolower($attr->name) == 'color')
+                                        <div class="color-swatches-grid-modern">
+                                            @foreach($attr->values as $val)
+                                                @php
+                                                    $swatch = $val->swatch_value;
+                                                    $isHex = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                                    $isChecked = in_array($val->id, (array)request('attr.'.$attr->id));
+                                                @endphp
+                                                <label class="swatch-container-modern" title="{{ $val->name }}">
+                                                    <input type="checkbox" name="attr[{{ $attr->id }}][]" value="{{ $val->id }}" {{ $isChecked ? 'checked' : '' }} onchange="this.form.submit()">
+                                                    @php
+                                                        $bgStyle = '#eee';
+                                                        if($swatch) {
+                                                            $bgStyle = $isHex ? $swatch : 'url('.asset('uploads/'.$swatch).') center/cover';
+                                                        } else {
+                                                            if(preg_match('/^[a-zA-Z]+$/', $val->name)) $bgStyle = strtolower($val->name);
+                                                        }
+                                                    @endphp
+                                                    <span class="swatch-circle-modern" style="background: {{ $bgStyle }};"></span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <ul class="filter-list">
+                                            @foreach($attr->values as $val)
+                                                <li class="filter-item">
+                                                    <label class="custom-checkbox">
+                                                        <input type="checkbox" name="attr[{{ $attr->id }}][]" value="{{ $val->id }}" {{ in_array($val->id, (array)request('attr.'.$attr->id)) ? 'checked' : '' }} onchange="this.form.submit()">
+                                                        <span class="checkmark"></span>
+                                                        <span class="label-text">{{ $val->name }}</span>
+                                                    </label>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            @endif
+                        @endforeach
+
+                        <div class="filter-group mt-4">
+                            <label class="stock-toggle-modern">
+                                <span class="toggle-label">In Stock Only</span>
+                                <div class="toggle-container">
+                                    <input type="checkbox" name="in_stock" value="1" {{ request('in_stock') ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="filter-actions mt-5">
+                            <button type="submit" class="apply-filters-btn-modern">Apply Filters</button>
+                            <a href="{{ url()->current() }}" class="clear-filters-link">Clear All</a>
+                        </div>
+                    </form>
                 </aside>
 
                 <!-- Product Listing -->
@@ -186,6 +203,305 @@
             </div>
         </div>
     </main>
+
+    <style>
+        /* Modern Premium Sidebar Filters */
+        .filters-sidebar {
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+            border: 1px solid #f0f0f0;
+            position: sticky;
+            top: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 25px;
+        }
+
+        .filter-group:last-child {
+            border-bottom: none;
+        }
+
+        .filter-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .filter-item {
+            margin-bottom: 12px;
+        }
+
+        /* Custom Modern Checkbox */
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .custom-checkbox:hover input ~ .checkmark {
+            border-color: #A91B43;
+        }
+
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: #A91B43;
+            border-color: #A91B43;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .label-text {
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .custom-checkbox input:checked ~ .label-text {
+            color: #222;
+            font-weight: 600;
+        }
+
+        /* Color Swatches Grid */
+        .color-swatches-grid-modern {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .swatch-container-modern {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .swatch-container-modern input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .swatch-circle-modern {
+            display: block;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            box-shadow: 0 0 0 1px #eee;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .swatch-container-modern:hover .swatch-circle-modern {
+            transform: scale(1.1);
+        }
+
+        .swatch-container-modern input:checked ~ .swatch-circle-modern {
+            border-color: #fff;
+            box-shadow: 0 0 0 2px #A91B43;
+            transform: scale(1.1);
+        }
+
+        /* Stock Toggle Switch */
+        .stock-toggle-modern {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .toggle-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .toggle-container {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-container input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ddd;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-container input:checked + .toggle-slider {
+            background-color: #A91B43;
+        }
+
+        .toggle-container input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Price Slider Modern */
+        .slider-track-modern {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .slider-fill-modern {
+            position: absolute;
+            height: 100%;
+            background: #A91B43;
+            border-radius: 10px;
+        }
+
+        .range-slider-modern {
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+            appearance: none;
+            height: 6px;
+            background: none;
+            outline: none;
+            top: 0;
+            margin: 0;
+        }
+
+        .range-slider-modern::-webkit-slider-thumb {
+            pointer-events: auto;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #A91B43;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .range-values-modern {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .price-val {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #222;
+            background: #f8f8f8;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        /* Actions */
+        .apply-filters-btn-modern {
+            width: 100%;
+            padding: 14px;
+            background: #A91B43;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(169, 27, 67, 0.2);
+        }
+
+        .apply-filters-btn-modern:hover {
+            background: #8b1637;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(169, 27, 67, 0.3);
+        }
+
+        .clear-filters-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .clear-filters-link:hover {
+            color: #A91B43;
+        }
+    </style>
 @endsection
 
 @push('scripts')
@@ -206,5 +522,40 @@
                 }
             });
         });
+
+        // Price range display logic with fill update
+        const minInput = document.getElementById('min_price_input');
+        const maxInput = document.getElementById('max_price_input');
+        const minVal = document.getElementById('min_price_val');
+        const maxVal = document.getElementById('max_price_val');
+        const sliderFill = document.getElementById('sliderFill');
+
+        function updateSlider() {
+            const min = parseInt(minInput.value);
+            const max = parseInt(maxInput.value);
+            if(min > max - 100) {
+                if(this === minInput) minInput.value = max - 100;
+                else maxInput.value = min + 100;
+                return;
+            }
+            const minPercent = ((min - minInput.min) / (minInput.max - minInput.min)) * 100;
+            const maxPercent = ((max - minInput.min) / (minInput.max - minInput.min)) * 100;
+
+            if(sliderFill) {
+                sliderFill.style.left = minPercent + '%';
+                sliderFill.style.width = (maxPercent - minPercent) + '%';
+            }
+            
+            if(minVal) minVal.innerText = min.toLocaleString();
+            if(maxVal) maxVal.innerText = max.toLocaleString();
+        }
+
+        if(minInput && maxInput) {
+            minInput.addEventListener('input', updateSlider);
+            maxInput.addEventListener('input', updateSlider);
+            minInput.addEventListener('change', () => minInput.form.submit());
+            maxInput.addEventListener('change', () => maxInput.form.submit());
+            updateSlider(); // Initial call
+        }
     </script>
 @endpush

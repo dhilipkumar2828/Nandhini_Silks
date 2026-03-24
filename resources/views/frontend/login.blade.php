@@ -38,7 +38,7 @@
                 </div>
 
                 <!-- Login Form -->
-                <form id="loginForm" class="auth-form" method="post" action="{{ route('login.submit') }}" >
+                <form id="loginForm" class="auth-form validate-form" method="post" action="{{ route('login.submit') }}" >
                     @csrf
                     <div class="form-group" id="loginEmailGroup">
                         <label class="form-label" for="loginEmail">Email Address</label>
@@ -62,7 +62,7 @@
                 </form>
 
                 <!-- Register Form (Hidden by default) -->
-                <form id="registerForm" class="auth-form" style="display: none;" method="POST" action="{{ route('register') }}">
+                <form id="registerForm" class="auth-form validate-form" style="display: none;" method="POST" action="{{ route('register') }}">
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="regName">Full Name</label>

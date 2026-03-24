@@ -24,6 +24,9 @@ class UserAuthController extends Controller
             $user->last_login_at = now();
             $user->save();
             
+            // Sync cart from session to database
+            (new \App\Http\Controllers\CartController)->syncCartOnLogin();
+            
             return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
         }
 
@@ -57,6 +60,9 @@ class UserAuthController extends Controller
         ]);
 
         Auth::login($user);
+
+        // Sync cart from session to database
+        (new \App\Http\Controllers\CartController)->syncCartOnLogin();
 
         return redirect()->route('home')->with('success', 'Registration successful! Welcome to Nandhini Silks.');
     }

@@ -263,6 +263,20 @@
 
         /* testimonial nav handled in shared block above */
 
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .hero-swiper .swiper-slide {
+                background: #f7f1e5;
+            }
+
+            .hero-swiper .swiper-slide img {
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                object-fit: contain !important;
+                display: block;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero {
                 margin-bottom: 20px;
@@ -528,6 +542,116 @@
                 top: 50%;
                 z-index: 1001;
             }
+
+            .collection-section {
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .collection-swiper-wrap {
+                overflow: hidden;
+                padding: 0 34px;
+            }
+
+            .collection-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .collection-card {
+                flex: none !important;
+                width: 100% !important;
+                max-width: 250px !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+            }
+
+            .collection-image-wrap {
+                width: 100% !important;
+            }
+
+            .collection-cta {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 96px !important;
+                height: 30px !important;
+                font-size: 13px !important;
+                margin-top: 8px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .collection-prev,
+            .collection-next {
+                display: flex !important;
+                width: 32px !important;
+                height: 32px !important;
+                top: 38% !important;
+                z-index: 1002 !important;
+                background: #fff !important;
+            }
+
+            .collection-prev {
+                left: 0 !important;
+            }
+
+            .collection-next {
+                right: 0 !important;
+            }
+        }
+        /* Category Slider Alignment Pixes */
+        .category-swiper .swiper-slide {
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .category-image-shell {
+            width: 110px !important;
+            height: 110px !important;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-image {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .category-name {
+            font-size: 14px !important;
+            margin-top: 15px !important;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+            width: 100%;
+        }
+
+        .sub-category-card .category-name {
+            color: #f3a349 !important;
+        }
+
+        .sub-category-card .category-ring {
+            background: none !important;
+            border: 2px solid #f3a349 !important;
+            -webkit-mask: none !important;
+            mask: none !important;
+        }
+
+        .category-ring {
+            border-width: 2px !important;
         }
     </style>
 @endpush
@@ -635,7 +759,8 @@
                                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                                     </svg>
                                                 </button>
-                                                <button class="featured-cart" type="button"
+                                                <button class="featured-cart add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
                                                     aria-label="Add {{ $product->name }} to cart">
                                                     <img src="{{ asset('images/Vector.svg') }}" alt="" />
                                                 </button>
@@ -663,82 +788,111 @@
         </section>
     @endif
 
-    <section class="category-section" aria-labelledby="browse-categories-title">
-        <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
-        <div class="category-swiper-wrap">
-            <div class="swiper category-swiper">
-                <div class="swiper-wrapper">
-                    @forelse ($categories as $cat)
-                        <div class="swiper-slide">
-                            <a class="category-link" href="{{ route('category.show', $cat->slug) }}" style="text-decoration: none;">
-                                <article class="category-card">
-                                    <div class="category-image-shell">
-                                        <img class="category-image" src="{{ $cat->image ? asset('uploads/'.$cat->image) : asset('images/Rectangle 9.png') }}"
-                                            alt="{{ $cat->name }}" />
-                                        <span class="category-ring"></span>
-                                    </div>
-                                    <h3 class="category-name">{{ $cat->name }}</h3>
-                                </article>
-                            </a>
-                        </div>
-                    @empty
-                        <!-- Fallback static categories if needed -->
-                    @endforelse
+    @if($categories->count() > 0)
+        <section class="category-section" aria-labelledby="browse-categories-title">
+            <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
+            <div class="category-swiper-wrap">
+                <div class="swiper category-swiper">
+                    <div class="swiper-wrapper">
+                        @foreach ($categories as $cat)
+                            <div class="swiper-slide">
+                                <a class="category-link" href="{{ route('category.show', $cat->slug) }}" style="text-decoration: none;">
+                                    <article class="category-card">
+                                        <div class="category-image-shell">
+                                            <img class="category-image" src="{{ $cat->image ? asset('uploads/'.$cat->image) : asset('images/Rectangle 9.png') }}"
+                                                alt="{{ $cat->name }}" />
+                                            <span class="category-ring"></span>
+                                        </div>
+                                        <h3 class="category-name">{{ $cat->name }}</h3>
+                                    </article>
+                                </a>
+                            </div>
+                            
+                            @foreach($cat->subCategories as $sub)
+                            <div class="swiper-slide">
+                                <a class="category-link" href="{{ route('category.show', $sub->slug) }}" style="text-decoration: none;">
+                                    <article class="category-card sub-category-card">
+                                        <div class="category-image-shell">
+                                            <img class="category-image" src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Rectangle 9.png') }}"
+                                                alt="{{ $sub->name }}" />
+                                            <span class="category-ring"></span>
+                                        </div>
+                                        <h3 class="category-name">{{ $sub->name }}</h3>
+                                    </article>
+                                </a>
+                            </div>
+                            @endforeach
+                        @endforeach
+                    </div>
                 </div>
+                <!-- Navigation outside swiper for correct button positioning -->
+                <div class="swiper-button-next category-next"></div>
+                <div class="swiper-button-prev category-prev"></div>
             </div>
-            <!-- Navigation outside swiper for correct button positioning -->
-            <div class="swiper-button-next category-next"></div>
-            <div class="swiper-button-prev category-prev"></div>
-        </div>
-    </section>
+        </section>
+    @endif
+    
 
     <section class="promo-section" aria-label="Promotions">
-        <article class="offer-card">
-            <div class="offer-image-wrap">
-                <img class="offer-image" src="{{ asset('images/Rectangle 31.png') }}" alt="Special Offer" />
-            </div>
-            <div class="offer-content">
-                <h2 class="offer-title">Up to 20% off, only for this month</h2>
-                <p class="offer-text">Shop now and enjoy up to 10% off on selected items. Limited time only!</p>
-                <a class="offer-link" href="{{ route('shop') }}">
-                    <span>Shop Now</span>
-                    <span class="offer-link-arrow" aria-hidden="true">&#8594;</span>
-                </a>
-            </div>
-        </article>
-
-        <article class="wedding-card">
-            <div class="wedding-image-wrap">
-                <img class="wedding-image" src="{{ asset('images/image 2.png') }}" alt="Wedding collections" />
-            </div>
-            <div class="wedding-content">
-                <svg class="wedding-heading-svg" viewBox="0 0 1000 500">
-                    <defs>
-                        <linearGradient id="textFill" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stop-color="#A91B43" />
-                            <stop offset="105%" stop-color="#F2A329" />
-                        </linearGradient>
-                        <radialGradient id="strokeGradient" cx="50%" cy="50%" r="40%">
-                            <stop offset="0%" stop-color="#A91B43" />
-                            <stop offset="50%" stop-color="#EF9F29" />
-                            <stop offset="80%" stop-color="#A91B43" />
-                        </radialGradient>
-                    </defs>
-                    <text x="0" y="180" text-anchor="start" fill="url(#textFill)" stroke="url(#strokeGradient)"
-                        stroke-width="3" paint-order="stroke">
-                        Wedding
-                    </text>
-                    <text x="0" y="400" text-anchor="start" fill="url(#textFill)" stroke="url(#strokeGradient)"
-                        stroke-width="3" paint-order="stroke">
-                        Collections
-                    </text>
-                </svg>
-                <p class="wedding-text">Flamboyantly charming, the Scarlet Satin Delight Saree embodies grandeur and
-                    romance. Rendered in a vivacious shade of red.</p>
-                <button class="wedding-cta" type="button" onclick="window.location.href='{{ route('shop') }}'">Shop
-                    Now</button>
-            </div>
-        </article>
+        @if(isset($ads) && $ads->count() > 0)
+            @php $adCount = 0; @endphp
+            @foreach($ads->take(2) as $ad)
+                @if($adCount == 0)
+                    {{-- Offer Card Style --}}
+                    <article class="offer-card">
+                        <div class="offer-image-wrap">
+                            <img class="offer-image" src="{{ asset('uploads/'.$ad->image) }}" alt="{{ $ad->title }}" />
+                        </div>
+                        <div class="offer-content">
+                            <h2 class="offer-title">{{ $ad->title }}</h2>
+                            <p class="offer-text">Special limited time offer! Explore our latest collection and enjoy exclusive discounts.</p>
+                            <a class="offer-link" href="{{ $ad->link ?: route('shop') }}" @if($ad->open_new_tab) target="_blank" @endif>
+                                <span>Shop Now</span>
+                                <span class="offer-link-arrow" aria-hidden="true">&#8594;</span>
+                            </a>
+                        </div>
+                    </article>
+                @else
+                    {{-- Wedding Card Style --}}
+                    <article class="wedding-card">
+                        <div class="wedding-image-wrap">
+                            <img class="wedding-image" src="{{ asset('uploads/'.$ad->image) }}" alt="{{ $ad->title }}" />
+                        </div>
+                        <div class="wedding-content">
+                            @php
+                                $adTitleParts = explode(' ', $ad->title, 2);
+                            @endphp
+                            <svg class="wedding-heading-svg" viewBox="0 0 1000 500">
+                                <defs>
+                                    <linearGradient id="textFillPromo" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stop-color="#A91B43" />
+                                        <stop offset="105%" stop-color="#F2A329" />
+                                    </linearGradient>
+                                    <radialGradient id="strokeGradientPromo" cx="50%" cy="50%" r="40%">
+                                        <stop offset="0%" stop-color="#A91B43" />
+                                        <stop offset="50%" stop-color="#EF9F29" />
+                                        <stop offset="80%" stop-color="#A91B43" />
+                                    </radialGradient>
+                                </defs>
+                                <text x="0" y="180" text-anchor="start" fill="url(#textFillPromo)" stroke="url(#strokeGradientPromo)"
+                                    stroke-width="3" paint-order="stroke">
+                                    {{ $adTitleParts[0] ?? '' }}
+                                </text>
+                                <text x="0" y="400" text-anchor="start" fill="url(#textFillPromo)" stroke="url(#strokeGradientPromo)"
+                                    stroke-width="3" paint-order="stroke">
+                                    {{ $adTitleParts[1] ?? '' }}
+                                </text>
+                            </svg>
+                            <p class="wedding-text">Discover our exquisite collection curated just for you. Pure silk elegance redefined.</p>
+                            <button class="wedding-cta" type="button" onclick="window.location.href='{{ $ad->link ?: route('shop') }}'">Shop Now</button>
+                        </div>
+                    </article>
+                @endif
+                @php $adCount++; @endphp
+            @endforeach
+        @else
+            <p>No Ads Available</p>
+        @endif
     </section>
 
 
@@ -930,6 +1084,35 @@
                     progressTrack.addEventListener('click', seekFeaturedProducts);
                 }
 
+                // AJAX Add to Cart for Home Page buttons
+                document.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.add-to-cart-btn');
+                    if (btn && !btn.closest('#pdpForm')) {
+                        const productId = btn.getAttribute('data-product-id');
+                        
+                        fetch(`/cart/add/${productId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message || 'Added to cart.');
+                                if (window.openCartDrawer) window.openCartDrawer();
+                            } else {
+                                toastr.error(data.message || 'Error adding to cart.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('Something went wrong.');
+                        });
+                    }
+                });
             });
         </script>
     @endpush

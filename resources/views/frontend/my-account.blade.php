@@ -2,6 +2,77 @@
 
 @section('title', 'Account Dashboard | Nandhini Silks')
 
+@push('styles')
+<style>
+    .order-item-mini {
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .mini-order-info {
+        flex: 1;
+        min-width: 0;
+        padding-left: 10px;
+    }
+
+    .mini-order-id {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.35;
+    }
+
+    .mini-order-date {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.4;
+    }
+
+    .order-item-mini .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .order-item-mini .status-pending {
+        background: #fff7e6;
+        color: #d46b08;
+    }
+
+    .order-item-mini .status-processing {
+        background: #fffbe6;
+        color: #d48806;
+    }
+
+    .order-item-mini .status-dispatched,
+    .order-item-mini .status-shipped {
+        background: #e6f4ff;
+        color: #1677ff;
+    }
+
+    .order-item-mini .status-delivered {
+        background: #f6ffed;
+        color: #389e0d;
+    }
+
+    .order-item-mini .status-failed,
+    .order-item-mini .status-cancelled {
+        background: #fff1f0;
+        color: #cf1322;
+    }
+
+    .order-item-mini .status-refunded {
+        background: #f9f0ff;
+        color: #722ed1;
+    }
+</style>
+@endpush
+
 @section('content')
     <main class="account-page">
         <div class="page-shell">
@@ -69,12 +140,25 @@
                             </div>
                             <div class="order-list">
                                 @forelse($recentOrders as $order)
+                                @php
+                                    $orderStatus = strtolower(trim((string) $order->order_status));
+                                    $orderStatusClass = match($orderStatus) {
+                                        'processing' => 'status-processing',
+                                        'dispatched' => 'status-dispatched',
+                                        'shipped' => 'status-shipped',
+                                        'delivered' => 'status-delivered',
+                                        'failed' => 'status-failed',
+                                        'cancelled' => 'status-cancelled',
+                                        'refunded' => 'status-refunded',
+                                        default => 'status-pending',
+                                    };
+                                @endphp
                                 <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="order-item-mini">
-                                    <div class="mini-order-info" style="padding-left: 10px;">
+                                    <div class="mini-order-info">
                                         <span class="mini-order-id">#NS{{ $order->id }}</span>
                                         <span class="mini-order-date">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
-                                    <span class="status-badge status-{{ strtolower($order->order_status) }}">{{ ucfirst($order->order_status) }}</span>
+                                    <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
                                 </a>
                                 @empty
                                     <p style="padding: 20px; color: #999; text-align: center;">No orders found yet.</p>

@@ -77,22 +77,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        $("#categoryForm").validate({
-            rules: {
-                name: "required",
-                display_order: "required",
-                status: "required"
-            },
-            messages: {
-                name: "Please enter category name",
-                display_order: "Please enter display order",
-                status: "Please select status"
-            }
-        });
-    });
-</script>
-@endpush

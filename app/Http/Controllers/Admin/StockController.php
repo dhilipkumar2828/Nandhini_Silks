@@ -61,6 +61,7 @@ class StockController extends Controller
             }
 
             // Update Variants
+            $productsToSync = [];
             foreach ($request->input('variants', []) as $variantId => $vStockData) {
                 $variant = \App\Models\ProductVariant::find($variantId);
                 if ($variant) {
@@ -75,7 +76,21 @@ class StockController extends Controller
                             'balance_after' => $newVQty,
                             'reason' => 'Admin Manual Bulk Update (Variant ' . $variant->sku . ')',
                         ]);
+                        $productsToSync[] = $variant->product_id;
                     }
+                }
+            }
+
+            // Recalculate and Sync Main Product total stock for updated products
+            $productsToSync = array_unique($productsToSync);
+            foreach ($productsToSync as $pid) {
+                $product = Product::with('product_variants')->find($pid);
+                if ($product && $product->product_variants->count() > 0) {
+                    $totalStock = $product->product_variants->sum('stock_quantity');
+                    $product->update([
+                        'stock_quantity' => $totalStock,
+                        'stock_status' => $totalStock > $product->low_stock_threshold ? 'instock' : ($totalStock > 0 ? 'lowstock' : 'outofstock'),
+                    ]);
                 }
             }
         });

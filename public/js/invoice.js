@@ -67,6 +67,7 @@ const InvoiceGenerator = {
             ],
             paymentMethod = "Razorpay",
             subtotal = 7490,
+            discount = 0,
             taxAmount = 898,
             shipping = 0,
             total = 8388
@@ -171,13 +172,19 @@ const InvoiceGenerator = {
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(subtotal)}</td>
                             </tr>
                             <tr>
-                                <td style="padding: 10px; border: 1px solid #eee; font-weight: 600; color: #666; background: #fafafa;">GST (CGST 6% + SGST 6%)</td>
-                                <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(taxAmount)}</td>
-                            </tr>
-                            <tr>
                                 <td style="padding: 10px; border: 1px solid #eee; font-weight: 600; color: #666; background: #fafafa;">Shipping</td>
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600; color: ${shipping === 0 ? '#2e7d32' : '#333'}">${shipping === 0 ? "FREE" : "₹" + InvoiceGenerator.formatCurrency(shipping)}</td>
                             </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #eee; font-weight: 600; color: #666; background: #fafafa;">Tax (GST)</td>
+                                <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(taxAmount)}</td>
+                            </tr>
+                            ${discount > 0 ? `
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #eee; font-weight: 600; color: #e74c3c; background: #fafafa;">Discount</td>
+                                <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600; color: #e74c3c;">- ₹${InvoiceGenerator.formatCurrency(discount)}</td>
+                            </tr>
+                            ` : ''}
                             <tr style="background: #a91b43; color: white;">
                                 <td style="padding: 12px; border: 1px solid #a91b43; font-weight: 700; font-size: 16px;">Net Total</td>
                                 <td style="padding: 12px; border: 1px solid #a91b43; text-align: right; font-weight: 700; font-size: 16px;">₹${InvoiceGenerator.formatCurrency(total)}</td>

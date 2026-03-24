@@ -54,20 +54,21 @@
                 <!-- Form Side -->
                 <div class="contact-form-container">
                     <h2 class="contact-heading">Send a Message</h2>
-                    <form class="contact-form">
+                    <form class="contact-form validate-form" method="POST" action="{{ route('contact.submit') }}">
+                        @csrf
                         <div class="form-group">
                             <label for="name">Full Name</label>
-                            <input type="text" id="name" placeholder="Your beautiful name">
+                            <input type="text" id="name" name="name" placeholder="Your beautiful name" required>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" placeholder="example@gmail.com">
+                            <input type="email" id="email" name="email" placeholder="example@gmail.com" required>
                         </div>
                         <div class="form-group">
                             <label for="message">Your Message</label>
-                            <textarea id="message" rows="5" placeholder="How can we help you today?"></textarea>
+                            <textarea id="message" name="message" rows="5" placeholder="How can we help you today?" required></textarea>
                         </div>
-                        <button type="button" class="contact-submit">Send Message</button>
+                        <button type="submit" class="contact-submit">Send Message</button>
                     </form>
                 </div>
             </div>

@@ -166,6 +166,29 @@
       width: 0;
       height: 0;
     }
+
+    .checkout-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px;
+    }
+
+    .checkout-section-header .section-title-v4 {
+        margin: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .checkout-saved-address-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center;
+    }
     .slider-v4 {
       position: absolute;
       cursor: pointer;
@@ -206,13 +229,53 @@
     .form-input-v4:focus {
         border-color: var(--pink-dark);
     }
+
+    @media (max-width: 768px) {
+        .checkout-section-header {
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .checkout-section-header .section-title-v4 {
+            font-size: 18px !important;
+            line-height: 1.2;
+        }
+
+        .checkout-saved-address-btn {
+            padding: 6px 12px !important;
+            font-size: 10px !important;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            align-self: center;
+        }
+
+        .checkout-saved-address-btn i {
+            margin-right: 4px !important;
+        }
+
+        .summary-title-v4 {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card-v4,
+        .summary-card-v4 {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
 <main class="checkout-page-container">
     <div class="page-shell">
-        <form id="singleCheckoutForm" action="{{ route('checkout.place') }}" method="POST">
+        <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST">
             @csrf
             <input type="hidden" name="payment_method" id="payment_method_input" value="razorpay">
             <input type="hidden" name="customer_email" value="{{ Auth::user()?->email }}">
@@ -227,11 +290,11 @@
 
                     {{-- SHIPPING ADDRESS SECTION --}}
                     <div class="card-v4" style="margin-bottom: 25px; position: relative;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="checkout-section-header">
                             <h2 class="section-title-v4" style="font-size: 20px; margin: 0;">Shipping Address</h2>
                             
                             @if($addresses->count() > 0)
-                            <button type="button" onclick="openAddressModal()" style="background: var(--pink-light); color: var(--pink-dark); border: 1px solid var(--pink); border-radius: 8px; padding: 6px 15px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                            <button type="button" onclick="openAddressModal()" class="checkout-saved-address-btn" style="background: var(--pink-light); color: var(--pink-dark); border: 1px solid var(--pink); border-radius: 8px; padding: 6px 15px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
                                 <i class="fa-solid fa-address-book" style="margin-right: 5px;"></i> Or Use Saved Address
                             </button>
                             @endif
@@ -241,27 +304,27 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL NAME</label>
-                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}">
+                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}">
+                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required>
                                 </div>
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY ADDRESS</label>
-                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4">
+                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required>
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" id="field_city" placeholder="City" class="form-input-v4">
+                                    <input type="text" id="field_city" placeholder="City" class="form-input-v4" required>
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
-                                    <input type="text" id="field_state" placeholder="State" class="form-input-v4">
+                                    <input type="text" id="field_state" placeholder="State" class="form-input-v4" required>
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" id="field_zip" placeholder="Pincode" class="form-input-v4">
+                                    <input type="text" id="field_zip" placeholder="Pincode" class="form-input-v4" required>
                                 </div>
                             </div>
                         </div>
@@ -434,27 +497,21 @@
         window.scrollTo({ top: document.getElementById('checkoutAddressForm').offsetTop - 100, behavior: 'smooth' });
     }
 
-    document.getElementById('singleCheckoutForm').onsubmit = function() {
-        // Basic validation
-        const requiredFields = ['field_name', 'field_phone', 'field_address', 'field_city', 'field_state', 'field_zip'];
-        for(let fieldId of requiredFields) {
-            if(!document.getElementById(fieldId).value.trim()) {
-                alert('Please fill all shipping address fields.');
-                document.getElementById(fieldId).focus();
-                return false;
+    $('#singleCheckoutForm').on('submit', function(e) {
+        if ($(this).valid()) {
+            // Final sync of combined address field if needed by backend
+            const addr = document.getElementById('field_address').value;
+            const city = document.getElementById('field_city').value;
+            const state = document.getElementById('field_state').value;
+            const zip = document.getElementById('field_zip').value;
+            
+            // Only concatenate if not already concatenated
+            if (!addr.includes(city) || !addr.includes(zip)) {
+                document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
             }
+            return true;
         }
-        
-        // Final sync of combined address field if needed by backend
-        // (Assuming backend uses individual fields or I can concatenate here)
-        // Let's ensure delivery_address is sent as full string if that's what backend expects
-        const addr = document.getElementById('field_address').value;
-        const city = document.getElementById('field_city').value;
-        const state = document.getElementById('field_state').value;
-        const zip = document.getElementById('field_zip').value;
-        document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
-
-        return true;
-    };
+        return false;
+    });
 </script>
 @endpush

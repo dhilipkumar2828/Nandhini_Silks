@@ -30,19 +30,7 @@ use App\Http\Controllers\WishlistController;
 // Frontend Static Pages
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
-Route::get('/cart', [CartController::class, 'index'])->name('cart');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
-Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-Route::post('/checkout', [CartController::class, 'placeOrder'])->name('checkout.place');
-Route::post('/payment/razorpay/verify', [CartController::class, 'verifyRazorpay'])->name('razorpay.verify');
-
-Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
-Route::post('/wishlist/add/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
-Route::post('/wishlist/remove/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+Route::post('/contact', [FrontendController::class, 'contactSubmit'])->name('contact.submit');
 
 Route::get('/search', [FrontendController::class, 'search'])->name('search');
 
@@ -66,9 +54,27 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-profile/photo', [FrontendController::class, 'updateProfilePhoto'])->name('profile.photo');
     Route::delete('/my-reviews/{id}', [FrontendController::class, 'deleteReview'])->name('profile.review.delete');
     Route::put('/my-reviews/{id}', [FrontendController::class, 'updateReview'])->name('profile.review.update');
+    Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
     Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
     Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
+
+    // Checkout & Wishlist (Auth Required)
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [CartController::class, 'placeOrder'])->name('checkout.place');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/add/{product}', [WishlistController::class, 'add'])->name('wishlist.add');
+    Route::post('/wishlist/remove/{product}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::post('/payment/razorpay/verify', [CartController::class, 'verifyRazorpay'])->name('razorpay.verify');
 });
+
+// Cart routes (Guest allowed to add, but cannot checkout)
+Route::get('/cart', [CartController::class, 'index'])->name('cart');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/cart/mini-cart', [CartController::class, 'getMiniCart'])->name('cart.mini-cart');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
 
@@ -80,14 +86,10 @@ Route::get('/search', [FrontendController::class, 'search'])->name('search');
 Route::get('/product/{slug}', [FrontendController::class, 'productShow'])->name('product.show');
 
 // Special Category Routes (to match existing links if needed)
-Route::get('/sarees', function () {
-    return redirect()->route('category.show', 'sarees'); });
-Route::get('/women', function () {
-    return redirect()->route('category.show', 'women'); });
-Route::get('/mens', function () {
-    return redirect()->route('category.show', 'mens'); });
-Route::get('/kids', function () {
-    return redirect()->route('category.show', 'kids'); });
+
+// This catch-all route handles direct category slugs (e.g. /sarees instead of /category/sarees)
+// It MUST stay at the bottom of the front-end routes to avoid conflicts with static pages.
+Route::get('/{slug}', [FrontendController::class, 'category'])->name('category.slug');
 
 // Admin Routes
 Route::group(['prefix' => 'admin'], function () {

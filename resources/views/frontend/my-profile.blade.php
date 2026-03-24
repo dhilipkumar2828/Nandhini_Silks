@@ -191,7 +191,7 @@
                         </div>
                     @endif
 
-                    <form class="profile-card" action="{{ route('profile.update') }}" method="POST">
+                    <form class="profile-card validate-form" action="{{ route('profile.update') }}" method="POST">
                         @csrf
                         <div class="profile-header-edit">
                             <div class="profile-pic-container">
@@ -209,7 +209,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" name="name" value="{{ $user->name }}">
+                                <input type="text" class="form-control" name="name" value="{{ $user->name }}" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address <span class="verify-badge">&#10003; Verified</span></label>
@@ -220,7 +220,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Phone Number <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number">
+                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Gender</label>

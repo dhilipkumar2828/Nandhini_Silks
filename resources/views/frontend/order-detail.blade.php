@@ -222,15 +222,53 @@
     }
 
     .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 5px 12px;
         border-radius: 50px;
         font-size: 12px;
         font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fff7e6;
+        color: #d46b08;
+    }
+
+    .status-processing {
+        background: #fffbe6;
+        color: #d48806;
+    }
+
+    .status-dispatched,
+    .status-shipped {
+        background: #e6f4ff;
+        color: #1677ff;
     }
 
     .status-delivered {
-        background: #e6f7ff;
-        color: #1890ff;
+        background: #f6ffed;
+        color: #389e0d;
+    }
+
+    .status-failed,
+    .status-cancelled {
+        background: #fff1f0;
+        color: #cf1322;
+    }
+
+    .status-refunded {
+        background: #f9f0ff;
+        color: #722ed1;
+    }
+
+    .payment-status-note {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #999;
     }
 
     @media (max-width: 900px) {
@@ -256,6 +294,135 @@
 
         .step-icon {
             margin: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .timeline-card {
+            padding: 20px 18px;
+        }
+
+        .timeline {
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .timeline-step {
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border: 1px solid #f1e7ea;
+            border-radius: 12px;
+            background: #fffafc;
+        }
+
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+        }
+
+        .step-label {
+            display: block;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .step-date {
+            margin-top: 2px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .info-section {
+            padding: 18px;
+        }
+
+        .order-items-table,
+        .order-items-table thead,
+        .order-items-table tbody,
+        .order-items-table tr,
+        .order-items-table th,
+        .order-items-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .order-items-table thead {
+            display: none;
+        }
+
+        .order-items-table tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .order-items-table tr {
+            padding: 14px;
+            border: 1px solid #f1e7ea;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .order-items-table td {
+            padding: 0;
+            border-bottom: none;
+        }
+
+        .order-items-table td + td {
+            margin-top: 10px;
+        }
+
+        .item-cell {
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .item-img {
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+        }
+
+        .item-name {
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+
+        .item-meta {
+            line-height: 1.5;
+        }
+
+        .order-items-table td:not(:first-child) {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 14px;
+        }
+
+        .order-items-table td:not(:first-child)::before {
+            content: attr(data-label);
+            color: #8f8f8f;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
+        }
+
+        .item-actions-cell {
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .item-actions-cell::before {
+            align-self: flex-start;
+        }
+
+        .action-link {
+            font-size: 13px;
         }
     }
 </style>
@@ -368,7 +535,7 @@
                         <tbody>
                             @foreach($order->items as $item)
                             <tr>
-                                <td>
+                                <td data-label="Product">
                                     <div class="item-cell">
                                         <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
                                         <div>
@@ -381,10 +548,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>&#8377;{{ number_format($item->price, 0) }}</td>
-                                <td class="item-qty">{{ $item->quantity }}</td>
-                                <td>&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
-                                <td class="item-actions-cell">
+                                <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
+                                <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
+                                <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
+                                <td class="item-actions-cell" data-label="Actions">
                                     <a href="#" class="action-link">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
                                 </td>
@@ -437,13 +604,24 @@
 
                 <div class="info-section">
                     <h3 class="info-title">Payment Method</h3>
+                    @php
+                        $paymentStatus = strtolower(trim((string) $order->payment_status));
+                        $paymentStatusClass = match($paymentStatus) {
+                            'paid' => 'status-delivered',
+                            'failed' => 'status-failed',
+                            'refunded' => 'status-refunded',
+                            'processing' => 'status-processing',
+                            'dispatched' => 'status-dispatched',
+                            default => 'status-pending',
+                        };
+                    @endphp
                     <div class="payment-info-card">
                         <p class="pay-method" style="font-size: 14px; font-weight: 600; text-transform: uppercase;">
                             {{ str_replace('_', ' ', $order->payment_method) }}
                         </p>
-                        <p style="font-size: 12px; color: #999;">Status: {{ ucfirst($order->payment_status) }}</p>
-                        <span class="status-badge {{ $order->payment_status == 'paid' ? 'status-delivered' : '' }}" style="display: inline-block; margin-top: 10px;">
-                            {{ $order->payment_status == 'paid' ? 'Payment Successful' : 'Payment '.ucfirst($order->payment_status) }}
+                        <p class="payment-status-note">Status: {{ ucfirst($paymentStatus) }}</p>
+                        <span class="status-badge {{ $paymentStatusClass }}" style="margin-top: 10px;">
+                            {{ $paymentStatus == 'paid' ? 'Payment Successful' : 'Payment '.ucfirst($paymentStatus) }}
                         </span>
                     </div>
                 </div>
