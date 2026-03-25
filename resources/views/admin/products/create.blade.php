@@ -624,10 +624,35 @@ $(document).ready(function() {
 
     $('#generalImagesInput').on('change', function() {
         const preview = $('#generalImagesPreview').empty();
-        Array.from(this.files).forEach(f => {
+        Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
-            r.onload = e => preview.append(`<img src="${e.target.result}" class="w-10 h-10 rounded border border-slate-100 object-cover shadow">`);
+            r.onload = e => preview.append(`
+                <div class="relative group w-20 h-20">
+                    <img src="${e.target.result}" class="w-full h-full rounded-xl border border-slate-100 object-cover shadow-sm">
+                    <button type="button" class="remove-general-image-new absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-index="${idx}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`);
             r.readAsDataURL(f);
+        });
+    });
+
+    $(document).on('click', '.remove-general-image-new', function() {
+        const $btn = $(this);
+        const indexToRem = parseInt($btn.data('index'));
+        const $input = $('#generalImagesInput');
+        const dt = new DataTransfer();
+        const { files } = $input[0];
+        
+        for(let i=0; i<files.length; i++) {
+            if(i !== indexToRem) dt.items.add(files[i]);
+        }
+        $input[0].files = dt.files;
+        $btn.parent().remove();
+        
+        // Re-index remaining ones
+        $('#generalImagesPreview .remove-general-image-new').each(function(i) {
+            $(this).attr('data-index', i).data('index', i);
         });
     });
     

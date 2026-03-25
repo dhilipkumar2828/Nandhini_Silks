@@ -7,6 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Models\Setting;
+use App\Mail\VerficationOTP;
+use App\Mail\NewRegistrationAdminAlert;
 
 class UserAuthController extends Controller
 {
@@ -18,9 +23,27 @@ class UserAuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            
             $user = Auth::user();
+
+            if (!$user->is_verified) {
+                // If not verified, logout and redirect to OTP verification
+                $otp = sprintf("%06d", mt_rand(1, 999999));
+                $user->otp = $otp;
+                $user->otp_expires_at = now()->addMinutes(10);
+                $user->save();
+
+                try {
+                    Mail::to($user->email)->send(new VerficationOTP($otp));
+                } catch (\Exception $e) {
+                    Log::error('Login Verification OTP Failure: ' . $e->getMessage());
+                }
+
+                Auth::logout();
+                $request->session()->put('pending_verification_user_id', $user->id);
+                return redirect()->route('otp.verify.form')->with('error', 'Your account is not verified. A new OTP has been sent to your email.');
+            }
+
+            $request->session()->regenerate();
             $user->last_login_at = now();
             $user->save();
             
@@ -52,27 +75,92 @@ class UserAuthController extends Controller
         // Actually, to be absolutely sure what's failing, let's hash it but 
         // I suspect the logic below is what they need.
         
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => $request->password, // Letting the 'hashed' cast handle it
+            'password' => $request->password,
+            'otp' => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
+            'is_verified' => false,
         ]);
 
-        Auth::login($user);
+        // Instead of full login, we'll store basic ID in session for verification
+        $request->session()->put('pending_verification_user_id', $user->id);
 
-        // Sync cart from session to database
-        (new \App\Http\Controllers\CartController)->syncCartOnLogin();
-
-        // New Email Integration - Send emails to customer and admin
+        // Send OTP email to customer
         try {
-            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\NewUserRegistration($user));
-            \Illuminate\Support\Facades\Mail::to('orders@nandhinisilks.com')->send(new \App\Mail\NewUserRegistration($user, true));
+            Mail::to($user->email)->send(new VerficationOTP($otp));
+            
+            // Notify Admin
+            $adminEmail = Setting::where('key', 'order_notification_email')->first()->value ?? 'orders@nandhinisilks.com';
+            Mail::to($adminEmail)->send(new NewRegistrationAdminAlert($user));
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Registration Mail Failure: ' . $e->getMessage());
+            Log::error('Registration OTP Failure: ' . $e->getMessage());
         }
 
-        return redirect()->intended(route('home'))->with('success', 'Registration successful! Welcome to Nandhini Silks.');
+        return redirect()->route('otp.verify.form')->with('success', 'A verification OTP has been sent to your email.');
+    }
+
+    public function showVerifyForm(Request $request)
+    {
+        if (!$request->session()->has('pending_verification_user_id')) {
+            return redirect()->route('register');
+        }
+        return view('auth.verify-otp');
+    }
+
+    public function verifyOTP(Request $request)
+    {
+        $request->validate(['otp' => 'required|string|size:6']);
+
+        $userId = $request->session()->get('pending_verification_user_id');
+        if (!$userId) {
+            return redirect()->route('register');
+        }
+
+        $user = User::findOrFail($userId);
+
+        if ($user->otp === $request->otp && $user->otp_expires_at > now()) {
+            $user->is_verified = true;
+            $user->email_verified_at = now();
+            $user->otp = null;
+            $user->otp_expires_at = null;
+            $user->save();
+
+            Auth::login($user);
+            $request->session()->forget('pending_verification_user_id');
+            
+            // Sync cart from session to database
+            (new \App\Http\Controllers\CartController)->syncCartOnLogin();
+
+            return redirect()->route('home')->with('success', 'Email verified successfully! Welcome to Nandhini Silks.');
+        }
+
+        return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
+    }
+
+    public function resendOTP(Request $request)
+    {
+        $userId = $request->session()->get('pending_verification_user_id');
+        if (!$userId) return redirect()->route('register');
+
+        $user = User::findOrFail($userId);
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        
+        $user->otp = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new VerficationOTP($otp));
+        } catch (\Exception $e) {
+            Log::error('OTP Resend Failure: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'A new OTP has been sent to your email.');
     }
 
     public function logout(Request $request)

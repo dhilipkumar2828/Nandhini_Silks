@@ -318,11 +318,15 @@
                     
                     @php $existingImgs = is_array($product->images) ? $product->images : (json_decode($product->images ?? '[]', true) ?? []); @endphp
                     @if(count($existingImgs) > 0)
-                    <div class="flex flex-wrap gap-3 mb-6 p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
                         @foreach($existingImgs as $idx => $img)
-                        <div class="relative group">
-                            <img src="{{ asset('uploads/'.$img) }}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 shadow-sm">
-                            @if($idx === 0) <span class="absolute -top-2 -left-2 bg-[#a91b43] text-white text-[8px] font-black rounded-full px-2 py-0.5 shadow-md">PRIMARY</span> @endif
+                        <div class="relative group w-24 h-24">
+                            <img src="{{ asset('uploads/'.$img) }}" class="w-full h-full rounded-xl object-cover border border-slate-200 shadow-sm">
+                            <input type="hidden" name="existing_images[]" value="{{ $img }}">
+                            <button type="button" class="remove-existing-general-image absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" title="Remove image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            @if($idx === 0) <span class="absolute -bottom-2 -left-2 bg-[#a91b43] text-white text-[8px] font-black rounded-full px-2 py-0.5 shadow-md uppercase tracking-tighter">Primary</span> @endif
                         </div>
                         @endforeach
                     </div>
@@ -708,9 +712,9 @@ $(document).ready(function() {
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
-                <div class="relative group w-10 h-10">
-                    <img src="${e.target.result}" class="w-10 h-10 rounded border border-slate-100 object-cover shadow">
-                    <button type="button" class="remove-general-image absolute -top-1 -right-1 bg-white text-rose-500 w-4 h-4 rounded-full flex items-center justify-center border border-rose-100 shadow-sm opacity-0 group-hover:opacity-100 transition-all text-[8px]" data-index="${idx}">
+                <div class="relative group w-20 h-20">
+                    <img src="${e.target.result}" class="w-full h-full rounded-xl border border-slate-200 object-cover shadow-sm">
+                    <button type="button" class="remove-general-image-new absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-index="${idx}">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>`);
@@ -718,7 +722,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.remove-general-image', function() {
+    $(document).on('click', '.remove-general-image-new', function() {
         const $btn = $(this);
         const indexToRem = parseInt($btn.data('index'));
         const $input = $('#generalImagesInput');
@@ -729,9 +733,17 @@ $(document).ready(function() {
         }
         $input[0].files = dt.files;
         $btn.parent().remove();
-        $('#generalImagesPreview .remove-general-image').each(function(i) {
+        $('#generalImagesPreview .remove-general-image-new').each(function(i) {
             $(this).attr('data-index', i).data('index', i);
         });
+    });
+
+    $(document).on('click', '.remove-existing-general-image', function() {
+        if(confirm("Are you sure you want to remove this image from the product?")) {
+            $(this).parent().fadeOut(300, function() {
+                $(this).remove();
+            });
+        }
     });
     
     $('#category_id').on('change', function () {

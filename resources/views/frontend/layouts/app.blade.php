@@ -263,7 +263,7 @@
     <header class="top-header">
         <div class="page-shell header-row">
             <a href="{{ route('home') }}" class="brand-link">
-                <img class="brand" src="{{ asset('images/image 1.png') }}" alt="Logo" />
+                <img class="brand" src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" onerror="this.src='{{ asset('images/Image.png') }}'; this.onerror=null;" />
             </a>
 
             <div class="header-right">
@@ -696,8 +696,8 @@
                 <span>Subtotal</span>
                 <span id="miniCartSubtotal">&#8377;0</span>
             </div>
-            <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">View Full Cart</a>
-            <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout Now</a>
+            <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">Cart</a>
+            <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout</a>
         </div>
     </div>
 

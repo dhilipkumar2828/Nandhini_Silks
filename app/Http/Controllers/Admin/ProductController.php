@@ -299,23 +299,29 @@ class ProductController extends Controller
         }
 
         // Handle General Images
-        if ($request->hasFile('images')) {
-            // Delete old images if new ones uploaded
-            if ($product->images) {
-                foreach ($product->images as $oldImage) {
-                    if (file_exists(public_path('uploads/' . $oldImage))) unlink(public_path('uploads/' . $oldImage));
+        $existingGeneralImages = $request->input('existing_images', []);
+        
+        // Delete images from disk that were removed in the UI
+        if ($product->images) {
+            foreach ($product->images as $oldImage) {
+                if (!in_array($oldImage, $existingGeneralImages)) {
+                    $path = public_path('uploads/' . $oldImage);
+                    if (file_exists($path)) unlink($path);
                 }
             }
-            $images = [];
+        }
+        
+        $images = $existingGeneralImages;
+        if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $imageName = time() . '_' . uniqid() . '.' . $image->extension();
                 $image->move(public_path('uploads/products'), $imageName);
                 $images[] = 'products/' . $imageName;
             }
-            $data['images'] = $images;
-            $primaryIndex = $request->input('primary_image_index', 0);
-            $data['primary_image'] = $images[$primaryIndex] ?? $images[0];
         }
+        $data['images'] = $images;
+        $primaryIndex = $request->input('primary_image_index', 0);
+        $data['primary_image'] = $images[$primaryIndex] ?? ($images[0] ?? null);
 
         // Handle Color-specific Images (Merge with existing)
         $colorImages = $product->color_images ?? [];
