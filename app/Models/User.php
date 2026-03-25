@@ -29,6 +29,9 @@ class User extends Authenticatable
         'account_status',
         'role',
         'last_login_at',
+        'otp',
+        'otp_expires_at',
+        'is_verified',
     ];
 
     /**

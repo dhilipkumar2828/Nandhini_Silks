@@ -376,6 +376,11 @@
                 <span class="font-bold ml-2 text-sm">Stock Maintenance</span>
             </a>
 
+            <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-cog text-base"></i></div>
+                <span class="font-bold ml-2 text-sm">System Settings</span>
+            </a>
+
             <!-- Sidebar Profile -->
             <div class="mt-auto border-t border-slate-50 p-4">
                 <a href="{{ route('admin.profile.index') }}" class="nav-link flex items-center p-2 rounded-xl {{ request()->routeIs('admin.profile.*') ? 'bg-slate-50 text-[#a91b43]' : '' }}">

@@ -192,6 +192,12 @@
             margin-right: auto;
         }
     }
+    .saved-address-card:hover { border-color: var(--pink-dark) !important; }
+    .saved-address-card .check-icon {
+        position: absolute; top: 10px; right: 10px; font-size: 16px;
+        animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
 </style>
 @endpush
 
@@ -213,12 +219,41 @@
 
                     {{-- SHIPPING ADDRESS --}}
                     <div class="card-v4" style="margin-bottom: 25px; position: relative;">
-                        <div class="checkout-section-header">
-                            <h2 class="section-title-v4" style="font-size: 20px; margin: 0;">Shipping Address</h2>
+                        <div class="shipping-header" style="margin-bottom: 20px;">
+                            <h2 class="section-title-v4" style="font-size: 20px; margin-bottom: 10px;">Shipping Address</h2>
+                            
                             @if($addresses->count() > 0)
-                            <button type="button" onclick="openAddressModal()" class="checkout-saved-address-btn" style="background: #fdf0f4; color: var(--pink-dark); border: 1px solid #f0c0cc; border-radius: 8px; padding: 6px 15px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
-                                <i class="fa-solid fa-address-book" style="margin-right: 5px;"></i> Or Use Saved Address
-                            </button>
+                            <div style="background: #fff9fa; border: 1px solid #fce7f3; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--pink-dark);">
+                                    <input type="checkbox" id="useSavedAddressToggle" onchange="toggleSavedAddresses(this)" style="accent-color: var(--pink-dark); width: 18px; height: 18px; cursor: pointer;">
+                                    Use a saved address
+                                </label>
+                                
+                                <div id="savedAddressesSection" style="display: none; margin-top: 15px; overflow-x: auto; padding: 5px 0;">
+                                    <div style="display: flex; gap: 15px; min-width: max-content;">
+                                        @foreach($addresses as $addr)
+                                        <div class="saved-address-card" onclick="selectSavedAddress(this)" 
+                                             data-name="{{ $addr->recipient_name ?? Auth::user()->name }}"
+                                             data-phone="{{ $addr->recipient_phone ?? Auth::user()->phone }}"
+                                             data-addr="{{ $addr->address1 }}"
+                                             data-city="{{ $addr->city }}"
+                                             data-state="{{ $addr->state }}"
+                                             data-zip="{{ $addr->zip }}"
+                                             style="border: 2px solid #eee; border-radius: 12px; padding: 12px; width: 220px; cursor: pointer; transition: all 0.2s ease; background: #fff; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                                <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--pink-dark); background: #fff0f3; padding: 2px 8px; border-radius: 4px;">{{ $addr->label }}</span>
+                                                <i class="fa-solid fa-circle-check check-icon" style="color: #2ecc71; display: none;"></i>
+                                            </div>
+                                            <div style="font-weight: 700; font-size: 13px; color: #111; margin-top: 10px;">{{ $addr->recipient_name ?? Auth::user()->name }}</div>
+                                            <div style="font-size: 11px; color: #666; margin-top: 4px; line-height: 1.4; height: 32px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                                {{ $addr->address1 }}
+                                            </div>
+                                            <div style="font-size: 11px; font-weight: 600; color: #333; margin-top: 4px;">{{ $addr->city }}, {{ $addr->zip }}</div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
                             @endif
                         </div>
 
@@ -267,6 +302,15 @@
                                     <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required>
                                 </div>
                             </div>
+                            @if(Auth::check())
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: #444; font-weight: 600; user-select: none;">
+                                    <input type="checkbox" name="save_address" value="1" 
+                                        style="accent-color: var(--pink-dark); width: 16px; height: 16px; cursor: pointer;">
+                                    Save this address for future use
+                                </label>
+                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -322,32 +366,6 @@
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">EMAIL</label>
                                     <input type="email" name="billing_email" id="billing_email" placeholder="Billing Email" class="form-input-v4" value="{{ Auth::user()?->email }}">
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- SAVED ADDRESS MODAL --}}
-                    <div id="addressModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                        <div style="background: #fff; width: 90%; max-width: 600px; border-radius: 20px; padding: 30px; position: relative; max-height: 85vh; overflow-y: auto;">
-                            <button type="button" onclick="closeAddressModal()" style="position: absolute; top: 20px; right: 20px; border: none; background: none; font-size: 24px; color: #999; cursor: pointer;">&times;</button>
-                            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 25px;">Choose a Saved Address</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                @foreach($addresses as $addr)
-                                <div class="address-card-v4"
-                                     data-name="{{ Auth::user()->name }}"
-                                     data-phone="{{ Auth::user()->phone }}"
-                                     data-addr1="{{ $addr->address1 }}"
-                                     data-city="{{ $addr->city }}"
-                                     data-state="{{ $addr->state }}"
-                                     data-zip="{{ $addr->zip }}"
-                                     onclick="autofillAddress(this); closeAddressModal();"
-                                     style="cursor: pointer; border: 1px solid #eee; padding: 15px; border-radius: 12px; transition: all 0.2s ease;">
-                                    <span class="address-tag-v4" style="font-size: 8px;">{{ $addr->label }}</span>
-                                    <div class="address-name-v4" style="font-size: 14px; font-weight: 700; margin-top: 5px;">{{ Auth::user()->name }}</div>
-                                    <div class="address-text-v4" style="font-size: 12px; color: #666; margin-top: 3px;">{{ $addr->address1 }}, {{ $addr->city }}</div>
-                                    <div class="address-phone-v4" style="font-size: 12px; color: #888; margin-top: 5px;">{{ Auth::user()->phone }}</div>
-                                </div>
-                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -470,41 +488,35 @@
         element.querySelector('input').checked = true;
     }
 
-    function openAddressModal() {
-        document.getElementById('addressModal').style.display = 'flex';
+    function toggleSavedAddresses(checkbox) {
+        const section = document.getElementById('savedAddressesSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+        if (!checkbox.checked) {
+            // Optional: Clear fields or keep them? User usually wants them kept if they were typing
+        }
     }
 
-    function closeAddressModal() {
-        document.getElementById('addressModal').style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        let modal = document.getElementById('addressModal');
-        if (event.target == modal) closeAddressModal();
-    }
-
-    function autofillAddress(element) {
-        document.querySelectorAll('.address-card-v4').forEach(c => {
-            c.classList.remove('active');
+    function selectSavedAddress(element) {
+        // UI feedback
+        document.querySelectorAll('.saved-address-card').forEach(c => {
             c.style.borderColor = '#eee';
+            c.querySelector('.check-icon').style.display = 'none';
         });
-        element.classList.add('active');
         element.style.borderColor = 'var(--pink-dark)';
+        element.querySelector('.check-icon').style.display = 'block';
 
-        document.getElementById('field_name').value = element.getAttribute('data-name') || '';
-        document.getElementById('field_phone').value = element.getAttribute('data-phone') || '';
-        document.getElementById('field_address').value = element.getAttribute('data-addr1') || '';
-        document.getElementById('field_city').value = element.getAttribute('data-city') || '';
-
-        // Set state dropdown
+        // Fill fields
+        document.getElementById('field_name').value = element.getAttribute('data-name');
+        document.getElementById('field_phone').value = element.getAttribute('data-phone');
+        document.getElementById('field_address').value = element.getAttribute('data-addr');
+        document.getElementById('field_city').value = element.getAttribute('data-city');
+        
         const stateSelect = document.getElementById('field_state');
-        const stateVal = element.getAttribute('data-state') || '';
-        Array.from(stateSelect.options).forEach(opt => {
-            opt.selected = opt.value === stateVal;
-        });
-
-        document.getElementById('field_zip').value = element.getAttribute('data-zip') || '';
-        window.scrollTo({ top: document.getElementById('checkoutAddressForm').offsetTop - 100, behavior: 'smooth' });
+        stateSelect.value = element.getAttribute('data-state');
+        
+        document.getElementById('field_zip').value = element.getAttribute('data-zip');
+        
+        // Trigger shipping update
         updateShipping();
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\UserAddress;
 use App\Models\Coupon;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class CartController extends Controller
 {
@@ -293,7 +295,7 @@ class CartController extends Controller
         }
 
         $totals = $this->calculateTotals($items);
-        $addresses = auth()->check() ? auth()->user()->addresses : collect();
+        $addresses = Auth::check() ? Auth::user()->addresses : collect();
 
         return view('frontend.checkout', [
             'items' => $items,
@@ -350,6 +352,7 @@ class CartController extends Controller
             'customer_phone' => 'required|string|max:20',
             'delivery_address' => 'required|string',
             'payment_method' => 'nullable|string|max:50',
+            'save_address' => 'nullable|boolean',
         ]);
 
         $totals = $this->calculateTotals($items);
@@ -404,7 +407,7 @@ class CartController extends Controller
         DB::beginTransaction();
         try {
             $order = Order::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'order_number' => 'ORD-' . strtoupper(Str::random(10)),
                 'coupon_id' => $coupon ? $coupon->id : null,
                 'coupon_code' => $coupon ? $coupon->code : null,
@@ -426,6 +429,23 @@ class CartController extends Controller
                 'delivery_address' => $fullDeliveryAddress,
                 'billing_address' => $fullBillingAddress,
             ]);
+
+            // Save Address if requested
+            if (Auth::check() && $request->has('save_address')) {
+                UserAddress::firstOrCreate([
+                    'user_id' => Auth::id(),
+                    'address1' => $request->input('delivery_address'),
+                    'city' => $request->input('city'),
+                    'state' => $request->input('state'),
+                    'zip' => $request->input('pincode'),
+                ], [
+                    'label' => 'Standard Address',
+                    'recipient_name' => $request->input('customer_name'),
+                    'recipient_phone' => $request->input('customer_phone'),
+                    'country' => 'India',
+                    'is_default' => !Auth::user()->addresses()->exists(),
+                ]);
+            }
 
             // Increment Coupon usage if applicable
             // (We'll do this once, after saving the order items)
@@ -505,9 +525,12 @@ class CartController extends Controller
                 return $this->processRazorpay($order);
             }
 
+            // Send order emails for COD
+            $this->sendOrderEmails($order);
+
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
-            if (auth()->check()) {
-                \App\Models\CartItem::where('user_id', '=', auth()->id(), 'and')->delete();
+            if (Auth::check()) {
+                \App\Models\CartItem::where('user_id', Auth::id())->delete();
             }
             session()->forget(['cart', 'coupon_id']);
             return redirect()->route('order-confirmation', $order)->with('success', 'Your order has been placed successfully! 🎉');
@@ -517,6 +540,20 @@ class CartController extends Controller
             Log::error('Order Placement Failed: ' . $e->getMessage());
             // Show the actual error message to help the user debug (e.g. Razorpay keys)
             return redirect()->route('checkout')->with('error', 'Order failed: ' . $e->getMessage());
+        }
+    }
+
+    private function sendOrderEmails(Order $order)
+    {
+        try {
+            // Send to customer
+            \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmation($order));
+            
+            // Send to admin
+            $adminEmail = \App\Models\Setting::where('key', 'order_notification_email')->value('value') ?? 'orders@nandhinisilks.com';
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\OrderAdminAlert($order));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Order Email Failure: ' . $e->getMessage());
         }
     }
 
@@ -556,10 +593,13 @@ class CartController extends Controller
                 $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
                 
                 // Clear cart for the authenticated user (payment verified)
-                if (auth()->check()) {
-                    \App\Models\CartItem::where('user_id', auth()->id())->delete();
+                if (Auth::check()) {
+                    \App\Models\CartItem::where('user_id', Auth::id())->delete();
                 }
                 session()->forget(['cart', 'coupon_id']);
+                
+                // Send order success emails
+                $this->sendOrderEmails($order);
                 
                 return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
             }
@@ -581,8 +621,8 @@ class CartController extends Controller
 
     private function getCart(): array
     {
-        if (auth()->check()) {
-            $dbItems = \App\Models\CartItem::where('user_id', '=', auth()->id(), 'and')->get();
+        if (Auth::check()) {
+            $dbItems = \App\Models\CartItem::where('user_id', Auth::id())->get();
             $cart = [];
             foreach ($dbItems as $item) {
                 // Determine a unique key for the cart item
@@ -634,11 +674,11 @@ class CartController extends Controller
 
     private function putCart(array $cart): void
     {
-        if (auth()->check()) {
-            $userId = auth()->id();
+        if (Auth::check()) {
+            $userId = Auth::id();
             // This is a simplified "replace all" approach for sync.
             // Ideally should update specifically, but for now we'll match by user.
-            \App\Models\CartItem::where('user_id', '=', $userId, 'and')->delete();
+            \App\Models\CartItem::where('user_id', $userId)->delete();
             foreach ($cart as $item) {
                 \App\Models\CartItem::create([
                     'user_id' => $userId,
@@ -655,7 +695,7 @@ class CartController extends Controller
 
     public function syncCartOnLogin()
     {
-        if (auth()->check()) {
+        if (Auth::check()) {
             $sessionCart = session()->get('cart', []);
             if (!empty($sessionCart)) {
                 $dbCart = $this->getCart(); // gets current DB items

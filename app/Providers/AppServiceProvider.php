@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,26 @@ class AppServiceProvider extends ServiceProvider
         if (!app()->runningInConsole() && request()->is('admin*')) {
             config(['session.cookie' => config('session.cookie') . '_admin']);
         }
+
+        // Dynamic Mail Configuration from Database
+        try {
+            if (Schema::hasTable('settings')) {
+                $settings = \App\Models\Setting::all()->pluck('value', 'key');
+                if (isset($settings['mail_host'])) {
+                    config([
+                        'mail.mailers.smtp.host' => $settings['mail_host'],
+                        'mail.mailers.smtp.port' => $settings['mail_port'] ?? 587,
+                        'mail.mailers.smtp.encryption' => $settings['mail_encryption'] ?? 'tls',
+                        'mail.mailers.smtp.username' => $settings['mail_username'],
+                        'mail.mailers.smtp.password' => $settings['mail_password'],
+                        'mail.from.address' => $settings['mail_from_address'] ?? $settings['mail_username'],
+                        'mail.from.name' => $settings['mail_from_name'] ?? config('app.name'),
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Silently fail if table not ready (e.g. during migrations)
+        }
         \Illuminate\Pagination\Paginator::useTailwind();
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
 
@@ -36,8 +59,8 @@ class AppServiceProvider extends ServiceProvider
 
             // Total cart items count logic
             $cartCount = 0;
-            if (auth()->check()) {
-                $cartCount = \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity');
+            if (Auth::check()) {
+                $cartCount = \App\Models\CartItem::where('user_id', Auth::id())->sum('quantity');
             } else {
                 $cartCount = collect(session('cart', []))->sum('quantity');
             }
@@ -45,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
 
             // Wishlist items count logic
             $wishlistCount = 0;
-            if (auth()->check()) {
+            if (Auth::check()) {
                 // If we decide to use DB for wishlist later, change here. Currently session.
                 $wishlistCount = count(session('wishlist', []));
             } else {

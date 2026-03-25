@@ -23,6 +23,9 @@ Route::get('/shop', [FrontendController::class, 'shop'])->name('shop');
 // User Authentication
 Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit');
 Route::post('/register', [UserAuthController::class, 'register'])->name('register');
+Route::get('/verify-otp', [UserAuthController::class, 'showVerifyForm'])->name('otp.verify.form');
+Route::post('/verify-otp', [UserAuthController::class, 'verifyOTP'])->name('otp.verify.submit');
+Route::post('/resend-otp', [UserAuthController::class, 'resendOTP'])->name('otp.resend');
 Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
@@ -165,6 +168,10 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
         Route::get('/manage-admins', [AdminProfileController::class, 'admins'])->name('admin.manage-admins.index');
         Route::post('/manage-admins', [AdminProfileController::class, 'storeAdmin'])->name('admin.manage-admins.store');
+
+        // System Settings
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
+        Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
 
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
