@@ -186,54 +186,67 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
-                        <div class="md:col-span-1 border-r border-slate-100 pr-6">
-                            <div class="p-6 bg-slate-50/80 rounded-3xl border-2 border-slate-100/50">
-                                <label class="block text-[11px] font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <i class="fas fa-sliders-h text-[#a91b43]"></i> Configuration Suite
-                                </label>
-                                <select id="attributePicker" class="select2-searchable">
-                                    <option value="">+ Add New Attribute</option>
-                                    @foreach($attributes as $attribute)
-                                        @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
-                                        <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
-                                            {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div id="activeAttributeRows" class="mt-8 space-y-5">
-                                    @foreach($attributes as $attribute)
-                                        @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
-                                        <div id="attr_row_{{ $attribute->id }}" class="hidden-attr-row {{ $hasValues ? '' : 'hidden' }} p-5 bg-white rounded-3xl border-2 border-slate-100 relative shadow-sm">
-                                            <button type="button" class="remove-attr-row absolute -top-3 -right-3 bg-white text-slate-300 hover:text-rose-500 w-8 h-8 rounded-full flex items-center justify-center border-2 border-slate-50 shadow-md">
-                                                <i class="fas fa-times text-xs"></i>
-                                            </button>
-                                            <label class="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3 tracking-tight">
-                                                {{ $attribute->name }}
-                                            </label>
-                                            <select name="attributes[{{ $attribute->id }}][]" multiple class="select2-searchable attr-dropdown-matrix" data-attr-id="{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}">
-                                                @foreach($attribute->values as $value)
-                                                    @php $isChecked = in_array($value->id, (array)($product->attributes[$attribute->id] ?? [])); @endphp
-                                                    <option value="{{ $value->id }}" data-value-name="{{ $value->name }}" {{ $isChecked ? 'selected' : '' }}>{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    @endforeach
+                    <div class="space-y-10 relative z-10">
+                        {{-- 1. Configuration Suite (Full Width Top) --}}
+                        <div class="w-full">
+                             <div class="p-8 bg-slate-50/80 rounded-[2rem] border-2 border-slate-100/50">
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-10 h-10 bg-[#a91b43] text-white rounded-xl flex items-center justify-center shadow-lg">
+                                        <i class="fas fa-sliders-h"></i>
+                                    </div>
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Configuration Suite</h4>
                                 </div>
-                            </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                                    <div class="md:col-span-1">
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Attribute</label>
+                                        <select id="attributePicker" class="select2-searchable">
+                                            <option value="">+ Add Variant Attribute</option>
+                                            @foreach($attributes as $attribute)
+                                                @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
+                                                <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
+                                                    {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div id="activeAttributeRows" class="md:col-span-3 flex flex-wrap gap-4">
+                                        @foreach($attributes as $attribute)
+                                            @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
+                                            <div id="attr_row_{{ $attribute->id }}" class="hidden-attr-row {{ $hasValues ? '' : 'hidden' }} p-5 bg-white rounded-3xl border-2 border-slate-100 relative shadow-sm min-w-[250px]">
+                                                <button type="button" class="remove-attr-row absolute -top-3 -right-3 bg-white text-rose-500 w-8 h-8 rounded-full flex items-center justify-center border-2 border-slate-50 shadow-md hover:bg-rose-50 transition-all">
+                                                    <i class="fas fa-times text-xs"></i>
+                                                </button>
+                                                <label class="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3 tracking-tight">
+                                                    {{ $attribute->name }}
+                                                </label>
+                                                <select name="attributes[{{ $attribute->id }}][]" multiple class="select2-searchable attr-dropdown-matrix" data-attr-id="{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}">
+                                                    @foreach($attribute->values as $value)
+                                                        @php $isChecked = in_array($value->id, (array)($product->attributes[$attribute->id] ?? [])); @endphp
+                                                        <option value="{{ $value->id }}" data-value-name="{{ $value->name }}" {{ $isChecked ? 'selected' : '' }}>{{ $value->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                             </div>
                         </div>
-                        <div class="md:col-span-3">
+
+                        {{-- 2. Matrix Table (Full Width Bottom) --}}
+                        <div class="w-full">
                             <div id="variantMatrixWrapper" class="{{ ($product->product_variants && $product->product_variants->count()) ? '' : 'hidden' }}">
-                                <div class="overflow-x-auto rounded-3xl border-2 border-slate-100 shadow-lg bg-white">
-                                    <table class="w-full text-left text-[11px] border-collapse">
-                                        <thead><tr class="bg-slate-50 text-slate-500 uppercase font-black border-b border-slate-100"></tr></thead>
+                                <div class="overflow-x-auto rounded-[2rem] border-2 border-slate-100 shadow-2xl bg-white">
+                                    <table class="w-full text-left text-[11px] border-collapse min-w-[1000px]">
+                                        <thead><tr class="bg-slate-50/50 text-slate-500 uppercase font-black border-b border-slate-100"></tr></thead>
                                         <tbody id="variantMatrixBody"></tbody>
                                     </table>
                                 </div>
                             </div>
                             <div id="matrixPlaceholder" class="{{ ($product->product_variants && $product->product_variants->count()) ? 'hidden' : '' }} flex flex-col items-center justify-center p-20 border-4 border-dashed border-slate-50 rounded-[3rem] text-slate-300">
-                                <i class="fas fa-th-large text-4xl mb-4 text-rose-100"></i>
-                                <h4 class="text-base font-black text-slate-700">Add attributes to sync variations.</h4>
+                                <i class="fas fa-table-list text-5xl mb-4 text-rose-100"></i>
+                                <h4 class="text-base font-black text-slate-700">Waiting for configuration...</h4>
+                                <p class="text-[10px] mt-2">Select attributes above to build your variant matrix.</p>
                             </div>
                         </div>
                     </div>
@@ -459,8 +472,33 @@ $(document).ready(function() {
     let removedCombinations = new Set();
     $(document).on('change', '.attr-dropdown-matrix', generateVariantMatrix);
     $(document).on('click', '.remove-variant-row', function() {
-        removedCombinations.add($(this).closest('tr').find('.variant-comb-input').val());
-        generateVariantMatrix();
+        const $row = $(this).closest('tr');
+        const combo = $row.find('.variant-comb-input').val();
+        if(confirm("Confirm removal of this variant? Unused attribute tags will be automatically removed from the Configuration Suite.")) {
+            const ids = combo.split(',');
+            const $allOtherRows = $('#variantMatrixBody tr').not($row);
+            
+            ids.forEach(id => {
+                let remains = false;
+                $allOtherRows.each(function(){
+                    if($(this).find('.variant-comb-input').val().split(',').includes(id)) remains = true;
+                });
+                
+                if(!remains) {
+                    $('.attr-dropdown-matrix').each(function(){
+                        const $s = $(this);
+                        let v = $s.val();
+                        if(v && v.includes(id)) {
+                            v = v.filter(x => x != id);
+                            $s.val(v).trigger('change');
+                        }
+                    });
+                }
+            });
+
+            removedCombinations.add(combo);
+            generateVariantMatrix();
+        }
     });
 
     if($('#isVariantCheckbox').is(':checked')) generateVariantMatrix();
@@ -479,6 +517,7 @@ $(document).ready(function() {
                     sku: $(this).find(`input[name="v_sku[${combo}]"]`).val(),
                     weight: $(this).find(`input[name="v_weight[${combo}]"]`).val(),
                     ship: $(this).find(`select[name="v_shipping_class[${combo}]"]`).val(),
+                    existing_images: $(this).find('.existing-images-input').val(),
                     preview: $(this).find('.v-preview-container').html()
                 };
                 // Preserve files
@@ -555,18 +594,30 @@ $(document).ready(function() {
                                 <i class="fas fa-camera"></i>
                                 <input type="file" name="v_images[${comboIds}][]" class="v-file-input hidden" multiple accept="image/*">
                             </label>
-                            <div class="flex flex-wrap gap-1">
-                                ${ui ? ui.preview : (() => {
-                                    if(!existing) return '';
-                                    let arr = existing.images || existing.image;
-                                    if(!arr) return '';
-                                    if(typeof arr === 'string') try { arr = JSON.parse(arr); } catch(e) { arr = [arr]; }
-                                    if(!Array.isArray(arr)) arr = [arr];
-                                    return arr.map(img => `<img src="/uploads/${img}" class="w-6 h-6 rounded border border-slate-200 object-cover">`).join('');
+                            <div class="flex flex-col items-center gap-2 py-2">
+                                ${(() => {
+                                    let arr = [];
+                                    if (ui && ui.existing_images) {
+                                        try { arr = JSON.parse(ui.existing_images); } catch(e) { arr = []; }
+                                    } else if (!ui && existing) {
+                                        arr = existing.images || existing.image;
+                                        if(typeof arr === 'string') try { arr = JSON.parse(arr); } catch(e) { arr = [arr]; }
+                                    }
+                                    if(!Array.isArray(arr)) arr = arr ? [arr] : [];
+                                    
+                                    return arr.map(img => `
+                                        <div class="relative flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-xl group w-16 h-16">
+                                            <img src="/uploads/${img}" class="w-full h-full rounded-lg object-cover">
+                                            <button type="button" class="remove-variant-image absolute -top-2 -right-2 bg-[#a91b43] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-type="existing" data-combo="${comboIds}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>`).join('');
                                 })()}
-                                <div class="v-preview-container flex flex-wrap justify-center gap-1"></div>
+                                <div class="v-preview-container flex flex-col items-center gap-2">
+                                    ${ui ? ui.preview : ''}
+                                </div>
                             </div>
-                            <input type="hidden" name="v_existing_images[${comboIds}]" value='${existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]"}' class="existing-images-input">
+                            <input type="hidden" name="v_existing_images[${comboIds}]" value='${ui ? ui.existing_images : (existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]")}' class="existing-images-input">
                         </div>
                     </td>
                     <td class="px-2 py-4"><button type="button" class="remove-variant-row text-slate-300 hover:text-rose-600"><i class="fas fa-trash-alt"></i></button></td>
@@ -599,20 +650,87 @@ $(document).ready(function() {
     }
 
     $(document).on('change', '.v-file-input', function() {
-        const preview = $(this).closest('td').find('.v-preview-container').empty();
-        Array.from(this.files).forEach(f => {
+        const $td = $(this).closest('td');
+        const preview = $td.find('.v-preview-container').empty();
+        const comboIds = $td.closest('tr').find('.variant-comb-input').val();
+        
+        Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
-            r.onload = e => preview.append(`<img src="${e.target.result}" class="w-6 h-6 rounded border border-slate-100 object-cover shadow-sm">`);
+            r.onload = e => preview.append(`
+                <div class="relative flex items-center gap-2 bg-rose-50/30 border border-rose-100 p-1 rounded-xl group w-16 h-16">
+                    <img src="${e.target.result}" class="w-full h-full rounded-lg object-cover">
+                    <button type="button" class="remove-variant-image absolute -top-2 -right-2 bg-[#a91b43] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-type="new" data-index="${idx}" data-combo="${comboIds}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`);
             r.readAsDataURL(f);
         });
     });
 
+    $(document).on('click', '.remove-variant-image', function() {
+        const $btn = $(this);
+        const type = $btn.data('type');
+        const combo = $btn.data('combo');
+        const $td = $btn.closest('td');
+
+        if(type === 'existing') {
+            const $hidden = $td.find('.existing-images-input');
+            let images = [];
+            try { 
+                images = JSON.parse($hidden.val() || '[]'); 
+            } catch(e) { images = []; }
+            
+            const imgUrl = $btn.siblings('img').attr('src').replace('/uploads/', '');
+            images = images.filter(img => img !== imgUrl);
+            $hidden.val(JSON.stringify(images));
+            $btn.parent().remove();
+        } else {
+            const $input = $td.find('.v-file-input');
+            const dt = new DataTransfer();
+            const { files } = $input[0];
+            const indexToRemove = parseInt($btn.attr('data-index'));
+            
+            for(let i=0; i<files.length; i++) {
+                if(i !== indexToRemove) dt.items.add(files[i]);
+            }
+            $input[0].files = dt.files;
+            $btn.parent().remove();
+            
+            // Re-index new image previews
+            $td.find('.remove-variant-image[data-type="new"]').each(function(i) {
+                $(this).attr('data-index', i).data('index', i);
+            });
+        }
+    });
+
     $('#generalImagesInput').on('change', function() {
         const preview = $('#generalImagesPreview').empty();
-        Array.from(this.files).forEach(f => {
+        Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
-            r.onload = e => preview.append(`<img src="${e.target.result}" class="w-10 h-10 rounded border border-slate-100 object-cover shadow">`);
+            r.onload = e => preview.append(`
+                <div class="relative group w-10 h-10">
+                    <img src="${e.target.result}" class="w-10 h-10 rounded border border-slate-100 object-cover shadow">
+                    <button type="button" class="remove-general-image absolute -top-1 -right-1 bg-white text-rose-500 w-4 h-4 rounded-full flex items-center justify-center border border-rose-100 shadow-sm opacity-0 group-hover:opacity-100 transition-all text-[8px]" data-index="${idx}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`);
             r.readAsDataURL(f);
+        });
+    });
+
+    $(document).on('click', '.remove-general-image', function() {
+        const $btn = $(this);
+        const indexToRem = parseInt($btn.data('index'));
+        const $input = $('#generalImagesInput');
+        const dt = new DataTransfer();
+        const { files } = $input[0];
+        for(let i=0; i<files.length; i++) {
+            if(i !== indexToRem) dt.items.add(files[i]);
+        }
+        $input[0].files = dt.files;
+        $btn.parent().remove();
+        $('#generalImagesPreview .remove-general-image').each(function(i) {
+            $(this).attr('data-index', i).data('index', i);
         });
     });
     
