@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set independent session cookie for admin area to allow parallel admin/user sessions
+        if (!app()->runningInConsole() && request()->is('admin*')) {
+            config(['session.cookie' => config('session.cookie') . '_admin']);
+        }
         \Illuminate\Pagination\Paginator::useTailwind();
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.custom');
 
