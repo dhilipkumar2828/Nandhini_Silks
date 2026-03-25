@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Nandhini Silks')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -250,208 +251,8 @@
             fill: #fff !important;
         }
 
-        /* --- Modern Premium Footer Styles --- */
-        .site-footer {
-            background-color: #111111 !important;
-            color: #ffffff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            padding: 80px 0 0;
-            margin-top: 60px;
-        }
-
-        .footer-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 40px;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-            gap: 60px;
-        }
-
-        .footer-brand .footer-logo {
-            height: 60px;
-            margin-bottom: 25px;
-            object-fit: contain;
-        }
-
-        .footer-brand p {
-            color: #999;
-            line-height: 1.8;
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-            max-width: 320px;
-        }
-
-        .footer-heading {
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .footer-heading::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -10px;
-            width: 40px;
-            height: 2px;
-            background-color: #A91B43;
-        }
-
-        .footer-links-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-links-list li {
-            margin-bottom: 15px;
-        }
-
-        .footer-links-list a {
-            color: #999;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .footer-links-list a:hover {
-            color: #A91B43;
-            padding-left: 8px;
-        }
-
-        .footer-contact-info {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .contact-icon-box {
-            width: 42px;
-            height: 42px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-
-        .contact-item:hover .contact-icon-box {
-            background: #A91B43;
-            transform: translateY(-3px);
-        }
-
-        .contact-icon-box i {
-            font-size: 16px;
-            color: #ffffff;
-        }
-
-        .contact-icon-box img {
-            display: none; /* Hide old SVGs if any */
-        }
-
-        .contact-text-box h4 {
-            color: #fff;
-            font-size: 0.85rem;
-            margin: 0 0 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .contact-text-box p {
-            color: #999;
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .footer-socials {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .social-link {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-            background: #A91B43;
-            transform: rotate(360deg);
-        }
-
-        .social-link i {
-            color: #ffffff;
-            font-size: 16px;
-        }
-
-        .social-link img {
-            display: none;
-        }
-
-        .footer-bottom {
-            margin-top: 80px;
-            padding: 30px 0;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-        }
-
-        .footer-bottom-flex {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .copyright-text {
-            color: #666;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .payment-icons {
-            display: flex;
-            gap: 15px;
-            opacity: 0.6;
-        }
-
-        @media (max-width: 1200px) {
-            .footer-container { grid-template-columns: 1fr 1fr; gap: 40px; }
-        }
-
-        @media (max-width: 768px) {
-            .footer-container { grid-template-columns: 1fr; gap: 50px; text-align: center; }
-            .footer-heading::after { left: 50%; transform: translateX(-50%); }
-            .footer-brand p { margin: 0 auto 30px; }
-            .footer-socials { justify-content: center; }
-            .contact-item { flex-direction: column; align-items: center; }
-            .footer-bottom-flex { justify-content: center; flex-direction: column; }
-            .footer-links-list a:hover { padding-left: 0; font-weight: 600; }
-        }
     </style>
+
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -720,67 +521,37 @@
     </main>
 
     <footer class="site-footer" aria-label="Footer">
-        <div class="footer-container">
-            <!-- Brand Column -->
-            <div class="footer-brand">
-                <a href="{{ route('home') }}">
-                    <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" class="footer-logo">
-                </a>
-                <p>Nandhini Silks embodies the timeless elegance of traditional craftsmanship. We bring you the finest sarees curated with passion and quality.</p>
-                <div class="footer-socials">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="https://wa.me/919994504410" class="social-link"><i class="fab fa-whatsapp"></i></a>
+        <div class="footer-inner">
+            <h2 class="footer-title">Contact us</h2>
+            <p class="footer-address">Nandhini Silks <br>416/9 Aranmanai Street, S.V. Nagaram <br>Arni - 632317,
+                Thiruvannamalai dist</p>
+
+            <div class="footer-contact-grid">
+                <div class="footer-contact-item">
+                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}"
+                            alt=""></span>
+                    <p class="footer-contact-text">+91 96295 52822</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}"
+                            alt=""></span>
+                    <p class="footer-contact-text">+91 99945 04410</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/email.svg') }}"
+                            alt=""></span>
+                    <p class="footer-contact-text">nandhinisilks.arani@gmail.com</p>
                 </div>
             </div>
 
-            <!-- Categories Column -->
-            <div class="footer-nav">
-                <h3 class="footer-heading">Categories</h3>
-                <ul class="footer-links-list">
-                    @foreach($headerCategories->take(6) as $category)
-                        <li><a href="{{ url('category/'.$category->slug) }}">{{ $category->name }}</a></li>
-                    @endforeach
-                    <li><a href="{{ route('shop') }}">New Arrivals</a></li>
-                </ul>
-            </div>
-
-            <!-- Support Column -->
-            <div class="footer-nav">
-                <h3 class="footer-heading">Customer Care</h3>
-                <ul class="footer-links-list">
-                    <li><a href="{{ url('privacy-policy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ url('exchange-policy') }}">Exchange Policy</a></li>
-                    <li><a href="{{ url('shipping-policy') }}">Shipping Policy</a></li>
-                    <li><a href="{{ url('terms-conditions') }}">Terms of Service</a></li>
-                    <li><a href="{{ url('fabric-care') }}">Fabric Care</a></li>
-                    <li><a href="{{ url('contact') }}">Contact Support</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Column -->
-            <div class="footer-nav">
-                <h3 class="footer-heading">Store Location</h3>
-                <div class="footer-contact-info">
-                    <div class="contact-item">
-                        <div class="contact-icon-box"><i class="fas fa-envelope"></i></div>
-                        <div class="contact-text-box">
-                            <h4>Email Us</h4>
-                            <p>nandhinisilks.arani@gmail.com</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon-box"><i class="fas fa-phone-alt"></i></div>
-                        <div class="contact-text-box">
-                            <h4>Call Us</h4>
-                            <p>+91 96295 52822<br>+91 99945 04410</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon-box"><i class="fas fa-map-marker-alt"></i></div>
-                        <div class="contact-text-box">
-                            <h4>Our Address</h4>
-                            <p>Nandhini Silks, 416/9 Aranmanai St,<br>S.V. Nagaram, Arni - 632317</p>
+            <div class="footer-extra-touch">
+                <div class="footer-extra-title">Get In Touch</div>
+                <div class="footer-extra-icons">
+                    <div class="footer-extra-box">
+                        <div class="footer-extra-glyph">
+                            <a href="https://wa.me/919994504410" target="_blank">
+                                <img src="{{ asset('images/Vector4.svg') }}" alt="WhatsApp">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -788,16 +559,18 @@
         </div>
 
         <div class="footer-bottom">
-            <div class="footer-bottom-flex">
-                <p class="copyright-text">© {{ date('Y') }} Nandhini Silks. Crafted by Reality Graphics.</p>
-                <div class="payment-icons">
-                    <i class="fab fa-cc-visa text-2xl"></i>
-                    <i class="fab fa-cc-mastercard text-2xl"></i>
-                    <i class="fab fa-google-pay text-2xl"></i>
-                    <i class="fab fa-apple-pay text-2xl"></i>
-                </div>
+            <div class="footer-bottom-inner">
+                <ul class="footer-links">
+                    <li><a href="{{ url('privacy-policy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ url('exchange-policy') }}">Exchange Policy</a></li>
+                    <li><a href="{{ url('shipping-policy') }}">Shipping Policy</a></li>
+                    <li><a href="{{ url('terms-conditions') }}">Terms of Service</a></li>
+                    <li><a href="{{ url('fabric-care') }}">Fabric Care</a></li>
+                    <li><a href="{{ url('cancellation') }}">Cancellation</a></li>
+                </ul>
             </div>
         </div>
+        <p class="footer-copy">@ {{ date('Y') }} Nandhini Silks | By Reality Graphics</p>
     </footer>
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -921,7 +694,7 @@
         <div class="cart-drawer-footer" id="miniCartFooter">
             <div class="cart-drawer-summary">
                 <span>Subtotal</span>
-                <span id="miniCartSubtotal">₹0</span>
+                <span id="miniCartSubtotal">Γé╣0</span>
             </div>
             <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">View Full Cart</a>
             <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout Now</a>
@@ -977,14 +750,14 @@
                                         ${item.color ? ' | Color: ' + item.color : ''}
                                         <br>Qty: ${item.quantity}
                                     </div>
-                                    <div class="cart-item-mini-price">₹${item.price.toLocaleString()}</div>
+                                    <div class="cart-item-mini-price">Γé╣${item.price.toLocaleString()}</div>
                                 </div>
                                 <button onclick="removeMiniCartItem('${item.key}')" style="position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 16px; padding: 5px;">&times;</button>
                             </div>
                         `;
                     });
                     content.innerHTML = html;
-                    subtotal.textContent = '₹' + data.subTotal.toLocaleString();
+                    subtotal.textContent = 'Γé╣' + data.subTotal.toLocaleString();
                 }
                 
                 // Sync main cart badges
