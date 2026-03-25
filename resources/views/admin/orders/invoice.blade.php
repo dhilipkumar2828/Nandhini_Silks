@@ -88,7 +88,7 @@
     <div class="header">
         <div class="header-left">
             @php
-                $logoPath = public_path('images/image 1.png');
+                $logoPath = public_path('images/nandhini-logo.png');
                 $logoBase64 = '';
                 if (file_exists($logoPath)) {
                     $logoBase64 = base64_encode(file_get_contents($logoPath));

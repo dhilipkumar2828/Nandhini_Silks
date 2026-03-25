@@ -34,7 +34,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ url('images/image 1.png') }}" alt="Nandhini Silks" style="max-height: 80px; width: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px; mix-blend-mode: multiply;" onerror="this.src='https://nandhinisilks.com/images/image%201.png'; this.onerror=null;">
+            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 80px; width: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px;" onerror="this.src='https://nandhinisilks.com/demo/images/nandhini-logo.png'; this.onerror=null;">
             <h1>Nandhini Silks</h1>
             <p style="margin: 5px 0 0; opacity: 0.9; font-weight: 600;">Elegance Redefined</p>
         </div>

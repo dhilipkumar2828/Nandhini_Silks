@@ -263,7 +263,7 @@
     <header class="top-header">
         <div class="page-shell header-row">
             <a href="{{ route('home') }}" class="brand-link">
-                <img class="brand" src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" onerror="this.src='{{ asset('images/Image.png') }}'; this.onerror=null;" />
+                <img class="brand" src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" />
             </a>
 
             <div class="header-right">

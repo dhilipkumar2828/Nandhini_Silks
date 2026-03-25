@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks Logo" style="height: 60px; width: auto;">
+        <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks Logo" style="height: 60px; width: auto;">
     </div>
     
     <div class="card">

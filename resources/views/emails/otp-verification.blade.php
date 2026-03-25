@@ -18,7 +18,7 @@
 <body>
     <div class="wrapper">
         <div class="header">
-            <img src="{{ url('images/image 1.png') }}" class="logo" alt="Nandhini Silks">
+            <img src="{{ url('images/nandhini-logo.png') }}" class="logo" alt="Nandhini Silks">
             <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Verification Code</h1>
         </div>
         <div class="content">

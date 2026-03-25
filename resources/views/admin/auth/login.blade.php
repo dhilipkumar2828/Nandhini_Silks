@@ -35,7 +35,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <div class="flex justify-center mb-6">
-                <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" class="brand-logo">
+                <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" class="brand-logo">
             </div>
             <h1 class="text-3xl font-bold gradient-text mb-2">Admin Portal</h1>
             <p class="text-slate-500">Authorized Access Only</p>

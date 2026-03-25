@@ -212,8 +212,8 @@
     <!-- Sidebar -->
     <aside class="sidebar-glass w-60 fixed h-full flex flex-col z-50 text-slate-600">
         <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
-            <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks"
-                class="h-14 w-auto mix-blend-multiply mb-2">
+            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks"
+                class="h-14 w-auto mb-2">
             <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Management Suite</span>
         </div>
         <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">

@@ -20,7 +20,7 @@
 <body>
     <div class="card">
         <div class="head">
-            <img src="{{ url('images/image 1.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px; mix-blend-mode: multiply;">
+            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px;">
             <h1 style="display: block;">New Customer!</h1>
             <p style="margin: 8px 0 0; opacity: 0.8; font-weight: 600;">Someone just joined our family</p>
         </div>

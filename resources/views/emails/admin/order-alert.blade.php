@@ -25,7 +25,7 @@
 <body>
     <div class="alert-card">
         <div class="header">
-            <img src="{{ url('images/image 1.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px; mix-blend-mode: multiply;">
+            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px;">
             <span class="badge" style="display: block;">Sales Alert</span>
             <h1 class="title">New Sales Order!</h1>
         </div>
