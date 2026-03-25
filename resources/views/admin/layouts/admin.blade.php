@@ -261,15 +261,29 @@
                         <span class="font-bold ml-2 text-[10px]">Products</span>
                     </a>
 
-                    <a href="{{ route('admin.attributes.index') }}" class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-tags text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Attributes</span>
-                    </a>
+                    <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
+                        <button @click="openAttr = !openAttr"
+                            class="w-full nav-link flex items-center px-3 py-1.5 rounded-xl transition-all"
+                            :class="openAttr ? 'bg-slate-50 text-[#a91b43]' : ''">
+                            <div class="w-4 flex justify-center"><i class="fas fa-tags text-[10px]"></i></div>
+                            <span class="font-bold ml-2 text-[10px] text-left flex-1">Attributes</span>
+                            <i class="fas fa-chevron-down text-[8px] transition-transform duration-300"
+                                :class="openAttr ? 'rotate-180' : ''"></i>
+                        </button>
 
-                    <a href="{{ route('admin.attribute-values.index') }}" class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-palette text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Attribute Values</span>
-                    </a>
+                        <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
+                            <a href="{{ route('admin.attributes.index') }}"
+                                class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                <span class="font-bold ml-2 text-[10px]">Attribute Group</span>
+                            </a>
+                            <a href="{{ route('admin.attribute-values.index') }}"
+                                class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                <span class="font-bold ml-2 text-[10px]">Attribute Values</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
