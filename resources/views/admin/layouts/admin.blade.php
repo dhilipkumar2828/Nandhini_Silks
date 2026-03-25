@@ -211,25 +211,25 @@
 <body class="min-h-screen flex">
     <!-- Sidebar -->
     <aside class="sidebar-glass w-60 fixed h-full flex flex-col z-50 text-slate-600">
-        <div class="px-6 py-6 border-b border-slate-50 flex flex-col items-center">
+        <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
             <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks"
-                class="h-10 w-auto mix-blend-multiply mb-1">
-            <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Management Suite</span>
+                class="h-14 w-auto mix-blend-multiply mb-2">
+            <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Management Suite</span>
         </div>
         <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-            <div class="px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</div>
+            <div class="px-4 py-3 text-[13px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</div>
 
             <a href="{{ route('admin.dashboard') }}"
-                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-home text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Analytics</span>
+                <span class="font-bold ml-2 text-sm">Analytics</span>
             </a>
 
             <!-- Catalog Dropdown -->
             <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.products.*') ? 'true' : 'false' }} }">
-                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-3 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
-                    <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
+                    <span class="font-bold ml-2 text-sm text-left flex-1">Catalog</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
                         :class="open ? 'rotate-180' : ''"></i>
                 </button>
@@ -237,102 +237,102 @@
                 <div x-show="open" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
-                    <a href="{{ route('admin.categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Categories</span>
-                    </a>
+                        <a href="{{ route('admin.categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.sub-categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.sub-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-indent text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Sub Categories</span>
-                    </a>
+                        <a href="{{ route('admin.sub-categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.sub-categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-indent text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Sub Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.child-categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.child-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-outdent text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Child Categories</span>
-                    </a>
+                        <a href="{{ route('admin.child-categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.child-categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-outdent text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Child Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.products.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-box text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Products</span>
-                    </a>
+                        <a href="{{ route('admin.products.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-box text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Products</span>
+                        </a>
 
-                    <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
-                        <button @click="openAttr = !openAttr"
-                            class="w-full nav-link flex items-center px-3 py-1.5 rounded-xl transition-all"
-                            :class="openAttr ? 'bg-slate-50 text-[#a91b43]' : ''">
-                            <div class="w-4 flex justify-center"><i class="fas fa-tags text-[10px]"></i></div>
-                            <span class="font-bold ml-2 text-[10px] text-left flex-1">Attributes</span>
-                            <i class="fas fa-chevron-down text-[8px] transition-transform duration-300"
-                                :class="openAttr ? 'rotate-180' : ''"></i>
-                        </button>
+                        <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
+                            <button @click="openAttr = !openAttr"
+                                class="w-full nav-link flex items-center px-3 py-2 rounded-xl transition-all"
+                                :class="openAttr ? 'bg-slate-50 text-[#a91b43]' : ''">
+                                <div class="w-4 flex justify-center"><i class="fas fa-tags text-xs"></i></div>
+                                <span class="font-bold ml-2 text-[12px] text-left flex-1">Attributes</span>
+                                <i class="fas fa-chevron-down text-[8px] transition-transform duration-300"
+                                    :class="openAttr ? 'rotate-180' : ''"></i>
+                            </button>
 
-                        <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 -translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
-                            <a href="{{ route('admin.attributes.index') }}"
-                                class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                                <span class="font-bold ml-2 text-[10px]">Attribute Group</span>
-                            </a>
-                            <a href="{{ route('admin.attribute-values.index') }}"
-                                class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                                <span class="font-bold ml-2 text-[10px]">Attribute Values</span>
-                            </a>
+                            <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
+                                <a href="{{ route('admin.attributes.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                    <span class="font-bold ml-2 text-[11px]">Attribute Group</span>
+                                </a>
+                                <a href="{{ route('admin.attribute-values.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                    <span class="font-bold ml-2 text-[11px]">Attribute Values</span>
+                                </a>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
 
 
-            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Orders</span>
+                <span class="font-bold ml-2 text-sm">Orders</span>
             </a>
 
-            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-users text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Users</span>
+                <span class="font-bold ml-2 text-sm">Users</span>
             </a>
 
            
 
 
-            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
+            <div class="px-4 py-3 text-[13px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
             </div>
 
             <a href="{{ route('admin.banners.index') }}"
-                class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-image text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Banners</span>
+                <span class="font-bold ml-2 text-sm">Banners</span>
             </a>
 
             <a href="{{ route('admin.ads.index') }}"
-                class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-ad text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Advertisements</span>
+                <span class="font-bold ml-2 text-sm">Advertisements</span>
             </a>
 
             <a href="{{ route('admin.testimonials.index') }}"
-                class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-comment-dots text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Testimonials</span>
+                <span class="font-bold ml-2 text-sm">Testimonials</span>
             </a>
 
-            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
+            <div class="px-4 py-3 text-[13px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
 
             <!-- Tax & Shipping Settings Dropdown -->
             <div
                 x-data="{ open: {{ request()->routeIs('admin.tax-classes.*', 'admin.tax-rates.*', 'admin.shipping-classes.*', 'admin.shipping-rates.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
+                    class="w-full nav-link flex items-center px-4 py-3 rounded-xl transition-all"
                     :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-truck text-base"></i></div>
-                    <span class="font-bold ml-2 text-xs text-left flex-1">Tax & Shipping</span>
+                    <span class="font-bold ml-2 text-sm text-left flex-1">Tax & Shipping</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
                         :class="open ? 'rotate-180' : ''"></i>
                 </button>
@@ -340,40 +340,40 @@
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
 
-                    <a href="{{ route('admin.tax-classes.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Tax Classes</span>
-                    </a>
+                        <a href="{{ route('admin.tax-classes.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[11px]"></i></div>
+                            <span class="font-bold ml-2 text-[11px]">Tax Classes</span>
+                        </a>
 
-                    <a href="{{ route('admin.tax-rates.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Tax Rates</span>
-                    </a>
+                        <a href="{{ route('admin.tax-rates.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-[11px]"></i></div>
+                            <span class="font-bold ml-2 text-[11px]">Tax Rates</span>
+                        </a>
 
-                    <a href="{{ route('admin.shipping-classes.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.shipping-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-shipping-fast text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Shipping Classes</span>
-                    </a>
+                        <a href="{{ route('admin.shipping-classes.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.shipping-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-shipping-fast text-[11px]"></i></div>
+                            <span class="font-bold ml-2 text-[11px]">Shipping Classes</span>
+                        </a>
 
-                    <a href="{{ route('admin.shipping-rates.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.shipping-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-coins text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Shipping Rates</span>
-                    </a>
+                        <a href="{{ route('admin.shipping-rates.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.shipping-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-coins text-[11px]"></i></div>
+                            <span class="font-bold ml-2 text-[11px]">Shipping Rates</span>
+                        </a>
                 </div>
             </div>
 
-            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-ticket text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Coupons</span>
+                <span class="font-bold ml-2 text-sm">Coupons</span>
             </a>
 
-            <a href="{{ route('admin.stock.index') }}" class="nav-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+            <a href="{{ route('admin.stock.index') }}" class="nav-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-boxes-stacked text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Stock Maintenance</span>
+                <span class="font-bold ml-2 text-sm">Stock Maintenance</span>
             </a>
 
             <!-- Sidebar Profile -->
@@ -390,10 +390,10 @@
                         @endif
                     </div>
                     <div class="ml-3 overflow-hidden">
-                        <p class="text-[11px] font-black text-slate-700 truncate capitalize">{{ $admin->name }}</p>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">View Profile</p>
+                        <p class="text-[13px] font-black text-slate-700 truncate capitalize">{{ $admin->name }}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">View Profile</p>
                     </div>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-300"></i>
+                    <i class="fas fa-chevron-right ml-auto text-[11px] text-slate-300"></i>
                 </a>
             </div>
         </nav>
