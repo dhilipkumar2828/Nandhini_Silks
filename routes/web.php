@@ -167,8 +167,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/manage-admins', [AdminProfileController::class, 'storeAdmin'])->name('admin.manage-admins.store');
 
         // AJAX Helpers
-        Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
-        Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);
+        Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories'])->name('admin.get-sub-categories');
+        Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories'])->name('admin.get-child-categories');
 
         // Catch-all for admin area (handles typos like /admin/loginnn)
         Route::any('{any}', function () {

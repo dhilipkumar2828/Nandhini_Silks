@@ -114,7 +114,7 @@
             var category_id = $(this).val();
             if(category_id) {
                 $.ajax({
-                    url: '/admin/get-sub-categories/' + category_id,
+                    url: '{{ route("admin.get-sub-categories", "") }}/' + category_id,
                     type: "GET",
                     dataType: "json",
                     success: function(data) {

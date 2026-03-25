@@ -566,7 +566,7 @@ $(document).ready(function() {
         var id = $(this).val();
         $('#sub_category_id').html('<option value="">Select Sub Category</option>');
         $('#child_category_id').html('<option value="">Select Child Category</option>');
-        if (id) $.getJSON('/admin/get-sub-categories/' + id, function (d) {
+        if (id) $.getJSON('{{ route("admin.get-sub-categories", "") }}/' + id, function (d) {
             $.each(d, function (k, v) { $('#sub_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
         });
     });
@@ -574,7 +574,7 @@ $(document).ready(function() {
     $('#sub_category_id').on('change', function () {
         var id = $(this).val();
         $('#child_category_id').html('<option value="">Select Child Category</option>');
-        if (id) $.getJSON('/admin/get-child-categories/' + id, function (d) {
+        if (id) $.getJSON('{{ route("admin.get-child-categories", "") }}/' + id, function (d) {
             $.each(d, function (k, v) { $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
         });
     });
