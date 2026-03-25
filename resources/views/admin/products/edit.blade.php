@@ -287,21 +287,6 @@
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
                         </div>
                         <div class="col-span-2">
-                           <label class="block text-xs font-bold text-slate-700 mb-1">Dimensions (LxWxH) cm</label>
-                           <input type="text" name="dimensions" value="{{ old('dimensions', $product->dimensions) }}"
-                               class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="10 x 5 x 2">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Restock Quantity</label>
-                            <input type="number" name="restock_quantity" value="{{ old('restock_quantity', $product->restock_quantity) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Restock Date</label>
-                            <input type="date" name="restock_date" value="{{ old('restock_date', $product->restock_date ? $product->restock_date->format('Y-m-d') : '') }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div class="col-span-2">
                             <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
                             <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                                 <option value="">No Shipping Class</option>
@@ -396,6 +381,7 @@
         </div>{{-- end main content --}}
     </div>
 </form>
+<div id="hidden-file-store" class="hidden"></div>
 </div>
 @endsection
 
@@ -480,6 +466,29 @@ $(document).ready(function() {
     if($('#isVariantCheckbox').is(':checked')) generateVariantMatrix();
 
     function generateVariantMatrix() {
+        let currentUIData = {};
+        $('#variantMatrixBody tr').each(function() {
+            const combo = $(this).find('.variant-comb-input').val();
+            const $fileInput = $(this).find('.v-file-input');
+            if(combo) {
+                currentUIData[combo] = {
+                    price: $(this).find(`input[name="v_price[${combo}]"]`).val(),
+                    sale_price: $(this).find(`input[name="v_sale_price[${combo}]"]`).val(),
+                    stock: $(this).find(`input[name="v_stock[${combo}]"]`).val(),
+                    low: $(this).find(`input[name="v_low_stock[${combo}]"]`).val(),
+                    sku: $(this).find(`input[name="v_sku[${combo}]"]`).val(),
+                    weight: $(this).find(`input[name="v_weight[${combo}]"]`).val(),
+                    ship: $(this).find(`select[name="v_shipping_class[${combo}]"]`).val(),
+                    preview: $(this).find('.v-preview-container').html()
+                };
+                // Preserve files
+                if($fileInput[0] && $fileInput[0].files.length > 0) {
+                    $fileInput.attr('id', 'temp_file_' + combo.replace(/,/g, '_'));
+                    $('#hidden-file-store').append($fileInput);
+                }
+            }
+        });
+
         let selected = {};
         let selectedNames = [];
         $('.attr-dropdown-matrix').each(function() {
@@ -512,28 +521,30 @@ $(document).ready(function() {
             const comboIds = comb.map(v => v.id).join(',');
             if(removedCombinations.has(comboIds)) return;
 
+            const ui = currentUIData[comboIds];
             const existing = findExisting(comboIds);
             let cells = comb.map(v => `<td class="px-4 py-4 font-bold text-slate-700">${v.name}</td>`).join('');
-            $tbody.append(`
+            
+            const $row = $(`
                 <tr class="border-b border-slate-50">
                     ${cells}
                     <td class="px-1 py-4">
-                        <input type="number" name="v_price[]" value="${existing ? existing.price : ($('#regular_price').val() || '')}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center font-black text-rose-800" placeholder="0">
+                        <input type="number" name="v_price[${comboIds}]" value="${ui ? ui.price : (existing ? existing.price : ($('#regular_price').val() || ''))}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center font-black text-rose-800" placeholder="0">
                     </td>
                     <td class="px-1 py-4">
-                        <input type="number" name="v_sale_price[]" value="${existing ? existing.sale_price : ''}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center text-slate-500" placeholder="Sale">
+                        <input type="number" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : (existing ? existing.sale_price : '')}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center text-slate-500" placeholder="Sale">
                     </td>
                     <td class="px-1 py-4 space-y-1">
-                        <input type="number" name="v_stock[]" value="${existing ? existing.stock_quantity : '10'}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 text-center font-black" placeholder="Stock">
-                        <input type="number" name="v_low_stock[]" value="${existing ? (existing.low_stock_threshold || 5) : 5}" class="w-full bg-white border border-slate-100 rounded py-1 text-center text-[10px]" placeholder="Alert At">
+                        <input type="number" name="v_stock[${comboIds}]" value="${ui ? ui.stock : (existing ? existing.stock_quantity : '10')}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 text-center font-black" placeholder="Stock">
+                        <input type="number" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : (existing ? (existing.low_stock_threshold || 5) : 5)}" class="w-full bg-white border border-slate-100 rounded py-1 text-center text-[10px]" placeholder="Alert At">
                     </td>
                     <td class="px-1 py-4 space-y-1">
-                        <input type="text" name="v_sku[]" value="${existing ? (existing.sku || '') : ''}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 px-1 text-[8px] font-black" placeholder="SKU">
-                        <input type="text" name="v_weight[]" value="${existing ? (existing.weight || '') : ''}" class="w-full bg-white border border-slate-100 rounded py-1 px-1 text-[8px]" placeholder="Weight (gr)">
-                        <select name="v_shipping_class[]" class="w-full bg-white border border-slate-100 rounded py-1 text-[8px] outline-none">
+                        <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : (existing ? (existing.sku || '') : '')}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 px-1 text-[8px] font-black" placeholder="SKU">
+                        <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : (existing ? (existing.weight || '') : '')}" class="w-full bg-white border border-slate-100 rounded py-1 px-1 text-[8px]" placeholder="Weight (gr)">
+                        <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-100 rounded py-1 text-[8px] outline-none">
                             <option value="">Ship Class</option>
                             @foreach($shippingClasses as $sc)
-                                <option value="{{ $sc->id }}" ${existing && existing.shipping_class_id == {{ $sc->id }} ? 'selected' : ''}>{{ $sc->name }}</option>
+                                <option value="{{ $sc->id }}" ${ui ? (ui.ship == "{{ $sc->id }}" ? 'selected' : '') : (existing && existing.shipping_class_id == {{ $sc->id }} ? 'selected' : '')}>{{ $sc->name }}</option>
                             @endforeach
                         </select>
                         <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
@@ -542,10 +553,10 @@ $(document).ready(function() {
                         <div class="flex flex-col items-center gap-1">
                             <label class="cursor-pointer bg-slate-50 hover:bg-[#a91b43] hover:text-white px-2 py-1 rounded-md text-[8px] font-black uppercase transition-all">
                                 <i class="fas fa-camera"></i>
-                                <input type="file" name="v_images[${idx}][]" class="v-file-input hidden" multiple accept="image/*">
+                                <input type="file" name="v_images[${comboIds}][]" class="v-file-input hidden" multiple accept="image/*">
                             </label>
                             <div class="flex flex-wrap gap-1">
-                                ${(() => {
+                                ${ui ? ui.preview : (() => {
                                     if(!existing) return '';
                                     let arr = existing.images || existing.image;
                                     if(!arr) return '';
@@ -555,12 +566,20 @@ $(document).ready(function() {
                                 })()}
                                 <div class="v-preview-container flex flex-wrap justify-center gap-1"></div>
                             </div>
-                            <input type="hidden" name="v_existing_images[${idx}]" value='${existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]"}' class="existing-images-input">
+                            <input type="hidden" name="v_existing_images[${comboIds}]" value='${existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]"}' class="existing-images-input">
                         </div>
                     </td>
                     <td class="px-2 py-4"><button type="button" class="remove-variant-row text-slate-300 hover:text-rose-600"><i class="fas fa-trash-alt"></i></button></td>
                 </tr>
             `);
+
+            // Restore files if preserved
+            const $preserved = $('#hidden-file-store').find('#temp_file_' + comboIds.replace(/,/g, '_'));
+            if($preserved.length) {
+                $row.find('.v-file-input').replaceWith($preserved.removeAttr('id'));
+            }
+
+            $tbody.append($row);
         });
     }
 

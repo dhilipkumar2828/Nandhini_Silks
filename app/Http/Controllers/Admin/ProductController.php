@@ -81,12 +81,14 @@ class ProductController extends Controller
         $data = $request->except(['color_images', 'images']);
         
         // If it's a variant product and regular_price is empty, try to get from first variant
-        if($isVariant && empty($request->regular_price) && !empty($request->v_price[0])) {
-            $data['regular_price'] = $request->v_price[0];
+        if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
+            $vPrices = $request->input('v_price');
+            $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
         }
 
         $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
-        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? (isset($request->v_stock[0]) ? $request->v_stock[0] : 0) : $request->stock_quantity;
+        $vStocks = $request->input('v_stock');
+        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
         
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
         $data['related_products'] = $request->input('related_products', []);
@@ -132,10 +134,9 @@ class ProductController extends Controller
             $prices = $request->input('v_price');
             $stocks = $request->input('v_stock');
             $skus = $request->input('v_sku');
-            $variantImagesFiles = $request->file('v_images');
+            $variantImagesFiles = $request->file('v_images') ?? [];
 
             $usedSkus = [];
-
             $variantFound = false;
             $firstVariantState = [];
 
@@ -153,7 +154,7 @@ class ProductController extends Controller
                 }
 
                 // Auto-deduplicate SKU
-                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $baseSku = !empty($skus[$idsString]) ? $skus[$idsString] : (!empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index));
                 $variantSku = $baseSku;
                 $skuCounter = 1;
                 while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', '=', $variantSku)->exists()) {
@@ -166,26 +167,28 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
-                    'price' => $prices[$index] ?? $product->regular_price ?? $product->price,
-                    'sale_price' => $request->v_sale_price[$index] ?? $product->sale_price,
-                    'stock_quantity' => $stocks[$index] ?? 0,
-                    'low_stock_threshold' => $request->v_low_stock[$index] ?? null,
-                    'weight' => $request->v_weight[$index] ?? null,
-                    'shipping_class_id' => $request->v_shipping_class[$index] ?? null,
+                    'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
+                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
+                    'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
+                    'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
+                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];
 
                 // Handle Multiple Variant Images
                 $vUploadedImages = [];
-                if (isset($variantImagesFiles[$index])) {
-                    foreach ($variantImagesFiles[$index] as $file) {
+                $rowFiles = $variantImagesFiles[$idsString] ?? ($variantImagesFiles[$index] ?? null);
+
+                if ($rowFiles) {
+                    foreach ($rowFiles as $file) {
                         $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
                         $file->move(public_path('uploads/products/variants'), $imgName);
                         $vUploadedImages[] = 'products/variants/' . $imgName;
                     }
                     $variantData['images'] = $vUploadedImages;
-                    $variantData['image'] = $vUploadedImages[0] ?? null; // For legacy
+                    $variantData['image'] = $vUploadedImages[0] ?? null; 
                 }
 
                 $newVariant = \App\Models\ProductVariant::create($variantData);
@@ -210,8 +213,6 @@ class ProductController extends Controller
                 $product->update($firstVariantState);
             }
             
-            // Collect all attribute values from the matrix and update top-level product attributes 
-            // This ensures frontend filters and display (like "Size") work correctly with variants.
             $attributeMap = [];
             foreach ($combs as $idsString) {
                 if(empty($idsString)) continue;
@@ -279,12 +280,14 @@ class ProductController extends Controller
         $data = $request->except(['color_images', 'images']);
         
         // If it's a variant product and regular_price is empty, try to get from first variant
-        if($isVariant && empty($request->regular_price) && !empty($request->v_price[0])) {
-            $data['regular_price'] = $request->v_price[0];
+        if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
+            $vPrices = $request->input('v_price');
+            $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
         }
 
         $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
-        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? (isset($request->v_stock[0]) ? $request->v_stock[0] : 0) : $request->stock_quantity;
+        $vStocks = $request->input('v_stock');
+        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
 
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
         $data['related_products'] = $request->input('related_products', []);
@@ -342,7 +345,7 @@ class ProductController extends Controller
             $prices = $request->v_price;
             $stocks = $request->v_stock;
             $skus = $request->v_sku;
-            $variantImagesFiles = $request->file('v_images');
+            $variantImagesFiles = $request->file('v_images') ?? [];
 
             $variantFound = false;
             $usedSkus = [];
@@ -362,7 +365,7 @@ class ProductController extends Controller
                 }
 
                 // Auto-deduplicate SKU
-                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $baseSku = !empty($skus[$idsString]) ? $skus[$idsString] : (!empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index));
                 $variantSku = $baseSku;
                 $skuCounter = 1;
                 while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
@@ -375,12 +378,12 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
-                    'price' => $prices[$index] ?? $product->regular_price ?? $product->price,
-                    'sale_price' => $request->v_sale_price[$index] ?? $product->sale_price,
-                    'stock_quantity' => $stocks[$index] ?? 0,
-                    'low_stock_threshold' => $request->v_low_stock[$index] ?? null,
-                    'weight' => $request->v_weight[$index] ?? null,
-                    'shipping_class_id' => $request->v_shipping_class[$index] ?? null,
+                    'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
+                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
+                    'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
+                    'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
+                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];
@@ -389,10 +392,9 @@ class ProductController extends Controller
                 $vUploadedImages = [];
                 $vExistingArray = [];
                 
-                // Get existing images from hidden input if present
                 // Get existing images from hidden input
-                if ($request->has('v_existing_images') && isset($request->v_existing_images[$index])) {
-                    $val = $request->v_existing_images[$index];
+                if ($request->has('v_existing_images')) {
+                    $val = $request->v_existing_images[$idsString] ?? ($request->v_existing_images[$index] ?? null);
                     if ($val) {
                         try {
                             $vExistingArray = json_decode($val, true);
@@ -405,8 +407,10 @@ class ProductController extends Controller
                     }
                 }
 
-                if (isset($variantImagesFiles[$index])) {
-                    foreach ($variantImagesFiles[$index] as $file) {
+                $rowFiles = $variantImagesFiles[$idsString] ?? ($variantImagesFiles[$index] ?? null);
+
+                if ($rowFiles) {
+                    foreach ($rowFiles as $file) {
                         $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
                         $file->move(public_path('uploads/products/variants'), $imgName);
                         $vUploadedImages[] = 'products/variants/' . $imgName;
