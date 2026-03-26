@@ -310,6 +310,7 @@
                 <span class="hamburger-bar"></span>
             </button>
             <div class="nav-links" id="navLinks">
+                <a href="{{ route('home') }}" class="nav-item">Home</a>
                 
                     {{-- <div class="mobile-menu-header">
                         <a href="{{ route('home') }}">
@@ -522,53 +523,47 @@
 
     <footer class="site-footer" aria-label="Footer">
         <div class="footer-inner">
-            <h2 class="footer-title">Contact us</h2>
-            <p class="footer-address">Nandhini Silks <br>416/9 Aranmanai Street, S.V. Nagaram <br>Arni - 632317,
-                Thiruvannamalai dist</p>
+          <h2 class="footer-title">Contact us</h2>
+          <p class="footer-address">Nandhini Silks <br>416/9 Aranmanai Street, S.V. Nagaram <br>Arni - 632317,
+            Thiruvannamalai dist</p>
 
-            <div class="footer-contact-grid">
-                <div class="footer-contact-item">
-                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}"
-                            alt=""></span>
-                    <p class="footer-contact-text">+91 96295 52822</p>
-                </div>
-                <div class="footer-contact-item">
-                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}"
-                            alt=""></span>
-                    <p class="footer-contact-text">+91 99945 04410</p>
-                </div>
-                <div class="footer-contact-item">
-                    <span class="footer-contact-icon" aria-hidden="true"><img src="{{ asset('images/email.svg') }}"
-                            alt=""></span>
-                    <p class="footer-contact-text">nandhinisilks.arani@gmail.com</p>
-                </div>
+          <div class="footer-contact-grid">
+            <div class="footer-contact-item">
+              <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}" alt=""></span>
+              <p class="footer-contact-text">+91 96295 52822</p>
             </div>
+            <div class="footer-contact-item">
+              <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}" alt=""></span>
+              <p class="footer-contact-text">+91 99945 04410</p>
+            </div>
+            <div class="footer-contact-item">
+              <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/email.svg') }}" alt=""></span>
+              <p class="footer-contact-text">nandhinisilks.arani@gmail.com</p>
+            </div>
+          </div>
 
-            <div class="footer-extra-touch">
-                <div class="footer-extra-title">Get In Touch</div>
-                <div class="footer-extra-icons">
-                    <div class="footer-extra-box">
-                        <div class="footer-extra-glyph">
-                            <a href="https://wa.me/919994504410" target="_blank">
-                                <img src="{{ asset('images/Vector4.svg') }}" alt="WhatsApp">
-                            </a>
-                        </div>
-                    </div>
-                </div>
+          <div class="footer-extra-touch">
+            <div class="footer-extra-title">Get In Touch</div>
+            <div class="footer-extra-icons">
+              <div class="footer-extra-box">
+                <div class="footer-extra-glyph"><a href=""><img src="{{ asset('images/Vector4.svg') }}" alt=""></a></div>
+              </div>
+              <div class="footer-extra-box-1"><a href=""><img src="{{ asset('images/Group.svg') }}" alt=""></a></div>
             </div>
+          </div>
         </div>
 
         <div class="footer-bottom">
-            <div class="footer-bottom-inner">
-                <ul class="footer-links">
-                    <li><a href="{{ url('privacy-policy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ url('exchange-policy') }}">Exchange Policy</a></li>
-                    <li><a href="{{ url('shipping-policy') }}">Shipping Policy</a></li>
-                    <li><a href="{{ url('terms-conditions') }}">Terms of Service</a></li>
-                    <li><a href="{{ url('fabric-care') }}">Fabric Care</a></li>
-                    <li><a href="{{ url('cancellation') }}">Cancellation</a></li>
-                </ul>
-            </div>
+          <div class="footer-bottom-inner">
+            <ul class="footer-links">
+              <li><a href="{{ url('privacy-policy') }}">Privacy Policy</a></li>
+              <li><a href="{{ url('exchange-policy') }}">Exchange Policy</a></li>
+              <li><a href="{{ url('shipping-policy') }}">Shipping Policy</a></li>
+              <li><a href="{{ url('terms-conditions') }}">Terms of Service</a></li>
+              <li><a href="{{ url('fabric-care') }}">Fabric Care</a></li>
+              <li><a href="{{ url('cancellation') }}">Cancellation</a></li>
+            </ul>
+          </div>
         </div>
         <p class="footer-copy">@ {{ date('Y') }} Nandhini Silks | By Reality Graphics</p>
     </footer>

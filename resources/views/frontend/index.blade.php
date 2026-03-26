@@ -13,12 +13,18 @@
         .promo-section,
         .testimonial-section {
             max-width: 1360px;
+            width: 100%;
             margin-left: auto;
             margin-right: auto;
             padding-left: 100px;
             padding-right: 100px;
             box-sizing: border-box;
             overflow: visible;
+        }
+
+        .promo-section {
+            overflow-x: clip;
+            /* Prevent horizontal page scroll from buttons/content */
         }
 
         .card-link-wrapper {
@@ -61,7 +67,8 @@
 
         .collection-swiper,
         .category-swiper,
-        .testimonial-swiper {
+        .testimonial-swiper,
+        .promo-swiper {
             padding: 8px 4px 20px;
             position: relative;
         }
@@ -79,8 +86,14 @@
         /* ── Shared nav-button wrapper for non-featured sections ── */
         .collection-swiper-wrap,
         .category-swiper-wrap,
-        .testimonial-swiper-wrap {
+        .testimonial-swiper-wrap,
+        .promo-swiper-wrap {
             position: relative;
+            width: 100%;
+        }
+
+        .promo-swiper-wrap {
+            /* Containment handled by parent section */
         }
 
         /* ── All nav buttons: vertically centered, absolutely placed ── */
@@ -90,6 +103,8 @@
         .category-prev,
         .testimonial-next,
         .testimonial-prev,
+        .promo-next,
+        .promo-prev,
         .featured-next,
         .featured-prev {
             position: absolute;
@@ -101,20 +116,31 @@
         .category-prev,
         .featured-prev,
         .collection-prev,
-        .testimonial-prev {
+        .testimonial-prev,
+        .promo-prev {
             left: -80px;
+        }
+
+        .promo-prev {
+            left: -50px;
         }
 
         .category-next,
         .featured-next,
         .collection-next,
-        .testimonial-next {
+        .testimonial-next,
+        .promo-next {
             right: -80px;
+        }
+
+        .promo-next {
+            right: -50px;
         }
 
         .testimonial-prev,
         .testimonial-next {
-            top: 50%; /* Center on the full card for testimonials */
+            top: 50%;
+            /* Center on the full card for testimonials */
         }
 
         .collection-next,
@@ -123,6 +149,8 @@
         .category-prev,
         .testimonial-next,
         .testimonial-prev,
+        .promo-next,
+        .promo-prev,
         .featured-next,
         .featured-prev {
             box-shadow: 0 10px 22px rgba(169, 27, 67, 0.22);
@@ -137,6 +165,8 @@
         .category-prev::after,
         .testimonial-next::after,
         .testimonial-prev::after,
+        .promo-next::after,
+        .promo-prev::after,
         .featured-next::after,
         .featured-prev::after {
             font-size: 18px;
@@ -201,17 +231,146 @@
             padding-bottom: 10px;
         }
 
+        /* ── Fresh Promo Section Styled for Dynamic Backend Banners ── */
         .promo-section {
-            margin-top: 8px;
-            margin-bottom: 72px;
+            width: 100%;
+            max-width: 1360px;
+            margin: 48px auto 72px;
+            padding: 0 100px;
+            box-sizing: border-box;
+            /* CRITICAL: Disconnect layout from content feedback */
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            contain: layout;
+            position: relative;
+            background: none !important;
         }
 
-        .offer-content,
-        .wedding-content {
-            height: 100%;
+        .promo-swiper {
+            width: 100% !important;
+            overflow: hidden !important;
+            padding: 10px 0 50px;
+            /* Room for pagination dots */
+            /* CRITICAL: Prevent grid-based width expansion */
+            min-width: 0;
+        }
+
+        .promo-swiper .swiper-wrapper {
+            align-items: stretch;
             display: flex;
-            flex-direction: column;
+        }
+
+        .promo-swiper .swiper-slide {
+            height: auto;
+            display: flex;
+            align-items: stretch;
             justify-content: center;
+            /* CRITICAL: Break the infinite growth loop in Swiper */
+            min-width: 0;
+            max-width: 100% !important;
+        }
+
+        /* Single Promo Polish - Centered with 50% width on Desktop */
+        .promo-swiper.single-promo-mode .swiper-wrapper {
+            justify-content: center !important;
+            transform: none !important; /* CRITICAL: Stop Swiper from shifting the single slide */
+            transition: none !important;
+            display: flex !important;
+        }
+
+        .promo-swiper.single-promo-mode .swiper-slide {
+            max-width: 50% !important;
+            width: 50% !important;
+            margin: 0 auto !important;
+            flex-shrink: 0 !important;
+        }
+
+        .promo-banner {
+            display: block;
+            width: 100%;
+            position: relative;
+            text-decoration: none;
+            border-radius: 20px;
+            overflow: hidden;
+            /* Surgical Gradient Border: only border, no background color */
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #a91b43 0%, #ef9f29 52%, #a91b43 100%) border-box;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Standard Proportions for 2-column view */
+            aspect-ratio: 16 / 9;
+        }
+
+        .promo-banner:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .promo-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 17px; /* Slightly smaller for border gap */
+        }
+
+        /* Nav positioning remains standard but closer to section */
+        .promo-swiper-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .promo-prev {
+            left: -50px;
+        }
+
+        .promo-next {
+            right: -50px;
+        }
+
+        .promo-pagination {
+            bottom: 0 !important;
+        }
+
+        .promo-pagination .swiper-pagination-bullet {
+            background: #a91b43;
+            opacity: 0.3;
+        }
+
+        .promo-pagination .swiper-pagination-bullet-active {
+            opacity: 1;
+            background: #a91b43;
+        }
+
+        @media (max-width: 1024px) {
+            .promo-section {
+                padding: 0 12px;
+                margin-top: 24px;
+                margin-bottom: 48px;
+            }
+
+            .promo-prev,
+            .promo-next {
+                display: none;
+            }
+
+            .promo-banner {
+                aspect-ratio: 16 / 9;
+                max-height: none;
+                max-width: none;
+                /* Allow full width on mobile */
+            }
+
+            .promo-swiper.single-promo-mode .swiper-slide {
+                max-width: 90% !important;
+                width: 90% !important;
+            }
+
+            .promo-banner img {
+                /* aspect-ratio: auto; */
+            }
         }
 
         .testimonial-section {
@@ -220,7 +379,8 @@
         }
 
         .testimonial-swiper {
-            padding: 12px 10px 8px; /* Slightly more side padding */
+            padding: 12px 10px 8px;
+            /* Slightly more side padding */
             overflow: hidden;
         }
 
@@ -292,6 +452,8 @@
             .category-prev,
             .testimonial-next,
             .testimonial-prev,
+            .promo-next,
+            .promo-prev,
             .featured-next,
             .featured-prev,
             .hero-next,
@@ -306,6 +468,8 @@
             .category-prev::after,
             .testimonial-next::after,
             .testimonial-prev::after,
+            .promo-next::after,
+            .promo-prev::after,
             .featured-next::after,
             .featured-prev::after,
             .hero-next::after,
@@ -546,60 +710,44 @@
             .promo-section {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
-                gap: 24px !important;
             }
 
-            .offer-card,
-            .wedding-card {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                text-align: center !important;
-                min-height: auto !important;
+            .promo-swiper-wrap {
+                overflow: hidden;
+                padding: 0 24px;
             }
 
-            .offer-image-wrap,
-            .wedding-image-wrap {
-                position: static !important;
+            .promo-swiper {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .promo-card {
+                border-radius: 20px !important;
+            }
+
+            .promo-card::before,
+            .promo-card-media {
+                border-radius: 17px !important;
+            }
+
+            .promo-card-media {
                 width: 100% !important;
-                height: 200px !important;
-                overflow: hidden !important;
+                aspect-ratio: 16 / 10;
             }
 
-            .offer-image,
-            .wedding-image {
-                width: 100% !important;
-                height: 100% !important;
-                object-fit: cover !important;
-                object-position: top !important;
+            .promo-prev {
+                left: 0 !important;
+                top: 50%;
+                z-index: 1001;
             }
 
-            .offer-content,
-            .wedding-content {
-                width: 100% !important;
-                padding: 24px 15px !important;
-                align-items: center !important;
+            .promo-next {
+                right: 0 !important;
+                top: 50%;
+                z-index: 1001;
             }
 
-            .offer-title,
-            .offer-text,
-            .wedding-text {
-                max-width: 100% !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-
-            .wedding-heading-svg {
-                width: 180px !important;
-                height: auto !important;
-                margin: 0 auto 10px !important;
-            }
-
-            .offer-link,
-            .wedding-cta {
-                align-self: center !important;
-                margin-top: 10px !important;
-            }
             .testimonial-swiper {
                 padding-left: 0;
                 padding-right: 0;
@@ -686,6 +834,7 @@
                 right: 0 !important;
             }
         }
+
         /* Category Slider Alignment Pixes */
         .category-swiper .swiper-slide {
             height: auto;
@@ -706,8 +855,8 @@
         }
 
         .category-image {
-            width: 100% !important;
-            height: 100% !important;
+            width: 92% !important;
+            height: 92% !important;
         }
 
         .category-name {
@@ -745,7 +894,7 @@
             <div class="swiper-wrapper">
                 @forelse($banners as $banner)
                     <div class="swiper-slide">
-                        <img src="{{ asset('uploads/'.$banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" />
+                        <img src="{{ asset('uploads/' . $banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" />
                     </div>
                 @empty
                     <div class="swiper-slide">
@@ -760,7 +909,7 @@
         </div>
     </section>
 
-    @if($subCategories->count() > 0)
+    @if ($subCategories->count() > 0)
         <section class="collection-section" aria-labelledby="saree-collections-title">
             <h2 id="saree-collections-title" class="collection-title">Saree Collections</h2>
             <div class="collection-swiper-wrap">
@@ -771,7 +920,8 @@
                                 <article class="collection-card">
                                     <a href="{{ route('category.show', $sub->slug) }}" class="card-link-wrapper">
                                         <div class="collection-image-wrap">
-                                            <img src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Image.png') }}" alt="{{ $sub->name }}" />
+                                            <img src="{{ $sub->image ? asset('uploads/' . $sub->image) : asset('images/Image.png') }}"
+                                                alt="{{ $sub->name }}" />
                                         </div>
                                         <h3 class="collection-name">{{ $sub->name }}</h3>
                                     </a>
@@ -792,7 +942,7 @@
         </section>
     @endif
 
-    @if($featuredProducts->count() > 0)
+    @if ($featuredProducts->count() > 0)
         <section class="featured-section" aria-labelledby="featured-title">
             <img class="featured-decor featured-decor-left"
                 src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
@@ -813,33 +963,40 @@
                                             <div class="featured-media">
                                                 @php
                                                     $productImage = 'images/pro.png';
-                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                    if (
+                                                        $product->images &&
+                                                        is_array($product->images) &&
+                                                        count($product->images) > 0
+                                                    ) {
                                                         $productImage = 'uploads/' . $product->images[0];
                                                     } elseif ($product->image_path) {
                                                         $productImage = 'images/' . $product->image_path;
                                                     }
                                                 @endphp
-                                                <img src="{{ asset($productImage) }}"
-                                                    alt="{{ $product->name }}" />
+                                                <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
                                                 @if ($product->is_featured)
                                                     <span class="featured-badge">New Arrival</span>
                                                 @endif
                                                 @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
+                                                    <span class="featured-badge"
+                                                        style="top: 40px;">{{ round($product->discount_percent) }}%
+                                                        Off</span>
                                                 @endif
                                             </div>
                                             <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         <div class="featured-footer">
-                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }} INR</span>
+                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}
+                                                INR</span>
                                             <div style="display: flex; gap: 8px;">
                                                 @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                                <button class="wishlist-btn" type="button" 
-                                                    data-product-id="{{ $product->id }}"
-                                                    aria-label="Add to wishlist"
+                                                <button class="wishlist-btn" type="button"
+                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
                                                     style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
-                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                    <svg width="20" height="20" viewBox="0 0 24 24"
+                                                        fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
+                                                        <path
+                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                                     </svg>
                                                 </button>
                                                 <button class="featured-cart add-to-cart-btn" type="button"
@@ -871,7 +1028,7 @@
         </section>
     @endif
 
-    @if($categories->count() > 0)
+    @if ($categories->count() > 0)
         <section class="category-section" aria-labelledby="browse-categories-title">
             <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
             <div class="category-swiper-wrap">
@@ -879,10 +1036,12 @@
                     <div class="swiper-wrapper">
                         @foreach ($categories as $cat)
                             <div class="swiper-slide">
-                                <a class="category-link" href="{{ route('category.show', $cat->slug) }}" style="text-decoration: none;">
+                                <a class="category-link" href="{{ route('category.show', $cat->slug) }}"
+                                    style="text-decoration: none;">
                                     <article class="category-card">
                                         <div class="category-image-shell">
-                                            <img class="category-image" src="{{ $cat->image ? asset('uploads/'.$cat->image) : asset('images/Rectangle 9.png') }}"
+                                            <img class="category-image"
+                                                src="{{ $cat->image ? asset('uploads/' . $cat->image) : asset('images/Rectangle 9.png') }}"
                                                 alt="{{ $cat->name }}" />
                                             <span class="category-ring"></span>
                                         </div>
@@ -890,20 +1049,22 @@
                                     </article>
                                 </a>
                             </div>
-                            
-                            @foreach($cat->subCategories as $sub)
-                            <div class="swiper-slide">
-                                <a class="category-link" href="{{ route('category.show', $sub->slug) }}" style="text-decoration: none;">
-                                    <article class="category-card sub-category-card">
-                                        <div class="category-image-shell">
-                                            <img class="category-image" src="{{ $sub->image ? asset('uploads/'.$sub->image) : asset('images/Rectangle 9.png') }}"
-                                                alt="{{ $sub->name }}" />
-                                            <span class="category-ring"></span>
-                                        </div>
-                                        <h3 class="category-name">{{ $sub->name }}</h3>
-                                    </article>
-                                </a>
-                            </div>
+
+                            @foreach ($cat->subCategories as $sub)
+                                <div class="swiper-slide">
+                                    <a class="category-link" href="{{ route('category.show', $sub->slug) }}"
+                                        style="text-decoration: none;">
+                                        <article class="category-card sub-category-card">
+                                            <div class="category-image-shell">
+                                                <img class="category-image"
+                                                    src="{{ $sub->image ? asset('uploads/' . $sub->image) : asset('images/Rectangle 9.png') }}"
+                                                    alt="{{ $sub->name }}" />
+                                                <span class="category-ring"></span>
+                                            </div>
+                                            <h3 class="category-name">{{ $sub->name }}</h3>
+                                        </article>
+                                    </a>
+                                </div>
                             @endforeach
                         @endforeach
                     </div>
@@ -914,70 +1075,36 @@
             </div>
         </section>
     @endif
-    
 
+
+    <!-- Fully Reconstructed Promo Section (Backend Dynamic Structure) -->
     <section class="promo-section" aria-label="Promotions">
-        @if(isset($ads) && $ads->count() > 0)
-            @php $adCount = 0; @endphp
-            @foreach($ads->take(2) as $ad)
-                @if($adCount == 0)
-                    {{-- Offer Card Style --}}
-                    <article class="offer-card">
-                        <div class="offer-image-wrap">
-                            <img class="offer-image" src="{{ asset('uploads/'.$ad->image) }}" alt="{{ $ad->title }}" />
-                        </div>
-                        <div class="offer-content">
-                            @if($ad->title && !Str::contains(strtolower($ad->title), 'test'))
-                                <h2 class="offer-title text-2xl font-bold mb-2">{{ $ad->title }}</h2>
-                            @endif
-                            <a class="offer-link" href="{{ $ad->link ?: route('shop') }}" @if($ad->open_new_tab) target="_blank" @endif>
-                                <span>Shop Now</span>
-                                <span class="offer-link-arrow" aria-hidden="true">&#8594;</span>
-                            </a>
-                        </div>
-                    </article>
-                @else
-                    {{-- Wedding Card Style --}}
-                    <article class="wedding-card">
-                        <div class="wedding-image-wrap">
-                            <img class="wedding-image" src="{{ asset('uploads/'.$ad->image) }}" alt="{{ $ad->title }}" />
-                        </div>
-                        <div class="wedding-content">
-                            @php
-                                $adTitleParts = explode(' ', $ad->title, 2);
-                            @endphp
-                            <svg class="wedding-heading-svg" viewBox="0 0 1000 500">
-                                <defs>
-                                    <linearGradient id="textFillPromo" x1="0" y1="0" x2="1" y2="0">
-                                        <stop offset="0%" stop-color="#A91B43" />
-                                        <stop offset="105%" stop-color="#F2A329" />
-                                    </linearGradient>
-                                    <radialGradient id="strokeGradientPromo" cx="50%" cy="50%" r="40%">
-                                        <stop offset="0%" stop-color="#A91B43" />
-                                        <stop offset="50%" stop-color="#EF9F29" />
-                                        <stop offset="80%" stop-color="#A91B43" />
-                                    </radialGradient>
-                                </defs>
-                               
-                                <text x="0" y="400" text-anchor="start" fill="url(#textFillPromo)" stroke="url(#strokeGradientPromo)"
-                                    stroke-width="3" paint-order="stroke">
-                                    {{ $adTitleParts[1] ?? '' }}
-                                </text>
-                            </svg>
-                           
-                            <button class="wedding-cta" type="button" onclick="window.location.href='{{ route('shop') }}'">Shop Now</button>
-                        </div>
-                    </article>
-                @endif
-                @php $adCount++; @endphp
-            @endforeach
-        @else
-            <p>No Ads Available</p>
+        @if (isset($ads) && $ads->count() > 0)
+            <div class="promo-swiper-wrap">
+                <div class="swiper promo-swiper {{ $ads->count() == 1 ? 'single-promo-mode' : '' }}">
+                    <div class="swiper-wrapper">
+                        @foreach ($ads->take(6) as $ad)
+                            <div class="swiper-slide">
+                                <a class="promo-banner" href="{{ $ad->link ?: route('shop') }}"
+                                    @if ($ad->open_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                    aria-label="{{ $ad->title ?: 'Promotional banner' }}">
+                                    <img src="{{ asset('uploads/' . $ad->image) }}"
+                                        alt="{{ $ad->title ?: 'Promotional banner' }}" />
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                    <!-- Pagination dots like testimonial -->
+                    <div class="swiper-pagination promo-pagination"></div>
+                </div>
+                <div class="swiper-button-next promo-next"></div>
+                <div class="swiper-button-prev promo-prev"></div>
+            </div>
         @endif
     </section>
 
 
-    @if($testimonials->count() > 0)
+    @if ($testimonials->count() > 0)
         <section class="testimonial-section" aria-labelledby="testimonial-title">
             <p class="testimonial-kicker">Testimonial</p>
             <h2 id="testimonial-title" class="testimonial-title">Speaking from their hearts</h2>
@@ -994,12 +1121,12 @@
                                     <div class="mb-4">
                                         <p class="testimonial-name !mt-0 !pt-0">{{ $testimonial->name }}</p>
                                         <div class="flex items-center gap-1">
-                                            @for($i = 0; $i < ($testimonial->rating ?? 5); $i++)
+                                            @for ($i = 0; $i < ($testimonial->rating ?? 5); $i++)
                                                 <i class="fas fa-star text-amber-500 text-[8px]"></i>
                                             @endfor
                                         </div>
                                     </div>
-                                    <h3 class="testimonial-card-title">{{ $testimonial->review_title ?? 'Excellent Quality' }}</h3>
+                                    <h3 class="testimonial-card-title">
                                     <p class="testimonial-text">{{ $testimonial->review }}</p>
                                 </article>
                             </div>
@@ -1051,10 +1178,18 @@
                         prevEl: '.collection-prev',
                     },
                     breakpoints: {
-                        640: { slidesPerView: 2 },
-                        768: { slidesPerView: 3 },
-                        1024: { slidesPerView: 4 },
-                        1280: { slidesPerView: 4 },
+                        640: {
+                            slidesPerView: 2
+                        },
+                        768: {
+                            slidesPerView: 3
+                        },
+                        1024: {
+                            slidesPerView: 4
+                        },
+                        1280: {
+                            slidesPerView: 4
+                        },
                     }
                 });
 
@@ -1104,13 +1239,36 @@
                         prevEl: '.category-prev',
                     },
                     breakpoints: {
-                        0: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: -4 },
-                        400: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: -2 },
-                        480: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: 0 },
-                        640: { slidesPerView: Math.min(3, safeCategoryCount), spaceBetween: 12 },
-                        768: { slidesPerView: Math.min(4, safeCategoryCount), spaceBetween: 14 },
-                        1024: { slidesPerView: Math.min(5, safeCategoryCount), slidesPerGroup: 1, spaceBetween: 12 },
-                        1280: { slidesPerView: Math.min(6, safeCategoryCount), slidesPerGroup: 1, spaceBetween: 12 },
+                        0: {
+                            slidesPerView: Math.min(2, safeCategoryCount),
+                            spaceBetween: -4
+                        },
+                        400: {
+                            slidesPerView: Math.min(2, safeCategoryCount),
+                            spaceBetween: -2
+                        },
+                        480: {
+                            slidesPerView: Math.min(2, safeCategoryCount),
+                            spaceBetween: 0
+                        },
+                        640: {
+                            slidesPerView: Math.min(3, safeCategoryCount),
+                            spaceBetween: 12
+                        },
+                        768: {
+                            slidesPerView: Math.min(4, safeCategoryCount),
+                            spaceBetween: 14
+                        },
+                        1024: {
+                            slidesPerView: Math.min(5, safeCategoryCount),
+                            slidesPerGroup: 1,
+                            spaceBetween: 12
+                        },
+                        1280: {
+                            slidesPerView: Math.min(6, safeCategoryCount),
+                            slidesPerGroup: 1,
+                            spaceBetween: 12
+                        },
                     }
                 });
 
@@ -1129,10 +1287,56 @@
                         prevEl: '.testimonial-prev',
                     },
                     breakpoints: {
-                        768: { slidesPerView: 2, spaceBetween: 24 },
-                        1280: { slidesPerView: 3, spaceBetween: 40 },
+                        768: {
+                            slidesPerView: 2,
+                            spaceBetween: 24
+                        },
+                        1280: {
+                            slidesPerView: 3,
+                            spaceBetween: 40
+                        },
                     }
                 });
+
+                const promoSlideCount = document.querySelectorAll('.promo-swiper .swiper-slide').length;
+                if (promoSlideCount > 0) {
+                    new Swiper('.promo-swiper', {
+                        roundLengths: true,
+                        watchOverflow: true,
+                        slidesPerView: 1,
+                        spaceBetween: 16,
+                        loop: promoSlideCount > 1,
+                        centeredSlides: false,
+                        autoplay: promoSlideCount > 1 ? {
+                            delay: 4000,
+                            disableOnInteraction: false
+                        } : false,
+                        pagination: {
+                            el: '.promo-pagination',
+                            clickable: true,
+                        },
+                        navigation: {
+                            nextEl: '.promo-next',
+                            prevEl: '.promo-prev',
+                        },
+                        breakpoints: {
+                            0: {
+                                slidesPerView: promoSlideCount > 1 ? 1.15 : 1,
+                                spaceBetween: 12,
+                                centeredSlides: promoSlideCount > 1,
+                            },
+                            768: {
+                                slidesPerView: promoSlideCount >= 2 ? 2 : 1,
+                                spaceBetween: 24,
+                            },
+                            1024: {
+                                slidesPerView: promoSlideCount >= 2 ? 2 : 1,
+                                spaceBetween: 40,
+                            }
+                        }
+                    });
+                }
+
                 const featuredSwiper = new Swiper('.featured-swiper', {
                     slidesPerView: 1,
                     spaceBetween: 18,
@@ -1146,18 +1350,24 @@
                         prevEl: '.featured-prev',
                     },
                     breakpoints: {
-                        640: { slidesPerView: 2 },
-                        768: { slidesPerView: 3 },
-                        1024: { slidesPerView: 4 },
+                        640: {
+                            slidesPerView: 2
+                        },
+                        768: {
+                            slidesPerView: 3
+                        },
+                        1024: {
+                            slidesPerView: 4
+                        },
                     },
                     on: {
-                        init: function () {
+                        init: function() {
                             updateProgressBar(this);
                         },
-                        slideChange: function () {
+                        slideChange: function() {
                             updateProgressBar(this);
                         },
-                        resize: function () {
+                        resize: function() {
                             updateProgressBar(this);
                         }
                     }
@@ -1205,28 +1415,28 @@
                     const btn = e.target.closest('.add-to-cart-btn');
                     if (btn && !btn.closest('#pdpForm')) {
                         const productId = btn.getAttribute('data-product-id');
-                        
+
                         fetch(`/cart/add/${productId}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                toastr.success(data.message || 'Added to cart.');
-                                if (window.openCartDrawer) window.openCartDrawer();
-                            } else {
-                                toastr.error(data.message || 'Error adding to cart.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            toastr.error('Something went wrong.');
-                        });
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    toastr.success(data.message || 'Added to cart.');
+                                    if (window.openCartDrawer) window.openCartDrawer();
+                                } else {
+                                    toastr.error(data.message || 'Error adding to cart.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                toastr.error('Something went wrong.');
+                            });
                     }
                 });
             });
