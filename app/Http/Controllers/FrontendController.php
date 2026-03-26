@@ -139,8 +139,8 @@ class FrontendController extends Controller
 
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
-        $userReview = auth()->check()
-            ? ProductReview::where('product_id', $product->id)->where('user_id', auth()->id())->latest()->first()
+        $userReview = Auth::guard('web')->check()
+            ? ProductReview::where('product_id', $product->id)->where('user_id', Auth::guard('web')->id())->latest()->first()
             : null;
             
         return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'userReview'));
@@ -176,11 +176,11 @@ class FrontendController extends Controller
     public function userLogin() { return view('frontend.login'); }
     public function myAccount() 
     { 
-        if (!auth()->check()) {
+        if (!Auth::guard('web')->check()) {
             return redirect()->route('login');
         }
 
-        $user = auth()->user();
+        $user = Auth::guard('web')->user();
         $orderCount = $user->orders()->count();
         $wishlistCount = count(session('wishlist', []));
         $addressCount = $user->addresses()->count();
@@ -190,24 +190,24 @@ class FrontendController extends Controller
     }
     public function myAddresses() 
     { 
-        $addresses = auth()->check() ? auth()->user()->addresses : collect();
+        $addresses = Auth::guard('web')->check() ? Auth::guard('web')->user()->addresses : collect();
         return view('frontend.my-addresses', compact('addresses')); 
     }
     public function myOrders() { return view('frontend.my-orders'); }
     public function myProfile() 
     { 
-        if (!auth()->check()) {
+        if (!Auth::guard('web')->check()) {
             return redirect()->route('login');
         }
-        $user = auth()->user();
+        $user = Auth::guard('web')->user();
         return view('frontend.my-profile', compact('user')); 
     }
     public function myReviews() 
     { 
-        if (!auth()->check()) {
+        if (!Auth::guard('web')->check()) {
             return redirect()->route('login');
         }
-        $user = auth()->user();
+        $user = Auth::guard('web')->user();
         $publishedReviews = \App\Models\ProductReview::with('product')
             ->where('user_id', $user->id)
             ->where('status', 1)
@@ -225,7 +225,7 @@ class FrontendController extends Controller
     {
         $order = Order::with(['items', 'coupon'])
             ->where('id', $request->query('id'))
-            ->where('user_id', auth()->id())
+            ->where('user_id', Auth::guard('web')->id())
             ->first();
 
         if (!$order) {
@@ -237,7 +237,7 @@ class FrontendController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::guard('web')->user();
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
@@ -270,7 +270,7 @@ class FrontendController extends Controller
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user = auth()->user();
+        $user = Auth::guard('web')->user();
 
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');

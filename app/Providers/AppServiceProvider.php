@@ -65,8 +65,8 @@ class AppServiceProvider extends ServiceProvider
 
             // Total cart items count logic
             $cartCount = 0;
-            if (Auth::check()) {
-                $cartCount = \App\Models\CartItem::where('user_id', Auth::id())->sum('quantity');
+            if (Auth::guard('web')->check()) {
+                $cartCount = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())->sum('quantity');
             } else {
                 $cartCount = collect(session('cart', []))->sum('quantity');
             }
@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
 
             // Wishlist items count logic
             $wishlistCount = 0;
-            if (Auth::check()) {
+            if (Auth::guard('web')->check()) {
                 // If we decide to use DB for wishlist later, change here. Currently session.
                 $wishlistCount = count(session('wishlist', []));
             } else {

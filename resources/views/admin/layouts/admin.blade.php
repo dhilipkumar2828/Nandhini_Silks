@@ -324,6 +324,16 @@
                 <span class="font-bold ml-2 text-sm">Advertisements</span>
             </a>
 
+            <a href="{{ route('admin.reviews.index') }}"
+                class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-star text-base"></i></div>
+                <span class="font-bold ml-2 text-sm">Product Reviews</span>
+                @php $pendingReviews = \App\Models\ProductReview::where('status', 0)->count(); @endphp
+                @if($pendingReviews > 0)
+                <span class="ml-auto bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-sm">{{ $pendingReviews }}</span>
+                @endif
+            </a>
+
             <a href="{{ route('admin.testimonials.index') }}"
                 class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-comment-dots text-base"></i></div>

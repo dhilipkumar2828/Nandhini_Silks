@@ -174,6 +174,11 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
         Route::post('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.settings.update');
 
+        // Product Reviews
+        Route::get('/reviews', [\App\Http\Controllers\Admin\ProductReviewController::class, 'index'])->name('admin.reviews.index');
+        Route::post('/reviews/{id}/status', [\App\Http\Controllers\Admin\ProductReviewController::class, 'updateStatus'])->name('admin.reviews.status');
+        Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ProductReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
         Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);
