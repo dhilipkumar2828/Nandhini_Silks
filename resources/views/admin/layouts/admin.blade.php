@@ -226,7 +226,7 @@
             </a>
 
             <!-- Catalog Dropdown -->
-            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.products.*') ? 'true' : 'false' }} }">
+            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.offer-collections.*', 'admin.products.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-3 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
                     <span class="font-bold ml-2 text-[15px] text-left flex-1">Catalog</span>
@@ -280,8 +280,9 @@
                             {{-- </div> --}}
                         {{-- </div> --}}
 
-                        <a href="{{ route('admin.offer-collections.index') }}" class="nav-link {{ request()->routeIs('admin.offer-collections.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
-                            <div class="w-6 flex justify-center"><i class="fas fa-gifts text-xs"></i></div>
+                        <a href="{{ route('admin.offer-collections.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.offer-collections.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-gifts text-xs"></i></div>
                             <span class="font-bold ml-2 text-[13.5px]">Offer Collections</span>
                         </a>
 
