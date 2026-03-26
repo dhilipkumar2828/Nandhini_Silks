@@ -1530,7 +1530,7 @@
                     if (btn && !btn.closest('#pdpForm')) {
                         const productId = btn.getAttribute('data-product-id');
 
-                        fetch(`/cart/add/${productId}`, {
+                        fetch(`{{ url('cart/add') }}/${productId}`, {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1542,7 +1542,7 @@
                             .then(data => {
                                 if (data.success) {
                                     toastr.success(data.message || 'Added to cart.');
-                                    if (window.openCartDrawer) window.openCartDrawer();
+                                    if (window.updateMiniCart) window.updateMiniCart();
                                 } else {
                                     toastr.error(data.message || 'Error adding to cart.');
                                 }

@@ -2259,7 +2259,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = "{{ route('cart') }}";
+                            toastr.success(data.message || 'Added to cart.');
+                            if (window.updateMiniCart) window.updateMiniCart();
                         } else {
                             toastr.error(data.message || 'Error adding to cart.');
                         }
