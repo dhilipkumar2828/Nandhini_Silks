@@ -521,24 +521,33 @@ class CartController extends Controller
             }
 
             DB::commit();
+
             if ($paymentMethod === 'razorpay') {
-                return $this->processRazorpay($order);
+                try {
+                    return $this->processRazorpay($order);
+                } catch (\Throwable $paymentError) {
+                    Log::error('Razorpay Order Creation Failed: ' . $paymentError->getMessage());
+                    // Don't fail the whole order if just Razorpay creation fails
+                    // but redirect back with a helpful message
+                    return redirect()->route('checkout')->with('error', 'Payment gateway error: ' . $paymentError->getMessage() . '. Please try another method or contact us.');
+                }
             }
 
             // Send order emails for COD
             $this->sendOrderEmails($order);
 
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
-            if (Auth::check()) {
-                \App\Models\CartItem::where('user_id', Auth::id())->delete();
+            if (Auth::guard('web')->check()) {
+                \App\Models\CartItem::where('user_id', Auth::guard('web')->id())->delete();
             }
             session()->forget(['cart', 'coupon_id']);
             return redirect()->route('order-confirmation', $order)->with('success', 'Your order has been placed successfully! 🎉');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
             Log::error('Order Placement Failed: ' . $e->getMessage());
-            // Show the actual error message to help the user debug (e.g. Razorpay keys)
             return redirect()->route('checkout')->with('error', 'Order failed: ' . $e->getMessage());
         }
     }
