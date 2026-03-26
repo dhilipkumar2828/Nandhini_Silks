@@ -34,10 +34,10 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $stats = [
-                ['label' => 'Total Sales', 'value' => '₹' . number_format($totalSales, 0), 'trend' => $salesTrend, 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
-                ['label' => 'Total Orders', 'value' => number_format($totalOrders), 'trend' => $ordersTrend, 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
-                ['label' => 'Registered Users', 'value' => number_format($totalUsers), 'trend' => $usersTrend, 'icon' => 'fa-users', 'color' => 'indigo'],
-                ['label' => 'Total Products', 'value' => number_format($totalProducts), 'trend' => $productsTrend, 'icon' => 'fa-box-open', 'color' => 'rose'],
+                ['label' => 'Total Sales', 'value' => '₹' . number_format($totalSales, 0), 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
+                ['label' => 'Total Orders', 'value' => number_format($totalOrders), 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
+                ['label' => 'Registered Users', 'value' => number_format($totalUsers), 'icon' => 'fa-users', 'color' => 'indigo'],
+                ['label' => 'Total Products', 'value' => number_format($totalProducts), 'icon' => 'fa-box-open', 'color' => 'rose'],
             ];
         @endphp
 
@@ -48,7 +48,6 @@
                     <i class="fas {{ $stat['icon'] }} text-lg"></i>
                 </div>
                 <div class="text-right">
-                    <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">{{ $stat['trend'] }}</span>
                 </div>
             </div>
             <div class="mt-4">
@@ -60,124 +59,50 @@
     </div>
 
     <!-- Main Analytics Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Sales Chart Card -->
-        <div class="lg:col-span-2 card-glass p-6 rounded-[1.5rem]">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800">Sales Analytics</h3>
-                    <p class="text-slate-400 text-[11px]">Performance for the last 30 days</p>
-                </div>
-                <select class="bg-slate-50 border-none rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 focus:ring-2 focus:ring-[#a91b43]">
-                    <option>Last 30 Days</option>
-                    <option>Last 3 Months</option>
-                </select>
+    <!-- Latest Orders -->
+    <div class="card-glass rounded-[1.5rem] overflow-hidden">
+        <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-white">
+            <div>
+                <h3 class="text-lg font-bold text-slate-800">Latest Orders</h3>
+                <p class="text-slate-400 text-[11px]">Recent transactions from your store</p>
             </div>
-            <div class="h-[280px] w-full">
-                <canvas id="salesChart"></canvas>
-            </div>
+            <a href="{{ route('admin.orders.index') }}" class="text-[#a91b43] text-xs font-bold hover:underline">View All</a>
         </div>
-
-        <!-- Inventory Share Card -->
-        <div class="card-glass p-6 rounded-[1.5rem] flex flex-col">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Inventory Share</h3>
-            <div class="flex-1 flex flex-col justify-center items-center">
-                <div class="h-[180px] w-full mb-4">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-                <div class="grid grid-cols-2 gap-3 w-full">
-                    <div class="flex items-center text-[10px] font-bold text-slate-500">
-                        <span class="w-2 h-2 rounded-full bg-[#a91b43] mr-1.5"></span> Silk (45%)
-                    </div>
-                    <div class="flex items-center text-[10px] font-bold text-slate-500">
-                        <span class="w-2 h-2 rounded-full bg-[#fbb624] mr-1.5"></span> Cotton (30%)
-                    </div>
-                    <div class="flex items-center text-[10px] font-bold text-slate-500">
-                        <span class="w-2 h-2 rounded-full bg-indigo-500 mr-1.5"></span> Bridal (15%)
-                    </div>
-                    <div class="flex items-center text-[10px] font-bold text-slate-500">
-                        <span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span> Other (10%)
-                    </div>
-                </div>
-            </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50/50">
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest w-16">S.No</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Order ID</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 text-xs">
+                    @foreach($latestOrders as $order)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-4 font-bold text-slate-500 w-16">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 font-bold text-slate-700">#{{ $order->order_number }}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800">{{ $order->customer_name }}</div>
+                            <div class="text-[10px] text-slate-400">{{ $order->customer_phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 font-black text-slate-900">₹{{ number_format($order->grand_total, 2) }}</td>
+                        <td class="px-6 py-4 text-center">
+                            @php $status = $order->order_status_badge; @endphp
+                            <span class="px-2 py-1 rounded-lg font-bold text-[10px] {{ $status['class'] }} text-center block w-fit mx-auto">{{ $status['label'] }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @if($latestOrders->isEmpty())
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-slate-400 font-bold">No orders found</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    
-    // Gradient filling
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(169, 27, 67, 0.2)');
-    gradient.addColorStop(1, 'rgba(169, 27, 67, 0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['01 Mar', '05 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
-            datasets: [{
-                label: 'Sales Revenue',
-                data: [45000, 52000, 48000, 72000, 68000, 95000, 88000],
-                borderColor: '#a91b43',
-                borderWidth: 4,
-                tension: 0.4,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#a91b43',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                fill: true,
-                backgroundColor: gradient
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { display: true, color: 'rgba(0,0,0,0.03)' },
-                    ticks: {
-                        callback: function(value) { return '₹' + (value/1000) + 'k'; },
-                        font: { weight: '600' }
-                    }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { weight: '600' } }
-                }
-            }
-        }
-    });
-
-    // Category Doughnut Chart
-    const ctx2 = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-            labels: ['Silk', 'Cotton', 'Bridal', 'Other'],
-            datasets: [{
-                data: [45, 30, 15, 10],
-                backgroundColor: ['#a91b43', '#fbb624', '#6366f1', '#f43f5e'],
-                borderWidth: 0,
-                hoverOffset: 20
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '75%',
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-</script>
-@endpush
