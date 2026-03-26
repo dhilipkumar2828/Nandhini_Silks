@@ -222,7 +222,7 @@
             <a href="{{ route('admin.dashboard') }}"
                 class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-home text-base"></i></div>
-                <span class="font-bold ml-2 text-[15px]">Analytics</span>
+                <span class="font-bold ml-2 text-[15px]">Dashboard</span>
             </a>
 
             <!-- Catalog Dropdown -->
