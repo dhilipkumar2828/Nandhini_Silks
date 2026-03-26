@@ -168,24 +168,26 @@
                     </h3>
                     
                     @php $existingImgs = is_array($product->images) ? $product->images : (json_decode($product->images ?? '[]', true) ?? []); @endphp
-                    @if(count($existingImgs) > 0)
-                    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
-                        @foreach($existingImgs as $idx => $img)
-                        <div class="relative group w-24 h-24">
-                            <img src="{{ asset('uploads/'.$img) }}" class="w-full h-full rounded-xl object-cover border border-slate-200 shadow-sm">
-                            <input type="hidden" name="existing_images[]" value="{{ $img }}">
-                            <button type="button" class="remove-existing-general-image absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" title="Remove image">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            @if($idx === 0) <span class="absolute -bottom-2 -left-2 bg-[#a91b43] text-white text-[8px] font-black rounded-full px-2 py-0.5 shadow-md uppercase tracking-tighter">Primary</span> @endif
+                    <div class="gallery-unified-container p-4 bg-slate-50/50 rounded-2xl border border-slate-100 mb-4 {{ count($existingImgs) > 0 ? '' : 'hidden' }}" id="galleryWrapper">
+                        <div id="unifiedGalleryList" class="flex flex-wrap gap-4">
+                            @foreach($existingImgs as $idx => $img)
+                            <div class="relative group w-24 h-24 bg-white rounded-xl shadow-sm border border-slate-200 overflow-visible">
+                                <img src="{{ asset('uploads/'.$img) }}" class="w-full h-full rounded-xl object-cover">
+                                <input type="hidden" name="existing_images[]" value="{{ $img }}">
+                                <button type="button" class="remove-existing-general-image absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg z-10 opacity-100 transition-all text-[10px]" title="Remove image">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                @if($idx === 0) 
+                                    <span class="absolute -bottom-2 -left-2 bg-[#a91b43] text-[8px] text-white font-black px-2 py-0.5 rounded-full shadow-md z-10 uppercase tracking-tighter">Primary</span> 
+                                @endif
+                            </div>
+                            @endforeach
+                            <div id="generalImagesPreview" class="flex flex-wrap gap-4 contents"></div>
                         </div>
-                        @endforeach
                     </div>
-                    @endif
 
-                    <div id="generalImagesPreview" class="flex flex-wrap gap-2 mb-4"></div>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all">
-                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all bg-white group">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2 group-hover:text-[#a91b43] transition-colors"></i>
                         <span class="text-xs font-bold text-slate-500">Upload new gallery images <span class="text-rose-500">*</span></span>
                         <input type="file" name="images[]" id="generalImagesInput" {{ count($existingImgs) > 0 ? '' : 'required' }} multiple accept="image/*" class="hidden">
                     </label>
@@ -553,7 +555,7 @@ $(document).ready(function() {
                     weight: $(this).find(`input[name="v_weight[${combo}]"]`).val(),
                     ship: $(this).find(`select[name="v_shipping_class[${combo}]"]`).val(),
                     existing_images: $(this).find('.existing-images-input').val(),
-                    preview: $(this).find('.v-preview-container').html()
+                    new_preview: $(this).find('.v-new-previews').html()
                 };
                 // Preserve files
                 if($fileInput[0] && $fileInput[0].files.length > 0) {
@@ -676,27 +678,30 @@ $(document).ready(function() {
                                     return (arr && arr.length > 0) ? '' : 'required';
                                 })() } class="v-file-input hidden" multiple accept="image/*">
                             </label>
-                            <div class="v-preview-container flex flex-row flex-wrap gap-2">
-                                ${(() => {
-                                    let arr = [];
-                                    if (ui && ui.existing_images) {
-                                        try { arr = JSON.parse(ui.existing_images); } catch(e) { arr = []; }
-                                    } else if (!ui && existing) {
-                                        arr = existing.images || existing.image;
-                                        if(typeof arr === 'string') try { arr = JSON.parse(arr); } catch(e) { arr = [arr]; }
-                                    }
-                                    if(!Array.isArray(arr)) arr = arr ? [arr] : [];
-                                    
-                                    let existingHtml = arr.map(img => `
-                                        <div class="relative flex items-center gap-2 bg-slate-50 border border-slate-200 p-0.5 rounded-lg group w-10 h-10 shadow-sm">
-                                            <img src="${window.UPLOAD_URL}/${img}" class="w-full h-full rounded-md object-cover">
-                                            <button type="button" class="remove-variant-image absolute -top-1 -right-1 bg-[#a91b43] text-white w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[8px]" data-type="existing" data-combo="${comboIds}">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>`).join('');
-                                    
-                                    return existingHtml + (ui ? ui.preview : '');
-                                })()}
+                            <div class="v-preview-container flex flex-row items-center gap-2 overflow-x-auto max-w-[400px] custom-scrollbar py-2">
+                                <div class="v-existing-previews flex flex-row gap-2">
+                                    ${(() => {
+                                        let arr = [];
+                                        if (ui && ui.existing_images) {
+                                            try { arr = JSON.parse(ui.existing_images); } catch(e) { arr = []; }
+                                        } else if (!ui && existing) {
+                                            arr = existing.images || existing.image;
+                                            if(typeof arr === 'string') try { arr = JSON.parse(arr); } catch(e) { arr = [arr]; }
+                                        }
+                                        if(!Array.isArray(arr)) arr = arr ? [arr] : [];
+                                        
+                                        return arr.map(img => `
+                                            <div class="relative shrink-0 flex items-center bg-white border border-slate-200 p-0.5 rounded-xl group w-14 h-14 shadow-sm overflow-visible">
+                                                <img src="${window.UPLOAD_URL}/${img}" class="w-full h-full rounded-lg object-cover">
+                                                <button type="button" class="remove-variant-image absolute -top-1.5 -right-1.5 bg-[#a91b43] text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm z-20 opacity-100 transition-all text-[10px]" data-type="existing" data-combo="${comboIds}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>`).join('');
+                                    })()}
+                                </div>
+                                <div class="v-new-previews flex flex-row gap-2">
+                                    ${ui ? ui.new_preview || '' : ''}
+                                </div>
                             </div>
                             <input type="hidden" name="v_existing_images[${comboIds}]" value='${ui ? ui.existing_images : (existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]")}' class="existing-images-input">
                         </div>
@@ -878,7 +883,7 @@ $(document).ready(function() {
     $(document).on('change', '.v-file-input', function() {
         const $input = $(this);
         const $td = $input.closest('td');
-        const preview = $td.find('.v-preview-container');
+        const newPreview = $td.find('.v-new-previews');
         const comboIds = $td.closest('tr').find('.variant-comb-input').val();
         
         const dt = new DataTransfer();
@@ -892,13 +897,13 @@ $(document).ready(function() {
         this.files = dt.files;
         $input.data('files-list', Array.from(this.files));
 
-        preview.empty();
+        newPreview.empty();
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
-            r.onload = e => preview.append(`
-                <div class="relative flex items-center gap-2 bg-rose-50/30 border border-rose-100 p-1 rounded-xl group w-16 h-16">
+            r.onload = e => newPreview.append(`
+                <div class="relative shrink-0 flex items-center bg-white border border-slate-200 p-0.5 rounded-xl group w-14 h-14 shadow-sm overflow-visible">
                     <img src="${e.target.result}" class="w-full h-full rounded-lg object-cover">
-                    <button type="button" class="remove-variant-image absolute -top-2 -right-2 bg-[#a91b43] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-type="new" data-index="${idx}" data-combo="${comboIds}">
+                    <button type="button" class="remove-variant-image absolute -top-1.5 -right-1.5 bg-[#a91b43] text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md z-20 opacity-100 transition-all text-[10px]" data-type="new" data-index="${idx}" data-combo="${comboIds}">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>`);
@@ -963,12 +968,16 @@ $(document).ready(function() {
         $input.data('files-list', Array.from(this.files));
 
         preview.empty();
+        if (this.files.length > 0 || $('input[name="existing_images[]"]').length > 0) {
+            $('#galleryWrapper').removeClass('hidden');
+        }
+
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
-                <div class="relative group w-20 h-20">
-                    <img src="${e.target.result}" class="w-full h-full rounded-xl border border-slate-200 object-cover shadow-sm">
-                    <button type="button" class="remove-general-image-new absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-index="${idx}">
+                <div class="relative group w-24 h-24 bg-white rounded-xl shadow-sm border border-slate-200 overflow-visible">
+                    <img src="${e.target.result}" class="w-full h-full rounded-xl object-cover">
+                    <button type="button" class="remove-general-image-new absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg z-10 opacity-100 transition-all text-[10px]" data-index="${idx}">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>`);
@@ -994,6 +1003,11 @@ $(document).ready(function() {
         $input.data('files-list', newFilesList);
         $btn.parent().remove();
         
+        // Hide wrapper if no images left
+        if ($('#unifiedGalleryList').children(':visible').length === 0) {
+            $('#galleryWrapper').addClass('hidden');
+        }
+        
         // Re-index remaining ones
         $('#generalImagesPreview .remove-general-image-new').each(function(i) {
             $(this).attr('data-index', i).data('index', i);
@@ -1004,6 +1018,9 @@ $(document).ready(function() {
         if(confirm("Are you sure you want to remove this image from the product?")) {
             $(this).parent().fadeOut(300, function() {
                 $(this).remove();
+                if ($('#unifiedGalleryList').children(':visible').length === 0) {
+                    $('#galleryWrapper').addClass('hidden');
+                }
             });
         }
     });
