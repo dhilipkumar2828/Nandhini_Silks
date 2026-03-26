@@ -255,29 +255,30 @@
                             <span class="font-bold ml-2 text-[13.5px]">Child Categories</span>
                         </a>
 
-                        <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
-                            <button @click="openAttr = !openAttr"
+                        {{-- <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }"> --}}
+                            {{-- <button @click="openAttr = !openAttr"
                                 class="w-full nav-link flex items-center px-3 py-2 rounded-xl transition-all"
                                 :class="openAttr ? 'bg-slate-50 text-[#a91b43]' : ''">
                                 <div class="w-4 flex justify-center"><i class="fas fa-tags text-xs"></i></div>
                                 <span class="font-bold ml-2 text-[13.5px] text-left flex-1">Attributes</span>
                                 <i class="fas fa-chevron-down text-[8px] transition-transform duration-300"
                                     :class="openAttr ? 'rotate-180' : ''"></i>
-                            </button>
+                            </button> --}}
 
-                            <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
+                            {{-- <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
-                                x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
+                                x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1"> --}}
                                 <a href="{{ route('admin.attributes.index') }}"
                                     class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                    <div class="w-4 flex justify-center"><i class="fas fa-tags text-xs"></i></div>
                                     <span class="font-bold ml-2 text-[12.5px]">Attribute Group</span>
                                 </a>
-                                <a href="{{ route('admin.attribute-values.index') }}"
+                                {{-- <a href="{{ route('admin.attribute-values.index') }}"
                                     class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
                                     <span class="font-bold ml-2 text-[12.5px]">Attribute Values</span>
-                                </a>
-                            </div>
-                        </div>
+                                </a> --}}
+                            {{-- </div> --}}
+                        {{-- </div> --}}
 
                         <a href="{{ route('admin.offer-collections.index') }}" class="nav-link {{ request()->routeIs('admin.offer-collections.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                             <div class="w-6 flex justify-center"><i class="fas fa-gifts text-xs"></i></div>
