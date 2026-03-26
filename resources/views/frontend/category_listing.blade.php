@@ -9,18 +9,24 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>{{ $category->name }}</span>
             </div>
 
-            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" style="display: none;">
+            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle">
                 <span>Filters</span>
                 <span class="mobile-filter-toggle-icon">+</span>
             </button>
 
+            <div class="mobile-filter-overlay" id="mobileFilterOverlay"></div>
+
             <div class="category-layout">
                 <!-- Sidebar Filters -->
-                <aside class="filters-sidebar">
+                <aside class="filters-sidebar" id="filtersSidebar">
+                    <div class="filter-drawer-header">
+                        <h3 class="filter-drawer-title">Filters</h3>
+                        <button type="button" class="filter-drawer-close" id="filterDrawerClose" aria-label="Close filters">&times;</button>
+                    </div>
                     <form id="filterForm" action="{{ request()->url() }}" method="GET">
                         <div class="filter-group">
                             <h3 class="filter-title">Price Range</h3>
-                            <div class="price-range-container">
+                            <div class="filter-group-content price-range-container">
                                 <div class="slider-track-modern">
                                     <div class="slider-fill-modern" id="sliderFill"></div>
                                     <input type="range" name="min_price" id="min_price_input" min="{{ $filterData['min_price'] }}" max="{{ $filterData['max_price'] }}" value="{{ request('min_price', $filterData['min_price']) }}" class="range-slider-modern">
@@ -28,6 +34,7 @@
                                 </div>
                                 <div class="range-values-modern">
                                     <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $filterData['min_price']), 0) }}</span></span>
+                                    <span class="price-separator">-</span>
                                     <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $filterData['max_price']), 0) }}</span></span>
                                 </div>
                             </div>
@@ -35,7 +42,7 @@
 
                         <div class="filter-group">
                             <h3 class="filter-title">Category</h3>
-                            <ul class="filter-list">
+                            <ul class="filter-group-content filter-list">
                                 @foreach($filterData['categories'] as $cat)
                                     <li class="filter-item">
                                         <label class="custom-checkbox">
@@ -54,7 +61,7 @@
                                 <div class="filter-group">
                                     <h3 class="filter-title">{{ $attr->name }}</h3>
                                     @if(strtolower($attr->name) == 'color')
-                                        <div class="color-swatches-grid-modern">
+                                        <div class="filter-group-content color-swatches-grid-modern">
                                             @foreach($attr->values as $val)
                                                 @php
                                                     $swatch = $val->swatch_value;
@@ -78,7 +85,7 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <ul class="filter-list">
+                                        <ul class="filter-group-content filter-list">
                                             @foreach($attr->values as $val)
                                                 <li class="filter-item">
                                                     <label class="custom-checkbox">
@@ -313,53 +320,61 @@
             maxInput.addEventListener('change', () => maxInput.form.submit());
             updateSlider(); // Initial call
         }
-    </script>
-    <style>
-        /* Modern Premium Sidebar Filters */
-        .filters-sidebar {
-            background: #fff;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
-            border: 1px solid #f0f0f0;
-            position: sticky;
-            top: 20px;
-        }
- const mobileFilterToggle = document.getElementById('mobileFilterToggle');
+
+        /* Mobile Filter System */
+        const mobileFilterToggle = document.getElementById('mobileFilterToggle');
         const filtersSidebar = document.getElementById('filtersSidebar');
+        const mobileFilterOverlay = document.getElementById('mobileFilterOverlay');
+        const filterDrawerClose = document.getElementById('filterDrawerClose');
+        const mobileFilterToggleIcon = document.querySelector('.mobile-filter-toggle-icon');
 
         if (mobileFilterToggle && filtersSidebar) {
-            const syncFilterState = () => {
-                mobileFilterToggle.style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
+            const closeFilters = () => {
+                filtersSidebar.classList.remove('mobile-open');
+                mobileFilterOverlay?.classList.remove('active');
+                document.body.classList.remove('filter-open');
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+            };
 
-                if (window.innerWidth > 1024) {
-                    filtersSidebar.classList.remove('mobile-open');
-                    mobileFilterToggle.setAttribute('aria-expanded', 'false');
-                    filtersSidebar.style.display = '';
-                } else {
-                    filtersSidebar.style.display = filtersSidebar.classList.contains('mobile-open') ? 'block' : 'none';
-                }
+            const openFilters = () => {
+                filtersSidebar.classList.add('mobile-open');
+                mobileFilterOverlay?.classList.add('active');
+                document.body.classList.add('filter-open');
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
             };
 
             mobileFilterToggle.addEventListener('click', () => {
-                if (window.innerWidth <= 1024) {
-                    const isOpen = filtersSidebar.classList.toggle('mobile-open');
-                    mobileFilterToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                    filtersSidebar.style.display = isOpen ? 'block' : 'none';
+                if (filtersSidebar.classList.contains('mobile-open')) {
+                    closeFilters();
+                } else {
+                    openFilters();
                 }
             });
 
-            window.addEventListener('resize', syncFilterState);
-            syncFilterState();
+            mobileFilterOverlay?.addEventListener('click', closeFilters);
+            filterDrawerClose?.addEventListener('click', closeFilters);
+
+            document.querySelectorAll('.filter-group .filter-title').forEach((title) => {
+                title.addEventListener('click', () => {
+                    if (window.innerWidth > 1024) return;
+                    const group = title.closest('.filter-group');
+                    if (!group) return;
+                    group.classList.toggle('is-open');
+                });
+            });
+
+            if (window.innerWidth <= 1024) {
+                const firstGroup = filtersSidebar.querySelector('.filter-group');
+                firstGroup?.classList.add('is-open');
+            }
         }
 
         function toggleAttr(groupId, valueId) {
             const container = document.getElementById('attr_' + groupId + '_inputs');
-            let input = container.querySelector('input[value="' + valueId + '"]');
-            
+            let input = container?.querySelector('input[value="' + valueId + '"]');
             if (input) {
                 input.remove();
-            } else {
+            } else if(container) {
                 input = document.createElement('input');
                 input.type = 'checkbox';
                 input.name = 'attr[' + groupId + '][]';
@@ -367,12 +382,72 @@
                 input.checked = true;
                 container.appendChild(input);
             }
-            
-            // Highlight color dot
-            event.target.classList.toggle('active');
         }
     </script>
     <style>
+        /* Mobile Overlay & Sidebar Refinements */
+        .mobile-filter-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+        }
+        .mobile-filter-overlay.active { display: block; }
+        
+        .filter-drawer-header { display: none; }
+
+        @media (max-width: 1024px) {
+            .filters-sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: min(380px, 100%);
+                height: 100dvh;
+                z-index: 9999;
+                background: #fff;
+                padding: 20px;
+                box-shadow: -15px 0 40px rgba(0,0,0,0.15);
+                transform: translateX(105%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow-y: auto;
+                border-radius: 20px 0 0 20px;
+                display: block !important;
+            }
+            .filters-sidebar.mobile-open { transform: translateX(0); }
+            .filter-drawer-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            .filter-drawer-title { font-size: 20px; font-weight: 700; margin: 0; }
+            .filter-drawer-close { font-size: 28px; background: none; border: none; cursor: pointer; color: #666; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+            
+            .filter-group .filter-title {
+                position: relative;
+                cursor: pointer;
+                padding: 12px 0;
+                margin-bottom: 0 !important;
+                font-size: 16px;
+                border: none;
+            }
+            .filter-group .filter-title::after {
+                content: '+';
+                position: absolute;
+                right: 0;
+                color: #A91B43;
+                font-weight: 400;
+                font-size: 20px;
+            }
+            .filter-group.is-open .filter-title::after { content: '−'; }
+            .filter-group-content { display: none; padding: 5px 0 15px; }
+            .filter-group.is-open .filter-group-content { display: block; }
+            body.filter-open { overflow: hidden; }
+        }
         .mobile-filter-toggle {
             display: none;
             width: 100%;
@@ -607,9 +682,9 @@
         .slider-track-modern {
             position: relative;
             width: 100%;
-            height: 6px;
-            background: #eee;
-            margin: 20px 0;
+            height: 5px;
+            background: #f0f0f0;
+            margin: 25px 0;
             border-radius: 10px;
         }
 
@@ -628,35 +703,66 @@
             height: 6px;
             background: none;
             outline: none;
-            top: 0;
+            top: 0px;
             margin: 0;
+            z-index: 2;
+        }
+
+        .range-slider-modern::-webkit-slider-runnable-track {
+            background: transparent;
+        }
+
+        .range-slider-modern::-moz-range-track {
+            background: transparent;
         }
 
         .range-slider-modern::-webkit-slider-thumb {
             pointer-events: auto;
+            -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #A91B43;
             cursor: pointer;
             border: 2px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            position: relative;
+            z-index: 3;
+        }
+
+        .range-slider-modern::-moz-range-thumb {
+            pointer-events: auto;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #A91B43;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            position: relative;
+            z-index: 3;
         }
 
         .range-values-modern {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-top: 15px;
         }
 
+        .price-separator {
+            display: none;
+        }
+
         .price-val {
-            font-size: 0.9rem;
+            font-size: 16px;
             font-weight: 700;
             color: #222;
-            background: #f8f8f8;
-            padding: 4px 10px;
-            border-radius: 6px;
+            background: #f5f5f5;
+            padding: 8px 16px;
+            border-radius: 10px;
+            display: inline-block;
         }
 
         /* Actions */
