@@ -229,7 +229,7 @@
                                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Attribute</label>
                                         <select id="attributePicker" class="select2-searchable">
                                             <option value="">+ Add Variant Attribute</option>
-                                            @foreach($attributes as $attribute)
+                                              @foreach($attributes as $attribute)
                                                 @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
                                                 <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
                                                     {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
