@@ -49,6 +49,7 @@ class Product extends Model
         'meta_keywords',
         'status',
         'display_order',
+        'show_offer_on_homepage',
         'is_featured'
     ];
 
@@ -135,6 +136,11 @@ class Product extends Model
     public function getReviewsCountAttribute()
     {
         return $this->reviews()->count();
+    }
+
+    public function offerCollections()
+    {
+        return $this->belongsToMany(OfferCollection::class);
     }
 }
 

@@ -34,8 +34,8 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div id="generalSkuField" class="{{ old('is_variant') ? 'hidden' : '' }}">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">SKU</label>
-                            <input type="text" name="sku" value="{{ old('sku') }}"
+                            <label class="block text-xs font-bold text-slate-700 mb-1">SKU <span class="text-rose-500 font-bold">*</span></label>
+                            <input type="text" name="sku" value="{{ old('sku') }}" required
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                         </div>
                         <div>
@@ -56,11 +56,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Offer Collection</label>
                             <input type="text" name="offer_collection" value="{{ old('offer_collection') }}"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. Summer Sale, New Arrival">
-                        </div>
+                        </div> --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Video URL</label>
                             <input type="url" name="video_url" value="{{ old('video_url') }}"
@@ -74,7 +74,7 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('short_description') }}</textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Full Description</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Specification</label>
                         <textarea name="full_description" id="full_description" rows="5"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('full_description') }}</textarea>
                     </div>
@@ -98,6 +98,80 @@
                 </label>
             </div>
 
+
+             {{-- 4b. Single Product Pricing & Images (If NOT variant) --}}
+            <div id="pricingStockSection" class="{{ old('is_variant') ? 'hidden' : '' }} space-y-6">
+                <div class="card-glass p-6 rounded-2xl shadow-sm bg-white">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-tag mr-2 text-[#a91b43]"></i> Pricing & Stock Details
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Regular Price <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
+                                <input type="number" name="regular_price" id="regular_price" step="0.01" min="0" value="{{ old('regular_price') }}" required
+                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sale Price</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
+                                <input type="number" name="sale_price" id="sale_price" step="0.01" min="0" value="{{ old('sale_price') }}"
+                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Status</label>
+                            <select name="stock_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                                <option value="instock">In Stock</option>
+                                <option value="outofstock">Out of Stock</option>
+                                <option value="onbackorder">On Backorder</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Quantity</label>
+                            <input type="number" name="stock_quantity" min="0" value="{{ old('stock_quantity', 0) }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Low Stock Alert</label>
+                            <input type="number" name="low_stock_threshold" min="0" value="{{ old('low_stock_threshold', 0) }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (grams)</label>
+                            <input type="text" name="weight" value="{{ old('weight') }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
+                            <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                                <option value="">No Shipping Class</option>
+                                @foreach($shippingClasses as $sc)
+                                    <option value="{{ $sc->id }}">{{ $sc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="productImagesSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-images mr-2 text-[#a91b43]"></i> Product Images <span class="text-rose-500 font-bold ml-1">*</span>
+                    </h3>
+                    <div id="generalImagesPreview" class="flex flex-wrap gap-2 mb-4"></div>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
+                        <span class="text-xs font-bold text-slate-500">Upload main images <span class="text-rose-500">*</span></span>
+                        <input type="file" name="images[]" id="generalImagesInput" multiple accept="image/*" class="hidden" required>
+                    </label>
+                    <div id="imagesErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden text-center">Please upload at least one product image.</div>
+                    <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
+                </div>
+            </div>
+            
             {{-- 3. Product Settings & Categorization --}}
             <div id="settingsSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
                 <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
@@ -154,6 +228,32 @@
                             <select name="child_category_id" id="child_category_id" required class="w-full select2-searchable">
                                 <option value="">Select Child Category</option>
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Offer Collections Section --}}
+                    <div class="pt-6 border-t border-slate-100 col-span-full">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">Offer Collections / Specials</label>
+                                <select name="offer_collections[]" id="offer_collections" class="w-full select2-searchable" multiple>
+                                    @foreach($offerCollections as $collection)
+                                        <option value="{{ $collection->id }}" {{ in_array($collection->id, old('offer_collections', [])) ? 'selected' : '' }}>
+                                            {{ $collection->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-3 pb-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_offer_on_homepage" value="1" {{ old('show_offer_on_homepage') ? 'checked' : '' }} class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a91b43]"></div>
+                                </label>
+                                <div>
+                                    <span class="text-sm font-bold text-slate-700">Show in Home Page</span>
+                                    <p class="text-[10px] text-slate-400 font-medium tracking-tight">Product will display in Offer Collection section on homepage</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -237,77 +337,7 @@
                 </div>
             </div>
 
-            {{-- 4b. Single Product Pricing & Images (If NOT variant) --}}
-            <div id="pricingStockSection" class="{{ old('is_variant') ? 'hidden' : '' }} space-y-6">
-                <div class="card-glass p-6 rounded-2xl shadow-sm bg-white">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fas fa-tag mr-2 text-[#a91b43]"></i> Pricing & Stock Details
-                    </h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Regular Price <span class="text-rose-500">*</span></label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
-                                <input type="number" name="regular_price" id="regular_price" step="0.01" value="{{ old('regular_price') }}"
-                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Sale Price</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
-                                <input type="number" name="sale_price" id="sale_price" step="0.01" value="{{ old('sale_price') }}"
-                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Status</label>
-                            <select name="stock_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                                <option value="instock">In Stock</option>
-                                <option value="outofstock">Out of Stock</option>
-                                <option value="onbackorder">On Backorder</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Quantity</label>
-                            <input type="number" name="stock_quantity" value="{{ old('stock_quantity', 10) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Low Stock Alert</label>
-                            <input type="number" name="low_stock_threshold" value="{{ old('low_stock_threshold', 5) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (grams)</label>
-                            <input type="text" name="weight" value="{{ old('weight') }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
-                            <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                                <option value="">No Shipping Class</option>
-                                @foreach($shippingClasses as $sc)
-                                    <option value="{{ $sc->id }}">{{ $sc->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="productImagesSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fas fa-images mr-2 text-[#a91b43]"></i> Product Images
-                    </h3>
-                    <div id="generalImagesPreview" class="flex flex-wrap gap-2 mb-4"></div>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all">
-                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
-                        <span class="text-xs font-bold text-slate-500">Upload main images</span>
-                        <input type="file" name="images[]" id="generalImagesInput" multiple accept="image/*" class="hidden">
-                    </label>
-                    <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
-                </div>
-            </div>
+           
 
             {{-- 5. SEO Details --}}
             <div id="seoSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
@@ -514,8 +544,14 @@ $(document).ready(function() {
         $('#matrixPlaceholder').addClass('hidden');
 
         const $thead = $('#variantMatrixWrapper thead tr').empty();
-        selectedNames.forEach(a => $thead.append(`<th class="px-4 py-4 text-slate-800 font-black tracking-tight">${a.name}</th>`));
-        $thead.append(`<th class="px-2 py-4">Price (₹)</th><th class="px-2 py-4">Sale (₹)</th><th class="px-2 py-4">Stock/Low</th><th class="px-2 py-4">Logistics</th><th class="px-2 py-4">Images</th><th class="px-2 py-4"></th>`);
+        selectedNames.forEach(a => $thead.append(`<th class="px-6 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">${a.name}</th>`));
+        $thead.append(`
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Pricing (₹) <span class="text-rose-500">*</span></th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Stock / Alert</th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Logistics</th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80 text-center">Images <span class="text-rose-500">*</span></th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80"></th>
+        `);
 
         const combinations = cartesian(Object.values(selected));
         const $tbody = $('#variantMatrixBody').empty();
@@ -524,48 +560,97 @@ $(document).ready(function() {
             const comboIds = comb.map(v => v.id).join(',');
             if(removedCombinations.has(comboIds)) return;
 
-            const ui = currentUIData[comboIds];
-            let cells = comb.map(v => `<td class="px-4 py-4 font-bold text-slate-700">${v.name}</td>`).join('');
+            // FUZZY MATCHING: If exact combo key doesn't exist, look for a parent combination (subset)
+            let ui = currentUIData[comboIds];
+            if(!ui) {
+                const newIds = comboIds.split(',');
+                const fuzzyKey = Object.keys(currentUIData).find(oldKey => {
+                    const oldIds = oldKey.split(',');
+                    return oldIds.every(id => newIds.includes(id));
+                });
+                if(fuzzyKey) ui = currentUIData[fuzzyKey];
+            }
+
+            let cells = comb.map(v => `<td class="px-6 py-6"><span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-[11px] border border-slate-200">${v.name}</span></td>`).join('');
             
             const $row = $(`
-                <tr class="border-b border-slate-50">
+                <tr class="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
                     ${cells}
-                    <td class="px-1 py-4">
-                        <input type="number" name="v_price[${comboIds}]" value="${ui ? ui.price : ($('#regular_price').val() || '')}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center font-black text-rose-800" placeholder="0">
-                    </td>
-                    <td class="px-1 py-4">
-                        <input type="number" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : ''}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center text-slate-500" placeholder="Sale">
-                    </td>
-                    <td class="px-1 py-4 space-y-1">
-                        <input type="number" name="v_stock[${comboIds}]" value="${ui ? ui.stock : '10'}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 text-center font-black" placeholder="Stock">
-                        <input type="number" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : '5'}" class="w-full bg-white border border-slate-100 rounded py-1 text-center text-[10px]" placeholder="Alert At">
-                    </td>
-                    <td class="px-1 py-4 space-y-1">
-                        <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : ''}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 px-1 text-[8px] font-black" placeholder="SKU">
-                        <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : ''}" class="w-full bg-white border border-slate-100 rounded py-1 px-1 text-[8px]" placeholder="Weight (gr)">
-                        <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-100 rounded py-1 text-[8px] outline-none">
-                            <option value="">Ship Class</option>
-                            @foreach($shippingClasses as $sc) 
-                                <option value="{{ $sc->id }}" ${ui && ui.ship == "{{ $sc->id }}" ? 'selected' : ''}>{{ $sc->name }}</option> 
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
-                    </td>
-                    <td class="px-1 py-4">
-                        <div class="flex flex-col items-center gap-2 py-2">
-                            <label class="cursor-pointer bg-slate-50 hover:bg-[#a91b43] hover:text-white px-2 py-1 rounded-md text-[8px] font-black uppercase transition-all shadow-sm border border-slate-200">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" name="v_images[${comboIds}][]" class="v-file-input hidden" multiple accept="image/*">
-                            </label>
-                            <div class="v-preview-container flex flex-col items-center gap-2">${ui ? ui.preview : ''}</div>
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[140px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">REG</span>
+                                <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : ($('#regular_price').val() || '')}" required class="v-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-black text-[#a91b43] focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Price">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">SALE</span>
+                                <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : ''}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-bold text-slate-500 focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Offer">
+                            </div>
                         </div>
                     </td>
-                    <td class="px-2 py-4"><button type="button" class="remove-variant-row text-slate-300 hover:text-rose-600"><i class="fas fa-trash-alt"></i></button></td>
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[120px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-boxes"></i></span>
+                                <input type="number" min="0" name="v_stock[${comboIds}]" value="${ui ? ui.stock : '0'}" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#a91b43] transition-all" placeholder="Stock">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-bell"></i></span>
+                                <input type="number" min="0" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : '0'}" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-[10px] font-bold text-rose-400 outline-none focus:border-[#a91b43] transition-all" placeholder="Alert at">
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[160px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">SKU</span>
+                                <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Variant SKU">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">WGT</span>
+                                <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : ''}" class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Weight (gr)">
+                            </div>
+                            <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]">
+                                <option value="">Shipping Class</option>
+                                @foreach($shippingClasses as $sc) 
+                                    <option value="{{ $sc->id }}" ${ui && ui.ship == "{{ $sc->id }}" ? 'selected' : ''}>{{ $sc->name }}</option> 
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
+                        </div>
+                    </td>
+                    <td class="px-4 py-6 min-w-[200px]">
+                        <div class="flex flex-row items-center gap-4">
+                            <label class="shrink-0 w-12 h-12 flex items-center justify-center bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] hover:text-[#a91b43] transition-all group shadow-sm">
+                                <i class="fas fa-camera text-slate-300 group-hover:scale-110 transition-transform text-lg"></i>
+                                <input type="file" name="v_images[${comboIds}][]" required class="v-file-input hidden" multiple accept="image/*">
+                            </label>
+                            <div class="v-preview-container flex flex-row flex-wrap gap-2">${ui ? ui.preview : ''}</div>
+                        </div>
+                        <div class="v-img-error-msg error-text hidden">This field is required.</div>
+                    </td>
+                    <td class="px-4 py-6 text-right">
+                        <button type="button" class="remove-variant-row w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-rose-50 hover:text-rose-600 transition-all">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                    </td>
                 </tr>
             `);
 
-            // Restore files if preserved
-            const $preserved = $('#hidden-file-store').find('#temp_file_' + comboIds.replace(/,/g, '_'));
+            // Restore files with fuzzy matching
+            let $preserved = $('#hidden-file-store').find('#temp_file_' + comboIds.replace(/,/g, '_'));
+            if(!$preserved.length) {
+                 const newIds = comboIds.split(',');
+                 $('#hidden-file-store input').each(function() {
+                     const oldCombo = $(this).attr('id').replace('temp_file_', '').replace(/_/g, ',');
+                     const oldIds = oldCombo.split(',');
+                     if(oldIds.every(id => newIds.includes(id))) {
+                         $preserved = $(this).clone(true); // Clone to allow multiple inheriting rows
+                         return false; 
+                     }
+                 });
+            }
+
             if($preserved.length) {
                 $row.find('.v-file-input').replaceWith($preserved.removeAttr('id'));
             }
@@ -580,11 +665,145 @@ $(document).ready(function() {
         helper([], 0); return r;
     }
 
+    // Handle form submission validation
+    $('#productForm').on('submit', function(e) {
+        let isValid = true;
+        $('#imagesErrorMsg').addClass('hidden');
+
+        const isVar = $('#isVariantCheckbox').is(':checked');
+        
+        if (!isVar) {
+            // Main Images check (browser handles SKU/Price via 'required')
+            const $imgInput = $('#generalImagesInput');
+            if (!$imgInput[0].files || $imgInput[0].files.length === 0) {
+                isValid = false;
+                $('#imagesErrorMsg').removeClass('hidden');
+            }
+        } else {
+            // Variant matrix check
+            const $rows = $('#variantMatrixBody tr');
+            if ($rows.length > 0) {
+                $rows.each(function() {
+                    const $row = $(this);
+                    const $vImg = $row.find('.v-file-input');
+                    const $vPrice = $row.find('.v-price-input');
+                    const $vSku = $row.find('input[name*="v_sku"]');
+
+                    if ($vPrice.val() === '') {
+                        isValid = false;
+                        $vPrice.addClass('border-rose-500');
+                    } else {
+                        $vPrice.removeClass('border-rose-500');
+                    }
+                    
+                    if ($vSku.val() === '') {
+                        isValid = false;
+                        $vSku.addClass('border-rose-500');
+                    } else {
+                        $vSku.removeClass('border-rose-500');
+                    }
+
+                    if (!$vImg[0].files || $vImg[0].files.length === 0) {
+                        isValid = false;
+                        $row.find('label').addClass('border-rose-500');
+                        $row.find('.v-img-error-msg').removeClass('hidden');
+                    } else {
+                        $row.find('label').removeClass('border-rose-500');
+                        $row.find('.v-img-error-msg').addClass('hidden');
+                    }
+                });
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first visible error (our custom ones or browser highlighted ones if possible)
+            const $firstError = $('.text-rose-500:not(.hidden), .border-rose-500').first();
+            if ($firstError.length) {
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $firstError.offset().top - 200
+                }, 500);
+            }
+        }
+    });
+
+    // Toggle required attributes based on variant state
+    function updateRequiredState() {
+        const isVar = $('#isVariantCheckbox').is(':checked');
+        $('#regular_price').prop('required', !isVar);
+        $('input[name="sku"]').prop('required', !isVar);
+        // We don't strictly need browser 'required' if we use JS validation above, 
+        // but it helps for accessibility and built-in popups where visible.
+        $('#generalImagesInput').prop('required', !isVar);
+    }
+
+    $('#isVariantCheckbox').on('change', function() {
+        updateRequiredState();
+        const isVar = $(this).is(':checked');
+        $('#pricingStockSection').toggleClass('hidden', isVar);
+        $('#generalSkuField').toggleClass('hidden', isVar);
+    });
+    
+    // Set initial state
+    updateRequiredState();
+
+    // Price Validation for Main Fields
+    $('#regular_price, #sale_price').on('input', function() {
+        const price = parseFloat($('#regular_price').val()) || 0;
+        const sale = parseFloat($('#sale_price').val()) || 0;
+
+        if (sale > price && price > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Sale Price',
+                text: 'Main sale price cannot be greater than regular price.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $('#sale_price').val(price);
+        }
+    });
+
+    // Price Validation for Variants
+    $(document).on('input', '.v-price-input, .v-sale-price-input', function() {
+        const $row = $(this).closest('tr');
+        const price = parseFloat($row.find('.v-price-input').val()) || 0;
+        const sale = parseFloat($row.find('.v-sale-price-input').val()) || 0;
+
+        if (sale > price && price > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Sale Price',
+                text: 'Sale price cannot be greater than regular price.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $row.find('.v-sale-price-input').val(price);
+        }
+    });
+
     $(document).on('change', '.v-file-input', function() {
-        const $td = $(this).closest('td');
-        const preview = $td.find('.v-preview-container').empty();
+        const $input = $(this);
+        const $td = $input.closest('td');
+        const preview = $td.find('.v-preview-container');
         const comboIds = $td.closest('tr').find('.variant-comb-input').val();
         
+        const dt = new DataTransfer();
+        // Keep existing files if any (from our custom tracker or just by re-adding)
+        const oldFiles = $input.data('files-list') || [];
+        oldFiles.forEach(f => dt.items.add(f));
+        
+        // Add new selection
+        Array.from(this.files).forEach(f => dt.items.add(f));
+        
+        this.files = dt.files;
+        $input.data('files-list', Array.from(this.files));
+        
+        preview.empty();
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
@@ -606,13 +825,18 @@ $(document).ready(function() {
         if(type === 'new') {
             const $input = $td.find('.v-file-input');
             const dt = new DataTransfer();
-            const { files } = $input[0];
+            const files = $input.data('files-list') || Array.from($input[0].files);
             const indexToRemove = parseInt($btn.attr('data-index'));
             
+            const newFilesList = [];
             for(let i=0; i<files.length; i++) {
-                if(i !== indexToRemove) dt.items.add(files[i]);
+                if(i !== indexToRemove) {
+                    dt.items.add(files[i]);
+                    newFilesList.push(files[i]);
+                }
             }
             $input[0].files = dt.files;
+            $input.data('files-list', newFilesList);
             $btn.parent().remove();
             
             // Re-index new image previews
@@ -623,7 +847,21 @@ $(document).ready(function() {
     });
 
     $('#generalImagesInput').on('change', function() {
-        const preview = $('#generalImagesPreview').empty();
+        const $input = $(this);
+        const preview = $('#generalImagesPreview');
+        const dt = new DataTransfer();
+        
+        // Keep existing new files
+        const oldFiles = $input.data('files-list') || [];
+        oldFiles.forEach(f => dt.items.add(f));
+        
+        // Add new selection
+        Array.from(this.files).forEach(f => dt.items.add(f));
+        
+        this.files = dt.files;
+        $input.data('files-list', Array.from(this.files));
+
+        preview.empty();
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
@@ -639,15 +877,20 @@ $(document).ready(function() {
 
     $(document).on('click', '.remove-general-image-new', function() {
         const $btn = $(this);
-        const indexToRem = parseInt($btn.data('index'));
         const $input = $('#generalImagesInput');
         const dt = new DataTransfer();
-        const { files } = $input[0];
+        const files = $input.data('files-list') || Array.from($input[0].files);
+        const indexToRem = parseInt($btn.data('index'));
         
+        const newFilesList = [];
         for(let i=0; i<files.length; i++) {
-            if(i !== indexToRem) dt.items.add(files[i]);
+            if(i !== indexToRem) {
+                dt.items.add(files[i]);
+                newFilesList.push(files[i]);
+            }
         }
         $input[0].files = dt.files;
+        $input.data('files-list', newFilesList);
         $btn.parent().remove();
         
         // Re-index remaining ones

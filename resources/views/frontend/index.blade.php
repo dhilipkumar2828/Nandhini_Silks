@@ -871,6 +871,62 @@
         </section>
     @endif
 
+    @foreach($offerCollections as $collection)
+        <section class="featured-section" aria-labelledby="collection-title-{{ $collection->id }}">
+            <div class="featured-inner">
+                <h2 id="collection-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
+                <p class="featured-subtitle">Curated collections just for you</p>
+
+                <div class="featured-swiper-container" style="position: relative;">
+                    <div class="swiper collection-products-swiper">
+                        <div class="swiper-wrapper">
+                            @foreach ($collection->products as $product)
+                                <div class="swiper-slide">
+                                    <article class="featured-card">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
+                                            <div class="featured-media">
+                                                @php
+                                                    $productImage = 'images/pro.png';
+                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                                        $productImage = 'uploads/' . $product->images[0];
+                                                    } elseif ($product->image_path) {
+                                                        $productImage = 'images/' . $product->image_path;
+                                                    }
+                                                @endphp
+                                                <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
+                                                @if ($product->discount_percent > 0)
+                                                    <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
+                                                @endif
+                                            </div>
+                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                        </a>
+                                        <div class="featured-footer">
+                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }} INR</span>
+                                            <div style="display: flex; gap: 8px;">
+                                                @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                                <button class="wishlist-btn" type="button" data-product-id="{{ $product->id }}">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="featured-cart add-to-cart-btn" data-product-id="{{ $product->id }}">
+                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <!-- Unique Nav for this swiper -->
+                    <div class="swiper-button-next featured-next collection-next-{{ $collection->id }}"></div>
+                    <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
+                </div>
+            </div>
+        </section>
+    @endforeach
+
     @if($categories->count() > 0)
         <section class="category-section" aria-labelledby="browse-categories-title">
             <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
@@ -1136,7 +1192,7 @@
                 const featuredSwiper = new Swiper('.featured-swiper', {
                     slidesPerView: 1,
                     spaceBetween: 18,
-                    loop: true,
+                    loop: {{ count($featuredProducts) > 1 ? 'true' : 'false' }},
                     autoplay: {
                         delay: 3500,
                         disableOnInteraction: false,
@@ -1162,6 +1218,28 @@
                         }
                     }
                 });
+
+                // Initialize Offer Collection Swipers
+                @foreach($offerCollections as $collection)
+                new Swiper('.collection-products-swiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 18,
+                    loop: {{ $collection->products->count() > 1 ? 'true' : 'false' }},
+                    autoplay: {
+                        delay: 3500 + {{ $loop->index * 500 }},
+                        disableOnInteraction: false,
+                    },
+                    navigation: {
+                        nextEl: '.collection-next-{{ $collection->id }}',
+                        prevEl: '.collection-prev-{{ $collection->id }}',
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
+                    }
+                });
+                @endforeach
 
                 function getFeaturedProductCount(swiper) {
                     return swiper.slides.filter(slide => !slide.classList.contains('swiper-slide-duplicate')).length;

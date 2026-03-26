@@ -39,8 +39,8 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div id="generalSkuField" class="{{ $isVar ? 'hidden' : '' }}">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">SKU</label>
-                            <input type="text" name="sku" value="{{ old('sku', $product->sku) }}"
+                            <label class="block text-xs font-bold text-slate-700 mb-1">SKU <span class="text-rose-500 font-bold">*</span></label>
+                            <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                         </div>
                         <div>
@@ -61,11 +61,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Offer Collection</label>
                             <input type="text" name="offer_collection" value="{{ old('offer_collection', $product->offer_collection) }}"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. Summer Sale, New Arrival">
-                        </div>
+                        </div> --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Video URL</label>
                             <input type="url" name="video_url" value="{{ old('video_url', $product->video_url) }}"
@@ -79,7 +79,7 @@
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('short_description', $product->short_description) }}</textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Full Description</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Specif</label>
                         <textarea name="full_description" id="full_description" rows="5"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('full_description', $product->full_description) }}</textarea>
                     </div>
@@ -102,6 +102,98 @@
                     <div class="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a91b43]"></div>
                 </label>
             </div>
+
+
+            {{-- 4b. Single Product Pricing & Images (If NOT variant) --}}
+            <div id="pricingStockSection" class="{{ $isVar ? 'hidden' : '' }} space-y-6">
+                <div class="card-glass p-6 rounded-2xl shadow-sm bg-white">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-tag mr-2 text-[#a91b43]"></i> Pricing & Stock Details
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Regular Price <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
+                                <input type="number" name="regular_price" id="regular_price" step="0.01" min="0" value="{{ old('regular_price', $product->regular_price) }}" required
+                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sale Price</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
+                                <input type="number" name="sale_price" id="sale_price" step="0.01" min="0" value="{{ old('sale_price', $product->sale_price) }}"
+                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Status</label>
+                            <select name="stock_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                                <option value="instock" {{ $product->stock_status == 'instock' ? 'selected' : '' }}>In Stock</option>
+                                <option value="outofstock" {{ $product->stock_status == 'outofstock' ? 'selected' : '' }}>Out of Stock</option>
+                                <option value="onbackorder" {{ $product->stock_status == 'onbackorder' ? 'selected' : '' }}>On Backorder</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Quantity</label>
+                            <input type="number" name="stock_quantity" min="0" value="{{ old('stock_quantity', $product->stock_quantity) }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Low Stock Alert</label>
+                            <input type="number" name="low_stock_threshold" min="0" value="{{ old('low_stock_threshold', $product->low_stock_threshold ?? 5) }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (grams)</label>
+                            <input type="text" name="weight" value="{{ old('weight', $product->weight) }}"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
+                            <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
+                                <option value="">No Shipping Class</option>
+                                @foreach($shippingClasses as $sc)
+                                    <option value="{{ $sc->id }}" {{ old('shipping_class_id', $product->shipping_class_id) == $sc->id ? 'selected' : '' }}>{{ $sc->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="productImagesSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-images mr-2 text-[#a91b43]"></i> Product Images <span class="text-rose-500 font-bold ml-1">*</span>
+                    </h3>
+                    
+                    @php $existingImgs = is_array($product->images) ? $product->images : (json_decode($product->images ?? '[]', true) ?? []); @endphp
+                    @if(count($existingImgs) > 0)
+                    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                        @foreach($existingImgs as $idx => $img)
+                        <div class="relative group w-24 h-24">
+                            <img src="{{ asset('uploads/'.$img) }}" class="w-full h-full rounded-xl object-cover border border-slate-200 shadow-sm">
+                            <input type="hidden" name="existing_images[]" value="{{ $img }}">
+                            <button type="button" class="remove-existing-general-image absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" title="Remove image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            @if($idx === 0) <span class="absolute -bottom-2 -left-2 bg-[#a91b43] text-white text-[8px] font-black rounded-full px-2 py-0.5 shadow-md uppercase tracking-tighter">Primary</span> @endif
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+
+                    <div id="generalImagesPreview" class="flex flex-wrap gap-2 mb-4"></div>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
+                        <span class="text-xs font-bold text-slate-500">Upload new gallery images <span class="text-rose-500">*</span></span>
+                        <input type="file" name="images[]" id="generalImagesInput" {{ count($existingImgs) > 0 ? '' : 'required' }} multiple accept="image/*" class="hidden">
+                    </label>
+                    <div id="imagesErrorMsg" class="text-[10px] text-rose-500 font-bold mt-1 hidden text-center">This field is required.</div>
+                    <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
+                </div>
+            </div>
+            
 
             {{-- 3. Product Settings & Categorization --}}
             <div id="settingsSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
@@ -165,6 +257,33 @@
                                     <option value="{{ $child->id }}" {{ $product->child_category_id == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Offer Collections Section --}}
+                    <div class="pt-6 border-t border-slate-100 col-span-full">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">Offer Collections / Specials</label>
+                                <select name="offer_collections[]" id="offer_collections" class="w-full select2-searchable" multiple>
+                                    @php $selectedCollections = $product->offerCollections->pluck('id')->toArray(); @endphp
+                                    @foreach($offerCollections as $collection)
+                                        <option value="{{ $collection->id }}" @selected(in_array($collection->id, $selectedCollections))>
+                                            {{ $collection->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-3 pb-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_offer_on_homepage" value="1" @checked($product->show_offer_on_homepage) class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a91b43]"></div>
+                                </label>
+                                <div>
+                                    <span class="text-sm font-bold text-slate-700">Show in Home Page</span>
+                                    <p class="text-[10px] text-slate-400 font-medium tracking-tight">Product will display in Offer Collection section on homepage</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -253,94 +372,7 @@
                 </div>
             </div>
 
-            {{-- 4b. Single Product Pricing & Images (If NOT variant) --}}
-            <div id="pricingStockSection" class="{{ $isVar ? 'hidden' : '' }} space-y-6">
-                <div class="card-glass p-6 rounded-2xl shadow-sm bg-white">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fas fa-tag mr-2 text-[#a91b43]"></i> Pricing & Stock Details
-                    </h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Regular Price <span class="text-rose-500">*</span></label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
-                                <input type="number" name="regular_price" id="regular_price" step="0.01" value="{{ old('regular_price', $product->regular_price) }}"
-                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Sale Price</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2 text-slate-400">₹</span>
-                                <input type="number" name="sale_price" id="sale_price" step="0.01" value="{{ old('sale_price', $product->sale_price) }}"
-                                    class="w-full bg-slate-50 border border-slate-200 pl-7 pr-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Status</label>
-                            <select name="stock_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                                <option value="instock" {{ $product->stock_status == 'instock' ? 'selected' : '' }}>In Stock</option>
-                                <option value="outofstock" {{ $product->stock_status == 'outofstock' ? 'selected' : '' }}>Out of Stock</option>
-                                <option value="onbackorder" {{ $product->stock_status == 'onbackorder' ? 'selected' : '' }}>On Backorder</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Stock Quantity</label>
-                            <input type="number" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Low Stock Alert</label>
-                            <input type="number" name="low_stock_threshold" value="{{ old('low_stock_threshold', $product->low_stock_threshold ?? 5) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (grams)</label>
-                            <input type="text" name="weight" value="{{ old('weight', $product->weight) }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
-                            <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                                <option value="">No Shipping Class</option>
-                                @foreach($shippingClasses as $sc)
-                                    <option value="{{ $sc->id }}" {{ old('shipping_class_id', $product->shipping_class_id) == $sc->id ? 'selected' : '' }}>{{ $sc->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="productImagesSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fas fa-images mr-2 text-[#a91b43]"></i> Product Images
-                    </h3>
-                    
-                    @php $existingImgs = is_array($product->images) ? $product->images : (json_decode($product->images ?? '[]', true) ?? []); @endphp
-                    @if(count($existingImgs) > 0)
-                    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
-                        @foreach($existingImgs as $idx => $img)
-                        <div class="relative group w-24 h-24">
-                            <img src="{{ asset('uploads/'.$img) }}" class="w-full h-full rounded-xl object-cover border border-slate-200 shadow-sm">
-                            <input type="hidden" name="existing_images[]" value="{{ $img }}">
-                            <button type="button" class="remove-existing-general-image absolute -top-2 -right-2 bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" title="Remove image">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            @if($idx === 0) <span class="absolute -bottom-2 -left-2 bg-[#a91b43] text-white text-[8px] font-black rounded-full px-2 py-0.5 shadow-md uppercase tracking-tighter">Primary</span> @endif
-                        </div>
-                        @endforeach
-                    </div>
-                    @endif
-
-                    <div id="generalImagesPreview" class="flex flex-wrap gap-2 mb-4"></div>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] transition-all">
-                        <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
-                        <span class="text-xs font-bold text-slate-500">Upload new gallery images</span>
-                        <input type="file" name="images[]" id="generalImagesInput" multiple accept="image/*" class="hidden">
-                    </label>
-                    <input type="hidden" name="primary_image_index" id="primary_image_index" value="0">
-                </div>
-            </div>
+            
 
             {{-- 5. SEO Details --}}
             <div id="seoSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
@@ -554,8 +586,14 @@ $(document).ready(function() {
         $('#matrixPlaceholder').addClass('hidden');
 
         const $thead = $('#variantMatrixWrapper thead tr').empty();
-        selectedNames.forEach(a => $thead.append(`<th class="px-4 py-4 text-slate-800 font-black tracking-tight">${a.name}</th>`));
-        $thead.append(`<th class="px-2 py-4">Price (₹)</th><th class="px-2 py-4">Sale (₹)</th><th class="px-2 py-4">Stock/Low</th><th class="px-2 py-4">Logistics</th><th class="px-2 py-4">Images</th><th class="px-2 py-4"></th>`);
+        selectedNames.forEach(a => $thead.append(`<th class="px-6 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">${a.name}</th>`));
+        $thead.append(`
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Pricing (₹) <span class="text-rose-500">*</span></th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Stock / Alert</th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Logistics</th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80 text-center">Images <span class="text-rose-500">*</span></th>
+            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80"></th>
+        `);
 
         const combinations = cartesian(Object.values(selected));
         const $tbody = $('#variantMatrixBody').empty();
@@ -564,41 +602,82 @@ $(document).ready(function() {
             const comboIds = comb.map(v => v.id).join(',');
             if(removedCombinations.has(comboIds)) return;
 
-            const ui = currentUIData[comboIds];
+            // FUZZY MATCHING: If exact combo key doesn't exist, look for a parent combination (subset)
+            let ui = currentUIData[comboIds];
+            if(!ui) {
+                const newIds = comboIds.split(',');
+                const fuzzyKey = Object.keys(currentUIData).find(oldKey => {
+                    const oldIds = oldKey.split(',');
+                    return oldIds.every(id => newIds.includes(id));
+                });
+                if(fuzzyKey) ui = currentUIData[fuzzyKey];
+            }
+
             const existing = findExisting(comboIds);
-            let cells = comb.map(v => `<td class="px-4 py-4 font-bold text-slate-700">${v.name}</td>`).join('');
+            let cells = comb.map(v => `<td class="px-6 py-6"><span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-[11px] border border-slate-200">${v.name}</span></td>`).join('');
             
             const $row = $(`
-                <tr class="border-b border-slate-50">
+                <tr class="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
                     ${cells}
-                    <td class="px-1 py-4">
-                        <input type="number" name="v_price[${comboIds}]" value="${ui ? ui.price : (existing ? existing.price : ($('#regular_price').val() || ''))}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center font-black text-rose-800" placeholder="0">
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[140px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">REG</span>
+                                <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : (existing ? existing.price : ($('#regular_price').val() || ''))}" required class="v-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-black text-[#a91b43] focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Price">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">SALE</span>
+                                <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : (existing ? existing.sale_price : '')}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-bold text-slate-500 focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Offer">
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-1 py-4">
-                        <input type="number" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : (existing ? existing.sale_price : '')}" class="w-full bg-white border border-slate-200 rounded-lg py-2 text-center text-slate-500" placeholder="Sale">
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[120px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-boxes"></i></span>
+                                <input type="number" min="0" name="v_stock[${comboIds}]" value="${ui ? ui.stock : (existing ? existing.stock_quantity : '0')}" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#a91b43] transition-all" placeholder="Stock">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-bell"></i></span>
+                                <input type="number" min="0" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : (existing ? (existing.low_stock_threshold || 0) : 0)}" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-[10px] font-bold text-rose-400 outline-none focus:border-[#a91b43] transition-all" placeholder="Alert at">
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-1 py-4 space-y-1">
-                        <input type="number" name="v_stock[${comboIds}]" value="${ui ? ui.stock : (existing ? existing.stock_quantity : '10')}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 text-center font-black" placeholder="Stock">
-                        <input type="number" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : (existing ? (existing.low_stock_threshold || 5) : 5)}" class="w-full bg-white border border-slate-100 rounded py-1 text-center text-[10px]" placeholder="Alert At">
+                    <td class="px-4 py-6">
+                        <div class="space-y-2 max-w-[160px]">
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">SKU</span>
+                                <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : (existing ? (existing.sku || '') : '')}" required class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Variant SKU">
+                            </div>
+                            <div class="relative group">
+                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">WGT</span>
+                                <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : (existing ? (existing.weight || '') : '')}" class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Weight (gr)">
+                            </div>
+                            <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-100 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]">
+                                <option value="">Ship Class</option>
+                                @foreach($shippingClasses as $sc)
+                                    <option value="{{ $sc->id }}" ${ui ? (ui.ship == "{{ $sc->id }}" ? 'selected' : '') : (existing && existing.shipping_class_id == {{ $sc->id }} ? 'selected' : '')}>{{ $sc->name }}</option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
+                        </div>
                     </td>
-                    <td class="px-1 py-4 space-y-1">
-                        <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : (existing ? (existing.sku || '') : '')}" class="w-full bg-slate-50 border border-slate-100 rounded py-1 px-1 text-[8px] font-black" placeholder="SKU">
-                        <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : (existing ? (existing.weight || '') : '')}" class="w-full bg-white border border-slate-100 rounded py-1 px-1 text-[8px]" placeholder="Weight (gr)">
-                        <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-100 rounded py-1 text-[8px] outline-none">
-                            <option value="">Ship Class</option>
-                            @foreach($shippingClasses as $sc)
-                                <option value="{{ $sc->id }}" ${ui ? (ui.ship == "{{ $sc->id }}" ? 'selected' : '') : (existing && existing.shipping_class_id == {{ $sc->id }} ? 'selected' : '')}>{{ $sc->name }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
-                    </td>
-                    <td class="px-1 py-4">
-                        <div class="flex flex-col items-center gap-1">
-                            <label class="cursor-pointer bg-slate-50 hover:bg-[#a91b43] hover:text-white px-2 py-1 rounded-md text-[8px] font-black uppercase transition-all">
-                                <i class="fas fa-camera"></i>
-                                <input type="file" name="v_images[${comboIds}][]" class="v-file-input hidden" multiple accept="image/*">
+                    <td class="px-4 py-6 min-w-[200px]">
+                        <div class="flex flex-row items-center gap-4">
+                            <label class="shrink-0 w-12 h-12 flex items-center justify-center bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] hover:text-[#a91b43] transition-all group shadow-sm">
+                                <i class="fas fa-camera text-slate-300 group-hover:scale-110 transition-transform text-lg"></i>
+                                <input type="file" name="v_images[${comboIds}][]" ${ (() => {
+                                    let arr = [];
+                                    if (ui && ui.existing_images) {
+                                        try { arr = JSON.parse(ui.existing_images); } catch(e) { arr = []; }
+                                    } else if (!ui && existing) {
+                                        arr = existing.images || existing.image;
+                                        if(typeof arr === 'string') try { arr = JSON.parse(arr); } catch(e) { arr = [arr]; }
+                                    }
+                                    return (arr && arr.length > 0) ? '' : 'required';
+                                })() } class="v-file-input hidden" multiple accept="image/*">
                             </label>
-                            <div class="flex flex-col items-center gap-2 py-2">
+                            <div class="v-preview-container flex flex-row flex-wrap gap-2">
                                 ${(() => {
                                     let arr = [];
                                     if (ui && ui.existing_images) {
@@ -609,27 +688,43 @@ $(document).ready(function() {
                                     }
                                     if(!Array.isArray(arr)) arr = arr ? [arr] : [];
                                     
-                                    return arr.map(img => `
-                                        <div class="relative flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-xl group w-16 h-16">
-                                            <img src="${window.UPLOAD_URL}/${img}" class="w-full h-full rounded-lg object-cover">
-                                            <button type="button" class="remove-variant-image absolute -top-2 -right-2 bg-[#a91b43] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-type="existing" data-combo="${comboIds}">
+                                    let existingHtml = arr.map(img => `
+                                        <div class="relative flex items-center gap-2 bg-slate-50 border border-slate-200 p-0.5 rounded-lg group w-10 h-10 shadow-sm">
+                                            <img src="${window.UPLOAD_URL}/${img}" class="w-full h-full rounded-md object-cover">
+                                            <button type="button" class="remove-variant-image absolute -top-1 -right-1 bg-[#a91b43] text-white w-4 h-4 rounded-full flex items-center justify-center border border-white shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[8px]" data-type="existing" data-combo="${comboIds}">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>`).join('');
+                                    
+                                    return existingHtml + (ui ? ui.preview : '');
                                 })()}
-                                <div class="v-preview-container flex flex-col items-center gap-2">
-                                    ${ui ? ui.preview : ''}
-                                </div>
                             </div>
                             <input type="hidden" name="v_existing_images[${comboIds}]" value='${ui ? ui.existing_images : (existing && (existing.images || existing.image) ? (typeof (existing.images || existing.image) === 'string' ? (existing.images || existing.image) : JSON.stringify(existing.images || existing.image)) : "[]")}' class="existing-images-input">
                         </div>
+                        <div class="v-img-error-msg error-text hidden">This field is required.</div>
                     </td>
-                    <td class="px-2 py-4"><button type="button" class="remove-variant-row text-slate-300 hover:text-rose-600"><i class="fas fa-trash-alt"></i></button></td>
+                    <td class="px-4 py-6 text-right">
+                        <button type="button" class="remove-variant-row w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-rose-50 hover:text-rose-600 transition-all">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                    </td>
                 </tr>
             `);
 
-            // Restore files if preserved
-            const $preserved = $('#hidden-file-store').find('#temp_file_' + comboIds.replace(/,/g, '_'));
+            // Restore files with fuzzy matching
+            let $preserved = $('#hidden-file-store').find('#temp_file_' + comboIds.replace(/,/g, '_'));
+            if(!$preserved.length) {
+                 const newIds = comboIds.split(',');
+                 $('#hidden-file-store input').each(function() {
+                     const oldCombo = $(this).attr('id').replace('temp_file_', '').replace(/_/g, ',');
+                     const oldIds = oldCombo.split(',');
+                     if(oldIds.every(id => newIds.includes(id))) {
+                         $preserved = $(this).clone(true); // Clone to allow multiple inheriting rows
+                         return false; 
+                     }
+                 });
+            }
+
             if($preserved.length) {
                 $row.find('.v-file-input').replaceWith($preserved.removeAttr('id'));
             }
@@ -647,17 +742,158 @@ $(document).ready(function() {
         });
     }
 
+    // Handle form submission validation
+    $('#productForm').on('submit', function(e) {
+        let isValid = true;
+        $('#imagesErrorMsg').addClass('hidden');
+
+        const isVar = $('#isVariantCheckbox').is(':checked');
+        
+        if (!isVar) {
+            // Main Images check (browser handles SKU/Price via 'required')
+            const $imgInput = $('#generalImagesInput');
+            const existingCount = $('input[name="existing_images[]"]').length;
+            if ((!$imgInput[0].files || $imgInput[0].files.length === 0) && existingCount === 0) {
+                isValid = false;
+                $('#imagesErrorMsg').removeClass('hidden');
+            }
+        } else {
+            // Variant matrix check
+            const $rows = $('#variantMatrixBody tr');
+            if ($rows.length > 0) {
+                $rows.each(function() {
+                    const $row = $(this);
+                    const $vImg = $row.find('.v-file-input');
+                    const $vPrice = $row.find('.v-price-input');
+                    const $vSku = $row.find('input[name*="v_sku"]');
+                    
+                    let existingVarImgs = [];
+                    try {
+                        const existingVal = $row.find('.existing-images-input').val();
+                        existingVarImgs = JSON.parse(existingVal || '[]');
+                    } catch(e) { existingVarImgs = []; }
+
+                    if ($vPrice.val() === '') {
+                        isValid = false;
+                        $vPrice.addClass('border-rose-500');
+                    } else {
+                        $vPrice.removeClass('border-rose-500');
+                    }
+
+                    if ($vSku.val() === '') {
+                        isValid = false;
+                        $vSku.addClass('border-rose-500');
+                    } else {
+                        $vSku.removeClass('border-rose-500');
+                    }
+
+                    if ((!$vImg[0].files || $vImg[0].files.length === 0) && existingVarImgs.length === 0) {
+                        isValid = false;
+                        $row.find('label').addClass('border-rose-500');
+                        $row.find('.v-img-error-msg').removeClass('hidden');
+                    } else {
+                        $row.find('label').removeClass('border-rose-500');
+                        $row.find('.v-img-error-msg').addClass('hidden');
+                    }
+                });
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            const $firstError = $('.text-rose-500:not(.hidden), .border-rose-500').first();
+            if ($firstError.length) {
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $firstError.offset().top - 200
+                }, 500);
+            }
+        }
+    });
+
+    // Toggle required attributes based on variant state
+    function updateRequiredState() {
+        const isVar = $('#isVariantCheckbox').is(':checked');
+        $('#regular_price').prop('required', !isVar);
+        $('input[name="sku"]').prop('required', !isVar);
+        
+        // Image requiredness depends on existing images
+        const existingCount = $('input[name="existing_images[]"]').length;
+        $('#generalImagesInput').prop('required', !isVar && existingCount === 0);
+    }
+
+    $('#isVariantCheckbox').on('change', function() {
+        updateRequiredState();
+        const isVar = $(this).is(':checked');
+        $('#pricingStockSection').toggleClass('hidden', isVar);
+        $('#generalSkuField').toggleClass('hidden', isVar);
+    });
+    
+    // Set initial state
+    updateRequiredState();
+
     function cartesian(args) {
         let r = [], max = args.length - 1;
         function helper(arr, i) { for (let j = 0, l = args[i].length; j < l; j++) { let a = arr.slice(0); a.push(args[i][j]); if (i === max) r.push(a); else helper(a, i + 1); } }
         helper([], 0); return r;
     }
 
+    // Price Validation for Main Fields
+    $('#regular_price, #sale_price').on('input', function() {
+        const price = parseFloat($('#regular_price').val()) || 0;
+        const sale = parseFloat($('#sale_price').val()) || 0;
+
+        if (sale > price && price > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Sale Price',
+                text: 'Main sale price cannot be greater than regular price.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $('#sale_price').val(price);
+        }
+    });
+
+    // Price Validation for Variants
+    $(document).on('input', '.v-price-input, .v-sale-price-input', function() {
+        const $row = $(this).closest('tr');
+        const price = parseFloat($row.find('.v-price-input').val()) || 0;
+        const sale = parseFloat($row.find('.v-sale-price-input').val()) || 0;
+
+        if (sale > price && price > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Sale Price',
+                text: 'Sale price cannot be greater than regular price.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $row.find('.v-sale-price-input').val(price);
+        }
+    });
+
     $(document).on('change', '.v-file-input', function() {
-        const $td = $(this).closest('td');
-        const preview = $td.find('.v-preview-container').empty();
+        const $input = $(this);
+        const $td = $input.closest('td');
+        const preview = $td.find('.v-preview-container');
         const comboIds = $td.closest('tr').find('.variant-comb-input').val();
         
+        const dt = new DataTransfer();
+        // Keep existing files if any (from our custom tracker)
+        const oldFiles = $input.data('files-list') || [];
+        oldFiles.forEach(f => dt.items.add(f));
+        
+        // Add new selection
+        Array.from(this.files).forEach(f => dt.items.add(f));
+        
+        this.files = dt.files;
+        $input.data('files-list', Array.from(this.files));
+
+        preview.empty();
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
@@ -691,13 +927,18 @@ $(document).ready(function() {
         } else {
             const $input = $td.find('.v-file-input');
             const dt = new DataTransfer();
-            const { files } = $input[0];
+            const files = $input.data('files-list') || Array.from($input[0].files);
             const indexToRemove = parseInt($btn.attr('data-index'));
             
+            const newFilesList = [];
             for(let i=0; i<files.length; i++) {
-                if(i !== indexToRemove) dt.items.add(files[i]);
+                if(i !== indexToRemove) {
+                    dt.items.add(files[i]);
+                    newFilesList.push(files[i]);
+                }
             }
             $input[0].files = dt.files;
+            $input.data('files-list', newFilesList);
             $btn.parent().remove();
             
             // Re-index new image previews
@@ -708,7 +949,21 @@ $(document).ready(function() {
     });
 
     $('#generalImagesInput').on('change', function() {
-        const preview = $('#generalImagesPreview').empty();
+        const $input = $(this);
+        const preview = $('#generalImagesPreview');
+        const dt = new DataTransfer();
+        
+        // Keep existing new files
+        const oldFiles = $input.data('files-list') || [];
+        oldFiles.forEach(f => dt.items.add(f));
+        
+        // Add new selection
+        Array.from(this.files).forEach(f => dt.items.add(f));
+        
+        this.files = dt.files;
+        $input.data('files-list', Array.from(this.files));
+
+        preview.empty();
         Array.from(this.files).forEach((f, idx) => {
             const r = new FileReader();
             r.onload = e => preview.append(`
@@ -724,15 +979,23 @@ $(document).ready(function() {
 
     $(document).on('click', '.remove-general-image-new', function() {
         const $btn = $(this);
-        const indexToRem = parseInt($btn.data('index'));
         const $input = $('#generalImagesInput');
         const dt = new DataTransfer();
-        const { files } = $input[0];
+        const files = $input.data('files-list') || Array.from($input[0].files);
+        const indexToRem = parseInt($btn.data('index'));
+        
+        const newFilesList = [];
         for(let i=0; i<files.length; i++) {
-            if(i !== indexToRem) dt.items.add(files[i]);
+            if(i !== indexToRem) {
+                dt.items.add(files[i]);
+                newFilesList.push(files[i]);
+            }
         }
         $input[0].files = dt.files;
+        $input.data('files-list', newFilesList);
         $btn.parent().remove();
+        
+        // Re-index remaining ones
         $('#generalImagesPreview .remove-general-image-new').each(function(i) {
             $(this).attr('data-index', i).data('index', i);
         });

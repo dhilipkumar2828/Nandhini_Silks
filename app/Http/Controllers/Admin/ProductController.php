@@ -12,6 +12,7 @@ use App\Models\Attribute;
 use App\Models\TaxClass;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\OfferCollection;
 
 class ProductController extends Controller
 {
@@ -46,8 +47,9 @@ class ProductController extends Controller
         $taxClasses = TaxClass::where('status', '=', 1)->get();
         $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->orderBy('name')->get(['id', 'name']);
+        $offerCollections = OfferCollection::where('status', 'active')->get();
 
-        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
+        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'shippingClasses', 'products', 'offerCollections'));
     }
 
     public function store(Request $request)
@@ -69,6 +71,7 @@ class ProductController extends Controller
             'stock_quantity' => $isVariant ? 'nullable|integer|min:0' : 'required|integer|min:0',
             'status' => 'required',
             'display_order' => 'nullable|integer',
+            'show_offer_on_homepage' => 'nullable|boolean',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
@@ -78,7 +81,9 @@ class ProductController extends Controller
             'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
         ]);
 
+        $isVariant = $request->input('is_variant') == '1';
         $data = $request->except(['color_images', 'images']);
+        $data['show_offer_on_homepage'] = $request->has('show_offer_on_homepage') ? 1 : 0;
         
         // If it's a variant product and regular_price is empty, try to get from first variant
         if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
@@ -126,6 +131,11 @@ class ProductController extends Controller
         }
 
         $product = Product::create($data);
+
+        // Sync Offer Collections
+        if ($request->has('offer_collections')) {
+            $product->offerCollections()->sync($request->offer_collections);
+        }
 
         // Handle Variant Matrix Storage
         // Handle Variant Matrix
@@ -244,8 +254,9 @@ class ProductController extends Controller
         $taxClasses = TaxClass::where('status', '=', 1)->get();
         $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->where('id', '!=', $product->id)->orderBy('name')->get(['id', 'name']);
+        $offerCollections = OfferCollection::where('status', 'active')->get();
         
-        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
+        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'shippingClasses', 'products', 'offerCollections'));
     }
 
     public function update(Request $request, Product $product)
@@ -267,6 +278,7 @@ class ProductController extends Controller
             'stock_quantity' => $isVariant ? 'nullable|integer|min:0' : 'required|integer|min:0',
             'status' => 'required',
             'display_order' => 'nullable|integer',
+            'show_offer_on_homepage' => 'nullable|boolean',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
@@ -278,6 +290,7 @@ class ProductController extends Controller
 
         $isVariant = $request->input('is_variant') == '1';
         $data = $request->except(['color_images', 'images']);
+        $data['show_offer_on_homepage'] = $request->has('show_offer_on_homepage') ? 1 : 0;
         
         // If it's a variant product and regular_price is empty, try to get from first variant
         if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
@@ -474,6 +487,13 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        // Sync Offer Collections
+        if ($request->has('offer_collections')) {
+            $product->offerCollections()->sync($request->offer_collections);
+        } else {
+            $product->offerCollections()->detach();
+        }
 
         return redirect()->route('admin.products.success')->with(['success' => 'Product updated successfully.', 'action' => 'updated']);
     }

@@ -255,12 +255,6 @@
                             <span class="font-bold ml-2 text-[12px]">Child Categories</span>
                         </a>
 
-                        <a href="{{ route('admin.products.index') }}"
-                            class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
-                            <div class="w-4 flex justify-center"><i class="fas fa-box text-xs"></i></div>
-                            <span class="font-bold ml-2 text-[12px]">Products</span>
-                        </a>
-
                         <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
                             <button @click="openAttr = !openAttr"
                                 class="w-full nav-link flex items-center px-3 py-2 rounded-xl transition-all"
@@ -284,6 +278,19 @@
                                 </a>
                             </div>
                         </div>
+
+                        <a href="{{ route('admin.offer-collections.index') }}" class="nav-link {{ request()->routeIs('admin.offer-collections.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                            <div class="w-6 flex justify-center"><i class="fas fa-gifts text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Offer Collections</span>
+                        </a>
+
+                        <a href="{{ route('admin.products.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-box text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[12px]">Products</span>
+                        </a>
+
+                        
                 </div>
             </div>
 

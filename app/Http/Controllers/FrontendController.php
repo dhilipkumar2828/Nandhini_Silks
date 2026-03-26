@@ -17,6 +17,7 @@ use App\Models\ProductReview;
 use App\Models\Banner;
 use App\Models\Testimonial;
 use App\Models\Ad;
+use App\Models\OfferCollection;
 
 class FrontendController extends Controller
 {
@@ -35,7 +36,17 @@ class FrontendController extends Controller
         // Fetch advertisements for promo section
         $ads = Ad::where('status', '=', 1)->latest()->get();
 
-        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories', 'ads'));
+        // Fetch Offer Collections for homepage sections
+        $offerCollections = OfferCollection::with(['products' => function($q) {
+            $q->where('status', 1)->where('show_offer_on_homepage', 1)->latest()->limit(12);
+        }])
+        ->where('status', 'active')
+        ->whereHas('products', function($q) {
+            $q->where('status', 1)->where('show_offer_on_homepage', 1);
+        })
+        ->get();
+
+        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories', 'ads', 'offerCollections'));
     }
 
     public function shop()

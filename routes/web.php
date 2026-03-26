@@ -141,6 +141,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('tax-classes', \App\Http\Controllers\Admin\TaxClassController::class)->names('admin.tax-classes');
         Route::resource('tax-rates', \App\Http\Controllers\Admin\TaxRateController::class)->names('admin.tax-rates');
         Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class)->names('admin.coupons');
+        Route::resource('offer-collections', \App\Http\Controllers\Admin\OfferCollectionController::class)->names('admin.offer-collections');
 
         // Shipping Management
         Route::resource('shipping-classes', \App\Http\Controllers\Admin\ShippingClassController::class)->names('admin.shipping-classes');
