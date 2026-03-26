@@ -279,14 +279,12 @@
                     <button class="icon-btn" type="button" aria-label="Favorites"
                         onclick="window.location.href='{{ route('wishlist') }}'">
                         <img src="{{ asset('images/favorite.svg') }}" alt="" width="18" height="23">
-                        @if($wishlistCount > 0)
-                            <span class="cart-count wishlist-count">{{ $wishlistCount }}</span>
-                        @endif
+                        <span class="cart-count wishlist-count-badge" style="{{ $wishlistCount > 0 ? '' : 'display:none;' }}">{{ $wishlistCount }}</span>
                     </button>
-                    <button class="icon-btn" type="button" aria-label="Cart" id="cartDrawerBtn">
+                    <a href="{{ route('cart') }}" class="icon-btn" aria-label="Cart">
                         <img src="{{ asset('images/local_mall.svg') }}" alt="" width="14" height="20" />
-                        <span class="cart-count" style="{{ $cartCount > 0 ? '' : 'display:none;' }}">{{ $cartCount }}</span>
-                    </button>
+                        <span class="cart-count cart-count-badge" style="{{ $cartCount > 0 ? '' : 'display:none;' }}">{{ $cartCount }}</span>
+                    </a>
                     @auth
                         <button class="icon-btn" type="button" aria-label="Profile"
                             onclick="window.location.href='{{ route('my-account') }}'">
@@ -609,7 +607,7 @@
                         isInWishlist = icon.classList.contains('fa-solid');
                     }
 
-                    const url = isInWishlist ? `/wishlist/remove/${productId}` : `/wishlist/add/${productId}`;
+                    const url = isInWishlist ? `{{ url('wishlist/remove') }}/${productId}` : `{{ url('wishlist/add') }}/${productId}`;
 
                     fetch(url, {
                         method: 'POST',
@@ -638,14 +636,12 @@
                             });
 
                             // Update Header Count
-                            const wishlistCountBadges = document.querySelectorAll('.wishlist-count');
+                            const wishlistCountBadges = document.querySelectorAll('.wishlist-count-badge');
                             if (wishlistCountBadges.length > 0) {
                                 wishlistCountBadges.forEach(badge => {
                                     badge.textContent = data.count;
                                     badge.style.display = data.count > 0 ? 'inline-block' : 'none';
                                 });
-                            } else if (data.count > 0) {
-                                window.location.reload();
                             }
 
                             // Specific logic for Wishlist Page: Remove card if on wishlist page
@@ -715,7 +711,7 @@
             document.body.style.overflow = '';
         }
 
-        if(cartDrawerBtn) cartDrawerBtn.addEventListener('click', openDrawer);
+        // if(cartDrawerBtn) cartDrawerBtn.addEventListener('click', openDrawer);
         if(closeCart) closeCart.addEventListener('click', closeDrawer);
         if(cartOverlay) cartOverlay.addEventListener('click', closeDrawer);
 
@@ -723,7 +719,7 @@
             const content = document.getElementById('miniCartContent');
             const subtotal = document.getElementById('miniCartSubtotal');
             
-            fetch('/cart/mini-cart', {
+            fetch('{{ url("cart/mini-cart") }}', {
                 headers: { 'Accept': 'application/json' }
             })
             .then(res => res.json())
@@ -756,7 +752,7 @@
                 }
                 
                 // Sync main cart badges
-                const cartCountBadges = document.querySelectorAll('.cart-count');
+                const cartCountBadges = document.querySelectorAll('.cart-count-badge');
                 cartCountBadges.forEach(badge => {
                     badge.textContent = data.totalItems || 0;
                     badge.style.display = (data.totalItems > 0) ? 'inline-block' : 'none';
@@ -764,8 +760,9 @@
             });
         }
 
-        // Expose openDrawer globally to be used by AJAX cart additions
+        // Expose functions globally to be used by AJAX cart additions
         window.openCartDrawer = openDrawer;
+        window.updateMiniCart = updateMiniCart;
 
         function removeItem(key) {
             Swal.fire({
@@ -780,7 +777,7 @@
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = window.location.origin + "/cart/remove/" + key;
+                    form.action = "{{ url('cart/remove') }}/" + key;
                     const csrf = document.createElement('input');
                     csrf.type = 'hidden';
                     csrf.name = '_token';
@@ -803,7 +800,7 @@
                 confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('/cart/remove/' + key, {
+                    fetch('{{ url("cart/remove") }}/' + key, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
