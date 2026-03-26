@@ -648,7 +648,14 @@ class CartController extends Controller
                 if (!$product) continue;
 
                 $price = $item->variant ? ($item->variant->sale_price ?: $item->variant->price) : ($product->sale_price ?: $product->regular_price ?: $product->price);
-                $imagePath = $item->variant ? $item->variant->image : $product->image_path;
+                $imagePath = ($item->variant && $item->variant->image) ? $item->variant->image : $product->image_path;
+                
+                if (!$imagePath && !empty($product->images)) {
+                    $imgs = is_string($product->images) ? json_decode($product->images, true) : $product->images;
+                    if (is_array($imgs) && count($imgs) > 0) {
+                        $imagePath = $imgs[0];
+                    }
+                }
                 
                 // Get size and color names for display
                 $size = '';

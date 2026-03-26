@@ -1403,8 +1403,12 @@
                                 ];
                             }
                         } elseif ($product->image_path) {
+                            $path = $product->image_path;
+                            $url = (Str::startsWith($path, 'products/') || Str::startsWith($path, 'categories/')) 
+                                ? asset('uploads/' . $path) 
+                                : asset('images/' . $path);
                             $allImages[] = [
-                                'url' => asset('images/' . $product->image_path),
+                                'url' => $url,
                                 'color_id' => null,
                             ];
                         }
@@ -1839,8 +1843,22 @@
                                             <a href="{{ route('product.show', $related->slug) }}"
                                                 style="text-decoration: none; color: inherit;">
                                                 <div class="product-image-v2">
-                                                    <img src="{{ $related->image_path ? asset('images/' . $related->image_path) : asset('images/pro.png') }}"
-                                                        alt="{{ $related->name }}">
+                                                    @php
+                                                        $relatedImage = 'images/pro.png';
+                                                        if ($related->image_path) {
+                                                            if (Str::startsWith($related->image_path, 'products/') || Str::startsWith($related->image_path, 'categories/')) {
+                                                                $relatedImage = 'uploads/' . $related->image_path;
+                                                            } else {
+                                                                $relatedImage = 'images/' . $related->image_path;
+                                                            }
+                                                        } elseif (!empty($related->images)) {
+                                                            $rImages = is_string($related->images) ? json_decode($related->images, true) : $related->images;
+                                                            if (is_array($rImages) && count($rImages) > 0) {
+                                                                $relatedImage = 'uploads/' . $rImages[0];
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
                                                 </div>
                                                 <div class="product-info-v2">
                                                     <h3 class="product-name-v2">{{ $related->name }}</h3>

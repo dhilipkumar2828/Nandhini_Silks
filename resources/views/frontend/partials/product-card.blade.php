@@ -10,13 +10,23 @@
         <div class="product-image-v2">
             @php
                 $imagePath = $product->image_path;
-                if (!$imagePath && method_exists($product, 'images')) {
+                if (!$imagePath && !empty($product->images)) {
                     $images = is_string($product->images) ? json_decode($product->images, true) : $product->images;
                     $imagePath = (is_array($images) && count($images) > 0) ? $images[0] : null;
                 }
+                
+                $displayImage = asset('images/pro.png');
+                if ($imagePath) {
+                    if (Str::startsWith($imagePath, 'products/') || Str::startsWith($imagePath, 'categories/')) {
+                        $displayImage = asset('uploads/' . $imagePath);
+                    } elseif (Str::startsWith($imagePath, 'images/')) {
+                        $displayImage = asset($imagePath);
+                    } else {
+                        $displayImage = asset('images/' . $imagePath);
+                    }
+                }
             @endphp
-            <img src="{{ $imagePath ? (str_contains($imagePath, 'uploads/') ? asset($imagePath) : asset('images/' . $imagePath)) : asset('images/pro.png') }}"
-                 alt="{{ $product->name }}">
+            <img src="{{ $displayImage }}" alt="{{ $product->name }}">
         </div>
         <div class="product-info-v2">
             <div class="product-rating-v2" style="color: #f1c40f; font-size: 14px; margin-bottom: 5px;">★★★★★</div>
