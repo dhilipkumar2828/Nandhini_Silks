@@ -122,27 +122,17 @@ class OrderController extends Controller
 
     public function downloadInvoice(Order $order)
     {
-        try {
-            // DIAGNOSTIC START
-            $checks = [
-                'mbstring' => extension_loaded('mbstring'),
-                'dom' => extension_loaded('dom'),
-                'gd' => extension_loaded('gd'),
-                'libxml' => extension_loaded('libxml'),
-                'class_exists' => class_exists('\Barryvdh\DomPDF\Facade\Pdf'),
-            ];
-            
-            if (in_array(false, $checks, true)) {
-                return "Server System Error: " . json_encode($checks);
-            }
-            // DIAGNOSTIC END
+        $order->load('items.product');
+        $filename = 'invoice-' . ($order->order_number ?? $order->id) . '.pdf';
 
-            ini_set('memory_limit', '512M');
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML('<h1>PDF Engine is Working!</h1>');
-            return $pdf->download('test.pdf');
+        $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'defaultFont'    => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ]);
 
-        } catch (\Throwable $e) {
-            return "Fatal Engine Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
-        }
+        return $pdf->download($filename);
     }
 }
