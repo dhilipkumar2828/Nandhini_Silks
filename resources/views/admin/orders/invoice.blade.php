@@ -90,8 +90,8 @@
             @php
                 $logoPath = public_path('images/nandhini-logo.png');
                 $logoBase64 = '';
-                if (file_exists($logoPath)) {
-                    $logoBase64 = base64_encode(file_get_contents($logoPath));
+                if ($logoPath && is_file($logoPath)) {
+                    $logoBase64 = base64_encode(@file_get_contents($logoPath));
                 }
             @endphp
             @if($logoBase64)
@@ -183,11 +183,20 @@
                             }
                         }
                         
-                        if (!$fullPath || !file_exists($fullPath)) {
+                        if (!$fullPath || !is_file($fullPath)) {
                             $fullPath = public_path('images/pro1.png');
                         }
+                        
+                        // Final safety check for fallback image
+                        if (!is_file($fullPath)) {
+                            $logoBase64 = null; // We'll just show text or nothing
+                        }
                     @endphp
-                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents($fullPath)) }}" style="width: 40px; height: 40px; border-radius: 4px;">
+                    @if(isset($fullPath) && is_file($fullPath))
+                        <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 40px; height: 40px; border-radius: 4px;">
+                    @else
+                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #94a3b8;">No Image</div>
+                    @endif
                 </td>
                 <td class="product-name" style="vertical-align: middle;">
                     {{ $item->product_name }}
