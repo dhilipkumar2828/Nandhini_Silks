@@ -1175,23 +1175,6 @@
                                     </article>
                                 </a>
                             </div>
-
-                            @foreach ($cat->subCategories as $sub)
-                                <div class="swiper-slide">
-                                    <a class="category-link" href="{{ route('category.show', $sub->slug) }}"
-                                        style="text-decoration: none;">
-                                        <article class="category-card sub-category-card">
-                                            <div class="category-image-shell">
-                                                <img class="category-image"
-                                                    src="{{ $sub->image ? asset('uploads/' . $sub->image) : asset('images/Rectangle 9.png') }}"
-                                                    alt="{{ $sub->name }}" />
-                                                <span class="category-ring"></span>
-                                            </div>
-                                            <h3 class="category-name">{{ $sub->name }}</h3>
-                                        </article>
-                                    </a>
-                                </div>
-                            @endforeach
                         @endforeach
                     </div>
                 </div>
