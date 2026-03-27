@@ -58,7 +58,7 @@
             left: 0;
             bottom: 0;
             top: auto !important;
-            transform: rotate(0deg) !important;
+            transform: rotate(180deg) !important;
         }
 
         .featured-decor-right {
@@ -1054,8 +1054,8 @@
                     </div>
                 </div>
                 <!-- Navigation outside swiper for correct button positioning -->
-                <div class="swiper-button-next collection-next"></div>
-                <div class="swiper-button-prev collection-prev"></div>
+                <div class="swiper-button-next collection-next saree-collection-next"></div>
+                <div class="swiper-button-prev collection-prev saree-collection-prev"></div>
             </div>
         </section>
     @endif
@@ -1339,8 +1339,8 @@
                         disableOnInteraction: false,
                     },
                     navigation: {
-                        nextEl: '.collection-next',
-                        prevEl: '.collection-prev',
+                        nextEl: '.saree-collection-next',
+                        prevEl: '.saree-collection-prev',
                     },
                     breakpoints: {
                         640: {

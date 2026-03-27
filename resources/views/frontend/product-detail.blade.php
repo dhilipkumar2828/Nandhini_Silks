@@ -2492,11 +2492,19 @@
                                     @endforeach
                                 </div>
                                 @auth
-                                    <button type="button" class="review-write-btn" id="openReviewFormBtn"
-                                        style="margin-top: 24px;">
-                                        <i class="far fa-pen-to-square"></i>
-                                        {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
-                                    </button>
+                                    @if ($hasPurchased)
+                                        <button type="button" class="review-write-btn" id="openReviewFormBtn"
+                                            style="margin-top: 24px;">
+                                            <i class="far fa-pen-to-square"></i>
+                                            {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
+                                        </button>
+                                    @else
+                                        <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
+                                            style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                            <i class="fas fa-info-circle"></i>
+                                            Order this product to leave a review
+                                        </div>
+                                    @endif
                                 @else
                                     <a href="{{ route('login') }}" class="review-write-btn"
                                         style="margin-top: 24px; text-decoration: none;">
@@ -2513,10 +2521,18 @@
                                     <p class="review-empty-text">Be the first to share your thoughts about this product.
                                     </p>
                                     @auth
-                                        <button type="button" class="review-write-btn" id="openReviewFormBtn">
-                                            <i class="far fa-pen-to-square"></i>
-                                            Write a Review
-                                        </button>
+                                        @if ($hasPurchased)
+                                            <button type="button" class="review-write-btn" id="openReviewFormBtn">
+                                                <i class="far fa-pen-to-square"></i>
+                                                Write a Review
+                                            </button>
+                                        @else
+                                            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
+                                                style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                                <i class="fas fa-info-circle"></i>
+                                                Order this product to leave a review
+                                            </div>
+                                        @endif
                                     @else
                                         <a href="{{ route('login') }}" class="review-write-btn"
                                             style="text-decoration: none;">

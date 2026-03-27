@@ -146,6 +146,21 @@ class FrontendController extends Controller
             ? ProductReview::where('product_id', $product->id)->where('user_id', Auth::guard('web')->id())->latest()->first()
             : null;
 
+        $hasPurchased = false;
+        if (Auth::guard('web')->check()) {
+            $hasPurchased = Order::where('user_id', Auth::guard('web')->id())
+                ->whereNotIn('order_status', ['cancelled', 'failed'])
+                ->whereHas('items', function ($q) use ($product) {
+                    $q->where('product_id', $product->id);
+                })
+                ->exists();
+
+            // Allow editing if a review already exists
+            if (!$hasPurchased && $userReview) {
+                $hasPurchased = true;
+            }
+        }
+
         // Correctly check if product is in cart (handles both session and DB)
         $inCart = false;
         $cartVariantIds = [];
@@ -181,7 +196,7 @@ class FrontendController extends Controller
             $inCart = $cartItems->isNotEmpty();
         }
 
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'cartVariantIds', 'cartVariantQuantities', 'userReview'));
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'cartVariantIds', 'cartVariantQuantities', 'userReview', 'hasPurchased'));
     }
 
     public function about() { return view('frontend.about'); }
@@ -374,6 +389,23 @@ class FrontendController extends Controller
 
     public function storeReview(Request $request, Product $product)
     {
+        if (!Auth::guard('web')->check()) {
+            return back()->with('error', 'Please login to submit a review.');
+        }
+
+        $hasPurchased = Order::where('user_id', Auth::guard('web')->id())
+            ->whereNotIn('order_status', ['cancelled', 'failed'])
+            ->whereHas('items', function ($q) use ($product) {
+                $q->where('product_id', $product->id);
+            })
+            ->exists();
+
+        $existingReview = ProductReview::where('product_id', $product->id)->where('user_id', Auth::guard('web')->id())->exists();
+
+        if (!$hasPurchased && !$existingReview) {
+            return back()->with('error', 'You can only review products you have purchased.');
+        }
+
         $data = $request->validate([
             'stars' => 'required|integer|min:1|max:5',
             'review' => 'required|string|min:10',
