@@ -1288,6 +1288,19 @@
                 margin-top: 2px !important;
             }
         }
+
+        /* Final mobile nav alignment override */
+        @media (max-width: 768px) {
+            .featured-prev,
+            .featured-next,
+            .offers-prev,
+            .offers-next,
+            .category-prev,
+            .category-next {
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+            }
+        }
     </style>
 @endpush
 

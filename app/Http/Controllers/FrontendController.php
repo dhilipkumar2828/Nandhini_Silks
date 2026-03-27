@@ -11,6 +11,7 @@ use App\Models\AttributeValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Order;
 use App\Models\ProductReview;
 
@@ -326,27 +327,46 @@ class FrontendController extends Controller
     {
         $user = Auth::guard('web')->user();
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[A-Za-z\s]+$/',
+            'email' => ['required', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string|in:Male,Female,Other',
             'dob' => 'nullable|date',
             'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:8|confirmed',
+            'new_password' => 'nullable|min:8|confirmed|required_with:current_password',
+        ], [
+            'email.regex' => 'Email must end with @gmail.com.',
         ]);
 
-        if ($request->new_password) {
-            if (Hash::check($request->current_password, $user->password)) {
-                $user->password = Hash::make($request->new_password);
-            } else {
+        if ($request->filled('new_password') || $request->filled('current_password')) {
+            if (!Hash::check((string) $request->current_password, (string) $user->password)) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'message' => 'Validation failed.',
+                        'errors' => [
+                            'current_password' => ['Current password does not match.'],
+                        ],
+                    ], 422);
+                }
+
                 return back()->withErrors(['current_password' => 'Current password does not match.']);
             }
+            $user->password = Hash::make($request->new_password);
         }
 
         $user->name = $data['name'];
-        $user->phone = $data['phone'];
-        $user->gender = $data['gender'];
-        $user->dob = $data['dob'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'] ?? null;
+        $user->gender = $data['gender'] ?? null;
+        $user->dob = $data['dob'] ?? null;
         $user->save();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+            ]);
+        }
 
         return back()->with('success', 'Profile updated successfully.');
     }
@@ -383,6 +403,71 @@ class FrontendController extends Controller
 
         return back()->with('success', 'Profile picture updated.');
     }
+
+    public function requestEmailChangeOtp(Request $request)
+    {
+        $user = Auth::guard('web')->user();
+
+        $data = $request->validate([
+            'new_email' => 'required|email|max:255|unique:users,email',
+        ]);
+
+        if (strcasecmp($data['new_email'], $user->email) === 0) {
+            return back()->withErrors(['new_email' => 'New email must be different from your current email.']);
+        }
+
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        $user->otp = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($data['new_email'])->send(new \App\Mail\VerficationOTP($otp));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Email Change OTP Failure: ' . $e->getMessage());
+            return back()->withErrors(['new_email' => 'Unable to send OTP now. Please try again.']);
+        }
+
+        $request->session()->put('pending_email_change_user_id', $user->id);
+        $request->session()->put('pending_new_email', $data['new_email']);
+
+        return back()
+            ->with('success', 'OTP sent to your new email address.')
+            ->with('email_change_otp_sent', true);
+    }
+
+    public function verifyEmailChangeOtp(Request $request)
+    {
+        $request->validate([
+            'email_change_otp' => 'required|string|size:6',
+        ]);
+
+        $user = Auth::guard('web')->user();
+        $pendingUserId = $request->session()->get('pending_email_change_user_id');
+        $pendingNewEmail = $request->session()->get('pending_new_email');
+
+        if (!$pendingUserId || !$pendingNewEmail || (int)$pendingUserId !== (int)$user->id) {
+            return back()->withErrors(['email_change_otp' => 'Email change session expired. Please request OTP again.']);
+        }
+
+        if ($user->otp !== $request->email_change_otp || !$user->otp_expires_at || $user->otp_expires_at->isPast()) {
+            return back()
+                ->withErrors(['email_change_otp' => 'Invalid or expired OTP.'])
+                ->with('email_change_otp_sent', true);
+        }
+
+        $user->email = $pendingNewEmail;
+        $user->email_verified_at = now();
+        $user->is_verified = true;
+        $user->otp = null;
+        $user->otp_expires_at = null;
+        $user->save();
+
+        $request->session()->forget(['pending_email_change_user_id', 'pending_new_email']);
+
+        return back()->with('success', 'Email updated and verified successfully.');
+    }
+
     public function search(Request $request)
     {
         $query = $request->input('q');

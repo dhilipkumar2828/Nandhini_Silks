@@ -11,11 +11,13 @@ class UserAddressController extends Controller
     protected function validateAddress(Request $request): array
     {
         return $request->validate([
-            'label' => 'required|string|max:255',
+            'label' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
             'address1' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
-            'zip' => 'required|string|max:20',
+            'recipient_phone' => ['required', 'regex:/^\d{10}$/'],
+            'city' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'state' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'zip' => ['required', 'regex:/^\d{6}$/'],
+            'country' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
         ]);
     }
 
@@ -30,12 +32,13 @@ class UserAddressController extends Controller
         UserAddress::create([
             'user_id' => auth()->id(),
             'label' => $request->label,
+            'recipient_phone' => $request->recipient_phone,
             'address1' => $request->address1,
             'address2' => $request->address2,
             'city' => $request->city,
             'state' => $request->state,
             'zip' => $request->zip,
-            'country' => $request->country ?? 'India',
+            'country' => $request->country,
             'landmark' => $request->landmark,
         ]);
 
@@ -56,12 +59,13 @@ class UserAddressController extends Controller
 
         $address->update([
             'label' => $request->label,
+            'recipient_phone' => $request->recipient_phone,
             'address1' => $request->address1,
             'address2' => $request->address2,
             'city' => $request->city,
             'state' => $request->state,
             'zip' => $request->zip,
-            'country' => $request->country ?? 'India',
+            'country' => $request->country,
             'landmark' => $request->landmark,
         ]);
 

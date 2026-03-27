@@ -49,7 +49,7 @@
                                 @if($addr->address2)<span class="addr-street">{{ $addr->address2 }}</span><br>@endif
                                 <span class="addr-city-state">{{ $addr->city }}, {{ $addr->state }} - {{ $addr->zip }}</span><br>
                                 <span class="addr-country">{{ $addr->country }}</span><br>
-                                Phone: <span class="addr-phone">{{ optional(Auth::user())->phone }}</span>
+                                Phone: <span class="addr-phone">{{ $addr->recipient_phone ?? optional(Auth::user())->phone }}</span>
                             </div>
                             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
                                 <button type="button"
@@ -60,7 +60,8 @@
                                         city: @js($addr->city),
                                         state: @js($addr->state),
                                         zip: @js($addr->zip),
-                                        country: @js($addr->country ?? 'India')
+                                        country: @js($addr->country ?? 'India'),
+                                        recipient_phone: @js($addr->recipient_phone ?? optional(Auth::user())->phone)
                                     })"
                                     style="padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
                                     Edit Address
@@ -101,12 +102,17 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Address Label</label>
-                            <input type="text" id="address_label" name="label" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office"
+                            <input type="text" id="address_label" name="label" required oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office"
                                 data-msg-required="Please enter an address label.">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Phone Number</label>
-                            <input type="tel" value="{{ optional(Auth::user())->phone }}" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
+                            <input type="tel" id="address_phone" name="recipient_phone" value="{{ optional(Auth::user())->phone }}" required minlength="10" maxlength="10" data-rule-digits="true" inputmode="numeric"
+                                style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                data-msg-required="Please enter mobile number."
+                                data-msg-digits="Please enter a valid 10-digit mobile number."
+                                data-msg-minlength="Please enter a valid 10-digit mobile number."
+                                data-msg-maxlength="Please enter a valid 10-digit mobile number.">
                         </div>
                     </div>
 
@@ -121,11 +127,13 @@
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">City</label>
                             <input type="text" id="address_city" name="city" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
                                 data-msg-required="Please enter city.">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">State</label>
                             <input type="text" id="address_state" name="state" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
                                 data-msg-required="Please enter state.">
                         </div>
                     </div>
@@ -133,7 +141,7 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Pincode</label>
-                            <input type="text" id="address_zip" name="zip" required minlength="6" maxlength="6" data-rule-digits="true" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                            <input type="text" id="address_zip" name="zip" required minlength="6" maxlength="6" data-rule-digits="true" inputmode="numeric" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
                                 data-msg-required="Please enter pincode."
                                 data-msg-digits="Please enter a valid 6-digit pincode."
                                 data-msg-minlength="Please enter a valid 6-digit pincode."
@@ -141,7 +149,7 @@
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Country</label>
-                            <input type="text" id="address_country" name="country" value="India" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
+                            <input type="text" id="address_country" name="country" value="India" required oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
                         </div>
                     </div>
 
@@ -160,6 +168,7 @@
         const addressSubmitButton = document.getElementById('addressSubmitButton');
         const addressFields = {
             label: document.getElementById('address_label'),
+            phone: document.getElementById('address_phone'),
             address1: document.getElementById('address_address1'),
             city: document.getElementById('address_city'),
             state: document.getElementById('address_state'),
@@ -184,6 +193,7 @@
             addressModalSubtitle.textContent = 'Items will be delivered to this address.';
             addressSubmitButton.textContent = 'Save Address Details';
             addressFields.label.value = '';
+            addressFields.phone.value = @js(optional(Auth::user())->phone ?? '');
             addressFields.address1.value = '';
             addressFields.city.value = '';
             addressFields.state.value = '';
@@ -204,6 +214,7 @@
             addressModalSubtitle.textContent = 'Update your saved address details.';
             addressSubmitButton.textContent = 'Update Address';
             addressFields.label.value = address.label || '';
+            addressFields.phone.value = address.recipient_phone || '';
             addressFields.address1.value = address.address1 || '';
             addressFields.city.value = address.city || '';
             addressFields.state.value = address.state || '';
