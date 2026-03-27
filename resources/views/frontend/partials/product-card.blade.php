@@ -1,4 +1,5 @@
 <article class="product-card-v2" data-product-id="{{ $product->id }}">
+    <a href="{{ route('product.show', $product->slug) }}" class="product-card-link" style="text-decoration: none; color: inherit; display: block;">
         <div class="product-image-v2" style="position: relative;">
             @php
                 $imagePath = $product->image_path;

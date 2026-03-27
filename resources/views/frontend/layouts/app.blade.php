@@ -591,9 +591,10 @@
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.wishlist-btn');
                 if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     @guest
-                        toastr.info('Please login to save your wishlist.');
-                        setTimeout(() => window.location.href = '{{ route("login") }}', 1000);
+                        window.location.href = '{{ route("login") }}';
                         return;
                     @endguest
                     const productId = btn.getAttribute('data-product-id');

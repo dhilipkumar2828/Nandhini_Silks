@@ -2797,13 +2797,13 @@
             @if (isset($relatedProducts) && $relatedProducts->count() > 0)
                 <section class="related-products">
                     <div class="recently-viewed-header" style="margin-bottom: 40px;">
-                        <h2 class="recently-viewed-title">Related Collections</h2>
+                        <h2 class="recently-viewed-title">Related Products</h2>
                         <div class="recently-viewed-accent"></div>
                     </div>
                     <div class="swiper-wrap-outer">
                         <div class="swiper related-swiper">
                             <div class="swiper-wrapper">
-                                @foreach ($relatedProducts->concat($relatedProducts) as $related)
+                                @foreach ($relatedProducts as $related)
                                     <div class="swiper-slide">
                                         <article class="product-card-v2" style="height: 100%;">
                                             @php
@@ -2826,6 +2826,13 @@
                                                     }
                                                 }
                                             @endphp
+                                            @php $rInWishlist = in_array($related->id, session('wishlist', [])); @endphp
+                                            <button type="button" class="btn-wishlist-detail wishlist-btn" id="relatedWishlistBtn_{{ $related->id }}"
+                                                aria-label="Add to Wishlist" data-product-id="{{ $related->id }}"
+                                                style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="relatedWishlistIcon_{{ $related->id }}"
+                                                    style="color: #A91B43; font-size: 18px;"></i>
+                                            </button>
                                             <a href="{{ route('product.show', $related->slug) }}"
                                                 style="text-decoration: none; color: inherit;">
                                                 <div class="product-image-v2" style="position: relative;">
