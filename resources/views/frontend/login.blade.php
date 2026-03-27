@@ -43,17 +43,20 @@
                 </div>
 
                 <!-- Login Form -->
-                <form id="loginForm" class="auth-form validate-form" method="post" action="{{ route('login.submit') }}" >
+                <form id="loginForm" class="auth-form validate-form" method="post" action="{{ route('login.submit') }}" novalidate>
                     @csrf
                     <div class="form-group" id="loginEmailGroup">
                         <label class="form-label" for="loginEmail">Email Address</label>
                         <input class="form-input" type="email" id="loginEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
-                            required>
+                            required
+                            data-msg-required="Please enter your email address."
+                            data-msg-email="Please enter a valid email address.">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="loginPassword">Password</label>
                         <input class="form-input" type="password" id="loginPassword" name="password"
-                            placeholder="Enter your password" required>
+                            placeholder="Enter your password" required
+                            data-msg-required="Please enter your password.">
                     </div>
 
                     <div class="form-options">
@@ -67,37 +70,49 @@
                 </form>
 
                 <!-- Register Form (Hidden by default) -->
-                <form id="registerForm" class="auth-form validate-form" style="display: none;" method="POST" action="{{ route('register') }}">
+                <form id="registerForm" class="auth-form validate-form" style="display: none;" method="POST" action="{{ route('register') }}" novalidate>
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="regName">Full Name</label>
                         <input class="form-input" type="text" id="regName" name="name" value="{{ old('name') }}" placeholder="Enter your full name"
-                            required>
+                            required
+                            data-msg-required="Please enter your full name.">
                     </div>
                     <div class="form-group" id="regEmailGroup">
                         <label class="form-label" for="regEmail">Email Address</label>
                         <input class="form-input" type="email" id="regEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
-                            required>
+                            required
+                            data-msg-required="Please enter your email address."
+                            data-msg-email="Please enter a valid email address.">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="regPhone">Phone Number</label>
                         <input class="form-input" type="tel" id="regPhone" name="phone" value="{{ old('phone') }}"
-                            placeholder="Enter your phone number" required>
+                            minlength="10" maxlength="10" data-rule-digits="true"
+                            placeholder="Enter your phone number" required
+                            data-msg-required="Please enter your phone number."
+                            data-msg-digits="Please enter a valid 10-digit phone number."
+                            data-msg-minlength="Please enter a valid 10-digit phone number."
+                            data-msg-maxlength="Please enter a valid 10-digit phone number.">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="regPassword">Password</label>
                         <input class="form-input" type="password" id="regPassword" name="password"
-                            placeholder="Create a password" required>
+                            placeholder="Create a password" required minlength="8"
+                            data-msg-required="Please create a password."
+                            data-msg-minlength="Password must be at least 8 characters long.">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="regConfirm">Confirm Password</label>
-                        <input class="form-input" type="password" id="regConfirm" name="password_confirmation"
-                            placeholder="Confirm your password" required>
+                        <input class="form-input" type="password" id="regConfirm" name="password_confirmation" data-rule-equalTo="#regPassword"
+                            placeholder="Confirm your password" required
+                            data-msg-required="Please confirm your password."
+                            data-msg-equalTo="Password confirmation does not match.">
                     </div>
 
                     <div class="form-options">
                         <label class="remember-me" style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" name="terms" required checked> I agree to the <a href="{{ url('terms-conditions') }}" style="color: #a91b43;">Terms and Conditions</a>
+                            <input type="checkbox" name="terms" required checked data-msg-required="Please accept Terms and Conditions to continue."> I agree to the <a href="{{ url('terms-conditions') }}" style="color: #a91b43;">Terms and Conditions</a>
                         </label>
                     </div>
 
@@ -131,6 +146,19 @@
             loginTab.classList.remove('active');
             authTitle.textContent = 'Join Us';
         };
+
+        function clearFormValidation(formElement) {
+            if (!window.jQuery) return;
+            const $form = $(formElement);
+            $form.find('.error-text').remove();
+            $form.find('.error-border').removeClass('error-border');
+            if ($form.data('validator')) {
+                $form.validate().resetForm();
+            }
+        }
+
+        loginTab.addEventListener('click', () => clearFormValidation(registerForm));
+        registerTab.addEventListener('click', () => clearFormValidation(loginForm));
 
         // If there are errors other than login email/password mismatches, switch to register tab
         @if($errors->has('name') || $errors->has('phone') || $errors->has('password_confirmation'))

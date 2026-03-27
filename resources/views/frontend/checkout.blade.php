@@ -204,7 +204,7 @@
 @section('content')
 <main class="checkout-page-container">
     <div class="page-shell">
-        <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST">
+        <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST" novalidate>
             @csrf
             <input type="hidden" name="payment_method" id="payment_method_input" value="razorpay">
             <input type="hidden" name="customer_email" value="{{ Auth::user()?->email }}">
@@ -274,23 +274,31 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL NAME</label>
-                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required>
+                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required
+                                        data-msg-required="Please enter full name.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required>
+                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required minlength="10" maxlength="10" data-rule-digits="true"
+                                        data-msg-required="Please enter phone number."
+                                        data-msg-digits="Please enter a valid 10-digit phone number."
+                                        data-msg-minlength="Please enter a valid 10-digit phone number."
+                                        data-msg-maxlength="Please enter a valid 10-digit phone number.">
                                 </div>
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY ADDRESS</label>
-                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required>
+                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required
+                                        data-msg-required="Please enter delivery address.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required>
+                                    <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required
+                                        data-msg-required="Please enter city.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
-                                    <select name="state" id="field_state" class="form-input-v4" required>
+                                    <select name="state" id="field_state" class="form-input-v4" required
+                                        data-msg-required="Please select state.">
                                         <option value="">— Select State —</option>
                                         @foreach($indianStates as $state)
                                             <option value="{{ $state }}">{{ $state }}</option>
@@ -299,7 +307,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required>
+                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required minlength="6" maxlength="6" data-rule-digits="true"
+                                        data-msg-required="Please enter pincode."
+                                        data-msg-digits="Please enter a valid 6-digit pincode."
+                                        data-msg-minlength="Please enter a valid 6-digit pincode."
+                                        data-msg-maxlength="Please enter a valid 6-digit pincode.">
                                 </div>
                             </div>
                             @if(Auth::check())
@@ -339,7 +351,10 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="billing_phone" id="billing_phone" placeholder="Billing Phone" class="form-input-v4">
+                                    <input type="tel" name="billing_phone" id="billing_phone" placeholder="Billing Phone" class="form-input-v4" minlength="10" maxlength="10" data-rule-digits="true"
+                                        data-msg-digits="Please enter a valid 10-digit billing phone number."
+                                        data-msg-minlength="Please enter a valid 10-digit billing phone number."
+                                        data-msg-maxlength="Please enter a valid 10-digit billing phone number.">
                                 </div>
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">BILLING ADDRESS</label>
@@ -360,7 +375,10 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="billing_pincode" id="billing_pincode" placeholder="Pincode" class="form-input-v4">
+                                    <input type="text" name="billing_pincode" id="billing_pincode" placeholder="Pincode" class="form-input-v4" minlength="6" maxlength="6" data-rule-digits="true"
+                                        data-msg-digits="Please enter a valid 6-digit billing pincode."
+                                        data-msg-minlength="Please enter a valid 6-digit billing pincode."
+                                        data-msg-maxlength="Please enter a valid 6-digit billing pincode.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">EMAIL</label>
@@ -464,6 +482,33 @@
 
 @push('scripts')
 <script>
+    function applyBillingValidation() {
+        if (!window.jQuery) return;
+        const $checkoutForm = $('#singleCheckoutForm');
+        if (!$checkoutForm.data('validator')) return;
+
+        const shouldRequireBilling = !document.getElementById('sameAsShipping').checked;
+        const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_email');
+
+        if (shouldRequireBilling) {
+            $('#billing_name').rules('add', { required: true, messages: { required: 'Please enter billing name.' } });
+            $('#billing_phone').rules('add', { required: true, digits: true, minlength: 10, maxlength: 10, messages: { required: 'Please enter billing phone number.' } });
+            $('#billing_address_field').rules('add', { required: true, messages: { required: 'Please enter billing address.' } });
+            $('#billing_city').rules('add', { required: true, messages: { required: 'Please enter billing city.' } });
+            $('#billing_state').rules('add', { required: true, messages: { required: 'Please select billing state.' } });
+            $('#billing_pincode').rules('add', { required: true, digits: true, minlength: 6, maxlength: 6, messages: { required: 'Please enter billing pincode.' } });
+            $('#billing_email').rules('add', { required: true, email: true, messages: { required: 'Please enter billing email.' } });
+        } else {
+            $billingFields.each(function() {
+                const $field = $(this);
+                $field.rules('remove', 'required');
+                $field.removeClass('error-border');
+                const $error = $field.siblings('span.error-text');
+                if ($error.length) $error.remove();
+            });
+        }
+    }
+
     function toggleBillingForm(checkbox) {
         const form = document.getElementById('billingAddressForm');
         const summary = document.getElementById('billingAddressSummary');
@@ -474,6 +519,7 @@
             form.style.display = 'block';
             summary.style.display = 'none';
         }
+        applyBillingValidation();
     }
 
     function selectPayment(method, element) {
@@ -523,6 +569,10 @@
     // Dynamic Shipping Calculation
     document.getElementById('field_state').addEventListener('change', updateShipping);
     document.getElementById('field_zip').addEventListener('change', updateShipping);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        applyBillingValidation();
+    });
 
     function updateShipping() {
         const state = document.getElementById('field_state').value;

@@ -1096,14 +1096,13 @@
                 position: relative;
                 aspect-ratio: 4 / 5;
                 padding: 14px;
-                background: linear-gradient(180deg, #fbf5ee 0%, #f6ede3 100%);
             }
 
             .recently-viewed-media img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                border-radius: 18px;
+                border-radius: 10px;
                 display: block;
                 background: #fff;
             }
@@ -2834,21 +2833,21 @@
                                                     @php $rInWishlist = in_array($related->id, session('wishlist', [])); @endphp
                                                     <button type="button" class="btn-wishlist-detail wishlist-btn" id="relatedWishlistBtn_{{ $related->id }}"
                                                         aria-label="Add to Wishlist" data-product-id="{{ $related->id }}"
-                                                        style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                        style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.1); z-index: 10;">
                                                         <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="relatedWishlistIcon_{{ $related->id }}"
-                                                            style="color: #A91B43; font-size: 18px;"></i>
+                                                            style="color: #A91B43; font-size: 14px;"></i>
                                                     </button>
                                                 </div>
                                                 <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
                                                     <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #1a1a1a;">{{ $related->name }}</h3>
-                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #a91b43; display: flex; align-items: baseline; gap: 8px;">
+                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #1a1a1a; display: flex; align-items: baseline; gap: 8px;">
                                                     @if($related->sale_price > 0)
                                                         <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
-                                                        <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                        <span class="product-price-old" style="text-decoration: line-through; color: #98A2B3; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
                                                     @else
                                                         <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
                                                         @if(isset($related->regular_price) && $related->regular_price > $related->price)
-                                                            <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                            <span class="product-price-old" style="text-decoration: line-through; color: #98A2B3; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
                                                         @endif
                                                     @endif
                                                 </div>
@@ -2913,9 +2912,9 @@
                                 <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn_{{ $recent->id }}"
                                     aria-label="Add to Wishlist" aria-pressed="{{ $recentInWishlist ? 'true' : 'false' }}"
                                     data-product-id="{{ $recent->id }}"
-                                    style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                    style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.1); z-index: 10;">
                                     <i class="{{ $recentInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon_{{ $recent->id }}"
-                                        style="color: #A91B43; font-size: 18px;"></i>
+                                        style="color: #A91B43; font-size: 14px;"></i>
                                 </button>
 
                                 <a href="{{ route('product.show', $recent->slug) }}" class="recently-viewed-link">

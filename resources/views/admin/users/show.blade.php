@@ -19,9 +19,17 @@
         <div class="card-glass p-5 rounded-2xl">
             <div class="flex items-center gap-4">
                 @php
-                    $avatar = $user->profile_picture
-                        ? asset('uploads/users/' . $user->profile_picture)
-                        : null;
+                    $avatar = null;
+                    if (!empty($user->profile_picture)) {
+                        $profilePicture = ltrim((string) $user->profile_picture, '/');
+                        if (str_starts_with($profilePicture, 'http://') || str_starts_with($profilePicture, 'https://')) {
+                            $avatar = $profilePicture;
+                        } elseif (str_starts_with($profilePicture, 'uploads/')) {
+                            $avatar = asset($profilePicture);
+                        } else {
+                            $avatar = asset('uploads/' . $profilePicture);
+                        }
+                    }
                 @endphp
                 @if($avatar)
                     <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-full object-cover border border-slate-200">

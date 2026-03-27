@@ -67,4 +67,19 @@ class UserAddressController extends Controller
 
         return back()->with('success', 'Address updated successfully.');
     }
+
+    public function destroy(UserAddress $address)
+    {
+        if (!Auth::check()) {
+            return back()->with('error', 'You must be logged in to delete an address.');
+        }
+
+        if ($address->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $address->delete();
+
+        return back()->with('success', 'Address deleted successfully.');
+    }
 }

@@ -191,7 +191,7 @@
                         </div>
                     @endif
 
-                    <form class="profile-card validate-form" action="{{ route('profile.update') }}" method="POST">
+                    <form class="profile-card validate-form" action="{{ route('profile.update') }}" method="POST" novalidate>
                         @csrf
                         <div class="profile-header-edit">
                             <div class="profile-pic-container">
@@ -209,7 +209,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" name="name" value="{{ $user->name }}" required>
+                                <input type="text" class="form-control" name="name" value="{{ $user->name }}" required
+                                    data-msg-required="Please enter your full name.">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address <span class="verify-badge">&#10003; Verified</span></label>
@@ -220,7 +221,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Phone Number <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number" required>
+                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number" required minlength="10" maxlength="10" data-rule-digits="true"
+                                    data-msg-required="Please enter your phone number."
+                                    data-msg-digits="Please enter a valid 10-digit phone number."
+                                    data-msg-minlength="Please enter a valid 10-digit phone number."
+                                    data-msg-maxlength="Please enter a valid 10-digit phone number.">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Gender</label>

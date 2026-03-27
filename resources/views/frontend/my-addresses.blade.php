@@ -15,7 +15,7 @@
                 <aside class="account-sidebar">
                     <div class="account-user-info">
                         <div class="account-avatar">
-                            <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
+                            <img src="{{ optional(Auth::user())->profile_picture ? asset('uploads/'.optional(Auth::user())->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
                         <h2 class="account-user-name">{{ Auth::user() ? Auth::user()->name : 'Guest User' }}</h2>
                         <p class="account-user-email">{{ Auth::user() ? Auth::user()->email : '' }}</p>
@@ -51,19 +51,29 @@
                                 <span class="addr-country">{{ $addr->country }}</span><br>
                                 Phone: <span class="addr-phone">{{ optional(Auth::user())->phone }}</span>
                             </div>
-                            <button type="button"
-                                onclick="openEditAddressModal({
-                                    id: {{ $addr->id }},
-                                    label: @js($addr->label),
-                                    address1: @js($addr->address1),
-                                    city: @js($addr->city),
-                                    state: @js($addr->state),
-                                    zip: @js($addr->zip),
-                                    country: @js($addr->country ?? 'India')
-                                })"
-                                style="margin-top: 16px; padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
-                                Edit Address
-                            </button>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
+                                <button type="button"
+                                    onclick="openEditAddressModal({
+                                        id: {{ $addr->id }},
+                                        label: @js($addr->label),
+                                        address1: @js($addr->address1),
+                                        city: @js($addr->city),
+                                        state: @js($addr->state),
+                                        zip: @js($addr->zip),
+                                        country: @js($addr->country ?? 'India')
+                                    })"
+                                    style="padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
+                                    Edit Address
+                                </button>
+                                <form id="delete-address-form-{{ $addr->id }}" action="{{ route('addresses.destroy', $addr) }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" onclick="confirmDeleteAddress({{ $addr->id }})"
+                                        style="padding: 10px 16px; border-radius: 10px; border: 1px solid #d92d20; background: #fff; color: #d92d20; font-size: 13px; font-weight: 700; cursor: pointer;">
+                                        Delete Address
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         @endforeach
 
@@ -91,7 +101,8 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Address Label</label>
-                            <input type="text" id="address_label" name="label" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office">
+                            <input type="text" id="address_label" name="label" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office"
+                                data-msg-required="Please enter an address label.">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Phone Number</label>
@@ -101,24 +112,32 @@
 
                     <div class="form-group" style="margin-bottom: 20px;">
                         <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Street Address / House No.</label>
-                        <input type="text" id="address_address1" name="address1" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="Door No, Street name">
+                        <input type="text" id="address_address1" name="address1" required minlength="5" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="Door No, Street name"
+                            data-msg-required="Please enter your street address."
+                            data-msg-minlength="Address must be at least 5 characters.">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">City</label>
-                            <input type="text" id="address_city" name="city" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_city" name="city" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                data-msg-required="Please enter city.">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">State</label>
-                            <input type="text" id="address_state" name="state" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_state" name="state" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                data-msg-required="Please enter state.">
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Pincode</label>
-                            <input type="text" id="address_zip" name="zip" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_zip" name="zip" required minlength="6" maxlength="6" data-rule-digits="true" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;"
+                                data-msg-required="Please enter pincode."
+                                data-msg-digits="Please enter a valid 6-digit pincode."
+                                data-msg-minlength="Please enter a valid 6-digit pincode."
+                                data-msg-maxlength="Please enter a valid 6-digit pincode.">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Country</label>
@@ -148,6 +167,16 @@
             country: document.getElementById('address_country'),
         };
 
+        function clearAddressValidation() {
+            if (!window.jQuery) return;
+            const $form = $('#addressForm');
+            $form.find('.error-text').remove();
+            $form.find('.error-border').removeClass('error-border');
+            if ($form.data('validator')) {
+                $form.validate().resetForm();
+            }
+        }
+
         function resetAddressForm() {
             addressForm.action = `{{ route('addresses.store') }}`;
             addressFormMethod.value = 'POST';
@@ -160,6 +189,7 @@
             addressFields.state.value = '';
             addressFields.zip.value = '';
             addressFields.country.value = 'India';
+            clearAddressValidation();
         }
 
         function openAddressModal() {
@@ -179,17 +209,37 @@
             addressFields.state.value = address.state || '';
             addressFields.zip.value = address.zip || '';
             addressFields.country.value = address.country || 'India';
+            clearAddressValidation();
             addressModal.style.display = 'flex';
         }
 
         function closeAddressModal() {
             addressModal.style.display = 'none';
+            clearAddressValidation();
         }
 
         window.onclick = function(event) {
             if (event.target == addressModal) {
                 closeAddressModal();
             }
+        }
+
+        function confirmDeleteAddress(addressId) {
+            Swal.fire({
+                title: 'Delete this address?',
+                text: "This saved address will be removed from your account.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d92d20',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel',
+                borderRadius: '15px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-address-form-' + addressId).submit();
+                }
+            });
         }
     </script>
 @endsection

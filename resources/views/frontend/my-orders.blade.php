@@ -333,7 +333,7 @@
                 <aside class="account-sidebar">
                     <div class="account-user-info">
                         <div class="account-avatar">
-                            <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
+                            <img src="{{ Auth::user()->profile_picture ? asset('uploads/'.Auth::user()->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
                         <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
                         <p class="account-user-email">{{ Auth::user()->email }}</p>

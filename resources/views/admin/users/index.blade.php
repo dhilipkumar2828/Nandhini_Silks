@@ -89,9 +89,17 @@
                         <td class="py-3">
                             <div class="flex items-center gap-3">
                                 @php
-                                    $avatar = $user->profile_picture
-                                        ? asset('uploads/users/' . $user->profile_picture)
-                                        : null;
+                                    $avatar = null;
+                                    if (!empty($user->profile_picture)) {
+                                        $profilePicture = ltrim((string) $user->profile_picture, '/');
+                                        if (str_starts_with($profilePicture, 'http://') || str_starts_with($profilePicture, 'https://')) {
+                                            $avatar = $profilePicture;
+                                        } elseif (str_starts_with($profilePicture, 'uploads/')) {
+                                            $avatar = asset($profilePicture);
+                                        } else {
+                                            $avatar = asset('uploads/' . $profilePicture);
+                                        }
+                                    }
                                 @endphp
                                 @if($avatar)
                                     <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm">

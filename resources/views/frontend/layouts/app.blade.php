@@ -886,9 +886,63 @@
         });
 
         $(document).ready(function() {
+            function getFieldContainer(element) {
+                return $(element).closest('.form-group, .mb-4, .mb-3, .checkout-field, .review-form-group');
+            }
+
+            function getFieldLabel(element) {
+                const container = getFieldContainer(element);
+                const label = container.find('label').first();
+                const fallback = $(element).attr('placeholder') || $(element).attr('name') || 'this field';
+
+                if (!label.length) {
+                    return fallback.replace(/_/g, ' ').trim();
+                }
+
+                return label.text()
+                    .replace(/\*/g, '')
+                    .replace(/verified/ig, '')
+                    .replace(/\s+/g, ' ')
+                    .trim() || fallback.replace(/_/g, ' ').trim();
+            }
+
+            function setDefaultValidationMessages($field) {
+                const type = ($field.attr('type') || '').toLowerCase();
+                const name = ($field.attr('name') || '').toLowerCase();
+                const label = getFieldLabel($field);
+
+                if ($field.prop('required') && !$field.attr('data-msg-required')) {
+                    $field.attr('data-msg-required', `Please enter ${label.toLowerCase()}.`);
+                }
+
+                if (type === 'email' && !$field.attr('data-msg-email')) {
+                    $field.attr('data-msg-email', 'Please enter a valid email address.');
+                }
+
+                if ((type === 'tel' || name.includes('phone')) && !$field.attr('data-msg-digits')) {
+                    $field.attr('data-msg-digits', 'Please enter a valid phone number.');
+                }
+
+                if ((name.includes('zip') || name.includes('pincode')) && !$field.attr('data-msg-digits')) {
+                    $field.attr('data-msg-digits', 'Please enter a valid pincode.');
+                }
+
+                if ($field.attr('minlength') && !$field.attr('data-msg-minlength')) {
+                    $field.attr('data-msg-minlength', `Please enter at least ${$field.attr('minlength')} characters for ${label.toLowerCase()}.`);
+                }
+
+                if ($field.attr('maxlength') && !$field.attr('data-msg-maxlength')) {
+                    $field.attr('data-msg-maxlength', `Please enter no more than ${$field.attr('maxlength')} characters for ${label.toLowerCase()}.`);
+                }
+
+                if ($field.attr('data-rule-equalTo') && !$field.attr('data-msg-equalTo')) {
+                    $field.attr('data-msg-equalTo', 'Please enter the same value again.');
+                }
+            }
+
             // Auto-add * to required labels
             $('input[required], select[required], textarea[required], input[data-rule-required="true"]').each(function() {
-                var label = $(this).closest('.form-group, .mb-4, .mb-3, .checkout-field').find('label').first();
+                var label = getFieldContainer(this).find('label').first();
                 if (label.length) {
                     if (!label.find('.text-rose-500').length && !label.find('.text-red-500').length && label.text().indexOf('*') === -1) {
                         label.append('<span style="color: #a91b43; margin-left: 4px;">*</span>');
@@ -898,17 +952,29 @@
 
             // Initialize validation on forms with 'validate-form' class
             $('.validate-form').each(function() {
+                $(this).find('input, select, textarea').each(function() {
+                    setDefaultValidationMessages($(this));
+                });
+
                 $(this).validate({
                     errorElement: 'span',
                     errorClass: 'error-text',
+                    ignore: ':hidden:not(select):not(textarea):not([type="hidden"])',
                     highlight: function(element) {
                         $(element).addClass('error-border');
+                        getFieldContainer(element).addClass('has-error');
                     },
                     unhighlight: function(element) {
                         $(element).removeClass('error-border');
+                        getFieldContainer(element).removeClass('has-error');
                     },
                     errorPlacement: function(error, element) {
-                        error.insertAfter(element);
+                        const container = getFieldContainer(element);
+                        if (container.length) {
+                            error.insertAfter(element);
+                        } else {
+                            error.insertAfter(element);
+                        }
                     },
                     invalidHandler: function(event, validator) {
                         // Scroll to first error

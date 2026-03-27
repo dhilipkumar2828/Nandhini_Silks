@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
     Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
     Route::put('/addresses/{address}', [UserAddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [UserAddressController::class, 'destroy'])->name('addresses.destroy');
     Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
     Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
     Route::post('/my-profile/update', [FrontendController::class, 'updateProfile'])->name('profile.update');

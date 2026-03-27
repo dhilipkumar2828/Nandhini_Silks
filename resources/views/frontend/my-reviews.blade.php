@@ -247,14 +247,15 @@
                 <button onclick="closeEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
             </div>
             
-            <form id="editReviewForm" method="POST">
+            <form id="editReviewForm" class="validate-form" method="POST" novalidate>
                 @csrf
                 @method('PUT')
                 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Your Rating</label>
                     <div style="display: flex; gap: 10px; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
-                        <select name="stars" id="editStars" style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;">
+                        <select name="stars" id="editStars" required style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;"
+                            data-msg-required="Please select a rating.">
                             <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
                             <option value="4">⭐⭐⭐⭐ (4/5)</option>
                             <option value="3">⭐⭐⭐ (3/5)</option>
@@ -264,9 +265,11 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 30px;">
+                <div class="form-group" style="margin-bottom: 30px;">
                     <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Detailed Review</label>
-                    <textarea name="review" id="editReviewText" rows="6" required 
+                    <textarea name="review" id="editReviewText" rows="6" required minlength="10"
+                        data-msg-required="Please enter your review."
+                        data-msg-minlength="Review must be at least 10 characters."
                         style="width: 100%; border: 1px solid #eee; border-radius: 12px; padding: 15px; font-size: 14px; color: #333; outline: none; transition: 0.3s; resize: none;"
                         onfocus="this.style.borderColor='var(--pink)'"
                         onblur="this.style.borderColor='#eee'"></textarea>
@@ -301,6 +304,7 @@
     function openEditModal(review) {
         const modal = document.getElementById('editReviewModal');
         const form = document.getElementById('editReviewForm');
+        clearReviewValidation();
         
         document.getElementById('editStars').value = review.stars;
         document.getElementById('editReviewText').value = review.review;
@@ -312,7 +316,18 @@
     }
 
     function closeEditModal() {
+        clearReviewValidation();
         document.getElementById('editReviewModal').style.display = 'none';
+    }
+
+    function clearReviewValidation() {
+        if (!window.jQuery) return;
+        const $form = $('#editReviewForm');
+        $form.find('.error-text').remove();
+        $form.find('.error-border').removeClass('error-border');
+        if ($form.data('validator')) {
+            $form.validate().resetForm();
+        }
     }
 
     function confirmDelete(reviewId) {

@@ -46,6 +46,20 @@
             pointer-events: none;
         }
 
+        /* Disable image selection/drag across all home image sections */
+        .collection-image-wrap img,
+        .featured-media img,
+        .category-image,
+        .promo-banner img,
+        .featured-decor,
+        .testimonial-vector {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+        }
+
         .card-link-wrapper {
             text-decoration: none;
             color: inherit;
@@ -98,24 +112,48 @@
         }
 
         .home-rail-wishlist {
-            background: none;
-            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid #e7dac2;
             cursor: pointer;
             padding: 0;
             display: flex;
             align-items: center;
+            justify-content: center;
+            color: #A91B43;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
         }
 
-        .home-rail-wishlist svg {
-            width: 20px;
-            height: 20px;
-            fill: #fbf2d1;
-            stroke: #927541;
-            stroke-width: 2.5;
+        .home-rail-wishlist i {
+            font-size: 13px;
+            line-height: 1;
         }
 
-        .home-rail-wishlist[aria-pressed="true"] svg {
-            fill: #927541;
+        .featured-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .featured-cart-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #e7dac2;
+            background: #ffffff;
+            color: #A91B43;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .featured-cart-btn i {
+            font-size: 13px;
+            line-height: 1;
         }
 
 
@@ -1091,13 +1129,18 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            margin-top: 12px;
+            margin-top: 12px !important;
+            padding: 0 8px;
+            box-sizing: border-box;
         }
 
         .featured-price-wrap {
             display: flex;
             align-items: baseline;
             gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            white-space: nowrap;
         }
 
         .featured-price {
@@ -1106,10 +1149,93 @@
             font-weight: 700 !important;
         }
 
+        .featured-actions {
+            flex-shrink: 0;
+        }
+
+        .featured-name {
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+
         .featured-card .old-price {
             font-size: 13px !important;
             color: #888 !important;
             text-decoration: line-through;
+        }
+
+        /* Home rails: mobile stability patch (New Arrivals + Offers) */
+        @media (max-width: 480px) {
+            .featured-section,
+            .offers-section {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .featured-inner {
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+            }
+
+            .featured-swiper-container,
+            .offers-swiper-container {
+                padding: 0 28px !important;
+            }
+
+            .featured-swiper .swiper-slide,
+            .offers-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .featured-card {
+                width: 100% !important;
+                max-width: 260px !important;
+                margin: 0 auto !important;
+            }
+
+            .featured-media {
+                aspect-ratio: 3 / 4 !important;
+            }
+
+            .featured-name {
+                font-size: 13px !important;
+                line-height: 1.3 !important;
+                min-height: 34px !important;
+                margin-top: 10px !important;
+            }
+
+            .featured-subtitle {
+                font-size: 12px !important;
+                line-height: 1.5 !important;
+                margin-bottom: 14px !important;
+            }
+
+            .featured-prev,
+            .featured-next,
+            .offers-prev,
+            .offers-next {
+                width: 30px !important;
+                height: 30px !important;
+                top: 38% !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .featured-inner {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+
+            .featured-swiper-container,
+            .offers-swiper-container {
+                padding: 0 24px !important;
+            }
+
+            .featured-card {
+                max-width: 232px !important;
+            }
         }
     </style>
 @endpush
@@ -1189,11 +1315,7 @@
                                             <div class="featured-media">
                                                 @php
                                                     $productImage = 'images/pro.png';
-                                                    if (
-                                                        $product->images &&
-                                                        is_array($product->images) &&
-                                                        count($product->images) > 0
-                                                    ) {
+                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
                                                         $productImage = 'uploads/' . $product->images[0];
                                                     } elseif ($product->image_path) {
                                                         $productImage = 'images/' . $product->image_path;
@@ -1204,37 +1326,31 @@
                                                     <span class="featured-badge">New Arrival</span>
                                                 @endif
                                                 @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge"
-                                                        style="top: 40px;">{{ round($product->discount_percent) }}%
-                                                        Off</span>
+                                                    <span class="featured-badge" style="top: 40px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
+                                                
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name" style="text-align: center;">{{ $product->name }}</h3>
                                         </a>
-                                        <div class="featured-footer" style="margin-top: -19px;">
+                                        @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                        <div class="featured-footer">
                                             <div class="featured-price-wrap">
                                                 <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
                                                 @if ($product->regular_price > $product->price)
                                                     <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
                                                 @endif
                                             </div>
-                                            <div style="display: flex; gap: 8px;">
-                                                @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                            <div class="featured-actions">
                                                 <button class="wishlist-btn home-rail-wishlist" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
-                                                    aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24"
-                                                        fill="{{ $inWishlist ? '#927541' : '#FBF2D1' }}"
-                                                        stroke="#927541"
-                                                        stroke-width="2.5">
-                                                        <path
-                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                    </svg>
-                                                </button>
-                                                <button class="featured-cart add-to-cart-btn" type="button"
                                                     data-product-id="{{ $product->id }}"
-                                                    aria-label="Add {{ $product->name }} to cart">
-                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                    aria-label="Add to wishlist"
+                                                    aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
+                                                    <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                                </button>
+                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add to cart">
+                                                    <i class="fa-solid fa-bag-shopping"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -1287,27 +1403,27 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name" style="text-align: center;">{{ $product->name }}</h3>
                                         </a>
+                                        @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
-                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
-                                            <div style="display: flex; gap: 8px;">
-                                                @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                            <div class="featured-price-wrap">
+                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                                @if ($product->regular_price > $product->price)
+                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="featured-actions">
                                                 <button class="wishlist-btn home-rail-wishlist" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
-                                                    aria-pressed="{{ $offerInWishlist ? 'true' : 'false' }}">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24"
-                                                        fill="{{ $offerInWishlist ? '#927541' : '#FBF2D1' }}"
-                                                        stroke="#927541"
-                                                        stroke-width="2.5">
-                                                        <path
-                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                    </svg>
-                                                </button>
-                                                <button class="featured-cart add-to-cart-btn" type="button"
                                                     data-product-id="{{ $product->id }}"
-                                                    aria-label="Add {{ $product->name }} to cart">
-                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                    aria-label="Add to wishlist"
+                                                    aria-pressed="{{ $offerInWishlist ? 'true' : 'false' }}">
+                                                    <i class="{{ $offerInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                                </button>
+                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add to cart">
+                                                    <i class="fa-solid fa-bag-shopping"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -1623,11 +1739,11 @@
                         return;
                     }
 
-                    const currentIndex = Math.min(swiper.realIndex, Math.max(totalProducts - 1, 0));
+                    const currentIndex = swiper.realIndex;
                     const progress = totalProducts <= 1 ? 100 : (currentIndex / (totalProducts - 1)) * 100;
 
-                    progressFill.style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
-                    currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
+                    if (progressFill) progressFill.style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
+                    if (currentSlide) currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
                 }
 
                 function setRailState({
@@ -1637,9 +1753,14 @@
                     progressFillId,
                     currentSlideId,
                     nextEl,
-                    prevEl
+                    prevEl,
+                    slidesPerView = 4
                 }) {
-                    const isScrollable = totalProducts >= minScrollableItems;
+                    // isScrollable should technically be true if we have more than what's currently visible
+                    // but we also need isLoopable for Swiper 11 to not break
+                    const isScrollable = totalProducts >= 2; // Always scrollable if > 1 for mobile/tablet
+                    const isEnoughForDesktop = totalProducts > slidesPerView; 
+                    
                     const progressTrack = document.getElementById(progressTrackId);
                     const progressFill = document.getElementById(progressFillId);
                     const currentSlide = document.getElementById(currentSlideId);
@@ -1651,21 +1772,21 @@
                     }
 
                     navButtons.forEach((button) => {
+                        button.classList.remove('swiper-button-lock');
                         button.classList.toggle('rail-nav-inactive', !isScrollable);
                         button.setAttribute('aria-disabled', isScrollable ? 'false' : 'true');
+                        button.style.display = 'flex';
                     });
 
                     if (!isScrollable) {
-                        if (progressFill) {
-                            progressFill.style.width = '0%';
-                        }
-
-                        if (currentSlide) {
-                            currentSlide.textContent = '01';
-                        }
+                        if (progressFill) progressFill.style.width = '0%';
+                        if (currentSlide) currentSlide.textContent = '01';
                     }
 
-                    return isScrollable;
+                    const isMobile = window.innerWidth < 1024;
+                    const isLoopable = isMobile ? (totalProducts > 1) : (totalProducts > 4);
+
+                    return { isScrollable, isLoopable };
                 }
 
                 function initProductRail(swiperSelector, nextEl, prevEl, progressFillId, currentSlideId, progressTrackId, minScrollableItems = 1) {
@@ -1673,7 +1794,7 @@
                     if (!swiperRoot) return null;
 
                     const totalProducts = swiperRoot.querySelectorAll('.swiper-slide').length;
-                    const isScrollable = setRailState({
+                    const { isScrollable, isLoopable } = setRailState({
                         totalProducts,
                         minScrollableItems,
                         progressTrackId,
@@ -1684,21 +1805,29 @@
                     });
 
                     const swiper = new Swiper(swiperSelector, {
-                        slidesPerView: 1,
-                        spaceBetween: 18,
-                        loop: isScrollable,
-                        watchOverflow: false,
+                        slidesPerView: 1.1,
+                        spaceBetween: 14,
+                        loop: isLoopable, 
+                        watchOverflow: true,
                         allowTouchMove: isScrollable,
                         simulateTouch: isScrollable,
                         autoplay: isScrollable ? {
                             delay: 3500,
                             disableOnInteraction: false,
                         } : false,
-                        navigation: isScrollable ? {
+                        navigation: {
                             nextEl,
                             prevEl,
-                        } : false,
+                        },
                         breakpoints: {
+                            0: {
+                                slidesPerView: 1,
+                                spaceBetween: 12
+                            },
+                            480: {
+                                slidesPerView: 1.2,
+                                spaceBetween: 14
+                            },
                             640: {
                                 slidesPerView: 2
                             },
@@ -1746,7 +1875,7 @@
                     'progressFill',
                     'currentSlide',
                     'progressTrack',
-                    4
+                    5
                 );
 
                 @foreach($offerCollections as $collection)
