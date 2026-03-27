@@ -18,53 +18,68 @@ class UserAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i'],
             'password' => ['required'],
+        ], [
+            'email.regex' => 'Email must end with @gmail.com.',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $user = Auth::user();
+        $user = User::where('email', $credentials['email'])->first();
 
-            if (!$user->is_verified) {
-                // If not verified, logout and redirect to OTP verification
-                $otp = sprintf("%06d", mt_rand(1, 999999));
-                $user->otp = $otp;
-                $user->otp_expires_at = now()->addMinutes(10);
-                $user->save();
-
-                try {
-                    Mail::to($user->email)->send(new VerficationOTP($otp));
-                } catch (\Exception $e) {
-                    Log::error('Login Verification OTP Failure: ' . $e->getMessage());
-                }
-
-                Auth::logout();
-                $request->session()->put('pending_verification_user_id', $user->id);
-                return redirect()->route('otp.verify.form')->with('error', 'Your account is not verified. A new OTP has been sent to your email.');
-            }
-
-            $request->session()->regenerate();
-            $user->last_login_at = now();
-            $user->save();
-            
-            // Sync cart from session to database
-            (new \App\Http\Controllers\CartController)->syncCartOnLogin();
-            
-            return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Email is wrong.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'password' => 'Password is wrong.',
+            ])->onlyInput('email');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+
+        if (!$user->is_verified) {
+            // If not verified, logout and redirect to OTP verification
+            $otp = sprintf("%06d", mt_rand(1, 999999));
+            $user->otp = $otp;
+            $user->otp_expires_at = now()->addMinutes(10);
+            $user->save();
+
+            try {
+                Mail::to($user->email)->send(new VerficationOTP($otp));
+            } catch (\Exception $e) {
+                Log::error('Login Verification OTP Failure: ' . $e->getMessage());
+            }
+
+            Auth::logout();
+            $request->session()->put('pending_verification_user_id', $user->id);
+            return redirect()->route('otp.verify.form')->with('error', 'Your account is not verified. A new OTP has been sent to your email.');
+        }
+
+        $request->session()->regenerate();
+        $user->last_login_at = now();
+        $user->save();
+        
+        // Sync cart from session to database
+        (new \App\Http\Controllers\CartController)->syncCartOnLogin();
+        
+        return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
     }
 
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:20'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'email' => ['required', 'string', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i', 'unique:users'],
+            'phone' => ['required', 'regex:/^[0-9]{10}$/'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.regex' => 'Email must end with @gmail.com.',
+            'name.regex' => 'Name must contain only alphabets.',
+            'phone.regex' => 'Please enter a valid 10-digit phone number.',
+            'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
         // In Laravel 12 with 'password' => 'hashed' cast, we don't need Hash::make() 
@@ -219,5 +234,3 @@ class UserAuthController extends Controller
                     : back()->withErrors(['email' => [__($status)]]);
     }
 }
-
-

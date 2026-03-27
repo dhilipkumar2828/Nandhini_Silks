@@ -368,8 +368,17 @@ class CartController extends Controller
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'required|string|max:20',
+            'customer_phone' => ['required', 'regex:/^\d{10}$/'],
             'delivery_address' => 'required|string',
+            'city' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+            'state' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+            'pincode' => ['required', 'regex:/^\d{6}$/'],
+            'country' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+            'billing_phone' => ['nullable', 'regex:/^\d{10}$/'],
+            'billing_city' => ['nullable', 'regex:/^[A-Za-z\s]+$/'],
+            'billing_state' => ['nullable', 'regex:/^[A-Za-z\s]+$/'],
+            'billing_pincode' => ['nullable', 'regex:/^\d{6}$/'],
+            'billing_country' => ['nullable', 'regex:/^[A-Za-z\s]+$/'],
             'payment_method' => 'nullable|string|max:50',
             'save_address' => 'nullable|boolean',
         ]);
@@ -401,11 +410,25 @@ class CartController extends Controller
         $isDifferentBilling = !$request->has('same_as_shipping');
         $paymentMethod = $request->input('payment_method', 'cod');
 
+        if ($isDifferentBilling) {
+            $request->validate([
+                'billing_name' => 'required|string|max:255',
+                'billing_phone' => ['required', 'regex:/^\d{10}$/'],
+                'billing_address' => 'required|string',
+                'billing_city' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'billing_state' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'billing_pincode' => ['required', 'regex:/^\d{6}$/'],
+                'billing_country' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'billing_email' => 'required|email|max:255',
+            ]);
+        }
+
         // Build full delivery address from individual fields
         $addressParts = array_filter([
             $request->input('delivery_address'),
             $request->input('city'),
             $request->input('state'),
+            $request->input('country'),
             $request->input('pincode') ? 'PIN: ' . $request->input('pincode') : null,
         ]);
         $fullDeliveryAddress = implode(', ', $addressParts);
@@ -416,6 +439,7 @@ class CartController extends Controller
                 $request->input('billing_address'),
                 $request->input('billing_city'),
                 $request->input('billing_state'),
+                $request->input('billing_country'),
                 $request->input('billing_pincode') ? 'PIN: ' . $request->input('billing_pincode') : null,
             ]);
             $fullBillingAddress = implode(', ', $billingParts);
@@ -461,7 +485,7 @@ class CartController extends Controller
                     'label' => 'Standard Address',
                     'recipient_name' => $request->input('customer_name'),
                     'recipient_phone' => $request->input('customer_phone'),
-                    'country' => 'India',
+                    'country' => $request->input('country', 'India'),
                     'is_default' => !Auth::user()->addresses()->exists(),
                 ]);
             }

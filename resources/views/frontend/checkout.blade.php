@@ -238,6 +238,7 @@
                                              data-addr="{{ $addr->address1 }}"
                                              data-city="{{ $addr->city }}"
                                              data-state="{{ $addr->state }}"
+                                             data-country="{{ $addr->country ?? 'India' }}"
                                              data-zip="{{ $addr->zip }}"
                                              style="border: 2px solid #eee; border-radius: 12px; padding: 12px; width: 220px; cursor: pointer; transition: all 0.2s ease; background: #fff; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -293,6 +294,7 @@
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
                                     <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
                                         data-msg-required="Please enter city.">
                                 </div>
                                 <div class="form-group">
@@ -308,10 +310,17 @@
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
                                     <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required minlength="6" maxlength="6" data-rule-digits="true"
+                                        inputmode="numeric"
                                         data-msg-required="Please enter pincode."
                                         data-msg-digits="Please enter a valid 6-digit pincode."
                                         data-msg-minlength="Please enter a valid 6-digit pincode."
                                         data-msg-maxlength="Please enter a valid 6-digit pincode.">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
+                                    <input type="text" name="country" id="field_country" placeholder="Country" class="form-input-v4" value="India" required
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
+                                        data-msg-required="Please enter country.">
                                 </div>
                             </div>
                             @if(Auth::check())
@@ -352,6 +361,7 @@
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
                                     <input type="tel" name="billing_phone" id="billing_phone" placeholder="Billing Phone" class="form-input-v4" minlength="10" maxlength="10" data-rule-digits="true"
+                                        inputmode="numeric"
                                         data-msg-digits="Please enter a valid 10-digit billing phone number."
                                         data-msg-minlength="Please enter a valid 10-digit billing phone number."
                                         data-msg-maxlength="Please enter a valid 10-digit billing phone number.">
@@ -362,7 +372,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" name="billing_city" id="billing_city" placeholder="City" class="form-input-v4">
+                                    <input type="text" name="billing_city" id="billing_city" placeholder="City" class="form-input-v4"
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
@@ -376,9 +387,15 @@
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
                                     <input type="text" name="billing_pincode" id="billing_pincode" placeholder="Pincode" class="form-input-v4" minlength="6" maxlength="6" data-rule-digits="true"
+                                        inputmode="numeric"
                                         data-msg-digits="Please enter a valid 6-digit billing pincode."
                                         data-msg-minlength="Please enter a valid 6-digit billing pincode."
                                         data-msg-maxlength="Please enter a valid 6-digit billing pincode.">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
+                                    <input type="text" name="billing_country" id="billing_country" placeholder="Country" class="form-input-v4" value="India"
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">EMAIL</label>
@@ -488,7 +505,7 @@
         if (!$checkoutForm.data('validator')) return;
 
         const shouldRequireBilling = !document.getElementById('sameAsShipping').checked;
-        const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_email');
+        const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_country, #billing_email');
 
         if (shouldRequireBilling) {
             $('#billing_name').rules('add', { required: true, messages: { required: 'Please enter billing name.' } });
@@ -497,6 +514,7 @@
             $('#billing_city').rules('add', { required: true, messages: { required: 'Please enter billing city.' } });
             $('#billing_state').rules('add', { required: true, messages: { required: 'Please select billing state.' } });
             $('#billing_pincode').rules('add', { required: true, digits: true, minlength: 6, maxlength: 6, messages: { required: 'Please enter billing pincode.' } });
+            $('#billing_country').rules('add', { required: true, messages: { required: 'Please enter billing country.' } });
             $('#billing_email').rules('add', { required: true, email: true, messages: { required: 'Please enter billing email.' } });
         } else {
             $billingFields.each(function() {
@@ -559,6 +577,8 @@
         
         const stateSelect = document.getElementById('field_state');
         stateSelect.value = element.getAttribute('data-state');
+        const countryInput = document.getElementById('field_country');
+        if (countryInput) countryInput.value = element.getAttribute('data-country') || 'India';
         
         document.getElementById('field_zip').value = element.getAttribute('data-zip');
         
@@ -586,7 +606,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ state: state, zip: zip, country: 'India' })
+            body: JSON.stringify({ state: state, zip: zip, country: document.getElementById('field_country')?.value || 'India' })
         })
         .then(r => r.json())
         .then(response => {

@@ -64,6 +64,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
     Route::post('/my-profile/update', [FrontendController::class, 'updateProfile'])->name('profile.update');
     Route::post('/my-profile/photo', [FrontendController::class, 'updateProfilePhoto'])->name('profile.photo');
+    Route::post('/my-profile/email/request-otp', [FrontendController::class, 'requestEmailChangeOtp'])->name('profile.email.request_otp');
+    Route::post('/my-profile/email/verify-otp', [FrontendController::class, 'verifyEmailChangeOtp'])->name('profile.email.verify_otp');
     Route::delete('/my-reviews/{id}', [FrontendController::class, 'deleteReview'])->name('profile.review.delete');
     Route::put('/my-reviews/{id}', [FrontendController::class, 'updateReview'])->name('profile.review.update');
     Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
