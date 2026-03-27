@@ -93,7 +93,7 @@
         .featured-next,
         .featured-prev {
             position: absolute;
-            top: 45%;
+            top: 40%;
             transform: translateY(-50%);
             z-index: 1000;
         }

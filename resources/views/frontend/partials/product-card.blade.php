@@ -1,12 +1,15 @@
 <article class="product-card-v2" data-product-id="{{ $product->id }}">
     <div class="card-actions-overlay">
-        <button class="overlay-btn wishlist-toggle {{ in_array($product->id, session('wishlist', [])) ? 'active' : '' }}" 
+        @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+        <button class="overlay-btn wishlist-btn {{ $inWishlist ? 'active' : '' }}" 
                 data-product-id="{{ $product->id }}" 
                 aria-label="Add to Wishlist">
-            <i class="{{ in_array($product->id, session('wishlist', [])) ? 'fa-solid' : 'fa-regular' }} fa-heart" style="color: #A91B43; font-size: 16px;"></i>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : 'currentColor' }}">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
         </button>
     </div>
-    <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
+    <a href="{{ route('product.show', $product->slug) }}" class="product-link">
         <div class="product-image-v2">
             @php
                 $imagePath = $product->image_path;
@@ -26,27 +29,27 @@
                     }
                 }
             @endphp
-            <img src="{{ $displayImage }}" alt="{{ $product->name }}">
+            <img src="{{ $displayImage }}" alt="{{ $product->name }}" loading="lazy">
         </div>
         <div class="product-info-v2">
-            <div class="product-rating-v2" style="color: #f1c40f; font-size: 14px; margin-bottom: 5px;">★★★★★</div>
-            <span class="product-category-v2" style="font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: 700;">{{ $product->category->name ?? 'Collection' }}</span>
-            <h3 class="product-name-v2" style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 3px 0 8px;">{{ $product->name }}</h3>
-            <p class="product-desc-v2" style="font-size: 12px; color: #666; height: 35px; overflow: hidden; margin-bottom: 12px;">{{ Str::limit(strip_tags($product->description), 50) }}</p>
-            <div class="product-price-v2" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+            <div class="product-rating-v2">★★★★★</div>
+            <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
+            <h3 class="product-name-v2">{{ $product->name }}</h3>
+            <p class="product-desc-v2">{{ Str::limit(strip_tags($product->description), 120) }}</p>
+            <div class="product-price-v2">
                 @if($product->sale_price > 0)
-                    <span style="color: #A91B43; font-weight: 800; font-size: 18px;">₹{{ number_format($product->sale_price, 0) }}</span>
-                    <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ number_format($product->regular_price ?? $product->price, 0) }}</span>
+                    <span class="price-current">₹{{ number_format($product->sale_price, 0) }}</span>
+                    <span class="product-price-old">₹{{ number_format($product->regular_price ?? $product->price, 0) }}</span>
                 @else
-                    <span style="color: #A91B43; font-weight: 800; font-size: 18px;">₹{{ number_format($product->price, 0) }}</span>
+                    <span class="price-current">₹{{ number_format($product->price, 0) }}</span>
                     @if(isset($product->regular_price) && $product->regular_price > $product->price)
-                        <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 12px;">₹{{ number_format($product->regular_price, 0) }}</span>
+                        <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
                     @endif
                 @endif
             </div>
         </div>
     </a>
-    <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" style="text-decoration: none; background: #fffcfd; color: #A91B43; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 700; padding: 12px;">
-        <i class="fa-solid fa-eye" style="font-size: 12px;"></i> View Details
+    <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2">
+        View Collection
     </a>
 </article>

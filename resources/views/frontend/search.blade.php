@@ -718,86 +718,10 @@
                             <a href="{{ route('search', ['q' => request('q')]) }}" class="clear-filters-link">Clear All</a>
                         </div>
                     </form>
+                    </form>
                 </aside>
 
-                <section class="product-listing">
-                    <!-- Filter Chips -->
-                    <div class="filter-chips-section">
-                        <div class="chips-container">
-                            <span class="chip active">All Results</span>
-                        </div>
-                    </div>
-
-                    <div class="product-listing-header">
-                        <div class="header-left">
-                            <h2 class="category-main-title">Search: "{{ request('q') }}"</h2>
-                            <span class="result-count">Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() ?? 0 }} products</span>
-                        </div>
-
-                        <div style="display: flex; align-items: center;">
-                            <div class="view-toggle">
-                                <button class="view-btn active" title="Grid View" data-view="grid">
-                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" /></svg>
-                                </button>
-                                <button class="view-btn" title="List View" data-view="list">
-                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z" /></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-grid-main" id="resultsGrid">
-                        @forelse($products as $product)
-                            <article class="product-card-v2">
-                                <div class="card-actions-overlay">
-                                    @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                    <button class="overlay-btn wishlist-btn" aria-label="Add to Wishlist" data-product-id="{{ $product->id }}">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
-                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
-                                    <div class="product-image-v2">
-                                        @php
-                                            $productImage = 'images/pro.png';
-                                            if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                                                $productImage = 'uploads/' . $product->images[0];
-                                            } elseif ($product->image_path) {
-                                                $productImage = 'images/' . $product->image_path;
-                                            }
-                                        @endphp
-                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
-                                    </div>
-                                    <div class="product-info-v2">
-                                        <div class="product-rating-v2">★★★★★</div>
-                                        <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
-                                        <h3 class="product-name-v2">{{ $product->name }}</h3>
-                                        <p class="product-price-v2">
-                                            ₹{{ number_format($product->price, 0) }}
-                                            @if($product->regular_price > $product->price)
-                                                <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
-                                            @endif
-                                        </p>
-                                    </div>
-                                </a>
-                                <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" style="text-decoration: none; display: block; text-align: center;">View Details</a>
-                            </article>
-                        @empty
-                            <div class="no-results-state" id="noResults" style="display: block; width: 100%; grid-column: 1 / -1; text-align: center; padding: 60px 0;">
-                                <h2 class="no-results-title">No results found</h2>
-                                <p class="no-results-text">We couldn't find anything matching your search.</p>
-                                <a href="{{ url('shop') }}" class="btn-load-more" style="text-decoration: none; display: inline-block; margin-top: 20px;">Browse Collections</a>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    @if($products->hasPages())
-                        <div class="pagination-wrap" style="margin-top: 40px; display: flex; justify-content: center;">
-                            {{ $products->appends(['q' => request('q')])->links() }}
-                        </div>
-                    @endif
-                </section>
+                @include('frontend.partials.product-listing', ['products' => $products, 'category' => $category ?? null, 'title' => 'Search Results'])
             </div>
         </div>
     </main>
@@ -805,16 +729,16 @@
 
 @push('scripts')
     <script>
-        const resultsGrid = document.getElementById('resultsGrid');
+        const productContainer = document.getElementById('productListingGrid');
         const viewButtons = document.querySelectorAll('.view-btn');
 
-        if (resultsGrid && viewButtons.length) {
+        if (productContainer && viewButtons.length) {
             viewButtons.forEach((button) => {
                 button.addEventListener('click', function () {
-                    const selectedView = button.getAttribute('data-view');
+                    const selectedView = button.getAttribute('data-view') || (button.title === 'List View' ? 'list' : 'grid');
                     viewButtons.forEach((btn) => btn.classList.remove('active'));
                     button.classList.add('active');
-                    resultsGrid.classList.toggle('view-list', selectedView === 'list');
+                    productContainer.classList.toggle('view-list', selectedView === 'list');
                 });
             });
         }

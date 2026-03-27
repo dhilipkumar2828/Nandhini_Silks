@@ -640,7 +640,7 @@
                 padding: 0 0px;
                 background: none;
                 color: #a91b43 !important;
-                font-size: 11px !important;
+                font-size: 15px !important;
                 font-weight: 800 !important;
                 letter-spacing: 0.1em !important;
                 text-transform: uppercase;
@@ -653,8 +653,9 @@
                 padding: 0 0px;
                 background: none;
                 color: #667085 !important;
-                font-size: 11px !important;
+                font-size: 15px !important;
                 font-weight: 700 !important;
+                margin-bottom: 0px !important;
             }
 
             .product-title-detail {
@@ -805,7 +806,7 @@
             }
 
             .quantity-title {
-                font-size: 12px !important;
+                font-size: 15px !important;
                 letter-spacing: 0.14em !important;
             }
 
@@ -1021,6 +1022,188 @@
                 text-align: center;
             }
 
+            .recently-viewed {
+                margin-top: 64px;
+                padding-top: 48px;
+                border-top: 1px solid #eee;
+            }
+
+            .recently-viewed-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 32px;
+                text-align: center;
+            }
+
+            .recently-viewed-title {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 800;
+                color: #1a1a1a;
+                line-height: 1.2;
+            }
+
+            .recently-viewed-accent {
+                width: 46px;
+                height: 3px;
+                border-radius: 999px;
+                background: #a91b43;
+            }
+
+            .recently-viewed-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 24px;
+            }
+
+            .recently-viewed-card {
+                position: relative;
+                height: 100%;
+                border-radius: 22px;
+                overflow: hidden;
+                background: #fff;
+                border: 1px solid rgba(169, 27, 67, 0.08);
+                box-shadow: 0 14px 34px rgba(17, 24, 39, 0.06);
+                transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            }
+
+            .recently-viewed-card:hover {
+                transform: translateY(-4px);
+                border-color: rgba(169, 27, 67, 0.2);
+                box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
+            }
+
+            .recently-viewed-link {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                text-decoration: none !important;
+                color: inherit;
+            }
+
+            .recently-viewed-link * {
+                text-decoration: none !important;
+            }
+
+            .recently-viewed-media {
+                position: relative;
+                aspect-ratio: 4 / 5;
+                padding: 14px;
+                background: linear-gradient(180deg, #fbf5ee 0%, #f6ede3 100%);
+            }
+
+            .recently-viewed-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 18px;
+                display: block;
+                background: #fff;
+            }
+
+            .recently-viewed-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 10px;
+                flex: 1;
+                padding: 20px 20px 22px;
+            }
+
+            .recently-viewed-category {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #a91b43;
+            }
+
+            .recently-viewed-name {
+                margin: 0;
+                font-size: 17px;
+                font-weight: 700;
+                line-height: 1.4;
+                color: #1a1a1a;
+            }
+
+            .recently-viewed-desc {
+                margin: 0;
+                font-size: 13px;
+                line-height: 1.7;
+                color: #667085;
+                min-height: 44px;
+            }
+
+            .recently-viewed-price {
+                display: flex;
+                align-items: baseline;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .recently-viewed-price-current {
+                font-size: 20px;
+                font-weight: 800;
+                color: #1a1a1a;
+            }
+
+            .recently-viewed-price-old {
+                font-size: 14px;
+                color: #98a2b3;
+                text-decoration: line-through;
+            }
+
+            .recently-viewed-cta {
+                margin-top: auto;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 46px;
+                padding: 0 18px;
+                border-radius: 999px;
+                background: #f8efe4;
+                color: #7a5a27;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            @media (max-width: 1200px) {
+                .recently-viewed-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 900px) {
+                .recently-viewed-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 576px) {
+                .recently-viewed {
+                    margin-top: 48px;
+                    padding-top: 36px;
+                }
+
+                .recently-viewed-grid {
+                    grid-template-columns: 1fr;
+                    gap: 18px;
+                }
+
+                .recently-viewed-content {
+                    padding: 18px;
+                }
+
+                .recently-viewed-name {
+                    font-size: 16px;
+                }
+            }
+
             .share-section {
                 margin-top: 18px !important;
                 padding-top: 18px !important;
@@ -1028,7 +1211,7 @@
             }
 
             .share-title {
-                font-size: 11px !important;
+                font-size: 13px !important;
                 font-weight: 700;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -2599,7 +2782,10 @@
             <!-- Related Products Section -->
             @if (isset($relatedProducts) && $relatedProducts->count() > 0)
                 <section class="related-products">
-                    <h2 class="related-title">Related Collections</h2>
+                    <div class="recently-viewed-header" style="margin-bottom: 40px;">
+                        <h2 class="recently-viewed-title">Related Collections</h2>
+                        <div class="recently-viewed-accent"></div>
+                    </div>
                     <div class="swiper-wrap-outer">
                         <div class="swiper related-swiper">
                             <div class="swiper-wrapper">
@@ -2646,16 +2832,81 @@
 
             {{-- Recently Viewed Section --}}
             @if (isset($recentlyViewed) && count($recentlyViewed) > 0)
-                <section class="recently-viewed" style="margin-top: 64px; margin-bottom: 64px;">
-                    <h2 style="font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 32px;">
-                        Recently Viewed
-                        <div style="width: 40px; height: 3px; background: #a91b43; margin-top: 8px;"></div>
-                    </h2>
+                <section class="recently-viewed">
+                    <div class="recently-viewed-header">
+                        <h2 class="recently-viewed-title">Recently Viewed</h2>
+                        <div class="recently-viewed-accent"></div>
+                    </div>
 
-                    <div class="product-grid"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
+                    <div class="recently-viewed-grid">
                         @foreach ($recentlyViewed as $recent)
-                            @include('frontend.partials.product-card', ['product' => $recent])
+                            @php
+                                $recentImagePath = $recent->image_path;
+                                if (!$recentImagePath && !empty($recent->images)) {
+                                    $recentImages = is_string($recent->images)
+                                        ? json_decode($recent->images, true)
+                                        : $recent->images;
+                                    $recentImagePath =
+                                        is_array($recentImages) && count($recentImages) > 0 ? $recentImages[0] : null;
+                                }
+
+                                $recentDisplayImage = asset('images/pro.png');
+                                if ($recentImagePath) {
+                                    if (
+                                        Str::startsWith($recentImagePath, 'products/') ||
+                                        Str::startsWith($recentImagePath, 'categories/')
+                                    ) {
+                                        $recentDisplayImage = asset('uploads/' . $recentImagePath);
+                                    } elseif (Str::startsWith($recentImagePath, 'images/')) {
+                                        $recentDisplayImage = asset($recentImagePath);
+                                    } else {
+                                        $recentDisplayImage = asset('images/' . $recentImagePath);
+                                    }
+                                }
+
+                                $recentInWishlist = in_array($recent->id, session('wishlist', []));
+                                $recentPrice = $recent->sale_price > 0 ? $recent->sale_price : $recent->price;
+                                $recentOldPrice = $recent->sale_price > 0
+                                    ? ($recent->regular_price ?? $recent->price)
+                                    : (isset($recent->regular_price) && $recent->regular_price > $recent->price
+                                        ? $recent->regular_price
+                                        : null);
+                            @endphp
+                            <article class="recently-viewed-card" data-product-id="{{ $recent->id }}">
+                                <button type="button" class="btn-wishlist-detail wishlist-btn"
+                                    aria-label="Add to Wishlist" aria-pressed="{{ $recentInWishlist ? 'true' : 'false' }}"
+                                    data-product-id="{{ $recent->id }}"
+                                    style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                    <i class="{{ $recentInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"
+                                        style="color: #A91B43; font-size: 18px;"></i>
+                                </button>
+
+                                <a href="{{ route('product.show', $recent->slug) }}" class="recently-viewed-link">
+                                    <div class="recently-viewed-media">
+                                        <img src="{{ $recentDisplayImage }}" alt="{{ $recent->name }}" loading="lazy">
+                                    </div>
+                                    <div class="recently-viewed-content">
+                                        <span class="recently-viewed-category">
+                                            {{ $recent->category->name ?? 'Collection' }}
+                                        </span>
+                                        <h3 class="recently-viewed-name">{{ $recent->name }}</h3>
+                                        <p class="recently-viewed-desc">
+                                            {{ Str::limit(strip_tags($recent->description ?? $recent->short_description), 80) }}
+                                        </p>
+                                        <div class="recently-viewed-price">
+                                            <span class="recently-viewed-price-current">
+                                                ₹{{ number_format($recentPrice, 0) }}
+                                            </span>
+                                            @if ($recentOldPrice)
+                                                <span class="recently-viewed-price-old">
+                                                    ₹{{ number_format($recentOldPrice, 0) }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <span class="recently-viewed-cta">View Collection</span>
+                                    </div>
+                                </a>
+                            </article>
                         @endforeach
                     </div>
                 </section>
