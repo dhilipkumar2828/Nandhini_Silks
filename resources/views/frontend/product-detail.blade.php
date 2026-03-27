@@ -774,7 +774,7 @@
             }
 
             .attribute-title {
-                font-size: 11px !important;
+                font-size: 13px !important;
                 letter-spacing: 0.1em !important;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -896,7 +896,6 @@
 
             .tab-pane {
                 display: none;
-                padding: 32px 0;
                 animation: fadeIn 0.4s ease;
             }
 
@@ -1165,20 +1164,24 @@
             }
 
             .recently-viewed-cta {
-                margin: auto auto 0 !important;
+                margin: 15px auto 0 !important;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 min-height: 46px;
                 padding: 0 24px;
-                border-radius: 999px;
-                background: #a91b43;
-                color: #fff;
+                border-radius: 8px;
+                background: #A91B43 !important;
+                color: #fff !important;
                 font-size: 13px;
                 font-weight: 700;
                 letter-spacing: 0.05em;
                 text-transform: uppercase;
+                text-decoration: none !important;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
+                width: 100%;
+                max-width: 240px;
+                align-self: center;
             }
 
             .recently-viewed-cta:hover {
@@ -1346,10 +1349,6 @@
 
             .tab-btn.active::after {
                 display: none !important;
-            }
-
-            .tab-pane {
-                padding-top: 26px !important;
             }
 
             /* Hero Section Alignment Refinement */
@@ -1743,7 +1742,7 @@
                 }
 
                 .tab-pane {
-                    padding-top: 18px !important;
+                    padding-top: 15px !important;
                 }
 
                 .tab-content-text {
@@ -2808,30 +2807,52 @@
                                 @foreach ($relatedProducts->concat($relatedProducts) as $related)
                                     <div class="swiper-slide">
                                         <article class="product-card-v2" style="height: 100%;">
+                                            @php
+                                                $relatedImage = 'images/pro.png';
+                                                if ($related->image_path) {
+                                                    if (
+                                                        Str::startsWith($related->image_path, 'products/') ||
+                                                        Str::startsWith($related->image_path, 'categories/')
+                                                    ) {
+                                                        $relatedImage = 'uploads/' . $related->image_path;
+                                                    } else {
+                                                        $relatedImage = 'images/' . $related->image_path;
+                                                    }
+                                                } elseif (!empty($related->images)) {
+                                                    $rImages = is_string($related->images)
+                                                        ? json_decode($related->images, true)
+                                                        : $related->images;
+                                                    if (is_array($rImages) && count($rImages) > 0) {
+                                                        $relatedImage = 'uploads/' . $rImages[0];
+                                                    }
+                                                }
+                                            @endphp
                                             <a href="{{ route('product.show', $related->slug) }}"
                                                 style="text-decoration: none; color: inherit;">
-                                                <div class="product-image-v2">
-                                                    @php
-                                                        $relatedImage = 'images/pro.png';
-                                                        if ($related->image_path) {
-                                                            if (Str::startsWith($related->image_path, 'products/') || Str::startsWith($related->image_path, 'categories/')) {
-                                                                $relatedImage = 'uploads/' . $related->image_path;
-                                                            } else {
-                                                                $relatedImage = 'images/' . $related->image_path;
-                                                            }
-                                                        } elseif (!empty($related->images)) {
-                                                            $rImages = is_string($related->images) ? json_decode($related->images, true) : $related->images;
-                                                            if (is_array($rImages) && count($rImages) > 0) {
-                                                                $relatedImage = 'uploads/' . $rImages[0];
-                                                            }
-                                                        }
-                                                    @endphp
+                                                <div class="product-image-v2" style="position: relative;">
                                                     <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
+                                                    @php $rInWishlist = in_array($related->id, session('wishlist', [])); @endphp
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="relatedWishlistBtn_{{ $related->id }}"
+                                                        aria-label="Add to Wishlist" data-product-id="{{ $related->id }}"
+                                                        style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="relatedWishlistIcon_{{ $related->id }}"
+                                                            style="color: #A91B43; font-size: 18px;"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="product-info-v2">
-                                                    <h3 class="product-name-v2">{{ $related->name }}</h3>
-                                                    <p class="product-price-v2">₹{{ number_format($related->price, 0) }}
-                                                    </p>
+                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #1a1a1a;">{{ $related->name }}</h3>
+                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #a91b43; display: flex; align-items: baseline; gap: 8px;">
+                                                    @if($related->sale_price > 0)
+                                                        <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
+                                                        <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                    @else
+                                                        <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
+                                                        @if(isset($related->regular_price) && $related->regular_price > $related->price)
+                                                            <span class="product-price-old" style="text-decoration: line-through; color: #999; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                    <span class="add-to-cart-v2">View Details</span>
                                                 </div>
                                             </a>
                                         </article>
@@ -2906,20 +2927,17 @@
                                             {{ $recent->category->name ?? 'Collection' }}
                                         </span>
                                         <h3 class="recently-viewed-name">{{ $recent->name }}</h3>
-                                        <p class="recently-viewed-desc">
-                                            {{ Str::limit(strip_tags($recent->description ?? $recent->short_description), 80) }}
-                                        </p>
                                         <div class="recently-viewed-price">
                                             <span class="recently-viewed-price-current">
                                                 ₹{{ number_format($recentPrice, 0) }}
                                             </span>
-                                            @if ($recentOldPrice)
+                                            @if($recentOldPrice)
                                                 <span class="recently-viewed-price-old">
                                                     ₹{{ number_format($recentOldPrice, 0) }}
                                                 </span>
                                             @endif
                                         </div>
-                                        <span class="recently-viewed-cta">View Collection</span>
+                                        <span class="recently-viewed-cta">View Details</span>
                                     </div>
                                 </a>
                             </article>

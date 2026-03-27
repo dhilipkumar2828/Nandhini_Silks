@@ -4112,20 +4112,13 @@ input:checked+.toggle-switch .toggle-dot {
 
 .card-actions-overlay {
   position: absolute;
-  top: 25px;
-  right: 25px;
+  top: 15px;
+  right: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.3s ease;
+  opacity: 1; /* Always visible for premium feel */
   z-index: 5;
-}
-
-.product-card-v2:hover .card-actions-overlay {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .overlay-btn {
@@ -4159,15 +4152,21 @@ input:checked+.toggle-switch .toggle-dot {
 
 .add-to-cart-v2 {
   width: 100%;
-  padding: 9px;
-  background: var(--pink);
-  color: #fff;
+  max-width: 240px; /* Centered narrow button like the image */
+  min-height: 44px;
+  padding: 10px 24px;
+  background: #A91B43 !important;
+  color: #fff !important;
   border: none;
-  border-radius: 6px;
-  margin-top: 12px;
+  border-radius: 8px;
+  margin: 15px auto 0 !important;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
   transition: all 0.3s ease;
 }
 
@@ -4828,6 +4827,7 @@ input:checked+.toggle-switch .toggle-dot {
   margin: 0 !important;
   border-radius: 8px;
   overflow: hidden;
+  position: relative !important; /* Required for wishlist icon anchoring */
 }
 
 .product-grid-main.view-list .product-info-v2 {
@@ -6263,21 +6263,47 @@ body.menu-open {
     text-decoration: none !important;
 }
 
-.product-info-v2 {
+/* Base card behavior (Grid View) */
+.product-grid-main:not(.view-list) .product-card-v2,
+.recently-viewed-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+.product-info-v2, .recently-viewed-content {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
+    width: 100% !important;
 }
 
-.product-price-v2 {
+.product-price-v2, .recently-viewed-price {
     display: flex !important;
     justify-content: center !important;
     align-items: baseline !important;
     gap: 8px !important;
 }
 
+.product-price-old, .recently-viewed-price-old {
+    text-decoration: line-through !important;
+    color: #999 !important;
+    font-size: 0.85em !important;
+    font-weight: 500 !important;
+}
+
+/* Button Alignment */
+.add-to-cart-v2, .recently-viewed-cta {
+    margin: 12px auto 0 !important;
+    align-self: center !important;
+}
+
 /* Ensure list view keeps its left alignment */
+.product-grid-main.view-list .product-card-v2 {
+    display: grid !important;
+}
+
 .product-grid-main.view-list .product-info-v2 {
     align-items: flex-start !important;
     text-align: left !important;
@@ -6286,4 +6312,55 @@ body.menu-open {
 
 .product-grid-main.view-list .product-price-v2 {
     justify-content: flex-start !important;
+}
+
+.product-grid-main.view-list .add-to-cart-v2 {
+    margin: 0 !important;
+    align-self: stretch !important;
+}
+
+.product-grid-main.view-list .product-card-v2 {
+    grid-template-columns: 220px minmax(0, 1fr) auto !important;
+    gap: 24px !important;
+    padding: 22px !important;
+    align-items: center !important;
+}
+
+.product-grid-main.view-list .product-image-v2 {
+    width: 220px !important;
+    min-height: 250px !important;
+    border-radius: 16px !important;
+}
+
+.product-grid-main.view-list .product-info-v2 {
+    padding: 0 !important;
+}
+
+.product-grid-main.view-list .product-card-v2 > a.add-to-cart-v2,
+.product-grid-main.view-list .add-to-cart-v2 {
+    justify-self: end !important;
+    align-self: center !important;
+    width: auto !important;
+    min-width: 168px !important;
+    max-width: 190px !important;
+    min-height: 50px !important;
+    margin: 0 !important;
+    padding: 0 24px !important;
+    border-radius: 999px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    box-shadow: 0 10px 24px rgba(169, 27, 67, 0.16) !important;
+}
+
+.product-grid-main.view-list .product-image-v2 .btn-wishlist-detail.wishlist-btn {
+    width: 36px !important;
+    height: 36px !important;
+    top: 12px !important;
+    right: 12px !important;
+}
+
+.product-grid-main.view-list .product-image-v2 .btn-wishlist-detail.wishlist-btn i {
+    font-size: 15px !important;
 }

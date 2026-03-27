@@ -1,16 +1,5 @@
 <article class="product-card-v2" data-product-id="{{ $product->id }}">
-    <div class="card-actions-overlay">
-        @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-        <button class="overlay-btn wishlist-btn {{ $inWishlist ? 'active' : '' }}" 
-                data-product-id="{{ $product->id }}" 
-                aria-label="Add to Wishlist">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : 'currentColor' }}">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-        </button>
-    </div>
-    <a href="{{ route('product.show', $product->slug) }}" class="product-link">
-        <div class="product-image-v2">
+        <div class="product-image-v2" style="position: relative;">
             @php
                 $imagePath = $product->image_path;
                 if (!$imagePath && !empty($product->images)) {
@@ -30,6 +19,14 @@
                 }
             @endphp
             <img src="{{ $displayImage }}" alt="{{ $product->name }}" loading="lazy">
+            @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+            <button type="button" class="btn-wishlist-detail wishlist-btn" 
+                    data-product-id="{{ $product->id }}" 
+                    aria-label="{{ $inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
+                    style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" 
+                   style="color: #A91B43; font-size: 18px;"></i>
+            </button>
         </div>
         <div class="product-info-v2">
             @if($product->reviews_count > 0)
@@ -62,6 +59,6 @@
         </div>
     </a>
     <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2">
-        View Collection
+        View Details
     </a>
 </article>
