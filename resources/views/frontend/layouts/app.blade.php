@@ -602,7 +602,7 @@
                     
                     let isInWishlist = false;
                     if (svg) {
-                        isInWishlist = svg.getAttribute('fill') === '#A91B43';
+                        isInWishlist = btn.getAttribute('aria-pressed') === 'true';
                     } else if (icon) {
                         isInWishlist = icon.classList.contains('fa-solid');
                     }
@@ -625,7 +625,12 @@
                             allBtns.forEach(b => {
                                 const s = b.querySelector('svg');
                                 const i = b.querySelector('i');
-                                if (s) s.setAttribute('fill', isInWishlist ? '#666' : '#A91B43');
+                                b.setAttribute('aria-pressed', isInWishlist ? 'false' : 'true');
+                                if (s) {
+                                    s.setAttribute('fill', isInWishlist ? '#FBF2D1' : '#927541');
+                                    s.setAttribute('stroke', '#927541');
+                                    s.setAttribute('stroke-width', '2.5');
+                                }
                                 if (i) {
                                     if (isInWishlist) {
                                         i.classList.replace('fa-solid', 'fa-regular');

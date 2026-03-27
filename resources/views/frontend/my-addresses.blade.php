@@ -51,6 +51,19 @@
                                 <span class="addr-country">{{ $addr->country }}</span><br>
                                 Phone: <span class="addr-phone">{{ optional(Auth::user())->phone }}</span>
                             </div>
+                            <button type="button"
+                                onclick="openEditAddressModal({
+                                    id: {{ $addr->id }},
+                                    label: @js($addr->label),
+                                    address1: @js($addr->address1),
+                                    city: @js($addr->city),
+                                    state: @js($addr->state),
+                                    zip: @js($addr->zip),
+                                    country: @js($addr->country ?? 'India')
+                                })"
+                                style="margin-top: 16px; padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
+                                Edit Address
+                            </button>
                         </div>
                         @endforeach
 
@@ -69,67 +82,112 @@
             <div class="modal-content" style="background: #fff; padding: 40px; border-radius: 20px; width: 600px; max-width: 90%; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
                 <button onclick="closeAddressModal()" style="position: absolute; right: 25px; top: 25px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
                 
-                <h2 style="margin-top: 0; font-size: 24px; color: #333; margin-bottom: 8px; font-weight: 700;">Add New Address</h2>
-                <p style="color: #999; font-size: 14px; margin-bottom: 30px; margin-top: 0;">Items will be delivered to this address.</p>
+                <h2 id="addressModalTitle" style="margin-top: 0; font-size: 24px; color: #333; margin-bottom: 8px; font-weight: 700;">Add New Address</h2>
+                <p id="addressModalSubtitle" style="color: #999; font-size: 14px; margin-bottom: 30px; margin-top: 0;">Items will be delivered to this address.</p>
                 
-                <form action="{{ route('addresses.store') }}" method="POST">
+                <form id="addressForm" action="{{ route('addresses.store') }}" method="POST" class="validate-form" novalidate>
                     @csrf
+                    <input type="hidden" name="_method" id="addressFormMethod" value="POST">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Address Label</label>
-                            <input type="text" name="label" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office">
+                            <input type="text" id="address_label" name="label" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office">
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Phone Number</label>
                             <input type="tel" value="{{ optional(Auth::user())->phone }}" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 20px;">
                         <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Street Address / House No.</label>
-                        <input type="text" name="address1" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="Door No, Street name">
+                        <input type="text" id="address_address1" name="address1" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="Door No, Street name">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">City</label>
-                            <input type="text" name="city" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_city" name="city" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">State</label>
-                            <input type="text" name="state" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_state" name="state" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Pincode</label>
-                            <input type="text" name="zip" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                            <input type="text" id="address_zip" name="zip" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
                         </div>
-                        <div>
+                        <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Country</label>
-                            <input type="text" name="country" value="India" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
+                            <input type="text" id="address_country" name="country" value="India" readonly style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #f9f9f9;">
                         </div>
                     </div>
 
-                    <button type="submit" style="width: 100%; padding: 14px; background: #940437; color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: background 0.3s;">Save Address Details</button>
+                    <button type="submit" id="addressSubmitButton" style="width: 100%; padding: 14px; background: #940437; color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: background 0.3s;">Save Address Details</button>
                 </form>
             </div>
         </div>
     </main>
 
     <script>
+        const addressModal = document.getElementById('addressModal');
+        const addressForm = document.getElementById('addressForm');
+        const addressFormMethod = document.getElementById('addressFormMethod');
+        const addressModalTitle = document.getElementById('addressModalTitle');
+        const addressModalSubtitle = document.getElementById('addressModalSubtitle');
+        const addressSubmitButton = document.getElementById('addressSubmitButton');
+        const addressFields = {
+            label: document.getElementById('address_label'),
+            address1: document.getElementById('address_address1'),
+            city: document.getElementById('address_city'),
+            state: document.getElementById('address_state'),
+            zip: document.getElementById('address_zip'),
+            country: document.getElementById('address_country'),
+        };
+
+        function resetAddressForm() {
+            addressForm.action = `{{ route('addresses.store') }}`;
+            addressFormMethod.value = 'POST';
+            addressModalTitle.textContent = 'Add New Address';
+            addressModalSubtitle.textContent = 'Items will be delivered to this address.';
+            addressSubmitButton.textContent = 'Save Address Details';
+            addressFields.label.value = '';
+            addressFields.address1.value = '';
+            addressFields.city.value = '';
+            addressFields.state.value = '';
+            addressFields.zip.value = '';
+            addressFields.country.value = 'India';
+        }
+
         function openAddressModal() {
-            document.getElementById('addressModal').style.display = 'flex';
+            resetAddressForm();
+            addressModal.style.display = 'flex';
+        }
+
+        function openEditAddressModal(address) {
+            addressForm.action = `/addresses/${address.id}`;
+            addressFormMethod.value = 'PUT';
+            addressModalTitle.textContent = 'Edit Address';
+            addressModalSubtitle.textContent = 'Update your saved address details.';
+            addressSubmitButton.textContent = 'Update Address';
+            addressFields.label.value = address.label || '';
+            addressFields.address1.value = address.address1 || '';
+            addressFields.city.value = address.city || '';
+            addressFields.state.value = address.state || '';
+            addressFields.zip.value = address.zip || '';
+            addressFields.country.value = address.country || 'India';
+            addressModal.style.display = 'flex';
         }
 
         function closeAddressModal() {
-            document.getElementById('addressModal').style.display = 'none';
+            addressModal.style.display = 'none';
         }
 
         window.onclick = function(event) {
-            const modal = document.getElementById('addressModal');
-            if (event.target == modal) {
+            if (event.target == addressModal) {
                 closeAddressModal();
             }
         }

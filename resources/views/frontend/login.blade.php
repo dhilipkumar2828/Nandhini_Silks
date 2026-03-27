@@ -23,10 +23,15 @@
                         </div>
                     @endif
                     
-                    @if($errors->any())
+                    @php
+                        $visibleErrors = collect($errors->all())
+                            ->reject(fn ($error) => $error === 'The provided credentials do not match our records.');
+                    @endphp
+
+                    @if($visibleErrors->isNotEmpty())
                         <div class="alert" style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px;">
                             <ul style="list-style: none; padding: 0; margin: 0;">
-                                @foreach($errors->all() as $error)
+                                @foreach($visibleErrors as $error)
                                     <li style="font-weight: bold; margin-bottom: 2px;"><i class="fas fa-times-circle mr-1"></i> {{ $error }}</li>
                                 @endforeach
                             </ul>
