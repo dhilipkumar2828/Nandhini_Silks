@@ -1614,6 +1614,7 @@
                                 if (data.success) {
                                     toastr.success(data.message || 'Added to cart.');
                                     if (window.updateMiniCart) window.updateMiniCart();
+                                    if (window.notifyCartUpdate) window.notifyCartUpdate();
                                 } else {
                                     toastr.error(data.message || 'Error adding to cart.');
                                 }

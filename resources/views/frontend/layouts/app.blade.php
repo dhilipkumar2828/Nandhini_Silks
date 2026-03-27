@@ -715,10 +715,32 @@
         if(closeCart) closeCart.addEventListener('click', closeDrawer);
         if(cartOverlay) cartOverlay.addEventListener('click', closeDrawer);
 
-        function updateMiniCart() {
+        // Global Cart Synchronization (Bidirectional across Tabs)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'nandhini_cart_updated') {
+                // If cart was updated in another tab, refresh UI
+                if (window.updateMiniCart) window.updateMiniCart();
+                // If page has a specific sync function (like PDP), call it
+                if (window.syncCartStateWithServer) window.syncCartStateWithServer();
+                // If on cart page, maybe show a toast or refresh
+                if (window.location.pathname === '{{ url("cart") }}') {
+                    // We avoid full reload to not disrupt user, but we could re-fetch
+                    if (window.refreshCartPage) window.refreshCartPage();
+                }
+            }
+        });
+
+        function notifyCartUpdate() {
+            localStorage.setItem('nandhini_cart_updated', Date.now());
+        }
+
+        // Expose functions globally to be used by AJAX cart additions
+        window.openCartDrawer = openDrawer;
+        window.updateMiniCart = function() {
             const content = document.getElementById('miniCartContent');
             const subtotal = document.getElementById('miniCartSubtotal');
-            
+            if(!content) return;
+
             fetch('{{ url("cart/mini-cart") }}', {
                 headers: { 'Accept': 'application/json' }
             })
@@ -726,9 +748,11 @@
             .then(data => {
                 if(data.items.length === 0) {
                     content.innerHTML = '<div class="text-center py-20"><img src="{{ asset("images/local_mall.svg") }}" style="width: 50px; opacity: 0.2; margin: 0 auto 15px;"><p style="color: #999;">Your cart is empty</p></div>';
-                    document.getElementById('miniCartFooter').style.display = 'none';
+                    const footer = document.getElementById('miniCartFooter');
+                    if(footer) footer.style.display = 'none';
                 } else {
-                    document.getElementById('miniCartFooter').style.display = 'block';
+                    const footer = document.getElementById('miniCartFooter');
+                    if(footer) footer.style.display = 'block';
                     let html = '';
                     data.items.forEach(item => {
                         html += `
@@ -748,7 +772,7 @@
                         `;
                     });
                     content.innerHTML = html;
-                    subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN');
+                    if(subtotal) subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN');
                 }
                 
                 // Sync main cart badges
@@ -758,11 +782,8 @@
                     badge.style.display = (data.totalItems > 0) ? 'inline-block' : 'none';
                 });
             });
-        }
-
-        // Expose functions globally to be used by AJAX cart additions
-        window.openCartDrawer = openDrawer;
-        window.updateMiniCart = updateMiniCart;
+        };
+        window.notifyCartUpdate = notifyCartUpdate;
 
         function removeItem(key) {
             Swal.fire({
@@ -784,6 +805,7 @@
                     csrf.value = "{{ csrf_token() }}";
                     form.appendChild(csrf);
                     document.body.appendChild(form);
+                    notifyCartUpdate(); // Trigger sync before redirect
                     form.submit();
                 }
             });
@@ -813,7 +835,8 @@
                         if(data.success) {
                             toastr.success(data.message || 'Item removed.');
                             updateMiniCart();
-                            if(window.location.pathname === '/cart') {
+                            notifyCartUpdate();
+                            if(window.location.pathname === '{{ url("cart") }}') {
                                 window.location.reload();
                             }
                         }

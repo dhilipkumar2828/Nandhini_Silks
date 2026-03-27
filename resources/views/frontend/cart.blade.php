@@ -140,10 +140,11 @@
                                     </div>
                                     <div class="cart-item-info" style="padding-left: 20px;">
                                         <h3 style="margin-bottom: 5px;">{{ $item['name'] }}</h3>
-                                        @if(!empty($item['size']) || !empty($item['color']))
+                                        @if(!empty($item['size']) || !empty($item['color']) || !empty($item['length']))
                                             <div class="item-variants" style="font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                                                 @if(!empty($item['size'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Size: {{ $item['size'] }}</span> @endif
-                                                @if(!empty($item['color'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">Color: {{ $item['color'] }}</span> @endif
+                                                @if(!empty($item['color'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Color: {{ $item['color'] }}</span> @endif
+                                                @if(!empty($item['length'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">Length: {{ $item['length'] }}</span> @endif
                                             </div>
                                         @endif
                                     </div>
@@ -299,6 +300,10 @@
                         discEl.textContent = '-₹' + fmt(data.discount || 0);
                         discEl.style.opacity = '1';
                     }
+
+                    // BROADCAST to other tabs
+                    if (window.notifyCartUpdate) window.notifyCartUpdate();
+
                 } else {
                     // Server returned HTML redirect — refresh page to get updated totals
                     window.location.reload();
@@ -306,6 +311,11 @@
             })
             .catch(() => window.location.reload());
         }
+
+        window.refreshCartPage = function() {
+            // Since cart list is complex, we just reload the page to get fresh state correctly
+            window.location.reload();
+        };
 
         function setAmt(id, val) {
             const el = document.getElementById(id);

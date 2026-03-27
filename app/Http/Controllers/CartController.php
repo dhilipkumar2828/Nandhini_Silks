@@ -53,7 +53,10 @@ class CartController extends Controller
     public function add(Request $request, Product $product)
     {
         Log::info('ADD TO CART REQUEST:', $request->all());
-        $quantity = max(1, (int) $request->input('quantity', 1));
+        $quantity = (int) $request->input('quantity', 1);
+        // For non-ajax, we still want a minimum of 1
+        if (!$request->ajax() && $quantity < 1) $quantity = 1;
+        
         $attributes = $request->input('attributes', []);
         $cart = $this->getCart();
 
@@ -109,6 +112,17 @@ class CartController extends Controller
         }
 
         $existingQty = isset($cart[$cartKey]) ? (int)$cart[$cartKey]['quantity'] : 0;
+        
+        // If updating an existing item, we allow negative quantity for syncing
+        if (isset($cart[$cartKey]) && ($existingQty + $quantity) <= 0) {
+            unset($cart[$cartKey]);
+            $this->putCart($cart);
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Item removed.', 'cartCount' => collect($cart)->sum('quantity')]);
+            }
+            return redirect()->route('cart')->with('success', 'Item removed.');
+        }
+
         if (($existingQty + $quantity) > $availableStock) {
             return $this->errorResponse('You already have ' . $existingQty . ' in cart. Total stock is ' . $availableStock . '.', $request);
         }
@@ -118,12 +132,16 @@ class CartController extends Controller
             $cart[$cartKey]['quantity'] += $quantity;
         } else {
             // Get Readable Names
+            $size = '';
+            $color = '';
+            $length = '';
             foreach ($attributes as $aid => $avid) {
                 $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                 if ($val && $val->attribute) {
                     $attrName = strtolower($val->attribute->name);
                     if (str_contains($attrName, 'size')) $size = $val->name;
-                    if (str_contains($attrName, 'color')) $color = $val->name;
+                    elseif (str_contains($attrName, 'color')) $color = $val->name;
+                    elseif (str_contains($attrName, 'length')) $length = $val->name;
                 }
             }
 
@@ -139,6 +157,7 @@ class CartController extends Controller
                 'attributes' => $attributes,
                 'size' => $size,
                 'color' => $color,
+                'length' => $length,
             ];
         }
 
@@ -660,12 +679,14 @@ class CartController extends Controller
                 // Get size and color names for display
                 $size = '';
                 $color = '';
+                $length = '';
                 foreach($attributes as $aid => $avid) {
                     $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                     if($val && $val->attribute) {
                         $attrName = strtolower($val->attribute->name);
                         if(str_contains($attrName, 'size')) $size = $val->name;
-                        if(str_contains($attrName, 'color')) $color = $val->name;
+                        elseif(str_contains($attrName, 'color')) $color = $val->name;
+                        elseif(str_contains($attrName, 'length')) $length = $val->name;
                     }
                 }
 
@@ -681,6 +702,7 @@ class CartController extends Controller
                     'attributes' => $attributes,
                     'size' => $size,
                     'color' => $color,
+                    'length' => $length,
                 ];
             }
             return $cart;

@@ -149,25 +149,39 @@ class FrontendController extends Controller
         // Correctly check if product is in cart (handles both session and DB)
         $inCart = false;
         $cartVariantIds = [];
+        $cartVariantQuantities = [];
+        /** @var \App\Models\Product $product */
         $productId = $product->id;
         if (Auth::guard('web')->check()) {
-            $cartVariantIds = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
+            $cartItems = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
                 ->where('product_id', $productId)
-                ->pluck('product_variant_id')
-                ->filter()
-                ->toArray();
-            $inCart = !empty($cartVariantIds) || \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
-                ->where('product_id', $productId)
-                ->whereNull('product_variant_id')
-                ->exists();
+                ->get();
+            
+            foreach ($cartItems as $cItem) {
+                if ($cItem->product_variant_id) {
+                    $cartVariantIds[] = $cItem->product_variant_id;
+                    $cartVariantQuantities[$cItem->product_variant_id] = $cItem->quantity;
+                } else {
+                    $cartVariantQuantities['base'] = $cItem->quantity;
+                }
+            }
+            $inCart = $cartItems->isNotEmpty();
         } else {
             $cart = session()->get('cart', []);
             $cartItems = collect($cart)->where('product_id', $productId);
-            $cartVariantIds = $cartItems->pluck('variant_id')->filter()->toArray();
+            
+            foreach ($cartItems as $cItem) {
+                if (isset($cItem['variant_id']) && $cItem['variant_id']) {
+                    $cartVariantIds[] = $cItem['variant_id'];
+                    $cartVariantQuantities[$cItem['variant_id']] = $cItem['quantity'];
+                } else {
+                    $cartVariantQuantities['base'] = $cItem['quantity'];
+                }
+            }
             $inCart = $cartItems->isNotEmpty();
         }
 
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'cartVariantIds', 'userReview'));
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'cartVariantIds', 'cartVariantQuantities', 'userReview'));
     }
 
     public function about() { return view('frontend.about'); }
