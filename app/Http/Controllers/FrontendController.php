@@ -205,11 +205,18 @@ class FrontendController extends Controller
         $recentlyViewed = Product::whereIn('id', array_diff($viewedIds, [$product->id]))
             ->where('status', 1)->limit(4)->get();
 
-        $relatedProducts = Product::where('category_id', '=', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', '=', 1)
-            ->limit(4)
-            ->get();
+        $relatedProductIds = $product->related_products;
+        if (!empty($relatedProductIds) && is_array($relatedProductIds)) {
+            $relatedProducts = Product::whereIn('id', $relatedProductIds)
+                ->where('status', '=', 1)
+                ->get();
+        } else {
+            $relatedProducts = Product::where('category_id', '=', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('status', '=', 1)
+                ->limit(4)
+                ->get();
+        }
 
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
