@@ -83,7 +83,7 @@
         padding: 15px 45px;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 15px;
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -533,7 +533,7 @@
                             </label>
                         </div>
 
-                        <button type="submit" class="btn-review-v4" style="width: 100%; margin-top: 20px; height: 50px; font-size: 16px; letter-spacing: 0.5px; border-radius: 12px;">
+                        <button type="submit" class="btn-review-v4" style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px;">
                             Pay &amp; Place Order
                         </button>
 

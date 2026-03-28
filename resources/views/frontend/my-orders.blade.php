@@ -49,7 +49,7 @@
     }
 
     .meta-label {
-        font-size: 16px;
+        font-size: 15px;
         color: #999;
         text-transform: uppercase;
         letter-spacing: 0.5px;
