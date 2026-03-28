@@ -191,8 +191,8 @@
         .featured-section {
             margin-top: 0;
             margin-bottom: 0;
-            padding-top: 52px;
-            padding-bottom: 52px;
+            padding-top: 35px;
+            padding-bottom: 35px;
         }
 
         .collection-section,
@@ -205,6 +205,12 @@
             margin-top: 0 !important;
             margin-bottom: 0 !important;
             padding-top: var(--home-section-space);
+        }
+
+        .category-section,
+        .offers-section,
+        .testimonial-section {
+            margin-bottom: var(--home-section-space) !important;
         }
 
         .collection-title,
@@ -690,6 +696,12 @@
                 padding-top: var(--home-section-space-mobile) !important;
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
+            }
+
+            .category-section,
+            .offers-section,
+            .testimonial-section {
+                margin-bottom: var(--home-section-space-mobile) !important;
             }
 
             .category-section {

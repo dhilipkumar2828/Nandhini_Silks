@@ -683,7 +683,7 @@
                 margin-bottom: 0 !important;
             }
             .product-grid-main:not(.view-list) {
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 25px !important;
             }
             .product-grid-main:not(.view-list) .product-card-v2 {

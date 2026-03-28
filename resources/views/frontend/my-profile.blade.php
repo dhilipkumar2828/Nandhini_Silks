@@ -181,6 +181,7 @@
         font-weight: 700;
         cursor: pointer;
         transition: opacity 0.3s ease;
+        font-size: 15px;
     }
 
     .btn-save:hover {
@@ -368,8 +369,8 @@
 
                         <div class="danger-zone">
                             <h4 style="color: #333; margin-bottom: 10px;">Account Security</h4>
-                            <p style="color: #999; font-size: 13px; margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
-                            <button type="button" class="btn-delete">Delete Account</button>
+                            <p style="color: #999; font-size: 15px; margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button style="font-size: 15px;" type="button" class="btn-delete">Delete Account</button>
                         </div>
                     </form>
                 </div>
