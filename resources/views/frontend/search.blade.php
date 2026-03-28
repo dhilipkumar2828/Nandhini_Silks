@@ -8,51 +8,6 @@
             padding-bottom: 56px;
         }
 
-        .filter-chips-section {
-            margin-bottom: 25px;
-        }
-
-        .chips-container {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-
-        .chips-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 40px;
-            padding: 0 20px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4b5563;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .chip:hover {
-            border-color: #A91B43;
-            color: #A91B43;
-            background: #fffcf0;
-        }
-
-        .chip.active {
-            background: #A91B43;
-            border-color: #A91B43;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(169, 27, 67, 0.15);
-        }
 
         .filters-sidebar {
             background: #fff;
@@ -75,7 +30,7 @@
             border-radius: 12px;
             background: #fff;
             color: #A91B43;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
@@ -578,7 +533,7 @@
             }
 
             .label-text {
-                font-size: 14px;
+                font-size: 15px;
             }
 
             .price-val {

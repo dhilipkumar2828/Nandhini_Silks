@@ -208,7 +208,7 @@
             .review-empty-text {
                 margin: 0 0 24px;
                 color: #6b7280;
-                font-size: 14px;
+                font-size: 15px;
                 line-height: 1.6;
             }
 
@@ -223,7 +223,7 @@
                 border-radius: 999px;
                 background: linear-gradient(90deg, #a91b43 0%, #c62355 100%);
                 color: #fff;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 800;
                 letter-spacing: 0.12em;
                 text-transform: uppercase;
@@ -295,7 +295,7 @@
                 display: block;
                 margin-bottom: 8px;
                 color: #374151;
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: 600;
             }
 
@@ -306,7 +306,7 @@
                 border-radius: 14px;
                 background: #fff;
                 color: #111827;
-                font-size: 14px;
+                font-size: 15px;
                 outline: none;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease;
             }
@@ -341,7 +341,7 @@
                 min-height: 46px;
                 padding: 0 22px;
                 border-radius: 999px;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -440,7 +440,7 @@
             .size-btn {
                 padding: 6px 14px !important;
                 border-radius: 9px !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
                 min-width: 44px !important;
                 min-height: 36px !important;
                 line-height: 1 !important;
@@ -486,7 +486,7 @@
                 justify-content: center !important;
                 height: 46px !important;
                 border-radius: 10px !important;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 font-weight: 600 !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.5px !important;
@@ -498,7 +498,7 @@
 
             .btn-add-cart i,
             .btn-buy-now i {
-                font-size: 13px !important;
+                font-size: 14px !important;
                 display: inline-flex;
                 align-items: center;
                 vertical-align: middle;
@@ -559,7 +559,7 @@
                 border: none;
                 border-left: 1px solid #e5e7eb;
                 border-right: 1px solid #e5e7eb;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 font-weight: 700;
                 color: #1a1a1a;
             }
@@ -651,7 +651,7 @@
                 padding: 0 0px;
                 background: none;
                 color: #a91b43 !important;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 font-weight: 800 !important;
                 letter-spacing: 0.1em !important;
                 text-transform: uppercase;
@@ -664,9 +664,9 @@
                 padding: 0 0px;
                 background: none;
                 color: #667085 !important;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 font-weight: 700 !important;
-                margin-bottom: 0px !important;
+                margin-bottom: 4px !important;
             }
 
             .product-title-detail {
@@ -690,7 +690,7 @@
             .stars {
                 display: inline-flex;
                 gap: 2px;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .product-price-section {
@@ -714,13 +714,13 @@
                 border-radius: 3px !important;
                 background: #a91b43 !important;
                 color: #fff !important;
-                font-size: 9px !important;
+                font-size: 13px !important;
                 font-weight: 800;
                 letter-spacing: 0.04em;
             }
 
             .product-tax-note {
-                font-size: 11px !important;
+                font-size: 15px !important;
                 color: #999 !important;
                 margin-top: -6px !important;
             }
@@ -731,7 +731,7 @@
                 min-height: 26px;
                 padding: 0 10px !important;
                 border-radius: 4px !important;
-                font-size: 9px !important;
+                font-size: 12px !important;
                 font-weight: 800 !important;
                 letter-spacing: 0.05em;
                 text-transform: uppercase;
@@ -751,7 +751,7 @@
 
             .product-description-short {
                 max-width: 58ch !important;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 line-height: 1.75 !important;
                 color: #5f5f68 !important;
             }
@@ -774,7 +774,7 @@
             }
 
             .attribute-title {
-                font-size: 13px !important;
+                font-size: 14px !important;
                 letter-spacing: 0.1em !important;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -804,7 +804,7 @@
                 min-height: 34px !important;
                 padding: 4px 14px !important;
                 border-radius: 4px !important;
-                font-size: 12.5px !important;
+                font-size: 13.5px !important;
                 background: #fff !important;
                 border: 1px solid #e2e8f0 !important;
                 box-shadow: none !important;
@@ -817,7 +817,7 @@
             }
 
             .quantity-title {
-                font-size: 15px !important;
+                font-size: 16px !important;
                 letter-spacing: 0.14em !important;
             }
 
@@ -838,7 +838,7 @@
                 min-height: 42px !important;
                 height: 42px !important;
                 border-radius: 6px !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 font-weight: 600 !important;
                 letter-spacing: 0.06em !important;
@@ -870,7 +870,7 @@
                 background: none;
                 border: none;
                 padding: 16px 0;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #667085;
                 cursor: pointer;
@@ -979,7 +979,7 @@
                 vertical-align: top;
                 white-space: normal;
                 word-break: break-word;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .tab-content-text a {
@@ -1003,7 +1003,7 @@
             .specs-table td {
                 padding: 10px 14px;
                 border-bottom: 1px solid #f5f5f5;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .specs-label {
@@ -1119,7 +1119,7 @@
             }
 
             .recently-viewed-category {
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 700;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
@@ -1136,7 +1136,7 @@
 
             .recently-viewed-desc {
                 margin: 0;
-                font-size: 13px;
+                font-size: 14px;
                 line-height: 1.7;
                 color: #667085;
                 min-height: 44px;
@@ -1157,7 +1157,7 @@
             }
 
             .recently-viewed-price-old {
-                font-size: 14px;
+                font-size: 15px;
                 color: #98a2b3;
                 text-decoration: line-through;
             }
@@ -1196,7 +1196,7 @@
                 border-radius: 8px;
                 background: #A91B43 !important;
                 color: #fff !important;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 700;
                 letter-spacing: 0.05em;
                 text-transform: uppercase;
@@ -1231,8 +1231,28 @@
                 }
 
                 .recently-viewed-grid {
-                    grid-template-columns: 1fr;
-                    gap: 18px;
+                    display: flex;
+                    gap: 14px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    padding-bottom: 6px;
+                    scroll-snap-type: x mandatory;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .recently-viewed-grid::-webkit-scrollbar {
+                    height: 4px;
+                }
+
+                .recently-viewed-grid::-webkit-scrollbar-thumb {
+                    background: rgba(169, 27, 67, 0.28);
+                    border-radius: 999px;
+                }
+
+                .recently-viewed-card {
+                    flex: 0 0 min(82vw, 320px);
+                    width: min(82vw, 320px);
+                    scroll-snap-align: start;
                 }
 
                 .recently-viewed-content {
@@ -1240,7 +1260,7 @@
                 }
 
                 .recently-viewed-name {
-                    font-size: 16px;
+                    font-size: 17px;
                 }
             }
 
@@ -1251,7 +1271,7 @@
             }
 
             .share-title {
-                font-size: 13px !important;
+                font-size: 15px !important;
                 font-weight: 700;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -1285,7 +1305,7 @@
             }
 
             .delivery-title {
-                font-size: 11px !important;
+                font-size: 14px !important;
                 font-weight: 700;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -1304,7 +1324,7 @@
                 height: 38px;
                 border: 1px solid #e5e7eb;
                 border-radius: 8px;
-                font-size: 12.5px;
+                font-size: 14px;
             }
 
             .btn-pincode {
@@ -1314,7 +1334,7 @@
                 padding: 0 16px;
                 height: 38px;
                 border-radius: 8px;
-                font-size: 11.5px;
+                font-size: 14px;
                 font-weight: 700;
                 cursor: pointer;
                 transition: background 0.2s;
@@ -1325,7 +1345,7 @@
             }
 
             .delivery-note {
-                font-size: 10px !important;
+                font-size: 13px !important;
                 color: #667085 !important;
                 margin-top: 6px !important;
                 margin-bottom: 0 !important;
@@ -1358,7 +1378,7 @@
                 border-radius: 999px !important;
                 background: #fff !important;
                 color: #374151 !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
                 font-weight: 700 !important;
                 transition: all 0.25s ease;
             }
@@ -1520,7 +1540,7 @@
 
                 .breadcrumb {
                     margin-bottom: 10px;
-                    font-size: 12px;
+                    font-size: 13px;
                     line-height: 1.5;
                     white-space: normal;
                     padding-left: 2px;
@@ -1650,7 +1670,7 @@
 
                 .product-description-short {
                     max-width: 100% !important;
-                    font-size: 12px !important;
+                    font-size: 13px !important;
                     line-height: 1.5 !important;
                 }
 
@@ -1700,7 +1720,7 @@
                     height: 46px !important;
                     min-height: 46px !important;
                     border-radius: 10px !important;
-                    font-size: 11px !important;
+                    font-size: 12px !important;
                     letter-spacing: 0.4px !important;
                     gap: 6px !important;
                     padding: 0 16px !important;
@@ -1757,19 +1777,15 @@
                     min-width: 0;
                     justify-content: center;
                     padding: 10px 12px;
-                    font-size: 11px;
+                    font-size: 12px;
                     flex-shrink: 1;
                     text-align: center;
                     white-space: normal;
                     line-height: 1.25;
                 }
 
-                .tab-pane {
-                    padding-top: 15px !important;
-                }
-
                 .tab-content-text {
-                    font-size: 13px !important;
+                    font-size: 14px !important;
                     line-height: 1.6 !important;
                 }
 
@@ -1802,7 +1818,7 @@
 
                 .specs-table td {
                     padding: 8px 10px !important;
-                    font-size: 12px !important;
+                    font-size: 13px !important;
                     white-space: normal;
                 }
 
@@ -1812,11 +1828,11 @@
                 }
 
                 .review-empty-title {
-                    font-size: 16px;
+                    font-size: 17px;
                 }
 
                 .review-empty-text {
-                    font-size: 13px;
+                    font-size: 14px;
                 }
 
                 .review-write-btn {
@@ -2003,7 +2019,7 @@
             .product-detail-page .product-brand,
             .product-detail-page .product-meta-item {
                 min-height: auto !important;
-                font-size: clamp(10px, 2.7vw, 12px) !important;
+                font-size: clamp(11px, 2.7vw, 13px) !important;
                 letter-spacing: 0.08em !important;
                 line-height: 1.4 !important;
             }
@@ -2036,11 +2052,11 @@
 
             .product-detail-page .product-rating {
                 gap: 8px !important;
-                font-size: clamp(12px, 3.2vw, 14px) !important;
+                font-size: clamp(13px, 3.2vw, 15px) !important;
             }
 
             .product-detail-page .stars {
-                font-size: clamp(12px, 3vw, 14px) !important;
+                font-size: clamp(13px, 3vw, 15px) !important;
             }
 
             .product-detail-page .product-price-section {
@@ -2061,19 +2077,19 @@
 
             .product-detail-page .discount-badge,
             .product-detail-page .stock-badge {
-                font-size: clamp(9px, 2.2vw, 11px) !important;
+                font-size: clamp(10px, 2.2vw, 12px) !important;
             }
 
             .product-detail-page .product-tax-note {
                 margin: -4px 0 0 !important;
-                font-size: clamp(10px, 2.8vw, 12px) !important;
+                font-size: clamp(11px, 2.8vw, 13px) !important;
                 line-height: 1.45 !important;
             }
 
             .product-detail-page .product-description-short {
                 max-width: 100% !important;
                 margin: 0 !important;
-                font-size: clamp(12px, 3.25vw, 14px) !important;
+                font-size: clamp(13px, 3.25vw, 15px) !important;
                 line-height: 1.65 !important;
                 color: #5f5f68 !important;
             }
@@ -2101,7 +2117,7 @@
             .product-detail-page .quantity-title,
             .product-detail-page .share-title,
             .product-detail-page .delivery-title {
-                font-size: clamp(10px, 2.7vw, 12px) !important;
+                font-size: clamp(11px, 2.7vw, 13px) !important;
                 letter-spacing: 0.08em !important;
                 line-height: 1.45 !important;
             }
@@ -2145,7 +2161,7 @@
             .product-detail-page .size-btn {
                 min-height: clamp(34px, 9vw, 38px) !important;
                 padding: 6px 12px !important;
-                font-size: clamp(11px, 2.9vw, 12px) !important;
+                font-size: clamp(12px, 2.9vw, 13px) !important;
                 border-radius: 10px !important;
             }
 
@@ -2194,7 +2210,7 @@
                 height: auto !important;
                 padding: 0 16px !important;
                 border-radius: 12px !important;
-                font-size: clamp(11px, 3vw, 12.5px) !important;
+                font-size: clamp(12px, 3vw, 13.5px) !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.08em !important;
                 justify-content: center !important;
@@ -2265,7 +2281,7 @@
                 min-height: 42px !important;
                 padding: 10px 12px !important;
                 border-radius: 999px !important;
-                font-size: clamp(10px, 2.8vw, 12px) !important;
+                font-size: clamp(11px, 2.8vw, 13px) !important;
                 line-height: 1.25 !important;
                 letter-spacing: 0.08em !important;
                 text-align: center !important;
@@ -2287,13 +2303,9 @@
                 display: none !important;
             }
 
-            .product-detail-page .tab-pane {
-                padding-top: clamp(16px, 4vw, 24px) !important;
-            }
-
             .product-detail-page .tab-content-text {
                 max-width: min(100%, 72ch) !important;
-                font-size: clamp(13px, 3.2vw, 14px) !important;
+                font-size: clamp(14px, 3.2vw, 15px) !important;
                 line-height: 1.65 !important;
             }
 
@@ -2308,7 +2320,7 @@
 
             .product-detail-page .specs-table td {
                 padding: 10px 12px !important;
-                font-size: clamp(12px, 3vw, 13px) !important;
+                font-size: clamp(13px, 3vw, 14px) !important;
             }
 
             .product-detail-page .reviews-container,
@@ -2327,7 +2339,7 @@
                 }
 
                 .product-detail-page .tab-btn {
-                    font-size: 10px !important;
+                    font-size: 11px !important;
                     padding-inline: 8px !important;
                 }
 
@@ -2863,15 +2875,15 @@
                                                     </button>
                                                 </div>
                                                 <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
-                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 16px; font-weight: 700; color: #1a1a1a;">{{ $related->name }}</h3>
+                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ $related->name }}</h3>
                                                 <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
                                                     @if($related->sale_price > 0)
                                                         <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
-                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
                                                     @else
                                                         <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
                                                         @if(isset($related->regular_price) && $related->regular_price > $related->price)
-                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 14px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
                                                         @endif
                                                     @endif
                                                 </div>

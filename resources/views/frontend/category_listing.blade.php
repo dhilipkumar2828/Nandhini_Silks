@@ -274,9 +274,7 @@
             
             .filter-group .filter-title {
                 position: relative;
-                cursor: pointer;
-                padding: 12px 0;
-                margin-bottom: 0 !important;
+                cursor: pointer;                margin-bottom: 0 !important;
                 font-size: 16px;
                 border: none;
             }
@@ -315,18 +313,6 @@
         }
         .mobile-filter-toggle[aria-expanded="true"] .mobile-filter-toggle-icon {
             transform: rotate(45deg);
-        }
-        .chip { 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 40px; 
-            padding: 0 20px; 
-            border-radius: 20px; 
-            font-size: 14px; 
-            font-weight: 500;
-            vertical-align: middle;
-            margin-bottom: 5px;
         }
         .filter-group {
             margin-bottom: 30px;

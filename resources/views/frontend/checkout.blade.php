@@ -51,7 +51,7 @@
         background: #fff;
     }
     .address-tag-v4 {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
         color: #1e88e5;
@@ -68,12 +68,12 @@
         margin-bottom: 8px;
     }
     .address-text-v4 {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
         line-height: 1.6;
     }
     .address-phone-v4 {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
         margin-top: 10px;
     }
@@ -83,7 +83,7 @@
         padding: 15px 45px;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 16px;
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -111,7 +111,7 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 12px;
-        font-size: 14px;
+        font-size: 15px;
         color: #666;
     }
     .grand-total-v4 {
@@ -149,7 +149,7 @@
         padding: 12px 15px;
         border: 1px solid #e0e0e0;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 15px;
         outline: none;
         font-family: 'Outfit', sans-serif;
         background: #fff;
@@ -168,6 +168,22 @@
     }
 
     @media (max-width: 768px) {
+        .checkout-grid {
+            grid-template-columns: 1fr !important;
+            gap: 18px !important;
+        }
+        .checkout-main,
+        .checkout-sidebar {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        .checkout-sidebar {
+            order: 2;
+        }
+        .checkout-sidebar .summary-card-v4 {
+            position: static !important;
+            top: auto !important;
+        }
         .checkout-section-header {
             align-items: center;
             justify-content: center;
@@ -180,7 +196,7 @@
         }
         .checkout-saved-address-btn {
             padding: 6px 12px !important;
-            font-size: 10px !important;
+            font-size: 11px !important;
         }
         .summary-title-v4 {
             justify-content: center;
@@ -194,10 +210,43 @@
     }
     .saved-address-card:hover { border-color: var(--pink-dark) !important; }
     .saved-address-card .check-icon {
-        position: absolute; top: 10px; right: 10px; font-size: 16px;
+        position: absolute; top: 10px; right: 10px; font-size: 17px;
         animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    @media (max-width: 768px) {
+        #savedAddressesSection {
+            max-height: 52vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding-right: 2px !important;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+        }
+
+        #savedAddressesSection > div {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            min-width: 0 !important;
+        }
+
+        #savedAddressesSection .saved-address-card {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        #checkoutAddressForm > div,
+        #billingAddressForm > div {
+            grid-template-columns: 1fr !important;
+        }
+
+        #checkoutAddressForm .form-group[style*="grid-column: span 2"],
+        #billingAddressForm .form-group[style*="grid-column: span 2"] {
+            grid-column: auto !important;
+        }
+    }
 </style>
 @endpush
 

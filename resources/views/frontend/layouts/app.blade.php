@@ -114,7 +114,7 @@
         }
 
         .cart-item-mini-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #111;
             margin: 0 0 4px;
@@ -123,13 +123,13 @@
         }
 
         .cart-item-mini-meta {
-            font-size: 12px;
+            font-size: 13px;
             color: #888;
             margin-bottom: 8px;
         }
 
         .cart-item-mini-price {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: #A91B43;
         }
@@ -147,7 +147,7 @@
         }
 
         .cart-drawer-summary span {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             color: #111;
         }
@@ -774,7 +774,7 @@
                                     </div>
                                     <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</div>
                                 </div>
-                                <button onclick="removeMiniCartItem('${item.key}')" style="position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 16px; padding: 5px;">&times;</button>
+                                <button onclick="removeMiniCartItem('${item.key}')" style="font-size: 17px; position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 5px;">&times;</button>
                             </div>
                         `;
                     });
