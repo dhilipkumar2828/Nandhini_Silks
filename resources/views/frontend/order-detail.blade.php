@@ -657,9 +657,15 @@
                                         <div>
                                             <div class="item-name">{{ $item->product_name }}</div>
                                             <div class="item-meta">
-                                                @if($item->color) Color: {{ $item->color }} | @endif 
-                                                @if($item->size) Size: {{ $item->size }} @endif
-                                                @if(!$item->color && !$item->size) Regular Type @endif
+                                                @if(!empty($item->attributes))
+                                                    @foreach($item->attributes as $attr)
+                                                        {{ $attr['name'] }}: {{ $attr['value'] }} @if(!$loop->last) | @endif
+                                                    @endforeach
+                                                @else
+                                                    @if($item->color) Color: {{ $item->color }} @endif 
+                                                    @if($item->size) {{ $item->color ? ' | ' : '' }} Size: {{ $item->size }} @endif
+                                                    @if(!$item->color && !$item->size) Regular Type @endif
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

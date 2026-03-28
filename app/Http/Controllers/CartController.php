@@ -516,6 +516,7 @@ class CartController extends Controller
                     'product_image' => $item['image_path'] ?? null,
                     'size' => $item['size'] ?? null,
                     'color' => $item['color'] ?? null,
+                    'attributes' => $item['display_attributes'] ?? [],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
