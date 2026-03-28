@@ -19,9 +19,9 @@
     <div class="wrapper">
         <div class="header">
             <img src="{{ asset('images/nandhini-logo.png') }}" class="logo" alt="Nandhini Silks">
-            <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Verification Code</h1>
+            <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;text-align: center !important;">Verification Code</h1>
         </div>
-        <div class="content">
+        <div class="content" style="padding:30px;">
             <h2 style="color: #111; font-weight: 800; margin-top: 0;">Confirm Your Identity</h2>
             <p style="color: #666; font-size: 16px; line-height: 1.6;">Welcome to Nandhini Silks! To complete your registration and secure your account, please use the following one-time password (OTP):</p>
             

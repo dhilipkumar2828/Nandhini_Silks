@@ -12,7 +12,7 @@
         </div>
 
         <div style="display: flex; align-items: center;">
-            <div class="view-toggle">
+            {{-- <div class="view-toggle">
                 <button class="view-btn active" title="Grid View" data-view="grid">
                     <svg width="18" height="18" viewBox="0 0 24 24">
                         <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" />
@@ -23,7 +23,7 @@
                         <path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z" />
                     </svg>
                 </button>
-            </div>
+            </div> --}}
 
             <form action="{{ request()->fullUrl() }}" method="GET" style="margin-left: 15px;" id="sortForm">
                 @foreach(request()->except('sort') as $key => $val)

@@ -33,7 +33,6 @@
                 <h3>{{ $user->name }}</h3>
                 <div class="user-meta">
                     <p style="margin: 5px 0;"><strong>Email:</strong> {{ $user->email }}</p>
-                    <p style="margin: 0;"><strong>Customer ID:</strong> #{{ $user->id }}</p>
                 </div>
             </div>
 
@@ -42,7 +41,7 @@
             <a href="{{ url('/admin/users/'.$user->id) }}" class="button">View Customer Profile</a>
         </div>
         <div class="foot">
-            Automated Alert System &bull; {{ date('H:i, d M Y') }}
+            © 2026 Nandhini Silks. Arani - 632317, Tamil Nadu. &bull; {{ date('H:i, d M Y') }}
         </div>
     </div>
 </body>
