@@ -89,15 +89,13 @@
 
         .featured-decor-left {
             left: 0;
-            bottom: 0;
-            top: auto !important;
-            transform: rotate(180deg) !important;
+            top: 0;
+            bottom: auto !important;
         }
 
         .featured-decor-right {
             right: 0;
             top: 0;
-            transform: rotate(180deg) !important;
         }
 
         .featured-progress-track.is-inactive {
@@ -363,7 +361,7 @@
         }
 
         .featured-progress {
-            margin: 24px auto 0;
+            margin: 0 auto 28px;
         }
 
         .featured-progress-fill {
@@ -1366,6 +1364,7 @@
                 src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
 
             <div class="featured-inner">
+                
                 <h2 id="featured-title" class="featured-title">New Arrivals</h2>
                 <p class="featured-subtitle">Fresh weaves, added daily - discover sarees handwoven just for you</p>
 
@@ -1428,7 +1427,7 @@
                     <div class="swiper-button-prev featured-prev"></div>
                 </div>
 
-                <div class="featured-progress" id="featuredProgress">
+                <div class="featured-progress mt-5" id="featuredProgress" style="margin-top: 50px;">
                     <span id="currentSlide">01</span>
                     <div class="featured-progress-track" id="progressTrack">
                         <div class="featured-progress-bg"></div>
@@ -1443,6 +1442,8 @@
      @foreach($offerCollections as $collection)
         <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
             <div class="featured-inner">
+                
+
                 <h2 id="offers-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
                 <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
 
@@ -1500,7 +1501,7 @@
                     <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
                 </div>
 
-                <div class="featured-progress" id="offersProgress-{{ $collection->id }}">
+                <div class="featured-progress mt-5" id="offersProgress-{{ $collection->id }}" style="margin-top: 50px;">
                     <span id="offersCurrentSlide-{{ $collection->id }}">01</span>
                     <div class="featured-progress-track" id="offersProgressTrack-{{ $collection->id }}">
                         <div class="featured-progress-bg"></div>
@@ -1934,7 +1935,7 @@
                         'offersProgressFill-{{ $collection->id }}',
                         'offersCurrentSlide-{{ $collection->id }}',
                         'offersProgressTrack-{{ $collection->id }}',
-                        4
+                        2
                     );
                 @endforeach
 

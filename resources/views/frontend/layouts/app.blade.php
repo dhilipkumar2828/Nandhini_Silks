@@ -970,9 +970,9 @@
                         getFieldContainer(element).removeClass('has-error');
                     },
                     errorPlacement: function(error, element) {
-                        const container = getFieldContainer(element);
-                        if (container.length) {
-                            error.insertAfter(element);
+                        const wrap = element.closest('.password-input-wrap');
+                        if (wrap.length) {
+                            error.insertAfter(wrap);
                         } else {
                             error.insertAfter(element);
                         }

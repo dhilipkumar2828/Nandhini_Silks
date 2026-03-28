@@ -623,11 +623,11 @@ $(document).ready(function() {
                     <td class="px-4 py-6">
                         <div class="space-y-2 max-w-[140px]">
                             <div class="relative group">
-                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">REG</span>
+                                <!-- <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">REG</span> -->
                                 <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : (existing ? existing.price : ($('#regular_price').val() || ''))}" required class="v-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-black text-[#a91b43] focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Price">
                             </div>
                             <div class="relative group">
-                                <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">SALE</span>
+                                <!-- <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">SALE</span> -->
                                 <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : (existing ? existing.sale_price : '')}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-bold text-slate-500 focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Offer">
                             </div>
                         </div>
@@ -647,11 +647,11 @@ $(document).ready(function() {
                     <td class="px-4 py-6">
                         <div class="space-y-2 max-w-[160px]">
                             <div class="relative group">
-                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">SKU</span>
+                                <!-- <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">SKU</span> -->
                                 <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : (existing ? (existing.sku || '') : '')}" required class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Variant SKU">
                             </div>
                             <div class="relative group">
-                                <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">WGT</span>
+                                <!-- <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">WGT</span> -->
                                 <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : (existing ? (existing.weight || '') : '')}" class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Weight (gr)">
                             </div>
                             <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-100 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]">
