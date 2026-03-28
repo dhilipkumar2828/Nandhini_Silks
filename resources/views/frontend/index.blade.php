@@ -1594,7 +1594,7 @@
         </section>
     @endif
 
-     @foreach($offerCollections as $collection)
+    {{-- @foreach($offerCollections as $collection)
         <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
             <div class="featured-inner">
                 
@@ -1666,7 +1666,7 @@
                 </div>
             </div>
         </section>
-    @endforeach
+    @endforeach --}}
 
     @if($categories->count() > 0)
         <section class="category-section" aria-labelledby="browse-categories-title">
