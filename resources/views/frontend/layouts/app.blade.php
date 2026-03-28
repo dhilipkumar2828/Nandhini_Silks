@@ -218,6 +218,26 @@
         input[type="file"]::file-selector-button:hover {
             background-color: #940437;
         }
+
+        .product-name-v2, .recently-viewed-name {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            min-height: 2.8em !important;
+            margin-bottom: 4px !important;
+        }
+
+        .read-more-link {
+            font-size: 12px;
+            color: #A91B43;
+            font-weight: 600;
+            text-decoration: underline;
+            margin-bottom: 8px;
+            display: block;
+            cursor: pointer;
+        }
     </style>
 
     <!-- Flatpickr -->

@@ -412,12 +412,13 @@
         }
 
         .featured-name {
-            min-height: auto;
-            margin-bottom: 4px !important;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
             overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
+            min-height: 2.4em;
+            margin-bottom: 4px !important;
         }
 
         .read-more-link {
@@ -1191,9 +1192,10 @@
             box-sizing: border-box;
             text-align: left !important;
             margin-bottom: 0 !important;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         @media (min-width: 641px) {
@@ -1569,7 +1571,7 @@
                                                 @endif
                                                 
                                             </div>
-                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 25) }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
                                             <span class="read-more-link">Read More...</span>
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
@@ -1645,7 +1647,7 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 25) }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
                                             <span class="read-more-link">Read More...</span>
                                         </a>
                                         @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
