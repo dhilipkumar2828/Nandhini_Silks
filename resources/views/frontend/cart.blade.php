@@ -33,7 +33,7 @@
             }
 
             .cart-item-info h3 {
-                font-size: 14px;
+                font-size: 15px;
                 line-height: 1.4;
                 margin-bottom: 6px !important;
             }
@@ -44,7 +44,7 @@
             }
 
             .cart-item-price {
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
             }
 
@@ -69,7 +69,7 @@
 
             .summary-row,
             .summary-total {
-                font-size: 14px;
+                font-size: 15px;
                 gap: 12px;
             }
 
@@ -93,7 +93,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: 700;
                 letter-spacing: 0.02em;
             }
@@ -102,7 +102,7 @@
             .btn-continue-shopping {
                 margin-top: 0;
                 min-height: 48px;
-                font-size: 15px;
+                font-size: 16px;
             }
         }
 
@@ -115,8 +115,8 @@
     <main class="cart-page">
         <div class="page-shell">
             <div style="margin-bottom: 15px;">
-                <a href="{{ route('shop') }}" class="back-to-shop" style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 14px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: -1px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <a href="{{ route('shop') }}" class="back-to-shop" style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 18px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     Continue Shopping
                 </a>
             </div>
@@ -136,11 +136,11 @@
                             @csrf
                             <div class="cart-header-row"
                                 style="display: grid; grid-template-columns: 80px 1fr 120px 150px 40px; gap: 20px; padding-bottom: 8px; border-bottom: 2px solid #eee; margin-bottom: 10px; font-weight: 700; color: #333;">
-                                <span>Product</span>
-                                <span style="padding-left: 20px;">Details</span>
-                                <span style="margin-left: -15px;">Unit Price</span>
-                                <span>Quantity</span>
-                                <span></span>
+                                <span style="font-size: 17px;">Product</span>
+                                <span style="font-size: 17px; padding-left: 20px;">Details</span>
+                                <span style="font-size: 17px; margin-left: -15px;">Unit Price</span>
+                                <span style="font-size: 17px;">Quantity</span>
+                                <span style="font-size: 17px;"></span>
                             </div>
 
                             @foreach ($items as $item)
@@ -151,7 +151,7 @@
                                     <div class="cart-item-info" style="padding-left: 20px;">
                                         <h3 style="margin-bottom: 5px;">{{ $item['name'] }}</h3>
                                         @if(!empty($item['display_attributes']))
-                                            <div class="item-variants" style="font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-wrap: wrap; gap: 5px;">
+                                            <div class="item-variants" style="font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-wrap: wrap; gap: 5px;">
                                                 @foreach($item['display_attributes'] as $attr)
                                                     <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
                                                 @endforeach
@@ -197,7 +197,7 @@
                     </div>
 
                     <div class="coupon-section">
-                        <p style="font-size: 14px; font-weight: 600; color: #333;">Have a coupon code?</p>
+                        <p style="font-size: 15px; font-weight: 600; color: #333;">Have a coupon code?</p>
                         @if(session('success'))
                             <div style="font-size: 12px; color: #2e7d32; margin-bottom: 8px;">{{ session('success') }}</div>
                         @endif

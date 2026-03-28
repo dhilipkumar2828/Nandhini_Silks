@@ -49,7 +49,7 @@
     }
 
     .meta-label {
-        font-size: 12px;
+        font-size: 16px;
         color: #999;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -57,7 +57,7 @@
     }
 
     .meta-value {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
         color: #333;
         white-space: nowrap;
@@ -94,7 +94,7 @@
     }
 
     .order-items-count {
-        font-size: 13px;
+        font-size: 15px;
         color: #777;
     }
 
@@ -109,7 +109,7 @@
         color: var(--pink);
         background: #fff;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
@@ -125,7 +125,7 @@
         background: #f5f5f5;
         border: none;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         color: #666;
         cursor: pointer;
@@ -142,7 +142,7 @@
         justify-content: center;
         padding: 4px 10px;
         border-radius: 4px;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         margin-left: 10px;
         line-height: 1;
@@ -180,7 +180,7 @@
         justify-content: center;
         padding: 5px 12px;
         border-radius: 999px;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;

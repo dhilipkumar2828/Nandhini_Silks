@@ -528,7 +528,6 @@
             .filter-group .filter-title {
                 position: relative;
                 cursor: pointer;
-                padding: 12px 0;
                 margin-bottom: 0 !important;
                 font-size: 16px;
                 border: none;

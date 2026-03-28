@@ -146,7 +146,7 @@
             border-radius: 12px;
             background: #fff;
             color: #A91B43;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
@@ -570,9 +570,8 @@
             .filter-group .filter-title {
                 position: relative;
                 cursor: pointer;
-                padding: 12px 0;
                 margin-bottom: 0 !important;
-                font-size: 16px;
+                font-size: 17px;
                 border: none;
             }
             .filter-group .filter-title::after {

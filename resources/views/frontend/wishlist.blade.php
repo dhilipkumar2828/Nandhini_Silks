@@ -34,7 +34,7 @@
             color: white !important;
         }
         .remove-from-wishlist i {
-            font-size: 16px;
+            font-size: 17px;
             color: #666;
             transition: all 0.3s ease;
         }

@@ -17,7 +17,7 @@
 
     .mini-order-id {
         display: block;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         color: #1f2937;
         line-height: 1.35;
@@ -26,7 +26,7 @@
     .mini-order-date {
         display: block;
         margin-top: 4px;
-        font-size: 12px;
+        font-size: 14px;
         color: #6b7280;
         line-height: 1.4;
     }
