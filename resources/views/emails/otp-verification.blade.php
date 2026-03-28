@@ -33,7 +33,7 @@
             
             <p style="margin-top: 40px; font-weight: 600; color: #444;">Happy Shopping!</p>
         </div>
-        <div class="footer">
+        <div class="footer text-center">
             &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu. <br>
         </div>
     </div>
