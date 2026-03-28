@@ -55,7 +55,44 @@ class FrontendController extends Controller
 
     public function shop()
     {
-        $products = Product::where('status', '=', 1)->paginate(12);
+        $query = Product::where('status', '=', 1);
+
+        // Filter by categories if selected (Multi-select)
+        if (request('categories')) {
+            $query->whereIn('category_id', (array)request('categories'));
+        }
+
+        // Apply shared sidebar filters
+        if (request('min_price') !== null && request('min_price') !== '') {
+            $query->where('price', '>=', (float) request('min_price'));
+        }
+        if (request('max_price') !== null && request('max_price') !== '') {
+            $query->where('price', '<=', (float) request('max_price'));
+        }
+
+        if (request('attr')) {
+            foreach (request('attr') as $attr_id => $values) {
+                $query->where(function($q) use ($attr_id, $values) {
+                    foreach ($values as $val_id) {
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int) $val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string) $val_id);
+                    }
+                });
+            }
+        }
+
+        if (request('in_stock')) {
+            $query->where('stock_quantity', '>', 0);
+        }
+
+        // Sorting
+        $sort = request('sort', 'popularity');
+        if ($sort == 'price_low')  $query->orderBy('price', 'asc');
+        elseif ($sort == 'price_high') $query->orderBy('price', 'desc');
+        elseif ($sort == 'newest')     $query->orderBy('created_at', 'desc');
+        else                           $query->orderBy('id', 'desc');
+
+        $products = $query->paginate(12)->appends(request()->query());
         $category = new Category(['name' => 'Shop']);
         $filterData = $this->getFilterData();
 

@@ -310,6 +310,8 @@
             </button>
             <div class="nav-links" id="navLinks">
                 <a href="{{ route('home') }}" class="nav-item">Home</a>
+
+                <a href="{{ route('shop') }}" class="nav-item">Shop</a>
                 
                     {{-- <div class="mobile-menu-header">
                         <a href="{{ route('home') }}">

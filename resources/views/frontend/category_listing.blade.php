@@ -39,7 +39,23 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if(request()->routeIs('shop') && isset($filterData['categories']) && $filterData['categories']->isNotEmpty())
+                            <div class="filter-group">
+                                <h3 class="filter-title">Categories</h3>
+                                <ul class="filter-group-content filter-list">
+                                    @foreach($filterData['categories'] as $cat)
+                                        <li class="filter-item">
+                                            <label class="custom-checkbox">
+                                                <input type="checkbox" name="categories[]" value="{{ $cat->id }}"
+                                                    {{ in_array($cat->id, (array)request('categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
+                                                <span class="checkmark"></span>
+                                                <span class="label-text">{{ $cat->name }}</span>
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         @if(isset($filterData['sub_categories']) && $filterData['sub_categories']->isNotEmpty())
                         <div class="filter-group">
                             <h3 class="filter-title">Sub-Category</h3>
@@ -593,6 +609,35 @@
             padding: 8px 16px;
             border-radius: 10px;
             display: inline-block;
+        }
+
+        .category-filter-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .category-filter-link:hover {
+            color: #A91B43;
+            transform: translateX(3px);
+        }
+
+        .category-filter-link.active .label-text {
+            color: #A91B43;
+            font-weight: 700;
+        }
+
+        .category-filter-link i {
+            transition: all 0.2s ease;
+        }
+
+        .category-filter-link:hover i {
+            opacity: 1;
+            transform: translateX(4px);
         }
 
         /* Actions */
