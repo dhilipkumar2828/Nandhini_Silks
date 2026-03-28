@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') | Nandhini Silks Admin</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/nandhini-logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -426,11 +427,12 @@
 <body class="min-h-screen flex">
     <!-- Sidebar -->
     <aside class="sidebar-glass w-64 fixed h-full flex flex-col z-50 text-slate-600">
-        <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
-            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks"
-                class="h-14 w-auto mb-2">
-            <span class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Management Suite</span>
-        </div>
+        <a href="{{ route('admin.dashboard') }}">
+            <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
+                <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks"
+                    class="h-14 w-auto mb-2">
+            </div>
+        </a>
         <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
             <div class="px-4 py-3 text-[13px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</div>
 
