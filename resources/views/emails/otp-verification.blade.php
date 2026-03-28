@@ -35,7 +35,6 @@
         </div>
         <div class="footer">
             &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu. <br>
-            Aapka bharosa, hamari pehchan.
         </div>
     </div>
 </body>
