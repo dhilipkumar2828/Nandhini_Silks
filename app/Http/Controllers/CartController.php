@@ -131,19 +131,28 @@ class CartController extends Controller
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $quantity;
         } else {
-            // Get Readable Names
+            // Get Readable Names Dynamically
             $size = '';
             $color = '';
             $length = '';
             $age = '';
+            $display_attributes = [];
+
             foreach ($attributes as $aid => $avid) {
                 $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                 if ($val && $val->attribute) {
-                    $attrName = strtolower($val->attribute->name);
-                    if (str_contains($attrName, 'size')) $size = $val->name;
-                    elseif (str_contains($attrName, 'color') || str_contains($attrName, 'colour')) $color = $val->name;
-                    elseif (str_contains($attrName, 'length')) $length = $val->name;
-                    elseif (str_contains($attrName, 'age')) $age = $val->name;
+                    $attrName = $val->attribute->name;
+                    $attrNameLower = strtolower($attrName);
+                    
+                    $display_attributes[] = [
+                        'name' => $attrName,
+                        'value' => $val->name
+                    ];
+
+                    if (str_contains($attrNameLower, 'size')) $size = $val->name;
+                    elseif (str_contains($attrNameLower, 'color') || str_contains($attrNameLower, 'colour')) $color = $val->name;
+                    elseif (str_contains($attrNameLower, 'length')) $length = $val->name;
+                    elseif (str_contains($attrNameLower, 'age')) $age = $val->name;
                 }
             }
 
@@ -157,6 +166,7 @@ class CartController extends Controller
                 'image_url' => $this->productImageUrl($imagePath),
                 'quantity' => $quantity,
                 'attributes' => $attributes,
+                'display_attributes' => $display_attributes,
                 'size' => $size,
                 'color' => $color,
                 'length' => $length,
@@ -703,19 +713,28 @@ class CartController extends Controller
                     }
                 }
                 
-                // Get size and color names for display
+                // Get size and color names for display dynamically
                 $size = '';
                 $color = '';
                 $length = '';
                 $age = '';
+                $display_attributes = [];
+
                 foreach($attributes as $aid => $avid) {
                     $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                     if($val && $val->attribute) {
-                        $attrName = strtolower($val->attribute->name);
-                        if(str_contains($attrName, 'size')) $size = $val->name;
-                        elseif(str_contains($attrName, 'color') || str_contains($attrName, 'colour')) $color = $val->name;
-                        elseif(str_contains($attrName, 'length')) $length = $val->name;
-                        elseif(str_contains($attrName, 'age')) $age = $val->name;
+                        $attrName = $val->attribute->name;
+                        $attrNameLower = strtolower($attrName);
+
+                        $display_attributes[] = [
+                            'name' => $attrName,
+                            'value' => $val->name
+                        ];
+
+                        if(str_contains($attrNameLower, 'size')) $size = $val->name;
+                        elseif(str_contains($attrNameLower, 'color') || str_contains($attrNameLower, 'colour')) $color = $val->name;
+                        elseif(str_contains($attrNameLower, 'length')) $length = $val->name;
+                        elseif(str_contains($attrNameLower, 'age')) $age = $val->name;
                     }
                 }
 
@@ -729,6 +748,7 @@ class CartController extends Controller
                     'image_url' => $this->productImageUrl($imagePath),
                     'quantity' => (int) $item->quantity,
                     'attributes' => $attributes,
+                    'display_attributes' => $display_attributes,
                     'size' => $size,
                     'color' => $color,
                     'length' => $length,

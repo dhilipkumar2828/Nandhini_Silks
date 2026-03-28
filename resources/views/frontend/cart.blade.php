@@ -150,12 +150,11 @@
                                     </div>
                                     <div class="cart-item-info" style="padding-left: 20px;">
                                         <h3 style="margin-bottom: 5px;">{{ $item['name'] }}</h3>
-                                        @if(!empty($item['size']) || !empty($item['color']) || !empty($item['length']) || !empty($item['age']))
-                                            <div class="item-variants" style="font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                @if(!empty($item['age'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Age: {{ $item['age'] }}</span> @endif
-                                                @if(!empty($item['size'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Size: {{ $item['size'] }}</span> @endif
-                                                @if(!empty($item['color'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Color: {{ $item['color'] }}</span> @endif
-                                                @if(!empty($item['length'])) <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">Length: {{ $item['length'] }}</span> @endif
+                                        @if(!empty($item['display_attributes']))
+                                            <div class="item-variants" style="font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-wrap: wrap; gap: 5px;">
+                                                @foreach($item['display_attributes'] as $attr)
+                                                    <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                                @endforeach
                                             </div>
                                         @endif
                                     </div>
