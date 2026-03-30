@@ -11,13 +11,16 @@ class UserAddressController extends Controller
     protected function validateAddress(Request $request): array
     {
         return $request->validate([
-            'label' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
-            'address1' => 'required|string|max:255',
+            'label' => ['required', 'string', 'max:255'],
+            'recipient_name' => 'nullable|string|max:255',
             'recipient_phone' => ['required', 'regex:/^\d{10}$/'],
-            'city' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
-            'state' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'address1' => 'required|string|max:255',
+            'address2' => 'nullable|string|max:255',
+            'city' => ['required', 'string', 'max:255'],
+            'state' => ['required', 'string', 'max:255'],
             'zip' => ['required', 'regex:/^\d{6}$/'],
-            'country' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
+            'country' => ['required', 'string', 'max:255'],
+            'landmark' => 'nullable|string|max:255',
         ]);
     }
 
@@ -32,6 +35,7 @@ class UserAddressController extends Controller
         UserAddress::create([
             'user_id' => auth()->id(),
             'label' => $request->label,
+            'recipient_name' => $request->recipient_name,
             'recipient_phone' => $request->recipient_phone,
             'address1' => $request->address1,
             'address2' => $request->address2,
@@ -42,7 +46,7 @@ class UserAddressController extends Controller
             'landmark' => $request->landmark,
         ]);
 
-        return back()->with('success', 'Address saved successfully. It is now available for your orders.');
+        return back()->with('success', 'Address saved successfully.');
     }
 
     public function update(Request $request, UserAddress $address)
@@ -59,6 +63,7 @@ class UserAddressController extends Controller
 
         $address->update([
             'label' => $request->label,
+            'recipient_name' => $request->recipient_name,
             'recipient_phone' => $request->recipient_phone,
             'address1' => $request->address1,
             'address2' => $request->address2,

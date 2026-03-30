@@ -22,11 +22,11 @@
                         placeholder="John Doe">
                 </div>
 
-                <div class="space-y-1.5">
+                {{-- <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Customer Photo</label>
                     <input type="file" name="photo" 
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                </div>
+                </div> --}}
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Rating <span class="text-rose-500">*</span></label>

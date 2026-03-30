@@ -42,13 +42,13 @@
                     </td>
                     <td class="py-2.5 px-2">
                         <div class="flex items-center">
-                            @if($item->photo)
+                            {{-- @if($item->photo)
                                 <img src="{{ asset('uploads/' . $item->photo) }}" class="w-8 h-8 rounded-full object-cover mr-2 border border-slate-100 shadow-sm">
                             @else
                                 <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mr-2 text-[10px]">
                                     <i class="fas fa-user"></i>
                                 </div>
-                            @endif
+                            @endif --}}
                             <div>
                                 <div class="font-bold text-slate-800 text-[11px]">{{ $item->name }}</div>
                                 <div class="text-[9px] text-slate-400">{{ $item->submitted_at ? $item->submitted_at->format('M d, Y') : 'No Date' }}</div>
