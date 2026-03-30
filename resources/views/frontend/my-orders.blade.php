@@ -20,19 +20,19 @@
 
     .order-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        gap: 15px;
         padding-bottom: 15px;
         border-bottom: 1px solid #f5f5f5;
         margin-bottom: 15px;
-        flex-wrap: wrap;
-        gap: 15px;
     }
 
-    .order-status-row {
+    .order-header-row {
         display: flex;
-        justify-content: flex-end;
-        align-self: center;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        gap: 15px;
     }
 
     .order-meta {
@@ -41,7 +41,6 @@
         flex: 1;
         gap: 20px;
         flex-wrap: wrap;
-        padding-right: 40px;
     }
 
     .meta-item {
@@ -377,15 +376,20 @@
                         @endphp
                         <div class="order-card">
                             <div class="order-header">
-                                <div class="order-meta">
+                                <!-- Row 1: ID and Date -->
+                                <div class="order-header-row">
                                     <div class="meta-item">
                                         <span class="meta-label">Order ID</span>
                                         <span class="meta-value">#{{ $order->order_number }}</span>
                                     </div>
-                                    <div class="meta-item">
+                                    <div class="meta-item" style="text-align: right;">
                                         <span class="meta-label">Date Placed</span>
                                         <span class="meta-value">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
+                                </div>
+                                
+                                <!-- Row 2: Amount and Status -->
+                                <div class="order-header-row">
                                     <div class="meta-item">
                                         <span class="meta-label">Total Amount</span>
                                         <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 2) }} 
@@ -394,9 +398,9 @@
                                             </span>
                                         </span>
                                     </div>
-                                </div>
-                                <div class="order-status-row">
-                                    <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                    <div class="order-status-row">
+                                        <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="order-body">
