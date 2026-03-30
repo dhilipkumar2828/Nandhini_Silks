@@ -163,9 +163,9 @@
                                 @empty
                                     <p style="padding: 20px; color: #999; text-align: center;">No orders found yet.</p>
                                 @endforelse
-                                <div class="mt-4">
+                                {{-- <div class="mt-4">
                                     {{ $recentOrders->links() }}
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
