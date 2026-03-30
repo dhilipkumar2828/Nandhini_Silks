@@ -2804,11 +2804,12 @@
                                     <button type="button" class="review-modal-close" id="closeReviewFormBtn"
                                         aria-label="Close review form"><span>&times;</span></button>
                                 </div>
-                                <form method="POST" action="{{ route('product.review.store', $product) }}">
+                                <form class="validate-form" method="POST" action="{{ route('product.review.store', $product) }}" novalidate>
                                     @csrf
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewStars">Your Rating</label>
-                                        <select class="review-form-select" name="stars" id="reviewStars" required>
+                                        <select class="review-form-select" name="stars" id="reviewStars" required
+                                            data-msg-required="Please select a rating.">
                                             <option value="">Select rating</option>
                                             @for ($i = 5; $i >= 1; $i--)
                                                 <option value="{{ $i }}"
@@ -2820,7 +2821,9 @@
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewText">Your Review</label>
                                         <textarea class="review-form-textarea" name="review" id="reviewText" required minlength="10"
-                                            placeholder="Share your experience with this product...">{{ old('review', $userReview->review ?? '') }}</textarea>
+                                            placeholder="Share your experience with this product..."
+                                            data-msg-required="Please enter your review."
+                                            data-msg-minlength="Review must be at least 10 characters.">{{ old('review', $userReview->review ?? '') }}</textarea>
                                     </div>
                                     <div class="review-form-actions">
                                         <button type="button" class="review-form-cancel"

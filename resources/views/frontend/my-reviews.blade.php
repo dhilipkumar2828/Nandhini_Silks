@@ -210,7 +210,7 @@
                         @endforelse
 
                         <div class="mt-4">
-                            {{ $publishedReviews->appends(['pending_page' => $pendingReviews->currentPage()])->links() }}
+                            {{ $publishedReviews->appends(['pending_page' => $pendingReviews->currentPage(), 'tab' => 'published'])->links() }}
                         </div>
                     </div>
 
@@ -239,7 +239,7 @@
                         @endforelse
 
                         <div class="mt-4">
-                            {{ $pendingReviews->appends(['published_page' => $publishedReviews->currentPage()])->links() }}
+                            {{ $pendingReviews->appends(['published_page' => $publishedReviews->currentPage(), 'tab' => 'pending'])->links() }}
                         </div>
                     </div>
                 </div>
@@ -261,8 +261,9 @@
                 
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Your Rating</label>
-                    <div style="display: flex; gap: 10px; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
-                        <select name="stars" id="editStars" required style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;"
+                    <div style="display: flex; flex-direction: column; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
+                        <select name="stars" id="editStars" required 
+                            style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;"
                             data-msg-required="Please select a rating.">
                             <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
                             <option value="4">⭐⭐⭐⭐ (4/5)</option>
@@ -301,7 +302,9 @@
 
         // Initial tab based on URL param
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('pending_page')) {
+        const activeTab = urlParams.get('tab');
+        
+        if (activeTab === 'pending' || (urlParams.has('pending_page') && !urlParams.has('published_page'))) {
             tabs.forEach(item => item.classList.remove('active'));
             tabs[1].classList.add('active');
             published.style.display = 'none';
