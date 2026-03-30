@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserAddressController extends Controller
 {
     protected function validateAddress(Request $request): array
     {
+        Log::info('ADDRESS VALIDATION START:', $request->all());
         return $request->validate([
             'label' => ['required', 'string', 'max:255'],
             'recipient_name' => 'nullable|string|max:255',
@@ -34,18 +36,19 @@ class UserAddressController extends Controller
 
         UserAddress::create([
             'user_id' => auth()->id(),
-            'label' => $request->label,
-            'recipient_name' => $request->recipient_name,
-            'recipient_phone' => $request->recipient_phone,
-            'address1' => $request->address1,
-            'address2' => $request->address2,
-            'city' => $request->city,
-            'state' => $request->state,
-            'zip' => $request->zip,
-            'country' => $request->country,
-            'landmark' => $request->landmark,
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
         ]);
 
+        Log::info('ADDRESS STORED SUCCESSFULLY', ['user_id' => auth()->id()]);
         return back()->with('success', 'Address saved successfully.');
     }
 
@@ -62,18 +65,19 @@ class UserAddressController extends Controller
         }
 
         $address->update([
-            'label' => $request->label,
-            'recipient_name' => $request->recipient_name,
-            'recipient_phone' => $request->recipient_phone,
-            'address1' => $request->address1,
-            'address2' => $request->address2,
-            'city' => $request->city,
-            'state' => $request->state,
-            'zip' => $request->zip,
-            'country' => $request->country,
-            'landmark' => $request->landmark,
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
         ]);
 
+        Log::info('ADDRESS UPDATED SUCCESSFULLY', ['address_id' => $address->id, 'user_id' => Auth::id()]);
         return back()->with('success', 'Address updated successfully.');
     }
 
@@ -89,6 +93,7 @@ class UserAddressController extends Controller
 
         $address->delete();
 
+        Log::info('ADDRESS DELETED SUCCESSFULLY', ['address_id' => $address->id, 'user_id' => Auth::id()]);
         return back()->with('success', 'Address deleted successfully.');
     }
 }
