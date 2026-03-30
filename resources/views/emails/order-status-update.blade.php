@@ -107,7 +107,7 @@
                         @endif
                         <tr>
                             <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;"><strong>Total</strong></td>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->total, 2) }}</td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
                         </tr>
                     </tbody>
                 </table>
