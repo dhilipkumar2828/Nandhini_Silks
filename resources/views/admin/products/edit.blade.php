@@ -565,7 +565,7 @@ $(document).ready(function() {
             }
         });
 
-        let selected = {};
+        let selectedValues = [];
         let selectedNames = [];
         $('.attr-dropdown-matrix').each(function() {
             const $s = $(this);
@@ -573,11 +573,11 @@ $(document).ready(function() {
             if(valIds && valIds.length > 0) {
                 const attrId = $s.data('attr-id'), attrName = $s.data('attr-name');
                 selectedNames.push({id: attrId, name: attrName});
-                selected[attrId] = valIds.map(vid => ({id: vid, name: $s.find(`option[value="${vid}"]`).text()}));
+                selectedValues.push(valIds.map(vid => ({id: vid, name: $s.find(`option[value="${vid}"]`).text()})));
             }
         });
 
-        if(Object.keys(selected).length === 0) {
+        if(selectedNames.length === 0) {
             $('#variantMatrixWrapper').addClass('hidden');
             $('#matrixPlaceholder').removeClass('hidden');
             return;
@@ -596,7 +596,7 @@ $(document).ready(function() {
             <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80"></th>
         `);
 
-        const combinations = cartesian(Object.values(selected));
+        const combinations = cartesian(selectedValues);
         const $tbody = $('#variantMatrixBody').empty();
 
         combinations.forEach((comb, idx) => {
