@@ -407,31 +407,31 @@
                 }
             });
 
-            const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
-            dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= mobileBreakpoint) {
-                        const parent = toggle.parentElement;
-                        // Only prevent default if it has a dropdown
-                        if (parent.querySelector('.dropdown-content')) {
-                            e.preventDefault();
-                            parent.classList.toggle('mobile-open');
-                        }
-                    }
-                });
-            });
+//             const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
+//             dropdownToggles.forEach(toggle => {
+//                 toggle.addEventListener('click', (e) => {
+//                     if (window.innerWidth <= mobileBreakpoint) {
+//                         const parent = toggle.parentElement;
+//                         // Only prevent default if it has a dropdown
+//                         if (parent.querySelector('.dropdown-content')) {
+//                             e.preventDefault();
+//                             parent.classList.toggle('mobile-open');
+//                         }
+//                     }
+//                 });
+//             });
 
-            // Mobile Child Dropdown Toggles
-            const hasChildrenLinks = document.querySelectorAll('.has-children > a');
-            hasChildrenLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    if (window.innerWidth <= mobileBreakpoint) {
-                        e.preventDefault();
-                        const parent = link.parentElement;
-                        parent.classList.toggle('mobile-open');
-                    }
-                });
-            });
+//             // Mobile Child Dropdown Toggles
+//             const hasChildrenLinks = document.querySelectorAll('.has-children > a');
+//             hasChildrenLinks.forEach(link => {
+//                 link.addEventListener('click', (e) => {
+//                     if (window.innerWidth <= mobileBreakpoint) {
+//                         e.preventDefault();
+//                         const parent = link.parentElement;
+//                         parent.classList.toggle('mobile-open');
+//                     }
+//                 });
+//             });
 
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= mobileBreakpoint &&

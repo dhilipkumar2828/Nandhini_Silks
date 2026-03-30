@@ -6096,24 +6096,10 @@ body.menu-open {
 
   .dropdown-content,
   .child-dropdown {
-    position: static !important;
-    min-width: 100% !important;
-    max-height: 0;
-    overflow: hidden;
-    padding: 0 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    background: rgba(255, 255, 255, 0.08) !important;
-    transition: max-height 0.3s ease !important;
+    display: none !important;
   }
 
-  .nav-item-wrapper.mobile-open>.dropdown-content,
-  .has-children.mobile-open>.child-dropdown {
-    max-height: 900px;
-  }
+  /* Removed mobile-open dropdown logic */
 
   .dropdown-content a,
   .child-dropdown a {
@@ -6127,9 +6113,8 @@ body.menu-open {
     padding-left: 54px !important;
   }
 
-  .nav-item-wrapper.mobile-open>.nav-item,
-  .has-children.mobile-open>a {
-    background: rgba(0, 0, 0, 0.08);
+  .has-children>a::after {
+    display: none !important;
   }
 }
 
