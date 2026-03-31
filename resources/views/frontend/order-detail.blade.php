@@ -121,52 +121,88 @@
     }
 
     .order-items-table {
-        width: 100%;
-        border-collapse: collapse;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: auto;
+    }
+
+    .order-items-table tr {
+        border-bottom: 1px solid #e5e7eb; /* Joint line across the whole row */
+    }
+
+    .order-items-table th, 
+    .order-items-table td {
+        padding: 22px 15px;
+        vertical-align: middle;
+        text-align: center !important;
+    }
+
+    /* Product column specific override */
+    .order-items-table th:first-child, 
+    .order-items-table td:first-child {
+        text-align: left !important;
+        width: 45%;
     }
 
     .order-items-table th {
-        text-align: left;
-        font-size: 12px;
-        color: #999;
+        font-size: 11px;
+        color: #888;
+        font-weight: 700;
         text-transform: uppercase;
-        padding: 10px 0;
-        border-bottom: 1px solid #f5f5f5;
-    }
-
-    .order-items-table td {
-        padding: 20px 0;
-        border-bottom: 1px solid #f9f9f9;
-        vertical-align: middle;
+        letter-spacing: 0.05em;
+        background: #fafafa;
+        border-top: 1px solid #f1f1f1;
     }
 
     .item-cell {
         display: flex;
         align-items: center;
         gap: 15px;
+        min-width: 0;
     }
 
     .item-img {
-        width: 60px;
-        height: 60px;
-        border-radius: 6px;
+        width: 76px;
+        height: 76px;
+        border-radius: 10px;
         object-fit: cover;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border: 1px solid #f1f1f1;
     }
 
     .item-name {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 14px;
-        color: #333;
+        color: #1a202c;
+        word-break: break-word;
+        line-height: 1.5;
+        max-width: 100%;
+        margin-bottom: 6px;
     }
 
     .item-meta {
-        font-size: 12px;
-        color: #999;
+        font-size: 11px;
+        color: #718096;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+    .item-meta span {
+        background: #f7fafc;
+        border: 1px solid #edf2f7;
+        padding: 2px 8px;
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 600;
+        color: #4a5568;
     }
 
     .item-actions-cell {
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 5px;
     }
 
@@ -654,32 +690,29 @@
                                 <td data-label="Product">
                                     <div class="item-cell">
                                         <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
-                                        <div>
+                                        <div style="flex: 1; min-width: 0;">
                                             <div class="item-name">{{ $item->product_name }}</div>
-                                            <div class="item-meta" style="font-size: 13px; color: #64748b; margin-top: 4px;">
+                                            <div class="item-meta">
                                                 @if(!empty($item->attributes))
                                                     @foreach($item->attributes as $attr)
-                                                        <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 2px;">
-                                                            {{ $attr['name'] }}: {{ $attr['value'] }} 
-                                                        </span>
-                                                        @if(!$loop->last) &nbsp; @endif
+                                                        <span>{{ $attr['name'] }}: {{ $attr['value'] }}</span>
                                                     @endforeach
                                                 @else
                                                     @if($item->color || $item->size)
-                                                        @if($item->color) <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">Color: {{ $item->color }}</span> @endif 
-                                                        @if($item->size) &nbsp; <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">Size: {{ $item->size }}</span> @endif
+                                                        @if($item->color) <span>Color: {{ $item->color }}</span> @endif 
+                                                        @if($item->size) <span>Size: {{ $item->size }}</span> @endif
                                                     @else
-                                                        <span style="color: #94a3b8; font-style: italic;">Standard Unit</span>
+                                                        <span style="background: none; color: #94a3b8; font-style: italic; padding: 0;">Standard Unit</span>
                                                     @endif
                                                 @endif
                                              </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Price">&#8377;{{ number_format($item->price, 2) }}</td>
+                                <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
                                 <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
-                                <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 2) }}</td>
-                                <td class="item-actions-cell" data-label="Actions">
+                                <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
+                                <td class="item-actions-cell" data-label="Actions" style="margin-top: 25px;">
                                     <a href="javascript:void(0)" class="action-link" onclick="openReviewModal('{{ $item->product_id }}', '{{ e($item->product_name) }}', '{{ $item->getImageUrl() }}')">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
                                 </td>

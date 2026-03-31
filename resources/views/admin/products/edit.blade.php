@@ -331,7 +331,7 @@
                             <select name="sub_category_id" id="sub_category_id" required class="w-full select2-searchable">
                                 <option value="">Select Sub Category</option>
                                 @foreach($subCategories as $sub)
-                                    <option value="{{ $sub->id }}" {{ $product->sub_category_id == $sub->id ? 'selected' : '' }}>{{ $sub->name }}</option>
+                                    <option value="{{ $sub->id }}" {{ old('sub_category_id', $product->sub_category_id) == $sub->id ? 'selected' : '' }}>{{ $sub->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -340,7 +340,7 @@
                             <select name="child_category_id" id="child_category_id" class="w-full select2-searchable">
                                 <option value="">--- Select Child Category ---</option>
                                 @foreach($childCategories as $child)
-                                    <option value="{{ $child->id }}" {{ $product->child_category_id == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>
+                                    <option value="{{ $child->id }}" {{ old('child_category_id', $product->child_category_id) == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -1025,21 +1025,50 @@ $(document).ready(function() {
         }
     });
     
+    // Cascading Category Selects
+    var isFirstCategoryChange = true;
     $('#category_id').on('change', function () {
         var id = $(this).val();
+        
+        // Skip AJAX if it's the initial load and options are already pre-rendered by PHP
+        if (isFirstCategoryChange) {
+            isFirstCategoryChange = false;
+            if ($('#sub_category_id option').length > 1) return;
+        }
+
         $('#sub_category_id').html('<option value="">Select Sub Category</option>');
         $('#child_category_id').html('<option value="">--- Select Child Category ---</option>');
-        if (id) $.getJSON("{{ url('admin/get-sub-categories') }}/" + id, function (d) {
-            $.each(d, function (k, v) { $('#sub_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
-        });
+        
+        if (id) {
+            $.getJSON("{{ url('admin/get-sub-categories') }}/" + id, function (d) {
+                $.each(d, function (k, v) { 
+                    $('#sub_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); 
+                });
+                $('#sub_category_id').trigger('change.select2'); // Notify Select2
+            });
+        }
     });
 
+    var isFirstSubCategoryChange = true;
     $('#sub_category_id').on('change', function () {
         var id = $(this).val();
+
+        // Skip AJAX if it's initial load and child categories are already pre-rendered
+        if (isFirstSubCategoryChange) {
+            isFirstSubCategoryChange = false;
+            if ($('#child_category_id option').length > 1) return;
+        }
+
         $('#child_category_id').html('<option value="">--- Select Child Category ---</option>');
-        if (id) $.getJSON("{{ url('admin/get-child-categories') }}/" + id, function (d) {
-            $.each(d, function (k, v) { $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
-        });
+        
+        if (id) {
+            $.getJSON("{{ url('admin/get-child-categories') }}/" + id, function (d) {
+                $.each(d, function (k, v) { 
+                    $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); 
+                });
+                $('#child_category_id').trigger('change.select2'); // Notify Select2
+            });
+        }
     });
 });
 </script>

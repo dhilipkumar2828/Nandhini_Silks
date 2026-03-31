@@ -97,8 +97,8 @@
                         @endif
                     </td>
                     <td class="py-2.5">
-                        <div class="font-bold text-slate-800 text-sm">{{ $product->name }}</div>
-                        <div class="flex items-center space-x-2">
+                        <div class="font-bold text-slate-800 text-sm whitespace-normal break-words max-w-[250px]">{{ $product->name }}</div>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
                             <span class="text-[9px] font-black text-slate-400 tracking-widest uppercase">SKU: {{ $product->sku ?? 'N/A' }}</span>
                             <span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-1.5 rounded">{{ $product->category->name ?? 'N/A' }}</span>
                         </div>
