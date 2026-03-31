@@ -70,13 +70,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Description</label>
-                        <textarea name="short_description" id="short_description" rows="2"
-                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('short_description') }}</textarea>
+                        <div id="short_description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:150px;"></div>
+                        <textarea name="short_description" id="short_description" class="hidden">{{ old('short_description') }}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Specification</label>
-                        <textarea name="full_description" id="full_description" rows="5"
-                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">{{ old('full_description') }}</textarea>
+                        <div id="full_description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:220px;"></div>
+                        <textarea name="full_description" id="full_description" class="hidden">{{ old('full_description') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -400,11 +400,49 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<style>
+.ql-toolbar.ql-snow { border-radius: 8px 8px 0 0 !important; border-color: #e2e8f0 !important; background: #fff; padding: 6px 8px !important; }
+.ql-container.ql-snow { border-radius: 0 0 8px 8px !important; border-color: #e2e8f0 !important; background: #f8fafc; font-size: 13px; }
+.ql-editor { font-family: inherit; line-height: 1.6; }
+.ql-editor.ql-blank::before { color: #94a3b8; font-style: normal; }
+.ql-toolbar .ql-stroke { stroke: #64748b; }
+.ql-toolbar .ql-fill { fill: #64748b; }
+.ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: #a91b43 !important; }
+.ql-toolbar button:hover .ql-fill, .ql-toolbar button.ql-active .ql-fill { fill: #a91b43 !important; }
+</style>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
 $(document).ready(function() {
-    ClassicEditor.create(document.querySelector('#short_description')).catch(err => console.error(err));
-    ClassicEditor.create(document.querySelector('#full_description')).catch(err => console.error(err));
+
+    // --- Quill Rich Text Editors ---
+    const quillToolbar = [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'clean']
+    ];
+
+    const quillDesc = new Quill('#short_description_editor', {
+        theme: 'snow',
+        placeholder: 'Enter product description...',
+        modules: { toolbar: quillToolbar }
+    });
+    const descContent = $('#short_description').val();
+    if (descContent) quillDesc.clipboard.dangerouslyPasteHTML(descContent);
+
+    const quillSpec = new Quill('#full_description_editor', {
+        theme: 'snow',
+        placeholder: 'Enter product specification...',
+        modules: { toolbar: quillToolbar }
+    });
+    const specContent = $('#full_description').val();
+    if (specContent) quillSpec.clipboard.dangerouslyPasteHTML(specContent);
+
+    $('#productForm').on('submit', function() {
+        $('#short_description').val(quillDesc.root.innerHTML);
+        $('#full_description').val(quillSpec.root.innerHTML);
+    });
+    // --- End Quill ---
 
     function slugify(text) {
         return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
@@ -525,7 +563,7 @@ $(document).ready(function() {
             }
         });
 
-        let selected = {};
+        let selectedValues = [];
         let selectedNames = [];
         $('.attr-dropdown-matrix').each(function() {
             const $s = $(this);
@@ -533,11 +571,11 @@ $(document).ready(function() {
             if(valIds && valIds.length > 0) {
                 const attrId = $s.data('attr-id'), attrName = $s.data('attr-name');
                 selectedNames.push({id: attrId, name: attrName});
-                selected[attrId] = valIds.map(vid => ({id: vid, name: $s.find(`option[value="${vid}"]`).text()}));
+                selectedValues.push(valIds.map(vid => ({id: vid, name: $s.find(`option[value="${vid}"]`).text()})));
             }
         });
 
-        if(Object.keys(selected).length === 0) {
+        if(selectedValues.length === 0) {
             $('#variantMatrixWrapper').addClass('hidden');
             $('#matrixPlaceholder').removeClass('hidden');
             return;
@@ -547,16 +585,16 @@ $(document).ready(function() {
         $('#matrixPlaceholder').addClass('hidden');
 
         const $thead = $('#variantMatrixWrapper thead tr').empty();
-        selectedNames.forEach(a => $thead.append(`<th class="px-6 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">${a.name}</th>`));
+        selectedNames.forEach(a => $thead.append(`<th class="px-5 py-4 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">${a.name}</th>`));
         $thead.append(`
-            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Pricing (₹) <span class="text-rose-500">*</span></th>
-            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Stock / Alert</th>
-            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Logistics</th>
-            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80 text-center">Images <span class="text-rose-500">*</span></th>
-            <th class="px-4 py-5 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80"></th>
+            <th class="px-4 py-4 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Pricing (₹) <span class="text-rose-500">*</span></th>
+            <th class="px-4 py-4 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Stock / Alert</th>
+            <th class="px-4 py-4 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80">Logistics</th>
+            <th class="px-4 py-4 text-[#334155] font-extrabold uppercase tracking-widest text-[10px] bg-slate-50/80 border-l-2 border-slate-100">Images <span class="text-rose-500">*</span></th>
+            <th class="px-3 py-4 bg-slate-50/80"></th>
         `);
 
-        const combinations = cartesian(Object.values(selected));
+        const combinations = cartesian(selectedValues);
         const $tbody = $('#variantMatrixBody').empty();
 
         combinations.forEach((comb, idx) => {
@@ -574,67 +612,72 @@ $(document).ready(function() {
                 if(fuzzyKey) ui = currentUIData[fuzzyKey];
             }
 
-            let cells = comb.map(v => `<td class="px-6 py-6"><span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-[11px] border border-slate-200">${v.name}</span></td>`).join('');
+            let cells = comb.map(v => `<td class="px-5 py-5"><span class="px-3 py-1 bg-rose-50 text-[#a91b43] rounded-full font-bold text-[11px] border border-rose-100 whitespace-nowrap">${v.name}</span></td>`).join('');
             
             const $row = $(`
-                <tr class="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
+                <tr class="border-b border-slate-100 hover:bg-slate-50/30 transition-colors align-top">
                     ${cells}
-                    <td class="px-4 py-6">
-                        <div class="space-y-2 max-w-[140px]">
-                            <div class="relative group">
-                                <!-- <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">REG</span> -->
-                                <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : ($('#regular_price').val() || '')}" required class="v-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-black text-[#a91b43] focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Price">
+                    <td class="px-4 py-4">
+                        <div class="flex flex-col gap-2 min-w-[130px]">
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Price (₹) <span class="text-rose-500">*</span></label>
+                                <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : ($('#regular_price').val() || '')}" required class="v-price-input w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-black text-[#a91b43] focus:border-[#a91b43] outline-none transition-all" placeholder="0.00">
                             </div>
-                            <div class="relative group">
-                                <!-- <span class="absolute left-2.5 top-2 text-[10px] font-bold text-slate-400">SALE</span> -->
-                                <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : ''}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3 py-2 text-sm font-bold text-slate-500 focus:border-[#a91b43] focus:ring-2 focus:ring-[#a91b43]/10 outline-none transition-all shadow-sm" placeholder="Offer">
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-6">
-                        <div class="space-y-2 max-w-[120px]">
-                            <div class="relative group">
-                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-boxes"></i></span>
-                                <input type="number" min="0" name="v_stock[${comboIds}]" value="${ui ? ui.stock : '0'}" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#a91b43] transition-all" placeholder="Stock">
-                            </div>
-                            <div class="relative group">
-                                <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs"><i class="fas fa-bell"></i></span>
-                                <input type="number" min="0" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : '0'}" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-[10px] font-bold text-rose-400 outline-none focus:border-[#a91b43] transition-all" placeholder="Alert at">
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Offer Price</label>
+                                <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : ''}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-500 focus:border-[#a91b43] outline-none transition-all" placeholder="0.00">
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-6">
-                        <div class="space-y-2 max-w-[160px]">
-                            <div class="relative group">
-                                <!-- <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">SKU</span> -->
-                                <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Variant SKU">
+                    <td class="px-4 py-4">
+                        <div class="flex flex-col gap-2 min-w-[110px]">
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Stock Qty</label>
+                                <input type="number" min="0" name="v_stock[${comboIds}]" value="${ui ? ui.stock : '0'}" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 outline-none focus:border-[#a91b43] transition-all" placeholder="0">
                             </div>
-                            <div class="relative group">
-                                <!-- <span class="absolute left-2.5 top-2 text-[9px] font-black text-slate-400 uppercase">WGT</span> -->
-                                <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : ''}" class="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]" placeholder="Weight (gr)">
+                            <div>
+                                <label class="block text-[9px] font-black text-rose-400 uppercase tracking-widest mb-1">Low Alert</label>
+                                <input type="number" min="0" name="v_low_stock[${comboIds}]" value="${ui ? ui.low : '0'}" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-rose-400 outline-none focus:border-[#a91b43] transition-all" placeholder="0">
                             </div>
-                            <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-600 outline-none focus:border-[#a91b43]">
-                                <option value="">Shipping Class</option>
-                                @foreach($shippingClasses as $sc) 
-                                    <option value="{{ $sc->id }}" ${ui && ui.ship == "{{ $sc->id }}" ? 'selected' : ''}>{{ $sc->name }}</option> 
-                                @endforeach
-                            </select>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="flex flex-col gap-2 min-w-[150px]">
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Variant SKU <span class="text-rose-500">*</span></label>
+                                <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. SKU-001">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Weight (gr)</label>
+                                <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : ''}" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. 500">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Shipping Class</label>
+                                <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all">
+                                    <option value="">Select Class</option>
+                                    @foreach($shippingClasses as $sc) 
+                                        <option value="{{ $sc->id }}" ${ui && ui.ship == "{{ $sc->id }}" ? 'selected' : ''}>{{ $sc->name }}</option> 
+                                    @endforeach
+                                </select>
+                            </div>
                             <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
                         </div>
                     </td>
-                    <td class="px-4 py-6 min-w-[200px]">
-                        <div class="flex flex-row items-center gap-4">
-                            <label class="shrink-0 w-12 h-12 flex items-center justify-center bg-white border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#a91b43] hover:text-[#a91b43] transition-all group shadow-sm">
-                                <i class="fas fa-camera text-slate-300 group-hover:scale-110 transition-transform text-lg"></i>
+                    <td class="px-4 py-4 border-l-2 border-slate-100 min-w-[220px]">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Images <span class="text-rose-500">*</span></label>
+                        <div class="flex flex-row items-start gap-3">
+                            <label class="shrink-0 w-11 h-11 flex flex-col items-center justify-center bg-white border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-[#a91b43] hover:text-[#a91b43] transition-all group shadow-sm">
+                                <i class="fas fa-camera text-slate-300 group-hover:text-[#a91b43] group-hover:scale-110 transition-all text-base"></i>
+                                <span class="text-[8px] text-slate-300 group-hover:text-[#a91b43] font-bold mt-0.5">Add</span>
                                 <input type="file" name="v_images[${comboIds}][]" required class="v-file-input hidden" multiple accept="image/*">
                             </label>
-                            <div class="v-preview-container flex flex-row flex-wrap gap-2">${ui ? ui.preview : ''}</div>
+                            <div class="v-preview-container flex flex-row flex-wrap items-center gap-2 overflow-x-auto max-w-[350px] custom-scrollbar">${ui ? ui.preview : ''}</div>
                         </div>
-                        <div class="v-img-error-msg error-text hidden">This field is required.</div>
+                        <div class="v-img-error-msg error-text text-[10px] text-rose-500 font-bold mt-1 hidden">Image required.</div>
                     </td>
-                    <td class="px-4 py-6 text-right">
-                        <button type="button" class="remove-variant-row w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:bg-rose-50 hover:text-rose-600 transition-all">
-                            <i class="fas fa-trash-alt text-sm"></i>
+                    <td class="px-3 py-4 text-right">
+                        <button type="button" class="remove-variant-row w-7 h-7 rounded-full flex items-center justify-center text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all">
+                            <i class="fas fa-trash-alt text-xs"></i>
                         </button>
                     </td>
                 </tr>
