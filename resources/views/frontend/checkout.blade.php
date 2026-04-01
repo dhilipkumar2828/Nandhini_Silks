@@ -479,7 +479,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 0) }}</div>
+                                <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 2) }}</div>
                             </div>
                             @endforeach
                         </div>
@@ -487,22 +487,22 @@
                         <div style="border-top: 1px dashed #eee; padding-top: 16px; margin-bottom: 4px;">
                             <div class="summary-row-v4">
                                 <span>Subtotal</span>
-                                <span>&#8377;{{ number_format($subTotal, 0) }}</span>
+                                <span>&#8377;{{ number_format($subTotal, 2) }}</span>
                             </div>
                             <div class="summary-row-v4">
                                 <span>Delivery Charges</span>
                                 <span id="shipping_cost_display" style="{{ $shipping > 0 ? '' : 'color: #2ecc71; font-weight: 700;' }} font-size: 12px;">
-                                    {{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}
+                                    {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
                                 </span>
                             </div>
                             <div class="summary-row-v4">
                                 <span>GST (<span id="tax_rate_label">{{ $taxPercentage ?? 5 }}</span>%)</span>
-                                <span id="tax_cost_display">&#8377;{{ number_format($tax, 0) }}</span>
+                                <span id="tax_cost_display">&#8377;{{ number_format($tax, 2) }}</span>
                             </div>
                             @if($discount > 0)
                             <div class="summary-row-v4" style="color: #2ecc71; font-weight: 600;">
                                 <span>Discount</span>
-                                <span>-&#8377;{{ number_format($discount, 0) }}</span>
+                                <span>-&#8377;{{ number_format($discount, 2) }}</span>
                             </div>
                             @endif
                         </div>

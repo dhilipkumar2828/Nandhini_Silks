@@ -376,9 +376,9 @@ class CartController extends Controller
             'tax' => $totals['tax'],
             'taxPercentage' => $totals['taxPercentage'],
             'grandTotal' => $totals['grandTotal'],
-            'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 0) : 'FREE',
-            'taxFormatted' => '₹' . number_format($totals['tax'], 0),
-            'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 0),
+            'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 2) : 'FREE',
+            'taxFormatted' => '₹' . number_format($totals['tax'], 2),
+            'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 2),
         ]);
     }
 

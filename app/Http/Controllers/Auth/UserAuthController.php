@@ -18,10 +18,8 @@ class UserAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
-        ], [
-            'email.regex' => 'Email must end with @gmail.com.',
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
@@ -72,11 +70,10 @@ class UserAuthController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
-            'email' => ['required', 'string', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'regex:/^[0-9]{10}$/'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'email.regex' => 'Email must end with @gmail.com.',
             'name.regex' => 'Name must contain only alphabets.',
             'phone.regex' => 'Please enter a valid 10-digit phone number.',
             'password.confirmed' => 'Password confirmation does not match.',
@@ -205,13 +202,31 @@ class UserAuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
-            $request->only('email')
-        );
+        Log::info('Password reset process started for email: ' . $request->email);
 
-        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withErrors(['email' => __($status)]);
+        try {
+            $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
+                $request->only('email')
+            );
+
+            Log::info('Password reset broker return status: ' . __($status));
+
+            if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+                return back()->with('status', __($status));
+            }
+
+            Log::warning('Password reset failed due to broker status: ' . __($status));
+            return back()->withErrors(['email' => __($status)]);
+            
+        } catch (\Exception $e) {
+            Log::error('CRITICAL: Password reset email exception for ' . $request->email . ': ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return back()->withErrors(['email' => 'Oops! Something went wrong while sending the email. Error: ' . $e->getMessage()]);
+        }
     }
 
     public function showResetForm(Request $request, $token = null)

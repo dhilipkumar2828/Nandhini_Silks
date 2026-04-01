@@ -294,10 +294,8 @@
                             <div class="form-group">
                                 <label class="form-label">Email Address <span class="verify-badge">&#10003; Verified</span></label>
                                 <input type="email" id="profileEmailInput" class="form-control" name="email" value="{{ old('email', $user->email) }}" required
-                                    pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
                                     data-msg-required="Please enter your email address."
-                                    data-msg-email="Please enter a valid email address."
-                                    data-msg-pattern="Email must end with @gmail.com.">
+                                    data-msg-email="Please enter a valid email address.">
                                 <span class="error-text" id="emailInlineError" style="width:100%;"></span>
                             </div>
                         </div>
@@ -430,15 +428,9 @@
 
             const validateGmailEmail = function () {
                 const emailValue = (($emailInput.val()) || '').trim();
-                const gmailRegex = /^[A-Za-z0-9._%+-]+@gmail\.com$/i;
 
                 if (!emailValue) {
                     clearEmailInlineError();
-                    return false;
-                }
-
-                if (!gmailRegex.test(emailValue)) {
-                    showEmailInlineError('Email must end with @gmail.com.');
                     return false;
                 }
 
@@ -474,9 +466,6 @@
                 }
 
                 if (!validateGmailEmail()) {
-                    validator.showErrors({
-                        email: 'Email must end with @gmail.com.'
-                    });
                     focusEmailField();
                     return;
                 }

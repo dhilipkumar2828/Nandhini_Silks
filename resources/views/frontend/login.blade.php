@@ -63,10 +63,8 @@
                         <label class="form-label" for="loginEmail">Email Address</label>
                         <input class="form-input" type="email" id="loginEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
                             required
-                            pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
                             data-msg-required="Please enter your email address."
-                            data-msg-email="Please enter a valid email address."
-                            data-msg-pattern="Email must end with @gmail.com.">
+                            data-msg-email="Please enter a valid email address.">
                         @error('email')
                             <span class="error-text">{{ $message }}</span>
                         @enderror
@@ -115,10 +113,8 @@
                         <label class="form-label" for="regEmail">Email Address</label>
                         <input class="form-input" type="email" id="regEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
                             required
-                            pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
                             data-msg-required="Please enter your email address."
-                            data-msg-email="Please enter a valid email address."
-                            data-msg-pattern="Email must end with @gmail.com.">
+                            data-msg-email="Please enter a valid email address.">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="regPhone">Phone Number</label>

@@ -78,4 +78,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProductReview::class);
     }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        \Illuminate\Support\Facades\Log::info('Password reset notification TRIGGERED for user: ' . $this->email . ' with token: ' . $token);
+        
+        try {
+            $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+            \Illuminate\Support\Facades\Log::info('Password reset notification SENT/DISPATCHED for user: ' . $this->email);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Password reset notification FAILURE for user: ' . $this->email . ' -> ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

@@ -416,14 +416,12 @@ class FrontendController extends Controller
         $user = Auth::guard('web')->user();
         $data = $request->validate([
             'name' => 'required|string|max:255|regex:/^[A-Za-z\s]+$/',
-            'email' => ['required', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string|in:Male,Female,Other',
             'dob' => 'nullable|date',
             'current_password' => 'nullable|required_with:new_password',
             'new_password' => 'nullable|min:8|confirmed|required_with:current_password',
-        ], [
-            'email.regex' => 'Email must end with @gmail.com.',
         ]);
 
         if ($request->filled('new_password') || $request->filled('current_password')) {

@@ -179,21 +179,21 @@
                     <h2 class="summary-title">Order Summary</h2>
                     <div class="summary-row">
                         <span>Subtotal ({{ $itemCount ?? 0 }} items)</span>
-                        <span id="subtotalDisp">&#8377;{{ number_format($subTotal ?? 0, 0) }}</span>
+                        <span id="subtotalDisp">&#8377;{{ number_format($subTotal ?? 0, 2) }}</span>
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
-                        <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}</span>
+                        <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}</span>
                     </div>
                     @if($tax > 0)
                     <div class="summary-row">
                         <span>Estimated Tax (GST <span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
-                        <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 0) }}</span>
+                        <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
                     </div>
                     @endif
                     <div class="summary-row" style="color: #2e7d32; font-weight: 600;">
                         <span>Coupon Discount</span>
-                        <span id="discountDisp">-&#8377;{{ number_format($discount ?? 0, 0) }}</span>
+                        <span id="discountDisp">-&#8377;{{ number_format($discount ?? 0, 2) }}</span>
                     </div>
 
                     <div class="coupon-section">
