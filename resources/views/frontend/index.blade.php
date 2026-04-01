@@ -385,10 +385,31 @@
             flex-direction: column;
         }
 
+        .collection-card {
+            align-items: stretch !important;
+            text-align: left !important;
+            width: 100% !important;
+            max-width: 260px !important;
+            margin: 0 auto !important;
+        }
+
+        .collection-image-wrap {
+            aspect-ratio: 3 / 4 !important;
+        }
+
         .collection-name {
             min-height: 52px;
             margin: 16px 0 10px;
             line-height: 1.3;
+            text-align: center !important;
+            width: 100% !important;
+            min-height: 2.2em !important;
+            display: block !important;
+            padding: 0 6px !important;
+            font-size: 17px !important;
+            line-height: 1.35 !important;
+            margin-top: 12px !important;
+            margin-bottom: 0 !important;
         }
 
         .collection-cta,
@@ -768,12 +789,6 @@
             .collection-swiper {
                 padding-left: 0;
                 padding-right: 0;
-            }
-
-            .collection-card,
-            .featured-card {
-                align-items: center !important;
-                text-align: center !important;
             }
 
             .collection-name,
@@ -1899,10 +1914,10 @@
                             slidesPerView: 2
                         },
                         768: {
-                            slidesPerView: 3
+                            slidesPerView: 2
                         },
                         1024: {
-                            slidesPerView: 4
+                            slidesPerView: 3
                         },
                         1280: {
                             slidesPerView: 4
