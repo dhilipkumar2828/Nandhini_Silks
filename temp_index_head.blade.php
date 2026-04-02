@@ -9,6 +9,8 @@
             --home-section-space-mobile: 32px;
             --home-heading-space: 14px;
             --home-subtitle-space: 24px;
+            --category-image-size: 136px;
+            --category-arrow-offset: 5px;
             --hero-banner-ratio: 12 / 5;
         }
 
@@ -24,863 +26,6 @@
             padding-right: 100px;
             box-sizing: border-box;
             overflow: visible;
-        }
-        @media (max-width: 768px) {
-            .hero {
-                margin-bottom: 20px;
-            }
-
-            /* ── Nav buttons: smaller on mobile ── */
-            .collection-next,
-            .collection-prev,
-            .category-next,
-            .category-prev,
-            .testimonial-next,
-            .testimonial-prev,
-            .promo-next,
-            .promo-prev,
-            .featured-next,
-            .featured-prev,
-            .offers-next,
-            .offers-prev,
-            .hero-next,
-            .hero-prev {
-                width: 32px !important;
-                height: 32px !important;
-            }
-
-            .collection-next::after,
-            .collection-prev::after,
-            .category-next::after,
-            .category-prev::after,
-            .testimonial-next::after,
-            .testimonial-prev::after,
-            .promo-next::after,
-            .promo-prev::after,
-            .featured-next::after,
-            .featured-prev::after,
-            .offers-next::after,
-            .offers-prev::after,
-            .hero-next::after,
-            .hero-prev::after {
-                font-size: 13px !important;
-            }
-
-            /* ── Section spacing ── */
-            /* ── Global Section Padding (Mobile) ── */
-            .collection-section,
-            .category-section {
-                padding-left: 45px !important;
-                padding-right: 45px !important;
-                margin-bottom: 30px;
-            }
-
-            .category-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .featured-inner,
-            .promo-section,
-            .testimonial-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-                margin-bottom: 30px;
-            }
-
-            /* ── Special case for featured-inner which is already a sub-container ── */
-            .featured-section {
-                margin-bottom: 5px;
-            }
-
-            /* Nav buttons sit on the left/right edge of the section padding area */
-            .collection-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .collection-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            /* No inner swiper padding — full width of padded container */
-            .collection-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .collection-card,
-            .featured-card {
-                align-items: center !important;
-                text-align: center !important;
-            }
-
-            .collection-name,
-            .featured-name {
-                min-height: auto;
-                font-size: 15px;
-                margin-top: 12px !important;
-                margin-bottom: 6px !important;
-                width: 100%;
-            }
-
-            .collection-cta,
-            .featured-footer {
-                position: static !important;
-                margin-top: 2px !important;
-                align-self: center !important;
-            }
-
-            /* ── Featured / New Arrivals section ── */
-            .featured-title {
-                font-size: 22px !important;
-            }
-
-            .featured-subtitle {
-                font-size: 13px !important;
-                padding-bottom: 16px !important;
-            }
-
-            .featured-swiper-container {
-                margin-top: 14px;
-            }
-
-            /* Section gets its own side padding; swiper fills the full padded container */
-            .featured-inner {
-                padding-left: 40px !important;
-                padding-right: 40px !important;
-            }
-
-            .offers-section {
-                margin-top: -4px !important;
-                padding: 26px 0 32px !important;
-            }
-
-            .offers-section .featured-inner {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                border-radius: 0 !important;
-            }
-
-            .featured-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            /* Nav buttons on edge of padded area */
-            .featured-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .offers-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .featured-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            .offers-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            /* Hide decorative flourish images on mobile — they overflow */
-            .featured-decor {
-                display: none !important;
-            }
-
-            /* Handled in global section padding block */
-
-            .category-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .category-swiper-wrap {
-                overflow: hidden;
-                padding: 0 12px;
-            }
-
-            .category-swiper .swiper-slide {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: stretch !important;
-            }
-
-            .category-swiper .swiper-wrapper {
-                align-items: flex-start;
-            }
-
-            .category-link {
-                flex: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                margin: 0 !important;
-            }
-
-            .category-card {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                text-align: center !important;
-                padding-bottom: 10px;
-                height: 100% !important;
-                width: 100% !important;
-                max-width: 156px !important;
-                margin: 0 auto !important;
-            }
-
-            .category-image-shell {
-                width: 136px !important;
-                height: 136px !important;
-                margin: 0 auto !important;
-            }
-
-            .category-name {
-                font-size: clamp(11px, 3vw, 13px) !important;
-                margin-top: 8px !important;
-                white-space: normal;
-                line-height: 1.35;
-                min-height: 2.7em;
-                text-wrap: balance;
-            }
-
-            .category-prev {
-                left: 0 !important;
-                top: 45%;
-            }
-
-            .category-next {
-                right: 0 !important;
-                top: 45%;
-            }
-
-            @media (max-width: 575px) {
-                .category-section {
-                    padding-left: 16px !important;
-                    padding-right: 16px !important;
-                }
-
-                .category-swiper-wrap {
-                    padding: 0 6px;
-                }
-
-                .category-card {
-                    max-width: 148px !important;
-                }
-
-                .category-image-shell {
-                    width: 128px !important;
-                    height: 128px !important;
-                }
-            }
-
-            @media (max-width: 399px) {
-                .category-section {
-                    padding-left: 12px !important;
-                    padding-right: 12px !important;
-                }
-
-                .category-swiper-wrap {
-                    padding: 0 4px;
-                }
-
-                .category-card {
-                    max-width: 132px !important;
-                }
-
-                .category-prev,
-                .category-next {
-                    width: 28px !important;
-                    height: 28px !important;
-                }
-
-                .category-prev::after,
-                .category-next::after {
-                    font-size: 11px !important;
-                }
-
-                .category-image-shell {
-                    width: 112px !important;
-                    height: 112px !important;
-                }
-
-                .category-name {
-                    font-size: 10px !important;
-                }
-            }
-
-            /* ── Promo section (Offer & Wedding) ── */
-            .promo-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .promo-swiper-wrap {
-                overflow: hidden;
-                padding: 0;
-            }
-
-            .promo-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .promo-card {
-                border-radius: 20px !important;
-                overflow: hidden !important;
-            }
-
-            .promo-card::before,
-            .promo-card-media {
-                border-radius: 17px !important;
-            }
-
-            .promo-card-media {
-                width: 100% !important;
-                aspect-ratio: 16 / 10;
-            }
-
-            .promo-prev {
-                left: 5px !important;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .promo-next {
-                right: 5px !important;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .testimonial-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .testimonial-card {
-                min-height: auto;
-                padding: 24px 20px;
-                text-align: center;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .testimonial-prev {
-                left: 2px;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .testimonial-next {
-                right: 2px;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .collection-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .collection-swiper-wrap {
-                overflow: hidden;
-                padding: 0 34px;
-            }
-
-            .collection-swiper .swiper-slide {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: stretch !important;
-            }
-
-            .collection-card {
-                flex: none !important;
-                width: 100% !important;
-                max-width: 250px !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
-            }
-
-            .collection-image-wrap {
-                width: 100% !important;
-            }
-
-            .collection-cta {
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 96px !important;
-                height: 30px !important;
-                font-size: 13px !important;
-                margin-top: 8px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-
-            .collection-prev,
-            .collection-next {
-                display: flex !important;
-                width: 32px !important;
-                height: 32px !important;
-                top: 38% !important;
-                z-index: 1002 !important;
-                background: #fff !important;
-            }
-
-            .collection-prev {
-                left: 0 !important;
-            }
-
-            .collection-next {
-                right: 0 !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero {
-                margin-bottom: 20px;
-            }
-
-            /* ── Nav buttons: smaller on mobile ── */
-            .collection-next,
-            .collection-prev,
-            .category-next,
-            .category-prev,
-            .testimonial-next,
-            .testimonial-prev,
-            .promo-next,
-            .promo-prev,
-            .featured-next,
-            .featured-prev,
-            .offers-next,
-            .offers-prev,
-            .hero-next,
-            .hero-prev {
-                width: 32px !important;
-                height: 32px !important;
-            }
-
-            .collection-next::after,
-            .collection-prev::after,
-            .category-next::after,
-            .category-prev::after,
-            .testimonial-next::after,
-            .testimonial-prev::after,
-            .promo-next::after,
-            .promo-prev::after,
-            .featured-next::after,
-            .featured-prev::after,
-            .offers-next::after,
-            .offers-prev::after,
-            .hero-next::after,
-            .hero-prev::after {
-                font-size: 13px !important;
-            }
-
-            /* ── Section spacing ── */
-            /* ── Global Section Padding (Mobile) ── */
-            .collection-section,
-            .category-section {
-                padding-left: 45px !important;
-                padding-right: 45px !important;
-                margin-bottom: 30px;
-            }
-
-            .category-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .featured-inner,
-            .promo-section,
-            .testimonial-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-                margin-bottom: 30px;
-            }
-
-            /* ── Special case for featured-inner which is already a sub-container ── */
-            .featured-section {
-                margin-bottom: 5px;
-            }
-
-            /* Nav buttons sit on the left/right edge of the section padding area */
-            .collection-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .collection-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            /* No inner swiper padding — full width of padded container */
-            .collection-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .collection-card,
-            .featured-card {
-                align-items: center !important;
-                text-align: center !important;
-            }
-
-            .collection-name,
-            .featured-name {
-                min-height: auto;
-                font-size: 15px;
-                margin-top: 12px !important;
-                margin-bottom: 6px !important;
-                width: 100%;
-            }
-
-            .collection-cta,
-            .featured-footer {
-                position: static !important;
-                margin-top: 2px !important;
-                align-self: center !important;
-            }
-
-            /* ── Featured / New Arrivals section ── */
-            .featured-title {
-                font-size: 22px !important;
-            }
-
-            .featured-subtitle {
-                font-size: 13px !important;
-                padding-bottom: 16px !important;
-            }
-
-            .featured-swiper-container {
-                margin-top: 14px;
-            }
-
-            /* Section gets its own side padding; swiper fills the full padded container */
-            .featured-inner {
-                padding-left: 40px !important;
-                padding-right: 40px !important;
-            }
-
-            .offers-section {
-                margin-top: -4px !important;
-                padding: 26px 0 32px !important;
-            }
-
-            .offers-section .featured-inner {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                border-radius: 0 !important;
-            }
-
-            .featured-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            /* Nav buttons on edge of padded area */
-            .featured-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .offers-prev {
-                left: -35px;
-                top: 40%;
-            }
-
-            .featured-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            .offers-next {
-                right: -35px;
-                top: 40%;
-            }
-
-            /* Hide decorative flourish images on mobile — they overflow */
-            .featured-decor {
-                display: none !important;
-            }
-
-            /* Handled in global section padding block */
-
-            .category-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .category-swiper-wrap {
-                overflow: hidden;
-                padding: 0 12px;
-            }
-
-            .category-swiper .swiper-slide {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: stretch !important;
-            }
-
-            .category-swiper .swiper-wrapper {
-                align-items: flex-start;
-            }
-
-            .category-link {
-                flex: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                margin: 0 !important;
-            }
-
-            .category-card {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                text-align: center !important;
-                padding-bottom: 10px;
-                height: 100% !important;
-                width: 100% !important;
-                max-width: 156px !important;
-                margin: 0 auto !important;
-            }
-
-            .category-image-shell {
-                width: 136px !important;
-                height: 136px !important;
-                margin: 0 auto !important;
-            }
-
-            .category-name {
-                font-size: clamp(11px, 3vw, 13px) !important;
-                margin-top: 8px !important;
-                white-space: normal;
-                line-height: 1.35;
-                min-height: 2.7em;
-                text-wrap: balance;
-            }
-
-            .category-prev {
-                left: 0 !important;
-                top: 45%;
-            }
-
-            .category-next {
-                right: 0 !important;
-                top: 45%;
-            }
-
-            @media (max-width: 575px) {
-                .category-section {
-                    padding-left: 16px !important;
-                    padding-right: 16px !important;
-                }
-
-                .category-swiper-wrap {
-                    padding: 0 6px;
-                }
-
-                .category-card {
-                    max-width: 148px !important;
-                }
-
-                .category-image-shell {
-                    width: 128px !important;
-                    height: 128px !important;
-                }
-            }
-
-            @media (max-width: 399px) {
-                .category-section {
-                    padding-left: 12px !important;
-                    padding-right: 12px !important;
-                }
-
-                .category-swiper-wrap {
-                    padding: 0 4px;
-                }
-
-                .category-card {
-                    max-width: 132px !important;
-                }
-
-                .category-prev,
-                .category-next {
-                    width: 28px !important;
-                    height: 28px !important;
-                }
-
-                .category-prev::after,
-                .category-next::after {
-                    font-size: 11px !important;
-                }
-
-                .category-image-shell {
-                    width: 112px !important;
-                    height: 112px !important;
-                }
-
-                .category-name {
-                    font-size: 10px !important;
-                }
-            }
-
-            /* ── Promo section (Offer & Wedding) ── */
-            .promo-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .promo-swiper-wrap {
-                overflow: hidden;
-                padding: 0;
-            }
-
-            .promo-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .promo-card {
-                border-radius: 20px !important;
-                overflow: hidden !important;
-            }
-
-            .promo-card::before,
-            .promo-card-media {
-                border-radius: 17px !important;
-            }
-
-            .promo-card-media {
-                width: 100% !important;
-                aspect-ratio: 16 / 10;
-            }
-
-            .promo-prev {
-                left: 5px !important;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .promo-next {
-                right: 5px !important;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .testimonial-swiper {
-                padding-left: 0;
-                padding-right: 0;
-            }
-
-            .testimonial-card {
-                min-height: auto;
-                padding: 24px 20px;
-                text-align: center;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .testimonial-prev {
-                left: 2px;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .testimonial-next {
-                right: 2px;
-                top: 50%;
-                z-index: 1001;
-            }
-
-            .collection-section {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .collection-swiper-wrap {
-                overflow: hidden;
-                padding: 0 34px;
-            }
-
-            .collection-swiper .swiper-slide {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: stretch !important;
-            }
-
-            .collection-card {
-                flex: none !important;
-                width: 100% !important;
-                max-width: 250px !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
-            }
-
-            .collection-image-wrap {
-                width: 100% !important;
-            }
-
-            .collection-cta {
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 96px !important;
-                height: 30px !important;
-                font-size: 13px !important;
-                margin-top: 8px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-
-            .collection-prev,
-            .collection-next {
-                display: flex !important;
-                width: 32px !important;
-                height: 32px !important;
-                top: 38% !important;
-                z-index: 1002 !important;
-                background: #fff !important;
-            }
-
-            .collection-prev {
-                left: 0 !important;
-            }
-
-            .collection-next {
-                right: 0 !important;
-            }
-        }
-
-        @media (min-width: 600px) and (max-width: 1025px) {
-            .collection-section,
-            .category-section,
-            .featured-section,
-            .offers-section,
-            .promo-section,
-            .testimonial-section {
-                padding-left: 40px !important;
-                padding-right: 40px !important;
-            }
-            .featured-inner {
-                padding-left: 40px !important;
-                padding-right: 40px !important;
-            }
         }
 
         .promo-section {
@@ -1079,19 +224,6 @@
             line-height: 1.15;
         }
 
-        @media (min-width: 600px) and (max-width: 1025px) {
-            .collection-title,
-            .featured-title,
-            .category-title {
-                font-size: 26px !important;
-                margin-bottom: 24px !important;
-            }
-            .featured-subtitle {
-                font-size: 16px !important;
-                margin-bottom: 20px !important;
-            }
-        }
-
         .testimonial-title {
             margin-bottom: 10px !important;
         }
@@ -1116,6 +248,11 @@
 
         .category-swiper-wrap {
             --category-arrow-center: calc((var(--category-image-size) / 2) + 8px + var(--category-arrow-offset));
+        }
+
+        .category-swiper-wrap .category-prev,
+        .category-swiper-wrap .category-next {
+            top: var(--category-arrow-center) !important;
         }
 
         /* ── Shared nav-button wrapper for non-featured sections ── */
@@ -1174,27 +311,6 @@
 
         .promo-next {
             right: -50px;
-        }
-
-        @media (min-width: 600px) and (max-width: 1025px) {
-            .category-prev, .collection-prev, .testimonial-prev, .promo-prev, .offers-prev {
-                left: -30px;
-            }
-            .category-next, .collection-next, .testimonial-next, .promo-next, .offers-next {
-                right: -30px;
-            }
-            .featured-prev{
-                left: -70px;    
-            }
-            .featured-next{
-                right: -70px;
-            }
-            .category-next{
-                top: 45%;
-            }
-            .category-prev{
-                top: 45%;
-            }
         }
 
         .testimonial-prev,
@@ -1440,7 +556,7 @@
         }
 
         .promo-banner:hover {
-            transform: translateY(-50px);
+            transform: translateY(-5px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
 
@@ -1480,7 +596,7 @@
             background: #a91b43;
         }
 
-        @media (max-width: 1025px) {
+        @media (max-width: 1024px) {
             .promo-section {
                 padding: 0 12px;
                 margin-top: 24px;
@@ -1578,7 +694,7 @@
             }
         }
 
-        @media (max-width: 599px) {
+        @media (max-width: 768px) {
             .hero {
                 margin-bottom: 20px;
             }
@@ -1757,6 +873,137 @@
 
             /* Handled in global section padding block */
 
+            .category-swiper {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .category-swiper-wrap {
+                overflow: hidden;
+                padding: 0 12px;
+            }
+
+            .category-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .category-swiper .swiper-wrapper {
+                align-items: flex-start;
+            }
+
+            .category-link {
+                flex: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .category-card {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                padding-bottom: 10px;
+                height: 100% !important;
+                width: 100% !important;
+                max-width: 156px !important;
+                margin: 0 auto !important;
+            }
+
+            .category-image-shell {
+                width: var(--category-image-size) !important;
+                height: var(--category-image-size) !important;
+                margin: 0 auto !important;
+            }
+
+            .category-name {
+                font-size: clamp(12px, 3vw, 14px) !important;
+                margin-top: 8px !important;
+                white-space: normal;
+                line-height: 1.35;
+                min-height: 2.7em;
+                text-wrap: balance;
+            }
+
+            .category-prev {
+                left: 0 !important;
+                top: var(--category-arrow-center);
+            }
+
+            .category-next {
+                right: 0 !important;
+                top: var(--category-arrow-center);
+            }
+
+            @media (max-width: 575px) {
+                :root {
+                    --category-image-size: 128px;
+                    --category-arrow-offset: -10px;
+                }
+
+                .category-section {
+                    padding-left: 16px !important;
+                    padding-right: 16px !important;
+                }
+
+                .category-swiper-wrap {
+                    padding: 0 6px;
+                }
+
+                .category-card {
+                    max-width: 148px !important;
+                }
+
+                .category-image-shell {
+                    width: var(--category-image-size) !important;
+                    height: var(--category-image-size) !important;
+                }
+            }
+
+            @media (max-width: 399px) {
+                :root {
+                    --category-image-size: 120px;
+                    --category-arrow-offset: -8px;
+                }
+
+                .category-section {
+                    padding-left: 12px !important;
+                    padding-right: 12px !important;
+                }
+
+                .category-swiper-wrap {
+                    padding: 0 4px;
+                }
+
+                .category-card {
+                    max-width: 132px !important;
+                }
+
+                .category-prev,
+                .category-next {
+                    width: 28px !important;
+                    height: 28px !important;
+                }
+
+                .category-prev::after,
+                .category-next::after {
+                    font-size: 12px !important;
+                }
+
+                .category-image-shell {
+                    width: 112px !important;
+                    height: 112px !important;
+                }
+
+                .category-name {
+                    font-size: 12px !important;
+                }
+            }
+
+            /* ── Promo section (Offer & Wedding) ── */
             .promo-section {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
@@ -1894,8 +1141,8 @@
         }
 
         .category-image-shell {
-            width: 85px !important;
-            height: 85px !important;
+            width: 110px !important;
+            height: 110px !important;
             margin: 0 auto;
             border-radius: 50%;
             overflow: hidden;
@@ -1910,8 +1157,8 @@
         }
 
         .category-name {
-            font-size: 13px !important;
-            margin-top: 8px !important;
+            font-size: 17px !important;
+            margin-top: 15px !important;
             height: 36px;
             display: flex;
             align-items: center;
@@ -2100,7 +1347,7 @@
         }
 
         /* Final mobile nav alignment override */
-        @media (max-width: 599px) {
+        @media (max-width: 768px) {
             .featured-prev,
             .featured-next,
             .offers-prev,
@@ -2112,7 +1359,154 @@
             }
         }
 
+        /* Final Category Section Mobile Alignment Fix */
+        @media (max-width: 768px) {
+            .category-section {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
 
+            .category-swiper-wrap {
+                padding: 0 34px !important;
+                overflow: visible !important;
+            }
+
+            .category-swiper {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .category-swiper .swiper-wrapper {
+                align-items: stretch !important;
+            }
+
+            .category-swiper .swiper-slide {
+                height: auto !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
+            }
+
+            .category-link {
+                width: 100% !important;
+                margin: 0 !important;
+                text-decoration: none !important;
+                display: flex !important;
+                justify-content: center !important;
+                height: 100% !important;
+            }
+
+            .category-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                text-align: center !important;
+                gap: 8px !important;
+            }
+
+            .category-image-shell {
+                margin: 0 auto !important;
+            }
+
+            .category-name {
+                width: 100% !important;
+                min-height: 2.6em !important;
+                margin: 0 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-wrap: pretty;
+            }
+
+            .category-prev,
+            .category-next {
+                top: calc((var(--category-image-size) / 2) + 6px) !important;
+                width: 32px !important;
+                height: 32px !important;
+                margin-top: 0 !important;
+            }
+
+            .category-prev {
+                left: 20px !important;
+            }
+
+            .category-next {
+                right: 20px !important;
+            }
+
+            .category-prev::after,
+            .category-next::after {
+                font-size: 13px !important;
+                font-weight: 700 !important;
+            }
+        }
+
+        @media (max-width: 399px) {
+            .category-swiper-wrap {
+                padding: 0 26px !important;
+            }
+
+            .category-card {
+                max-width: 100% !important;
+            }
+
+            .category-prev,
+            .category-next {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .category-prev::after,
+            .category-next::after {
+                font-size: 12px !important;
+            }
+        }
+
+        @media (max-width: 240px) {
+            .category-section {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            .category-swiper-wrap {
+                padding: 0 20px !important;
+            }
+
+            .category-card {
+                max-width: 100% !important;
+            }
+
+            .category-image-shell {
+                width: 96px !important;
+                height: 96px !important;
+            }
+
+            .category-name {
+                font-size: 11px !important;
+                min-height: 2.4em !important;
+            }
+
+            .category-prev,
+            .category-next {
+                width: 24px !important;
+                height: 24px !important;
+                top: calc((96px / 2) + 6px) !important;
+            }
+
+            .category-prev {
+                left: 2px !important;
+            }
+
+            .category-next {
+                right: 2px !important;
+            }
+        }
 
         /* Final alignment + hero banner visibility patch */
         .testimonial-swiper-wrap .testimonial-prev,
@@ -2124,7 +1518,7 @@
             justify-content: center;
         }
 
-        @media (max-width: 599px) {
+        @media (max-width: 768px) {
             .testimonial-swiper-wrap .testimonial-prev,
             .testimonial-swiper-wrap .testimonial-next {
                 top: 55% !important;
@@ -2142,7 +1536,7 @@
             }
         }
 
-        @media (max-width: 599px) {
+        @media (max-width: 768px) {
             .hero,
             .hero-swiper,
             .hero-swiper .swiper-slide {
@@ -2169,90 +1563,6 @@
             .hero-prev,
             .hero-next {
                 top: 50% !important;
-                transform: translateY(-50%) !important;
-            }
-        }
-        
-            .featured-footer,
-            .offers-footer {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                gap: 8px !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-            }
-            .featured-price-wrap,
-            .offers-price-wrap {
-                flex: 1 1 auto !important;
-                min-width: 100px !important;
-            }
-            .featured-actions,
-            .offers-actions {
-                flex: 0 0 auto !important;
-                display: flex !important;
-                gap: 4px !important;
-                justify-content: flex-end !important;
-            }
-        }
-
-        /* Tablet Header Layout Restructured to Single Row (Desktop Style) */
-        @media (min-width: 600px) and (max-width: 1024px) {
-            /* Header Alignment - Same Line */
-            .header-row {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-            .brand-link { flex: 0 0 auto !important; }
-            .brand { width: 120px !important; height: auto !important; }
-            .header-right {
-                flex: 1 !important;
-                display: flex !important;
-                flex-wrap: nowrap !important;
-                justify-content: flex-end !important;
-                align-items: center !important;
-                gap: 12px !important;
-            }
-            .search-wrap {
-                order: 1 !important;
-                flex: 1 !important;
-                max-width: 180px !important;
-                display: block !important; 
-            }
-            .actions {
-                order: 2 !important;
-                flex: 0 0 auto !important;
-                display: flex !important;
-                flex-wrap: nowrap !important;
-            }
-
-            /* New Arrivals Fixes */
-            .featured-swiper {
-                overflow: hidden !important; /* Make overflow hidden */
-                height: auto !important; /* Fix height */
-            }
-            .featured-swiper .swiper-slide {
-                width: 32% !important; /* Show 3 products */
-                max-width: 32.5% !important;
-                padding-right: 1.3% !important;
-                flex-shrink: 0 !important;
-            }
-            .featured-card { 
-                width: 100% !important;
-                height: 100% !important;
-            }
-            
-            /* Scroll Left/Right Button Alignment */
-            .featured-prev,
-            .featured-next {
-                top: 40% !important;
-                transform: translateY(-50%) !important;
-            }
-            .collection-prev,
-            .collection-next {
-                top: 40% !important;
                 transform: translateY(-50%) !important;
             }
         }
@@ -2316,7 +1626,8 @@
         <section class="featured-section" aria-labelledby="featured-title">
             <img class="featured-decor featured-decor-left"
                 src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
-           
+            <img class="featured-decor featured-decor-right"
+                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
 
             <div class="featured-inner">
                 
@@ -2389,8 +1700,6 @@
                     <span>{{ sprintf('%02d', count($featuredProducts)) }}</span>
                 </div>
             </div>
-             <img class="featured-decor featured-decor-right"
-                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
         </section>
     @endif
 
@@ -2469,38 +1778,28 @@
         </section>
     @endforeach --}}
 
+    @if($categories->count() > 0)
         <section class="category-section" aria-labelledby="browse-categories-title">
             <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
-            @php
-                $homeCategories = [
-                    ['href' => url('women'), 'image' => asset('images/Rectangle 9.png'), 'alt' => 'Sarees', 'name' => 'Sarees', 'imageClass' => 'category-image'],
-                    ['href' => url('mens'), 'image' => asset('images/Rectangle 9 (1).png'), 'alt' => 'Shirts', 'name' => 'Shirts', 'imageClass' => 'category-image'],
-                    ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (2).png'), 'alt' => 'Girl', 'name' => 'Girl', 'imageClass' => 'category-image'],
-                    ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (3).png'), 'alt' => 'Boy', 'name' => 'Boy', 'imageClass' => 'category-image'],
-                    ['href' => url('kids'), 'image' => asset('images/Rectangle 9 (4).png'), 'alt' => 'Half Saree', 'name' => 'Half Saree', 'imageClass' => 'category-image'],
-                    ['href' => url('mens'), 'image' => asset('images/Rectangle 9 (5).png'), 'alt' => 'Dhoti', 'name' => 'Dhoti', 'imageClass' => 'category-image category-image--dhoti'],
-                ];
-            @endphp
             <div class="category-swiper-wrap">
                 <div class="swiper category-swiper">
                     <div class="swiper-wrapper">
-                        @for ($copy = 0; $copy < 2; $copy++)
-                            @foreach ($homeCategories as $category)
-                                <div class="swiper-slide">
-                                    <a class="category-link" href="{{ $category['href'] }}"
-                                        style="text-decoration: none;" @if ($copy === 1) aria-hidden="true" tabindex="-1" @endif>
-                                        <article class="category-card">
-                                            <div class="category-image-shell">
-                                                <img class="{{ $category['imageClass'] }}"
-                                                    src="{{ $category['image'] }}" alt="{{ $category['alt'] }}" />
-                                                <span class="category-ring"></span>
-                                            </div>
-                                            <h3 class="category-name">{{ $category['name'] }}</h3>
-                                        </article>
-                                    </a>
-                                </div>
-                            @endforeach
-                        @endfor
+                        @foreach ($categories as $cat)
+                            <div class="swiper-slide">
+                                <a class="category-link" href="{{ route('category.show', $cat->slug) }}"
+                                    style="text-decoration: none;">
+                                    <article class="category-card">
+                                        <div class="category-image-shell">
+                                            <img class="category-image"
+                                                src="{{ $cat->image ? asset('uploads/' . $cat->image) : asset('images/Rectangle 9.png') }}"
+                                                alt="{{ $cat->name }}" />
+                                            <span class="category-ring"></span>
+                                        </div>
+                                        <h3 class="category-name">{{ $cat->name }}</h3>
+                                    </article>
+                                </a>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
                 <!-- Navigation outside swiper for correct button positioning -->
@@ -2508,6 +1807,7 @@
                 <div class="swiper-button-prev category-prev"></div>
             </div>
         </section>
+    @endif
 
 
     <section class="promo-section" aria-label="Promotions">
@@ -2581,7 +1881,6 @@
                 new Swiper('.hero-swiper', {
                     slidesPerView: 1,
                     loop: true,
-                    watchOverflow: true,
                     autoplay: {
                         delay: 5000,
                         disableOnInteraction: false,
@@ -2600,8 +1899,8 @@
                     slidesPerView: 1,
                     slidesPerGroup: 1,
                     spaceBetween: 10,
-                    loop: false,
-                    watchOverflow: true,
+                    loop: true,
+                    watchOverflow: false,
                     autoplay: {
                         delay: 3500,
                         disableOnInteraction: false,
@@ -2611,18 +1910,18 @@
                         prevEl: '.saree-collection-prev',
                     },
                     breakpoints: {
-                        600: {
-                            slidesPerView: 3,
-                            spaceBetween: 12
+                        640: {
+                            slidesPerView: 2
                         },
                         768: {
-                            slidesPerView: 3,
-                            spaceBetween: 15
+                            slidesPerView: 2
                         },
-                        1025: {
-                            slidesPerView: 4,
-                            spaceBetween: 20
-                        }
+                        1024: {
+                            slidesPerView: 3
+                        },
+                        1280: {
+                            slidesPerView: 4
+                        },
                     }
                 });
 
@@ -2647,22 +1946,22 @@
                     },
                     breakpoints: {
                         0: {
-                            slidesPerView: 1.5,
+                            slidesPerView: 1,
+                            spaceBetween: 8
+                        },
+                        400: {
+                            slidesPerView: 1,
                             spaceBetween: 8
                         },
                         480: {
-                            slidesPerView: 2.2,
+                            slidesPerView: 1,
                             spaceBetween: 10
                         },
-                        540: {
-                            slidesPerView: 3,
+                        768: {
+                            slidesPerView: 1,
                             spaceBetween: 12
                         },
-                        768: {
-                            slidesPerView: 4,
-                            spaceBetween: 15
-                        },
-                        1025: {
+                        1024: {
                             slidesPerView: 5,
                             spaceBetween: 15
                         },
@@ -2730,7 +2029,7 @@
                                 slidesPerView: promoSlideCount >= 2 ? 2 : 1,
                                 spaceBetween: 24,
                             },
-                            1025: {
+                            1024: {
                                 slidesPerView: promoSlideCount >= 2 ? 2 : 1,
                                 spaceBetween: 40,
                             }
@@ -2848,17 +2147,14 @@
                                 slidesPerView: 1.2,
                                 spaceBetween: 14
                             },
-                            600: {
-                                slidesPerView: 3,
-                                spaceBetween: 12
+                            640: {
+                                slidesPerView: 2
                             },
                             768: {
-                                slidesPerView: 3,
-                                spaceBetween: 15
+                                slidesPerView: 3
                             },
-                            1025: {
-                                slidesPerView: 4,
-                                spaceBetween: 20
+                            1024: {
+                                slidesPerView: 4
                             },
                         },
                         on: {

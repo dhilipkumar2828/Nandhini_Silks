@@ -224,14 +224,14 @@
 
             document.querySelectorAll('.filter-group .filter-title').forEach((title) => {
                 title.addEventListener('click', () => {
-                    if (window.innerWidth > 1024) return;
+                    if (window.innerWidth > 599) return;
                     const group = title.closest('.filter-group');
                     if (!group) return;
                     group.classList.toggle('is-open');
                 });
             });
 
-            if (window.innerWidth <= 1024) {
+            if (window.innerWidth <= 599) {
                 const firstGroup = filtersSidebar.querySelector('.filter-group');
                 firstGroup?.classList.add('is-open');
             }
@@ -261,7 +261,7 @@
         
         .filter-drawer-header { display: none !important; }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 599px) {
             .filters-sidebar {
                 position: static;
                 width: 100%;
@@ -678,7 +678,7 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
-        @media (max-width: 1024px) {
+        @media (max-width: 599px) {
             .mobile-filter-toggle {
                 display: flex;
             }
@@ -720,29 +720,86 @@
                 margin: 0;
             }
         }
-        @media (min-width: 769px) and (max-width: 1024px) {
+        @media (min-width: 600px) and (max-width: 1024px) {
             .mobile-filter-toggle {
                 display: none !important;
             }
-            .category-layout {
-                grid-template-columns: 280px 1fr !important;
-                gap: 30px !important;
+
+            .sidebar-column {
+                display: block !important;
+                width: 250px !important;
             }
+
+            .category-layout {
+                grid-template-columns: 250px 1fr !important;
+                gap: 24px !important;
+                display: grid !important;
+                align-items: start !important;
+            }
+
             .filters-sidebar {
                 display: block !important;
-                width: auto !important;
-                padding: 25px !important;
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                transform: none !important;
+                box-shadow: none !important;
+                padding: 20px !important;
+                background: #fdfdfd !important;
+                border: 1px solid #eee !important;
+                border-radius: 12px !important;
+                align-self: start !important;
+            }
+
+            /* Tablet-to-Desktop Filter Parity */
+            .filter-group {
+                margin-bottom: 30px !important;
+                border-bottom: 1px solid #eee !important;
+                padding-bottom: 25px !important;
+            }
+
+            .filter-group:last-child {
+                border-bottom: none !important;
+                padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
             }
+
+            .filter-title {
+                font-size: 1.1rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 20px !important;
+            }
+
+            .price-val {
+                padding: 8px 16px !important;
+                font-size: 16px !important;
+            }
+
+            .slider-track-modern {
+                margin: 25px 0 !important;
+            }
+
+            .range-values-modern {
+                margin-top: 15px !important;
+            }
+
+            .category-filter-link {
+                padding: 8px 0 !important;
+            }
+
+            .custom-checkbox {
+                margin-bottom: 12px !important;
+                padding-top: 10px !important;
+            }
+
+            .category-main-title {
+                font-size: 32px !important;
+            }
+
             .product-grid-main:not(.view-list) {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                gap: 25px !important;
-            }
-            .product-grid-main:not(.view-list) .product-card-v2 {
-                padding: 12px !important;
-            }
-            .product-grid-main:not(.view-list) .product-image-v2 {
-                aspect-ratio: 3 / 4 !important;
+                gap: 20px !important;
+                aspect-ratio: auto !important;
                 margin-bottom: 10px !important;
             }
             .product-grid-main:not(.view-list) .product-name-v2 {

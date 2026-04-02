@@ -1,0 +1,342 @@
+diff --git a/public/css/style.css b/public/css/style.css
+index 03e9a3e..32f4ed2 100644
+--- a/public/css/style.css
++++ b/public/css/style.css
+@@ -19,7 +19,16 @@ @media (max-width: 1200px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++/* Tablet & Large Mobile Base Alignment (600px - 1024px) */
++@media (min-width: 600px) and (max-width: 1024px) {
++  :root {
++    --page-margin: 40px;
++    --section-margin: 60px;
++  }
++}
++
++/* Redefined Mobile Breakpoint (< 600px) */
++@media (max-width: 599px) {
+   :root {
+     --page-margin: 20px;
+     --section-margin: 40px;
+@@ -183,9 +192,76 @@ .login-btn {
+   cursor: pointer;
+ }
+ 
++@media (min-width: 600px) and (max-width: 1024px) {
++  .brand {
++    width: 140px !important;
++  }
++  .search-box {
++    width: 220px !important;
++  }
++  .header-row {
++    gap: 12px !important;
++  }
++  .header-right {
++    gap: 16px !important;
++  }
++  .actions {
++    gap: 8px !important;
++  }
++  .action-btn img {
++    width: 18px !important;
++    height: auto !important;
++  }
++  .login-btn {
++    padding: 0 15px !important;
++    font-size: 14px !important;
++    height: 38px !important;
++  }
++
++  /* Narrow Tablet Adjustment */
++  @media (max-width: 800px) {
++    .brand {
++        width: 110px !important;
++    }
++    .search-box {
++        width: 160px !important;
++    }
++    .header-row {
++        gap: 8px !important;
++    }
++    .header-right {
++        gap: 10px !important;
++    }
++    .login-btn {
++        padding: 0 10px !important;
++        font-size: 13px !important;
++        height: 34px !important;
++    }
++  }
++}
++
+ .nav-bar {
+   background: linear-gradient(90deg, var(--nav-start) 0%, var(--nav-end) 100%);
+   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
++  padding: 0;
++  position: sticky;
++  top: 0;
++  z-index: 1000;
++  overflow: hidden;
++}
++
++@media (min-width: 600px) and (max-width: 1024px) {
++  .nav-links {
++    gap: 6px !important;
++    justify-content: center !important;
++  }
++  .nav-item {
++    font-size: 13px !important;
++    padding: 10px 4px !important;
++    letter-spacing: -0.2px !important;
++  }
++
++
+ }
+ 
+ .nav-inner {
+@@ -659,6 +735,34 @@ .featured-price {
+   line-height: 1.2;
+ }
+ 
++@media (min-width: 600px) and (max-width: 1024px) {
++  .featured-name {
++    font-size: 16px !important;
++    min-height: 2.6em !important;
++  }
++  .featured-footer {
++    gap: 8px !important;
++    padding: 0 4px !important;
++  }
++  .featured-price {
++    font-size: 15px !important;
++  }
++  .old-price {
++    font-size: 12px !important;
++  }
++  .featured-actions {
++    gap: 6px !important;
++  }
++  .featured-cart-btn img, .wishlist-btn img {
++    width: 18px !important;
++  }
++  .featured-decor-left {
++    left: 0;
++    top: 418px !important;
++    bottom: auto !important;
++}
++}
++
+ .featured-cart {
+   width: 27px;
+   height: 32px;
+@@ -1347,7 +1451,7 @@ @media (max-width: 1024px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+ 
+   /* Hide scrollbar for Chrome, Safari and Opera */
+   *::-webkit-scrollbar {
+@@ -5570,7 +5674,7 @@ .contact-map-container iframe {
+   display: block;
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .address-grid {
+     grid-template-columns: 1fr;
+   }
+@@ -5615,7 +5719,7 @@ .back-to-top:hover {
+   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .back-to-top {
+     bottom: 20px;
+     right: 20px;
+@@ -5645,7 +5749,7 @@ @media (max-width: 991px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+ 
+   /* Navigation */
+   .menu-toggle {
+@@ -5971,7 +6075,7 @@ @media (min-width: 769px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .brand-link {
+     display: inline-flex !important;
+     align-items: center !important;
+@@ -6145,7 +6249,7 @@ @media (max-width: 1024px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .product-listing-header {
+     flex-direction: column !important;
+     align-items: flex-start !important;
+@@ -6288,7 +6392,7 @@ @media (max-width: 768px) {
+   }
+ 
+   /* Mobile Responsive Adjustment for List View */
+-  @media (max-width: 768px) {
++  @media (max-width: 599px) {
+     .product-grid-main.view-list .product-card-v2 {
+       grid-template-columns: 140px 1fr !important;
+     }
+@@ -6318,48 +6422,20 @@ @media (max-width: 768px) {
+   }
+ }
+ 
+-@media (min-width: 769px) and (max-width: 1024px) {
++/* Extended Tablet Unification (600px - 1024px) */
++@media (min-width: 600px) and (max-width: 1024px) {
+   .account-layout {
+-    grid-template-columns: 240px 1fr !important;
+-    gap: 24px !important;
+-    align-items: start !important;
++    grid-template-columns: 1fr !important;
++    gap: 20px !important;
+   }
+ 
+   .account-sidebar {
+-    display: block !important;
+-    width: 100% !important;
+-    margin-bottom: 0 !important;
+     padding: 20px !important;
+-  }
+-
+-  .account-user-info {
+-    margin-bottom: 18px !important;
+-    padding-bottom: 16px !important;
+-  }
+-
+-  .account-nav {
+-    display: block !important;
+-  }
+-
+-  .account-nav-item {
+-    margin-bottom: 5px !important;
+-  }
+-
+-  .account-nav-link {
+-    justify-content: flex-start !important;
+-    text-align: left !important;
+-    min-height: 44px !important;
+-    padding: 12px 15px !important;
+-  }
+-
+-  .account-nav-link.logout {
+-    margin-top: 20px !important;
+-    border-top: 1px solid #f0f0f0 !important;
+-    padding-top: 20px !important;
++    margin-bottom: 20px !important;
+   }
+ }
+ 
+-@media (min-width: 641px) and (max-width: 1024px) {
++@media (min-width: 600px) and (max-width: 1024px) {
+ 
+   .about-hero,
+   .contact-hero {
+@@ -6374,7 +6450,7 @@ @media (min-width: 641px) and (max-width: 1024px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 1024px) {
+   .account-sidebar.account-sidebar-collapsible {
+     padding: 16px !important;
+   }
+@@ -6765,7 +6841,7 @@ @media (max-width: 1024px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .top-header .page-shell {
+     padding-left: 12px !important;
+     padding-right: 12px !important;
+@@ -7003,7 +7079,7 @@ @media (max-width: 1024px) {
+ }
+ 
+ /* Footer compact sizing on mobile */
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .site-footer {
+     margin-top: 36px !important;
+   }
+@@ -7052,7 +7128,7 @@ @media (max-width: 768px) {
+   }
+ 
+   .footer-contact-text {
+-    font-size: 14px !important;
++    font-size: 12px !important;
+     line-height: 1.35 !important;
+   }
+ 
+@@ -7091,7 +7167,7 @@ @media (max-width: 768px) {
+   }
+ 
+   .footer-links a {
+-    font-size: 12px !important;
++    font-size: 11px !important;
+     line-height: 1.2 !important;
+   }
+ }
+@@ -7139,7 +7215,7 @@ .top-header .page-shell {
+   width: auto !important;
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .top-header .page-shell {
+     margin-left: 5px !important;
+     margin-right: 5px !important;
+@@ -7153,7 +7229,7 @@ @media (min-width: 1025px) {
+   }
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+   .product-grid-main:not(.view-list) {
+     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+   }
+@@ -7426,7 +7502,7 @@ @media (min-width: 1025px) {
+ /* --- MOBILE & LAYOUT POLISH (Task Refinements) --- */
+ 
+ /* 1. Mobile Full-Screen for Inner Pages (5px Padding) */
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+     body.inner-page .page-shell {
+         margin-left: 0 !important;
+         margin-right: 0 !important;
+@@ -7467,7 +7543,7 @@ .site-footer {
+ }
+ 
+ /* 3. Restore "View Details" Button on Mobile Grid View */
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+     /* Target the button in the default 2-column grid view */
+     .product-grid-main:not(.view-list) .product-card-v2 .add-to-cart-v2 {
+         display: flex !important;
+@@ -7588,7 +7664,7 @@ .pagination-results span {
+     color: #333;
+ }
+ 
+-@media (max-width: 768px) {
++@media (max-width: 599px) {
+     .custom-pagination {
+         flex-direction: column;
+         gap: 15px;

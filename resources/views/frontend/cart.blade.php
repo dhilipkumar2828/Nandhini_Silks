@@ -5,7 +5,7 @@
 @section('content')
     @push('styles')
     <style>
-        @media (max-width: 768px) {
+        @media (max-width: 599px) {
             .cart-page {
                 padding: 18px 0 30px;
             }

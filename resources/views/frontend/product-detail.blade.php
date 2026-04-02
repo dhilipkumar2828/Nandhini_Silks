@@ -2376,6 +2376,65 @@
                     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 }
             }
+
+            @media (min-width: 600px) and (max-width: 1024px) {
+                .product-detail-page .product-detail-grid {
+                    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+                    gap: 30px !important;
+                    padding: 24px !important;
+                    display: grid !important;
+                    align-items: start !important;
+                }
+
+                .product-detail-page .product-gallery {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 15px !important;
+                    width: 100% !important;
+                    position: sticky !important;
+                    top: 24px !important;
+                }
+
+                .product-detail-page .main-product-image,
+                .product-detail-page #zoomContainer {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    height: auto !important;
+                    aspect-ratio: 4/5 !important;
+                }
+
+                .product-detail-page .product-thumbnails {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    justify-content: flex-start !important;
+                    width: 100% !important;
+                    overflow-x: auto !important;
+                    gap: 10px !important;
+                    padding: 5px 0 !important;
+                }
+
+                .product-detail-page .thumbnail {
+                    width: 80px !important;
+                    height: 100px !important;
+                    flex: 0 0 auto !important;
+                }
+
+                .product-detail-page .product-info-details {
+                    padding: 0 !important;
+                    width: 100% !important;
+                }
+
+                .product-detail-page .product-title-detail {
+                    font-size: 1.85rem !important;
+                    max-width: 100% !important;
+                }
+
+                .product-detail-page .product-actions-group {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 10px !important;
+                    max-width: 100% !important;
+                }
+            }
         </style>
     @endpush
     <main class="product-detail-page">

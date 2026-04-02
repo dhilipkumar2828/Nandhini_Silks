@@ -373,7 +373,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.getElementById('menuToggle');
             const navLinks = document.getElementById('navLinks');
-            const mobileBreakpoint = 768;
+            const mobileBreakpoint = 600;
 
             if (!menuToggle || !navLinks) {
                 return;
@@ -461,7 +461,7 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const mobileBreakpoint = 768;
+            const mobileBreakpoint = 600;
             const accountSidebars = document.querySelectorAll('.account-page .account-sidebar');
 
             if (!accountSidebars.length) {
