@@ -142,9 +142,9 @@
                 justify-content: center;
                 gap: 0;
                 /* background: #f8f9fa;
-                                                        border-radius: 10px;
-                                                        padding: 4px;
-                                                        border: 1px solid #eee; */
+                                                                                                                                                border-radius: 10px;
+                                                                                                                                                padding: 4px;
+                                                                                                                                                border: 1px solid #eee; */
                 width: fit-content;
             }
 
@@ -299,13 +299,13 @@
 
                 /* Summary Coupon Field stacking */
                 .coupon-input-group {
-                    flex-direction: column !important;
+                    flex-direction: row !important;
                     gap: 12px !important;
                 }
 
                 .coupon-input-group input,
                 .coupon-input-group button {
-                    width: 100% !important;
+                    width: 20% !important;
                 }
             }
 
@@ -314,9 +314,14 @@
                     grid-template-columns: 80px 1fr auto !important;
                 }
 
+                .coupon-input-group input,
+                .coupon-input-group button {
+                    width: 30% !important;
+                }
+
                 .cart-item-img {
                     width: 80px;
-                    height: 100px;
+                    height: 130px;
                 }
             }
 

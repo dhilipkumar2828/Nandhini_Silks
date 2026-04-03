@@ -149,10 +149,29 @@ html, body {
 
 .icon-btn img {
   display: block;
-
-  height: auto;
+width: 25px;
+  height: 25px;
 }
 
+.icon-btn1 {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: var(--cream);
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-btn1 img {
+  display: block;
+width: 20px;
+  height: 20px;
+}
 .cart-count {
   width: 20px;
   height: 20px;
@@ -2018,6 +2037,11 @@ html, body {
   }
 
   .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .icon-btn1 {
     width: 32px;
     height: 32px;
   }
@@ -6821,6 +6845,11 @@ body.menu-open {
     height: 34px !important;
   }
 
+  .icon-btn1 {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
   .login-btn {
     height: 34px !important;
     padding: 0 12px !important;
@@ -6909,6 +6938,11 @@ body.menu-open {
   }
 
   .icon-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .icon-btn1 {
     width: 32px !important;
     height: 32px !important;
   }

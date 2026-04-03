@@ -1195,7 +1195,7 @@
             }
 
             /* Wishlist buttons in Related Products & Recently Viewed
-                                                                               must match the shop page (42px, not the main PDP 52px) */
+                                                                                                                       must match the shop page (42px, not the main PDP 52px) */
             .related-products .btn-wishlist-detail,
             .recently-viewed .btn-wishlist-detail {
                 width: 42px !important;
