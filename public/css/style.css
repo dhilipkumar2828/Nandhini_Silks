@@ -7137,6 +7137,8 @@ body.menu-open {
   padding-right: 0 !important;
   max-width: none !important;
   width: auto !important;
+  display: flex;
+  flex-direction: row;
 }
 
 @media (max-width: 768px) {
