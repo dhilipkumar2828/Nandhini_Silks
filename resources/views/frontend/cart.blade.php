@@ -15,11 +15,36 @@
                     width: 100%;
                 }
 
-                .col-product { width: 100px; flex-shrink: 0; }
-                .col-details { flex-grow: 1; padding: 0 30px; min-width: 0; }
-                .col-price { width: 140px; flex-shrink: 0; text-align: center; }
-                .col-quantity { width: 180px; flex-shrink: 0; display: flex; justify-content: center; }
-                .col-remove { width: 60px; flex-shrink: 0; display: flex; justify-content: center; }
+                .col-product {
+                    width: 100px;
+                    flex-shrink: 0;
+                }
+
+                .col-details {
+                    flex-grow: 1;
+                    padding: 0 30px;
+                    min-width: 0;
+                }
+
+                .col-price {
+                    width: 140px;
+                    flex-shrink: 0;
+                    text-align: center;
+                }
+
+                .col-quantity {
+                    width: 180px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                .col-remove {
+                    width: 60px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                }
 
                 /* Header Specifics */
                 .cart-header-row {
@@ -35,6 +60,7 @@
                     display: block;
                     text-align: center;
                 }
+
                 .cart-header-row .col-product,
                 .cart-header-row .col-details {
                     text-align: left;
@@ -42,9 +68,17 @@
 
                 /* Reduce space on medium screens */
                 @media (max-width: 1100px) {
-                    .col-details { padding: 0 15px; }
-                    .col-price { width: 110px; }
-                    .col-quantity { width: 150px; }
+                    .col-details {
+                        padding: 0 15px;
+                    }
+
+                    .col-price {
+                        width: 110px;
+                    }
+
+                    .col-quantity {
+                        width: 150px;
+                    }
                 }
             }
 
@@ -58,11 +92,12 @@
                 width: 100%;
             }
 
-            .cart-items-list, .cart-summary {
+            .cart-items-list,
+            .cart-summary {
                 background: #fff;
                 border-radius: 20px;
                 padding: 30px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             }
 
             .cart-item-row {
@@ -106,16 +141,16 @@
                 align-items: center;
                 justify-content: center;
                 gap: 0;
-                background: #f8f9fa;
-                border-radius: 10px;
-                padding: 4px;
-                border: 1px solid #eee;
+                /* background: #f8f9fa;
+                                                border-radius: 10px;
+                                                padding: 4px;
+                                                border: 1px solid #eee; */
                 width: fit-content;
             }
 
             .remove-item {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
                 width: 36px;
                 height: 36px;
@@ -180,6 +215,7 @@
                     grid-template-columns: 1fr !important;
                     gap: 30px !important;
                 }
+
                 .cart-summary {
                     position: static !important;
                     max-width: 100%;
@@ -198,7 +234,8 @@
                     display: none !important;
                 }
 
-                .cart-items-list, .cart-summary {
+                .cart-items-list,
+                .cart-summary {
                     padding: 20px;
                     border-radius: 16px;
                 }
@@ -265,7 +302,8 @@
                     flex-direction: column !important;
                     gap: 12px !important;
                 }
-                .coupon-input-group input, 
+
+                .coupon-input-group input,
                 .coupon-input-group button {
                     width: 100% !important;
                 }
@@ -275,6 +313,7 @@
                 .cart-item-row {
                     grid-template-columns: 80px 1fr auto !important;
                 }
+
                 .cart-item-img {
                     width: 80px;
                     height: 100px;
@@ -344,7 +383,8 @@
                                     <div class="cart-item-price col-price">
                                         &#8377;{{ number_format($item['price'], 0) }}</div>
                                     <div class="quantity-picker col-quantity">
-                                        <div class="picker-container" style="display: flex; align-items: center; background: #f8f9fa; border-radius: 10px; padding: 4px; border: 1px solid #eee; width: fit-content;">
+                                        <div class="picker-container"
+                                            style="display: flex; align-items: center; background: #f8f9fa; border-radius: 10px; padding: 4px; border: 1px solid #eee; width: fit-content;">
                                             <button type="button" class="qty-btn"
                                                 onclick="updateCartQty('{{ $item['key'] }}', -1)">-</button>
                                             <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]"
