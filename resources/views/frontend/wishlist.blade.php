@@ -160,20 +160,18 @@
                                         <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
                                     </div>
                                     <div class="product-info-v2">
-                                        @if($product->reviews_count > 0)
-                                            <div class="product-rating"
-                                                style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px;">
-                                                <div class="stars" style="color: #ffc107; font-size: 13px;">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        <i
-                                                            class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
-                                                    @endfor
-                                                </div>
-                                                <span style="font-size: 12px; color: #777; font-weight: 500;">
-                                                    ({{ $product->reviews_count }})
-                                                </span>
+                                        <div class="product-rating"
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px;">
+                                            <div class="stars" style="color: #ffc107; font-size: 13px;">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <i
+                                                        class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                                @endfor
                                             </div>
-                                        @endif
+                                            <span style="font-size: 12px; color: #777; font-weight: 500;">
+                                                ({{ $product->reviews_count ?? 0 }})
+                                            </span>
+                                        </div>
                                         <h3 class="product-name-v2" style="margin-top: 0;">{{ $product->name }}</h3>
                                         <!-- <p class="product-price-v2">&#8377;{{ number_format($product->price, 0) }}</p> -->
                                         <div class="product-price-section">

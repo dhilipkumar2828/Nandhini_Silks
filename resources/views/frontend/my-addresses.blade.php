@@ -90,16 +90,16 @@
                                 </div>
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;">
                                     <button type="button" onclick="openEditAddressModal({
-                                                id: {{ $addr->id }},
-                                                label: @js($addr->label),
-                                                address1: @js($addr->address1),
-                                                city: @js($addr->city),
-                                                state: @js($addr->state),
-                                                zip: @js($addr->zip),
-                                                country: @js($addr->country ?? 'India'),
-                                                recipient_name: @js($addr->recipient_name ?? optional(Auth::user())->name),
-                                                recipient_phone: @js($addr->recipient_phone ?? optional(Auth::user())->phone)
-                                            })"
+                                                                                                id: {{ $addr->id }},
+                                                                                                label: @js($addr->label),
+                                                                                                address1: @js($addr->address1),
+                                                                                                city: @js($addr->city),
+                                                                                                state: @js($addr->state),
+                                                                                                zip: @js($addr->zip),
+                                                                                                country: @js($addr->country ?? 'India'),
+                                                                                                recipient_name: @js($addr->recipient_name ?? optional(Auth::user())->name),
+                                                                                                recipient_phone: @js($addr->recipient_phone ?? optional(Auth::user())->phone)
+                                                                                            })"
                                         style="padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
                                         Edit Address
                                     </button>
@@ -134,14 +134,15 @@
                 style="background: #fff; border-radius: 20px; width: 600px; max-width: 90%; max-height: 90vh; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column;">
                 <button onclick="closeAddressModal()"
                     style="position: absolute; right: 25px; top: 25px; background: #fff; border: none; font-size: 24px; cursor: pointer; color: #999; z-index: 100; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">&times;</button>
-                
+
                 <div class="modal-content-inner" style="padding: 40px; overflow-y: auto; flex: 1;">
                     <h2 id="addressModalTitle"
                         style="margin-top: 0; font-size: 24px; color: #333; margin-bottom: 8px; font-weight: 700;">Add New
                         Address</h2>
-                    <p id="addressModalSubtitle" style="color: #999; font-size: 14px; margin-bottom: 30px; margin-top: 0;">Items
+                    <p id="addressModalSubtitle" style="color: #999; font-size: 14px; margin-bottom: 30px; margin-top: 0;">
+                        Items
                         will be delivered to this address.</p>
-    
+
                     <form id="addressForm" action="{{ route('addresses.store') }}" method="POST" class="validate-form"
                         novalidate>
                         @csrf
@@ -178,7 +179,7 @@
                                     data-msg-maxlength="Please enter a valid 10-digit mobile number.">
                             </div>
                         </div>
-    
+
                         <div class="form-group" style="margin-bottom: 20px;">
                             <label
                                 style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Street
@@ -188,7 +189,7 @@
                                 placeholder="Door No, Street name" data-msg-required="Please enter your street address."
                                 data-msg-minlength="Address must be at least 5 characters.">
                         </div>
-    
+
                         <div class="address-form-grid">
                             <div class="form-group">
                                 <label
@@ -207,7 +208,7 @@
                                     data-msg-required="Please enter state.">
                             </div>
                         </div>
-    
+
                         <div class="address-form-grid" style="margin-bottom: 30px;">
                             <div class="form-group">
                                 <label
@@ -229,7 +230,7 @@
                                     data-msg-required="Please enter country.">
                             </div>
                         </div>
-    
+
                         <div style="display: flex; gap: 15px; margin-top: 20px;">
                             <button type="submit" id="addressSubmitButton"
                                 style="flex: 1; background: #940437; color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.3s ease;">Save
@@ -276,7 +277,7 @@
             addressFormMethod.value = 'POST';
             addressModalTitle.textContent = 'Add New Address';
             addressModalSubtitle.textContent = 'Items will be delivered to this address.';
-            addressSubmitButton.textContent = 'Save Address Details';
+            addressSubmitButton.textContent = 'Save';
             addressFields.label.value = '';
             addressFields.phone.value = @js(optional(Auth::user())->phone ?? '');
             addressFields.address1.value = '';
@@ -298,7 +299,7 @@
             addressFormMethod.value = 'PUT';
             addressModalTitle.textContent = 'Edit Address';
             addressModalSubtitle.textContent = 'Update your saved address details.';
-            addressSubmitButton.textContent = 'Update Address';
+            addressSubmitButton.textContent = 'Update';
             addressFields.label.value = address.label || '';
             addressFields.phone.value = address.recipient_phone || '';
             addressFields.address1.value = address.address1 || '';
