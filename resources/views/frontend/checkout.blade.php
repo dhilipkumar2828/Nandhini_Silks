@@ -193,7 +193,7 @@
             cursor: pointer;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 964px) {
             .checkout-grid {
                 grid-template-columns: 1fr !important;
                 gap: 18px !important;
@@ -241,6 +241,30 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+
+            /* Responsive Address Cards */
+            #savedAddressesSection {
+                padding-bottom: 12px !important;
+            }
+
+            .saved-address-card {
+                width: calc(33.33% - 10px) !important;
+                flex: 0 0 calc(33.33% - 10px) !important;
+            }
+        }
+
+        @media (min-width: 965px) {
+            .saved-address-card {
+                width: calc(33.33% - 10px) !important;
+                flex: 0 0 calc(33.33% - 10px) !important;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .saved-address-card {
+                width: 85% !important;
+                flex: 0 0 85% !important;
+            }
         }
 
         .saved-address-card:hover {
@@ -265,37 +289,31 @@
             }
         }
 
-        @media (max-width: 768px) {
-            #savedAddressesSection {
-                max-height: 52vh !important;
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-                padding-right: 2px !important;
-                -webkit-overflow-scrolling: touch;
-                border-radius: 10px;
-            }
+        /* CUSTOM SCROLLBAR - VISIBLE */
+        #savedAddressesSection {
+            overflow-x: scroll !important; /* Force scroll visibility potential */
+            padding-bottom: 20px !important;
+        }
 
-            #savedAddressesSection>div {
-                display: grid !important;
-                grid-template-columns: 1fr !important;
-                gap: 10px !important;
-                min-width: 0 !important;
-            }
+        #savedAddressesSection::-webkit-scrollbar {
+            height: 7px;
+            display: block !important;
+        }
 
-            #savedAddressesSection .saved-address-card {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+        #savedAddressesSection::-webkit-scrollbar-track {
+            background: #f8f8f8;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
 
-            #checkoutAddressForm>div,
-            #billingAddressForm>div {
-                grid-template-columns: 1fr !important;
-            }
+        #savedAddressesSection::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+            border: 1px solid #777;
+        }
 
-            #checkoutAddressForm .form-group[style*="grid-column: span 2"],
-            #billingAddressForm .form-group[style*="grid-column: span 2"] {
-                grid-column: auto !important;
-            }
+        #savedAddressesSection::-webkit-scrollbar-thumb:hover {
+            background: var(--pink-dark);
         }
     </style>
 @endpush
@@ -337,8 +355,8 @@
                                         </label>
 
                                         <div id="savedAddressesSection"
-                                            style="display: none; margin-top: 15px; overflow-x: auto; padding: 5px 0;">
-                                            <div style="display: flex; gap: 15px; min-width: max-content;">
+                                            style="display: none; margin-top: 15px; overflow-x: auto; padding: 5px 0; scroll-behavior: smooth; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+                                            <div style="display: flex; gap: 15px; width: 100%;">
                                                 @foreach($addresses as $addr)
                                                     <div class="saved-address-card" onclick="selectSavedAddress(this)"
                                                         data-name="{{ $addr->recipient_name ?? Auth::user()->name }}"
@@ -346,7 +364,7 @@
                                                         data-addr="{{ $addr->address1 }}" data-city="{{ $addr->city }}"
                                                         data-state="{{ $addr->state }}"
                                                         data-country="{{ $addr->country ?? 'India' }}" data-zip="{{ $addr->zip }}"
-                                                        style="border: 2px solid #eee; border-radius: 12px; padding: 12px; width: 220px; cursor: pointer; transition: all 0.2s ease; background: #fff; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                                        style="border: 2px solid #eee; border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s ease; background: #fff; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02); scroll-snap-align: start; flex-shrink: 0;">
                                                         <div
                                                             style="display: flex; justify-content: space-between; align-items: flex-start;">
                                                             <span

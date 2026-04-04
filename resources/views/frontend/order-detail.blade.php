@@ -177,7 +177,7 @@
             color: #1a202c;
             word-break: break-word;
             line-height: 1.5;
-            max-width: 100%;
+            max-width: 70%;
             margin-bottom: 6px;
         }
 

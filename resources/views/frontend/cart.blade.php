@@ -16,7 +16,7 @@
                 }
 
                 .col-product {
-                    width: 100px;
+                    width: 110px;
                     flex-shrink: 0;
                 }
 
@@ -27,20 +27,23 @@
                 }
 
                 .col-price {
-                    width: 140px;
+                    width: 130px;
                     flex-shrink: 0;
-                    text-align: center;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
                 }
 
                 .col-quantity {
-                    width: 180px;
+                    width: 170px;
                     flex-shrink: 0;
                     display: flex;
-                    justify-content: center;
+                    justify-content: flex-start;
+                    align-items: center;
                 }
 
                 .col-remove {
-                    width: 60px;
+                    width: 80px;
                     flex-shrink: 0;
                     display: flex;
                     justify-content: center;
@@ -57,12 +60,19 @@
                 }
 
                 .cart-header-row span {
-                    display: block;
-                    text-align: center;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: left;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    color: #888;
                 }
 
                 .cart-header-row .col-product,
                 .cart-header-row .col-details {
+                    justify-content: flex-start;
                     text-align: left;
                 }
 
@@ -133,6 +143,8 @@
             .cart-item-price {
                 font-size: 19px;
                 font-weight: 800;
+                position: relative;
+                right: 19px;
                 color: #A91B43;
             }
 
@@ -141,10 +153,12 @@
                 align-items: center;
                 justify-content: center;
                 gap: 0;
+                position: relative;
+                right: 15px;
                 /* background: #f8f9fa;
-                                                                                                                                                border-radius: 10px;
-                                                                                                                                                padding: 4px;
-                                                                                                                                                border: 1px solid #eee; */
+                                                                                                                                                                                                                                                                                                                                                                border-radius: 10px;
+                                                                                                                                                                                                                                                                                                                                                                padding: 4px;
+                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #eee; */
                 width: fit-content;
             }
 
@@ -279,6 +293,8 @@
                     text-align: left;
                     font-size: 17px;
                     margin-left: 0 !important;
+                    position: relative;
+                    right: 0px;
                 }
 
                 .quantity-picker {
@@ -287,6 +303,8 @@
                     margin: 0 !important;
                     scale: 0.95;
                     transform-origin: left;
+                    position: relative;
+                    right: 0px;
                 }
 
                 .remove-item {
@@ -362,9 +380,9 @@
                             <div class="cart-header-row cart-layout-grid">
                                 <span class="col-product">Product</span>
                                 <span class="col-details">Details</span>
-                                <span class="col-price">Unit Price</span>
+                                <span class="col-price" style="text-align: right;">Unit Price</span>
                                 <span class="col-quantity">Quantity</span>
-                                <span class="col-remove"></span>
+                                <span class="col-remove">Action</span>
                             </div>
 
                             @foreach ($items as $item)
