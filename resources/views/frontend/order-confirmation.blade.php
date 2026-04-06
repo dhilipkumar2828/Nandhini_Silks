@@ -342,7 +342,7 @@
                                 @php
                                     $effectiveTaxRate = ($order->sub_total - $order->discount) > 0 
                                         ? round(($order->tax / ($order->sub_total - $order->discount)) * 100) 
-                                        : 5;
+                                        : 0;
                                 @endphp
                                 GST ({{ $effectiveTaxRate }}%)
                             </td>

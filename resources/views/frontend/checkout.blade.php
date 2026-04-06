@@ -611,7 +611,7 @@
                                     </span>
                                 </div>
                                 <div class="summary-row-v4">
-                                    <span>Tax (<span id="tax_rate_label">{{ $taxPercentage ?? 5 }}</span>%)</span>
+                                    <span>Tax (<span id="tax_rate_label">{{ $taxPercentage ?? 0 }}</span>%)</span>
                                     <span id="tax_cost_display">&#8377;{{ number_format($tax, 2) }}</span>
                                 </div>
                                 @if($discount > 0)
