@@ -234,7 +234,7 @@
                 </td>
                 <td style="text-align:center; vertical-align: middle;">{{ $item->quantity }}</td>
                 <td style="text-align:right; vertical-align: middle;">&#8377;{{ number_format($item->price, 2) }}</td>
-                <td style="vertical-align: middle;">&#8377;{{ number_format($item->total, 2) }}</td>
+                <td style="text-align:right; vertical-align: middle;">&#8377;{{ number_format($item->total, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -243,12 +243,7 @@
     {{-- Totals --}}
     <div class="totals-wrapper">
         <div class="totals-spacer">
-            @if($order->coupon_code)
-            <div class="tracking-box">
-                <div class="tracking-title">Coupon Applied</div>
-                <div class="tracking-value" style="color:#a91b43;">{{ $order->coupon_code }}</div>
-            </div>
-            @endif
+            {{-- Spacer for left side --}}
         </div>
         <div class="totals-box">
             <div class="total-row">

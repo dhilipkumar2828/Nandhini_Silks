@@ -55,7 +55,7 @@
             <p>We've received your order and are spinning our looms to get it ready for shipment. Thank you for choosing Nandhini Silks for your celebration.</p>
             
             <div class="timeline">
-                <table class="timeline-table">
+                {{-- <table class="timeline-table">
                     <tr>
                         <td class="timeline-step">
                             <div class="step-circle step-active"></div>
@@ -83,7 +83,7 @@
                             <span class="step-label">Delivered</span>
                         </td>
                     </tr>
-                </table>
+                </table> --}}
                 <div style="text-align: center; margin-top: 15px;">
                     <span style="font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; letter-spacing: 1px;">
                         Current Update: ORDER PLACED
