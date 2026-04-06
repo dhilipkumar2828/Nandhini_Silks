@@ -58,9 +58,9 @@ class CartController extends Controller
     {
         if ($product->taxClass && $product->taxClass->rates->isNotEmpty()) {
             $activeRate = $product->taxClass->rates->where('status', 1)->first();
-            return $activeRate ? ($activeRate->rate / 100) : 0.05;
+            return $activeRate ? ($activeRate->rate / 100) : 0;
         }
-        return 0.05;
+        return 0;
     }
 
     public function index()
