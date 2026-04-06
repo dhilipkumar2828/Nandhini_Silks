@@ -59,18 +59,18 @@
                             <span class="step-label label-completed">Placed</span>
                         </td>
                         <td style="vertical-align: top; padding-top: 10px;">
-                            <div class="step-line {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'line-completed' : '' }}"></div>
+                            <div class="step-line {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'line-completed' : '' }}"></div>
                         </td>
                         <td class="timeline-step">
-                            <div class="step-circle {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'step-completed' : ($order->order_status == 'order placed' ? 'step-active' : '') }}"></div>
-                            <span class="step-label {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'order placed' ? 'label-active' : '') }}">Shipped</span>
+                            <div class="step-circle {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'step-completed' : ($order->order_status == 'order placed' ? 'step-active' : '') }}"></div>
+                            <span class="step-label {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'order placed' ? 'label-active' : '') }}">Shipped</span>
                         </td>
                         <td style="vertical-align: top; padding-top: 10px;">
                             <div class="step-line {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'line-completed' : '' }}"></div>
                         </td>
                         <td class="timeline-step">
                             <div class="step-circle {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'step-completed' : ($order->order_status == 'shipped' ? 'step-active' : '') }}"></div>
-                            <span class="step-label {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'shipped' ? 'label-active' : '') }}">Arriving</span>
+                            <span class="step-label {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'shipped' ? 'label-active' : '') }}">Out for Delivery</span>
                         </td>
                         <td style="vertical-align: top; padding-top: 10px;">
                             <div class="step-line {{ $order->order_status == 'delivered' ? 'line-completed' : '' }}"></div>

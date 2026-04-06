@@ -665,6 +665,8 @@
                     'subtotal' => (float)$order->sub_total,
                     'taxAmount' => (float)$order->tax,
                     'shipping' => (float)$order->shipping,
+                    'discount' => (float)$order->discount,
+                    'couponCode' => $order->coupon_code,
                     'total' => (float)$order->grand_total
                 ]) }})" class="account-nav-link"
                     style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
@@ -819,12 +821,12 @@
                                     style="color: #52c41a;">{{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}</span>
                             </div>
                             <div class="summary-row tax-row">
-                                <span>Tax (GST)</span>
+                                <span>Tax</span>
                                 <span class="tax-val">&#8377;{{ number_format($order->tax, 2) }}</span>
                             </div>
                             @if($order->discount > 0)
                                 <div class="summary-row">
-                                    <span>Discount</span>
+                                    <span>Discount {{ $order->coupon_code ? '('.$order->coupon_code.')' : '' }}</span>
                                     <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 2) }}</span>
                                 </div>
                             @endif
@@ -972,6 +974,15 @@
             if (modal) {
                 document.getElementById('modalProductName').textContent = productName;
                 document.getElementById('modalProductImg').src = productImg;
+                
+                // Set form action dynamically
+                const form = document.getElementById('reviewForm');
+                if (form) {
+                    let action = "{{ route('product.review.store', ':id') }}";
+                    action = action.replace(':id', productId);
+                    form.action = action;
+                }
+
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }

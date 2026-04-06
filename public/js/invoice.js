@@ -68,7 +68,8 @@ const InvoiceGenerator = {
             discount = 0,
             taxAmount = 0,
             shipping = 0,
-            total = 0
+            total = 0,
+            couponCode = ""
         } = data;
 
         const dateStr = InvoiceGenerator.formatDate(date);
@@ -166,7 +167,7 @@ const InvoiceGenerator = {
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(subtotal)}</td>
                             </tr>
                             <tr>
-                                <td style="padding: 10px; border: 1px solid #eee; color: #666;">Tax (GST Included)</td>
+                                <td style="padding: 10px; border: 1px solid #eee; color: #666;">Tax</td>
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(taxAmount)}</td>
                             </tr>
                             <tr>
@@ -175,7 +176,7 @@ const InvoiceGenerator = {
                             </tr>
                             ${discount > 0 ? `
                             <tr style="background: #f1fcf1;">
-                                <td style="padding: 10px; border: 1px solid #eee; color: #2e7d32; font-weight: 600;">Discount</td>
+                                <td style="padding: 10px; border: 1px solid #eee; color: #2e7d32; font-weight: 600;">Discount ${couponCode ? `(${couponCode})` : ''}</td>
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #2e7d32;">- ₹${InvoiceGenerator.formatCurrency(discount)}</td>
                             </tr>
                             ` : ''}
