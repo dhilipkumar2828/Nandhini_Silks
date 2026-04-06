@@ -87,7 +87,7 @@ const InvoiceGenerator = {
                             <div style="font-size: 16px; color: #666; line-height: 1.5;">
                                 416/9 Aranmanai Street, S.V. Nagaram<br>
                                 Arni - 632317, Tamil Nadu, India<br>
-                                <strong>GSTIN:</strong> 33AAAAA0000A1Z5 | <strong>Ph:</strong> +91 96295 52822
+                                <strong>GSTIN:</strong> 33AAZFN1900B1ZK | <strong>Ph:</strong> +91 96295 52822
                             </div>
                         </div>
                         <div style="text-align: right;">
