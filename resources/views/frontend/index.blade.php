@@ -229,11 +229,17 @@
         }
 
         .collection-swiper,
+        .featured-swiper,
         .category-swiper,
         .testimonial-swiper,
         .promo-swiper {
             padding: 8px 4px 20px;
             position: relative;
+        }
+
+        .collection-swiper .swiper-wrapper,
+        .featured-swiper .swiper-wrapper {
+            align-items: stretch;
         }
 
         .collection-swiper {
@@ -383,17 +389,52 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            text-align: center;
+            align-items: center;
         }
 
-        .collection-name {
-            min-height: 52px;
-            margin: 16px 0 10px;
-            line-height: 1.3;
+        .collection-image-wrap,
+        .featured-media {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            border-radius: 18px;
+            margin-bottom: 12px;
+        }
+
+        .collection-image-wrap img,
+        .featured-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .collection-name,
+        .featured-name {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 48px;
+            margin: 0 0 12px !important;
+            font-size: 16px;
+            line-height: 1.4;
+            text-align: center;
+            width: 100%;
+            padding: 0 8px;
+            box-sizing: border-box;
+            color: inherit;
         }
 
         .collection-cta,
         .featured-footer {
             margin-top: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
         .collection-cta {
@@ -414,6 +455,7 @@
             transition: opacity 0.3s;
             border: none;
             cursor: pointer;
+            margin-bottom: 4px;
         }
 
         .collection-cta:hover {
@@ -1654,9 +1696,9 @@
                         <div class="swiper-wrapper">
                             @foreach ($featuredProducts as $product)
                                 <div class="swiper-slide">
-                                    <article class="collection-card" style="text-align: center;">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
-                                            <div class="featured-media">
+                                <article class="collection-card">
+                                    <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
+                                        <div class="featured-media">
                                                 @php
                                                     $productImage = 'images/pro.png';
                                                     if ($product->images && is_array($product->images) && count($product->images) > 0) {
@@ -1672,15 +1714,13 @@
                                                 @endif
 
                                             </div>
-                                            <h3 class="featured-name"
-                                                style="text-align: center; min-height: 46px; margin: 12px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 16px; line-height: 1.4;">
+                                            <h3 class="featured-name">
                                                 {{ \Illuminate\Support\Str::limit($product->name, 55) }}
                                             </h3>
                                             {{-- <span class="read-more-link">Read More...</span> --}}
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                        <div class="featured-footer"
-                                            style="padding: 0 4px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 12px; margin-top: 0;">
+                                        <div class="featured-footer">
                                             <div class="featured-price-wrap" style="justify-content: center;">
                                                 <span class="featured-price">&#8377;
                                                     {{ number_format($product->price, 0) }}</span>
