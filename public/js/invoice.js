@@ -89,7 +89,7 @@ const InvoiceGenerator = {
                                 Arni - 632317, Tamil Nadu, India<br>
                                 <strong>GSTIN:</strong> 33AAZFN1900B1ZK | <strong>Ph:</strong> +91 96295 52822
                             </div>
-                        </div>
+                        </div> 
                         <div style="text-align: right;">
                             <h1 style="margin: 0; font-size: 40px; color: #a91b43; text-transform: uppercase; font-weight: 800;">Tax Invoice</h1>
                             <div style="margin-top: 15px; font-size: 18px; line-height: 1.6;">
