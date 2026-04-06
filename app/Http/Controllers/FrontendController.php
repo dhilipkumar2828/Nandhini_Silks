@@ -19,6 +19,8 @@ use App\Models\Banner;
 use App\Models\Testimonial;
 use App\Models\Ad;
 use App\Models\OfferCollection;
+use App\Mail\ReturnRequestAdminMail;
+use Illuminate\Support\Facades\Mail;
 
 class FrontendController extends Controller
 {
@@ -435,6 +437,14 @@ class FrontendController extends Controller
             'return_status' => 'requested',
             'return_reason' => $request->reason,
         ]);
+
+        // Send Email to Admin
+        try {
+            $adminEmail = \App\Models\Setting::getAdminEmail();
+            Mail::to($adminEmail)->send(new ReturnRequestAdminMail($order));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Return Request Admin Email Error: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Your return request has been submitted successfully. Our team will review it shortly.');
     }

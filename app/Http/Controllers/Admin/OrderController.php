@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Coupon;
 use App\Models\Setting;
 use App\Mail\OrderStatusUpdate;
+use App\Mail\ReturnStatusCustomerMail;
 use App\Services\ShiprocketService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
@@ -343,6 +344,13 @@ class OrderController extends Controller
         // If refunded, maybe update payment status too
         if ($newStatus === 'refunded') {
             $order->update(['payment_status' => 'refunded']);
+        }
+
+        // Send Email to Customer
+        try {
+            Mail::to($order->customer_email)->send(new ReturnStatusCustomerMail($order));
+        } catch (\Exception $e) {
+            Log::error('Return Status Update Email Error: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Return status updated to ' . strtoupper($newStatus));
