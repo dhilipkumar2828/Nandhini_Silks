@@ -1025,7 +1025,7 @@ class CartController extends Controller
         }
 
         $tax = round($tax, 2);
-        $taxPercentage = $firstRate ?: 5; // Default to 5 if none found
+        $taxPercentage = $firstRate ?: 0; // Default to 5 if none found
         $grandTotal = round($taxableAmount + $tax + $shipping, 2);
 
         return compact('subTotal', 'discount', 'tax', 'taxPercentage', 'shipping', 'grandTotal', 'itemCount', 'coupon');
