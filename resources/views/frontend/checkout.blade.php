@@ -591,7 +591,10 @@
                                     <input type="checkbox" name="save_address" value="1" 
                                         style="accent-color: var(--pink-dark); width: 16px; height: 16px; cursor: pointer;">
                                     Save this address for future use
-                        {{-- BILLING ADDRESS --}}
+                                </label>
+                            </div>
+                            @endif
+                        </div>
                         <div class="card-v4" style="margin-bottom: 25px;">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
@@ -796,13 +799,13 @@
 
 @push('scripts')
     <script>
-        function applyBillingValidation() {
-            if (!window.jQuery) return;
-            const $checkoutForm = $('#singleCheckoutForm');
-            if (!$checkoutForm.data('validator')) return;
+    function applyBillingValidation() {
+        if (!window.jQuery) return;
+        const $checkoutForm = $('#singleCheckoutForm');
+        if (!$checkoutForm.data('validator')) return;
 
-            const shouldRequireBilling = !document.getElementById('sameAsShipping').checked;
-            const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_country, #billing_email');
+        const shouldRequireBilling = !document.getElementById('sameAsShipping').checked;
+        const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_country, #billing_email');
 
         if (shouldRequireBilling) {
             $('#billing_name').rules('add', { required: true, messages: { required: 'Please enter billing name.' } });
@@ -852,13 +855,9 @@
     function toggleSavedAddresses(checkbox) {
         const section = document.getElementById('savedAddressesSection');
         section.style.display = checkbox.checked ? 'block' : 'none';
-        if (!checkbox.checked) {
-            // Optional: Clear fields or keep them? User usually wants them kept if they were typing
-        }
     }
 
     function selectSavedAddress(element) {
-        // UI feedback
         document.querySelectorAll('.saved-address-card').forEach(c => {
             c.style.borderColor = '#eee';
             c.querySelector('.check-icon').style.display = 'none';
@@ -866,7 +865,6 @@
         element.style.borderColor = 'var(--pink-dark)';
         element.querySelector('.check-icon').style.display = 'block';
 
-        // Fill fields
         document.getElementById('field_name').value = element.getAttribute('data-name');
         document.getElementById('field_phone').value = element.getAttribute('data-phone');
         document.getElementById('field_address').value = element.getAttribute('data-addr');
@@ -879,22 +877,11 @@
         
         document.getElementById('field_zip').value = element.getAttribute('data-zip');
         
-        // Check availability for the selected saved address
         if (element.getAttribute('data-zip')) {
             checkPincodeAvailability(element.getAttribute('data-zip'));
         }
-        
-        // Trigger shipping update
         updateShipping();
     }
-
-    // Dynamic Shipping Calculation
-    document.getElementById('field_state').addEventListener('change', updateShipping);
-    document.getElementById('field_zip').addEventListener('change', updateShipping);
-
-    document.addEventListener('DOMContentLoaded', function() {
-        applyBillingValidation();
-    });
 
     function updateShipping() {
         const state = document.getElementById('field_state').value;
@@ -922,160 +909,37 @@
                 }).then(() => {
                     window.location.reload();
                 });
+                throw new Error('CSRF token mismatch');
             }
-        }
+            return r.json();
+        })
+        .then(response => {
+            if (response.success) {
+                document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
+                document.getElementById('tax_cost_display').textContent = response.taxFormatted;
+                document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
 
-        function toggleBillingForm(checkbox) {
-            const form = document.getElementById('billingAddressForm');
-            const summary = document.getElementById('billingAddressSummary');
-            if (checkbox.checked) {
-                form.style.display = 'none';
-                summary.style.display = 'block';
-            } else {
-                form.style.display = 'block';
-                summary.style.display = 'none';
+                if (response.taxPercentage !== undefined) {
+                    const taxLabel = document.getElementById('tax_rate_label');
+                    if (taxLabel) taxLabel.textContent = response.taxPercentage;
+                }
+
+                const shippingEl = document.getElementById('shipping_cost_display');
+                if (response.shipping > 0) {
+                    shippingEl.style.color = '';
+                    shippingEl.style.fontWeight = '';
+                } else {
+                    shippingEl.style.color = '#2ecc71';
+                    shippingEl.style.fontWeight = '700';
+                }
             }
-            applyBillingValidation();
-        }
-
-        function selectPayment(method, element) {
-            document.getElementById('payment_method_input').value = method;
-            document.querySelectorAll('#paymentOptions label').forEach(l => {
-                l.style.border = '1px solid #f0f0f0';
-                l.style.background = '#fff';
-                l.querySelector('input').checked = false;
-            });
-            element.style.border = '1px solid #A91B43';
-            element.style.background = '#fffcfd';
-            element.querySelector('input').checked = true;
-        }
-
-        function toggleSavedAddresses(checkbox) {
-            const section = document.getElementById('savedAddressesSection');
-            section.style.display = checkbox.checked ? 'block' : 'none';
-            if (!checkbox.checked) {
-                // Optional: Clear fields or keep them? User usually wants them kept if they were typing
-            }
-        }
-
-        function selectSavedAddress(element) {
-            // UI feedback
-            document.querySelectorAll('.saved-address-card').forEach(c => {
-                c.style.borderColor = '#eee';
-                c.querySelector('.check-icon').style.display = 'none';
-            });
-            element.style.borderColor = 'var(--pink-dark)';
-            element.querySelector('.check-icon').style.display = 'block';
-
-            // Fill fields
-            document.getElementById('field_name').value = element.getAttribute('data-name');
-            document.getElementById('field_phone').value = element.getAttribute('data-phone');
-            document.getElementById('field_address').value = element.getAttribute('data-addr');
-            document.getElementById('field_city').value = element.getAttribute('data-city');
-
-            const stateSelect = document.getElementById('field_state');
-            stateSelect.value = element.getAttribute('data-state');
-            const countryInput = document.getElementById('field_country');
-            if (countryInput) countryInput.value = element.getAttribute('data-country') || 'India';
-
-            document.getElementById('field_zip').value = element.getAttribute('data-zip');
-
-            // Trigger shipping update
-            updateShipping();
-        }
-
-        // Dynamic Shipping Calculation
-        document.getElementById('field_state').addEventListener('change', updateShipping);
-        document.getElementById('field_zip').addEventListener('change', updateShipping);
-
-        document.addEventListener('DOMContentLoaded', function () {
-            applyBillingValidation();
-        });
-
-        function updateShipping() {
-            const state = document.getElementById('field_state').value;
-            const zip = document.getElementById('field_zip').value;
-            if (!state && !zip) return;
-
-            fetch("{{ route('cart.shipping.update') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ state: state, zip: zip, country: document.getElementById('field_country')?.value || 'India' })
-            })
-                .then(r => {
-                    if (r.status === 419) {
-                        Swal.fire({
-                            title: 'Session Expired',
-                            text: 'Your session has expired. Please refresh the page to continue.',
-                            icon: 'warning',
-                            confirmButtonText: 'Refresh Page',
-                            confirmButtonColor: '#A91B43'
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                        throw new Error('CSRF token mismatch');
-                    }
-                    return r.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
-                        document.getElementById('tax_cost_display').textContent = response.taxFormatted;
-                        document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
-
-                        if (response.taxPercentage !== undefined) {
-                            const taxLabel = document.getElementById('tax_rate_label');
-                            if (taxLabel) taxLabel.textContent = response.taxPercentage;
-                        }
-
-                        const shippingEl = document.getElementById('shipping_cost_display');
-                        if (response.shipping > 0) {
-                            shippingEl.style.color = '';
-                            shippingEl.style.fontWeight = '';
-                        } else {
-                            shippingEl.style.color = '#2ecc71';
-                            shippingEl.style.fontWeight = '700';
-                        }
-                    }
-                })
-                .catch(error => {
-                    if (error.message !== 'CSRF token mismatch') {
-                        console.error('Shipping update error:', error);
-                    }
-                });
-        }
-
-        // On form submit — build full delivery_address string
-        document.getElementById('singleCheckoutForm').addEventListener('submit', function (e) {
-            const addr = document.getElementById('field_address').value.trim();
-            const city = document.getElementById('field_city').value.trim();
-            const state = document.getElementById('field_state').value.trim();
-            const zip = document.getElementById('field_zip').value.trim();
-
-            // Combine into a full address string if not already combined
-            if (addr && city && !addr.includes(city)) {
-                document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
+        })
+        .catch(error => {
+            if (error.message !== 'CSRF token mismatch') {
+                console.error('Shipping update error:', error);
             }
         });
     }
-
-    // On form submit — build full delivery_address string
-    document.getElementById('singleCheckoutForm').addEventListener('submit', function(e) {
-        const addr = document.getElementById('field_address').value.trim();
-        const city = document.getElementById('field_city').value.trim();
-        const state = document.getElementById('field_state').value.trim();
-        const zip = document.getElementById('field_zip').value.trim();
-
-        // Combine into a full address string if not already combined
-        if (addr && city && !addr.includes(city)) {
-            document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
-        }
-    });
 
     let pinTimeout = null;
     function checkPincodeAvailability(val) {
@@ -1084,7 +948,7 @@
             if (pinTimeout) clearTimeout(pinTimeout);
             
             pinTimeout = setTimeout(() => {
-                msgEl.innerHTML = '<span style="color: #666;"><i class="fas fa-spinner fa-spin"></i> Checking availability...</span>';
+                if(msgEl) msgEl.innerHTML = '<span style="color: #666;"><i class="fas fa-spinner fa-spin"></i> Checking availability...</span>';
                 
                 fetch("{{ route('check-serviceability') }}", {
                     method: 'POST',
@@ -1098,21 +962,41 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        msgEl.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by ${data.edd}</span>`;
-                        // Automatically update shipping costs if pincode is valid
+                        if(msgEl) msgEl.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by ${data.edd}</span>`;
                         updateShipping();
                     } else {
-                        msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                        if(msgEl) msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
                     }
                 })
                 .catch(err => {
-                    msgEl.innerHTML = '';
+                    if(msgEl) msgEl.innerHTML = '';
                     console.error('Pincode check error:', err);
                 });
             }, 500); 
         } else {
-            msgEl.innerHTML = '';
+            if(msgEl) msgEl.innerHTML = '';
         }
     }
-</script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        applyBillingValidation();
+        
+        document.getElementById('field_state')?.addEventListener('change', updateShipping);
+        document.getElementById('field_zip')?.addEventListener('change', function() {
+            updateShipping();
+            checkPincodeAvailability(this.value);
+        });
+
+        document.getElementById('singleCheckoutForm')?.addEventListener('submit', function(e) {
+            const addr = document.getElementById('field_address').value.trim();
+            const city = document.getElementById('field_city').value.trim();
+            const state = document.getElementById('field_state').value.trim();
+            const zip = document.getElementById('field_zip').value.trim();
+
+            if (addr && city && !addr.includes(city)) {
+                document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
+            }
+        });
+    });
+    </script>
 @endpush
