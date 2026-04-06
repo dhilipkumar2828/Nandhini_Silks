@@ -354,12 +354,10 @@
                                 {{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 0) : 'FREE' }}
                             </td>
                         </tr>
-                        @if($order->discount > 0)
                         <tr class="tax-row">
-                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32;">Discount</td>
+                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32;">Discount {{ $order->coupon_code ? '('.$order->coupon_code.')' : '' }}</td>
                             <td style="text-align: right; border: none; font-weight: 600; color: #2e7d32;">-&#8377;{{ number_format($order->discount, 0) }}</td>
                         </tr>
-                        @endif
                         <tr class="total-row">
                             <td colspan="2" style="text-align: right; border: none; color: #333;">Total Paid</td>
                             <td style="text-align: right; border: none; color: #A91B43;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
@@ -466,6 +464,7 @@
             taxAmount: {{ $order ? $order->tax : 0 }},
             shipping: {{ $order ? $order->shipping : 0 }},
             discount: {{ $order ? $order->discount : 0 }},
+            couponCode: "{{ $order ? $order->coupon_code : '' }}",
             total: {{ $order ? $order->grand_total : 0 }}
         };
         if (typeof InvoiceGenerator !== 'undefined') {

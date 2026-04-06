@@ -442,7 +442,7 @@
                     </div>
                     @if($tax > 0)
                         <div class="summary-row">
-                            <span>Estimated Tax (GST <span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
+                            <span>Estimated Tax (<span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
                             <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
                         </div>
                     @endif
