@@ -702,29 +702,7 @@
             </div>
         </div>
 
-            <div class="order-detail-header">
-                <div>
-                    <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
-                    <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot;
-                        {{ $order->created_at->format('h:i A') }}
-                    </p>
-                </div>
-                <div class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : (in_array($order->order_status, ['pending', 'order placed']) ? 'active' : '') }}">
-                    <div class="step-icon">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Processing</span>
-                    <span class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Order Placed' }}</span>
-                </div>
-                <div class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
-                    <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Dispatched</span>
-                    <span class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
-                </div>
-                <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
-                    <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
-                    <span class="step-label">Delivered</span>
-                    <span class="step-date">{{ $order->order_status == 'delivered' ? 'Completed' : ($order->edd ?? 'Expected') }}</span>
-                </div>
-            </div>
+
 
             <div class="timeline-card">
                 <h3 class="info-title">Order Status</h3>
