@@ -297,7 +297,8 @@
                 padding: 0 !important;
                 display: block;
                 line-height: 1;
-                transform: translate(0, -3px) !important; /* Adjust the second value to move it up or down */
+                transform: translate(0, -3px) !important;
+                /* Adjust the second value to move it up or down */
                 font-weight: 400;
             }
 
@@ -961,7 +962,7 @@
                 margin-bottom: 4px;
             }
 
-            .tab-content-text > * {
+            .tab-content-text>* {
                 max-width: 100%;
             }
 
@@ -1194,7 +1195,7 @@
             }
 
             /* Wishlist buttons in Related Products & Recently Viewed
-               must match the shop page (42px, not the main PDP 52px) */
+                                                                                                                       must match the shop page (42px, not the main PDP 52px) */
             .related-products .btn-wishlist-detail,
             .recently-viewed .btn-wishlist-detail {
                 width: 42px !important;
@@ -1202,6 +1203,7 @@
                 top: 15px !important;
                 right: 15px !important;
             }
+
             .related-products .btn-wishlist-detail i,
             .recently-viewed .btn-wishlist-detail i {
                 font-size: 18px !important;
@@ -1231,6 +1233,41 @@
             .recently-viewed-cta:hover {
                 transform: scale(1.05);
                 box-shadow: 0 4px 12px rgba(169, 27, 67, 0.2);
+            }
+
+            /* Swipe buttons always visible */
+            .related-next,
+            .related-prev,
+            .recently-next,
+            .recently-prev {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                background: #fff !important;
+                width: 34px !important;
+                height: 34px !important;
+                border-radius: 50% !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+                top: 40% !important;
+            }
+
+            .related-next::after,
+            .related-prev::after,
+            .recently-next::after,
+            .recently-prev::after {
+                font-size: 14px !important;
+                font-weight: bold !important;
+                color: #A91B43 !important;
+            }
+
+            .related-next,
+            .recently-next {
+                right: 5px !important;
+            }
+
+            .related-prev,
+            .recently-prev {
+                left: 5px !important;
             }
 
             @media (max-width: 1200px) {
@@ -1512,6 +1549,13 @@
                 margin-top: 10px !important;
             }
 
+            @media (min-width: 768px) and (max-width: 900px) {
+                .product-thumbnails {
+                    gap: 10px !important;
+                    width: 100% !important;
+                }
+            }
+
             @media (min-width: 768px) {
                 .product-detail-grid {
                     align-items: start !important;
@@ -1731,7 +1775,7 @@
                     gap: 12px !important;
                 }
 
-                .product-actions-group > * {
+                .product-actions-group>* {
                     width: 100% !important;
                     flex: 1 1 auto !important;
                 }
@@ -1877,481 +1921,482 @@
 
             /* Final PDP responsive system - mobile only */
             @media (max-width: 767px) {
-            .product-detail-page {
-                --pdp-shell: clamp(12px, 4vw, 24px);
-                --pdp-gap: clamp(14px, 3.8vw, 24px);
-                --pdp-card-radius: clamp(18px, 4vw, 28px);
-                --pdp-soft-radius: clamp(12px, 3vw, 20px);
-                --pdp-card-padding: clamp(14px, 4vw, 28px);
-                --pdp-surface: #ffffff;
-                --pdp-border: rgba(17, 24, 39, 0.08);
-                --pdp-muted: #6b7280;
-                --pdp-heading: #151515;
-                --pdp-accent: #a91b43;
-                --pdp-accent-strong: #8f1239;
-                --pdp-soft-bg: #fffaf6;
-                background: linear-gradient(180deg, #fbf7f2 0%, #f8f4ee 100%) !important;
-                padding: clamp(12px, 3vw, 24px) 0 clamp(28px, 7vw, 64px) !important;
-                overflow-x: clip !important;
-            }
+                .product-detail-page {
+                    --pdp-shell: clamp(12px, 4vw, 24px);
+                    --pdp-gap: clamp(14px, 3.8vw, 24px);
+                    --pdp-card-radius: clamp(18px, 4vw, 28px);
+                    --pdp-soft-radius: clamp(12px, 3vw, 20px);
+                    --pdp-card-padding: clamp(14px, 4vw, 28px);
+                    --pdp-surface: #ffffff;
+                    --pdp-border: rgba(17, 24, 39, 0.08);
+                    --pdp-muted: #6b7280;
+                    --pdp-heading: #151515;
+                    --pdp-accent: #a91b43;
+                    --pdp-accent-strong: #8f1239;
+                    --pdp-soft-bg: #fffaf6;
+                    background: linear-gradient(180deg, #fbf7f2 0%, #f8f4ee 100%) !important;
+                    padding: clamp(12px, 3vw, 24px) 0 clamp(28px, 7vw, 64px) !important;
+                    overflow-x: clip !important;
+                }
 
-            .product-detail-page .page-shell {
-                width: min(100%, 1240px) !important;
-                margin-inline: auto !important;
-                padding-inline: var(--pdp-shell) !important;
-                box-sizing: border-box !important;
-            }
+                .product-detail-page .page-shell {
+                    width: min(100%, 1240px) !important;
+                    margin-inline: auto !important;
+                    padding-inline: var(--pdp-shell) !important;
+                    box-sizing: border-box !important;
+                }
 
-            .product-detail-page .breadcrumb {
-                margin: 0 0 clamp(10px, 2.6vw, 18px) !important;
-                padding-inline: 2px;
-                font-size: clamp(11px, 2.9vw, 13px) !important;
-                line-height: 1.5 !important;
-                color: var(--pdp-muted) !important;
-                white-space: normal !important;
-                word-break: break-word;
-            }
+                .product-detail-page .breadcrumb {
+                    margin: 0 0 clamp(10px, 2.6vw, 18px) !important;
+                    padding-inline: 2px;
+                    font-size: clamp(11px, 2.9vw, 13px) !important;
+                    line-height: 1.5 !important;
+                    color: var(--pdp-muted) !important;
+                    white-space: normal !important;
+                    word-break: break-word;
+                }
 
-            .product-detail-page .breadcrumb a,
-            .product-detail-page .breadcrumb span {
-                display: inline;
-            }
+                .product-detail-page .breadcrumb a,
+                .product-detail-page .breadcrumb span {
+                    display: inline;
+                }
 
-            .product-detail-page .product-detail-grid {
-                display: grid !important;
-                grid-template-columns: minmax(0, 1fr) !important;
-                gap: var(--pdp-gap) !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 auto !important;
-                padding: var(--pdp-card-padding) !important;
-                background: rgba(255, 255, 255, 0.96) !important;
-                border: 1px solid var(--pdp-border) !important;
-                border-radius: var(--pdp-card-radius) !important;
-                box-shadow: 0 20px 44px rgba(15, 23, 42, 0.06) !important;
-                align-items: start !important;
-                overflow: clip !important;
-                box-sizing: border-box !important;
-            }
+                .product-detail-page .product-detail-grid {
+                    display: grid !important;
+                    grid-template-columns: minmax(0, 1fr) !important;
+                    gap: var(--pdp-gap) !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin: 0 auto !important;
+                    padding: var(--pdp-card-padding) !important;
+                    background: rgba(255, 255, 255, 0.96) !important;
+                    border: 1px solid var(--pdp-border) !important;
+                    border-radius: var(--pdp-card-radius) !important;
+                    box-shadow: 0 20px 44px rgba(15, 23, 42, 0.06) !important;
+                    align-items: start !important;
+                    overflow: clip !important;
+                    box-sizing: border-box !important;
+                }
 
-            .product-detail-page .product-gallery {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: clamp(10px, 2.8vw, 16px) !important;
-                position: relative !important;
-                top: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                min-width: 0 !important;
-                border: 0 !important;
-                background: transparent !important;
-                box-shadow: none !important;
-            }
+                .product-detail-page .product-gallery {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: clamp(10px, 2.8vw, 16px) !important;
+                    position: relative !important;
+                    top: auto !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    min-width: 0 !important;
+                    border: 0 !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                }
 
-            .product-detail-page .main-product-image,
-            .product-detail-page #zoomContainer {
-                width: 100% !important;
-                aspect-ratio: 4 / 5 !important;
-                min-height: 0 !important;
-                max-height: min(74vw, 560px) !important;
-                margin: 0 !important;
-                padding: clamp(4px, 1.5vw, 10px) !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                overflow: hidden !important;
-                border-radius: clamp(16px, 4vw, 26px) !important;
-                box-sizing: border-box !important;
-                box-shadow: inset 0 0 0 1px rgba(110, 66, 36, 0.06), 0 14px 34px rgba(110, 66, 36, 0.1) !important;
-            }
+                .product-detail-page .main-product-image,
+                .product-detail-page #zoomContainer {
+                    width: 100% !important;
+                    aspect-ratio: 4 / 5 !important;
+                    min-height: 0 !important;
+                    max-height: min(74vw, 560px) !important;
+                    margin: 0 !important;
+                    padding: clamp(4px, 1.5vw, 10px) !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    overflow: hidden !important;
+                    border-radius: clamp(16px, 4vw, 26px) !important;
+                    box-sizing: border-box !important;
+                    box-shadow: inset 0 0 0 1px rgba(110, 66, 36, 0.06), 0 14px 34px rgba(110, 66, 36, 0.1) !important;
+                }
 
-            .product-detail-page .main-product-image img,
-            .product-detail-page #zoomContainer img,
-            .product-detail-page #mainImg {
-                width: 120% !important;
-                height: 120% !important;
-                max-width: 120% !important;
-                object-fit: contain !important;
-                object-position: center center !important;
-                border-radius: calc(clamp(16px, 4vw, 26px) - 4px) !important;
-                display: block !important;
-            }
+                .product-detail-page .main-product-image img,
+                .product-detail-page #zoomContainer img,
+                .product-detail-page #mainImg {
+                    width: 120% !important;
+                    height: 120% !important;
+                    max-width: 120% !important;
+                    object-fit: contain !important;
+                    object-position: center center !important;
+                    border-radius: calc(clamp(16px, 4vw, 26px) - 4px) !important;
+                    display: block !important;
+                }
 
-            .product-detail-page .thumbnail img {
-                width: 100% !important;
-                height: 100% !important;
-                object-fit: cover !important;
-                object-position: center center !important;
-            }
+                .product-detail-page .thumbnail img {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                    object-position: center center !important;
+                }
 
-            .product-detail-page .btn-wishlist-detail {
-                width: clamp(40px, 10vw, 52px) !important;
-                height: clamp(40px, 10vw, 52px) !important;
-                top: clamp(10px, 3vw, 16px) !important;
-                right: clamp(10px, 3vw, 16px) !important;
-            }
+                .product-detail-page .btn-wishlist-detail {
+                    width: clamp(40px, 10vw, 52px) !important;
+                    height: clamp(40px, 10vw, 52px) !important;
+                    top: clamp(10px, 3vw, 16px) !important;
+                    right: clamp(10px, 3vw, 16px) !important;
+                }
 
-            .product-detail-page .product-thumbnails {
-                display: flex !important;
-                flex-direction: row !important;
-                gap: clamp(8px, 2.4vw, 12px) !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                padding: 0 0 2px !important;
-                overflow-x: auto !important;
-                overflow-y: hidden !important;
-                scrollbar-width: none;
-                -webkit-overflow-scrolling: touch;
-            }
+                .product-detail-page .product-thumbnails {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    gap: clamp(8px, 2.4vw, 12px) !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-width: 0 !important;
+                    padding: 0 0 2px !important;
+                    overflow-x: auto !important;
+                    overflow-y: hidden !important;
+                    scrollbar-width: none;
+                    -webkit-overflow-scrolling: touch;
+                }
 
-            .product-detail-page .product-thumbnails::-webkit-scrollbar {
-                display: none;
-            }
+                .product-detail-page .product-thumbnails::-webkit-scrollbar {
+                    display: none;
+                }
 
-            .product-detail-page .thumbnail {
-                width: clamp(56px, 15vw, 82px) !important;
-                height: auto !important;
-                aspect-ratio: 4 / 5 !important;
-                flex: 0 0 auto !important;
-                border-radius: clamp(10px, 2.5vw, 14px) !important;
-                overflow: hidden !important;
-            }
+                .product-detail-page .thumbnail {
+                    width: clamp(56px, 15vw, 82px) !important;
+                    height: auto !important;
+                    aspect-ratio: 4 / 5 !important;
+                    flex: 0 0 auto !important;
+                    border-radius: clamp(10px, 2.5vw, 14px) !important;
+                    overflow: hidden !important;
+                }
 
-            .product-detail-page .product-info-details {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: clamp(10px, 2.8vw, 18px) !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
+                .product-detail-page .product-info-details {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: clamp(10px, 2.8vw, 18px) !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-width: 0 !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }
 
-            .product-detail-page .product-meta {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                gap: 6px 10px !important;
-                align-items: center !important;
-                margin: 0 !important;
-            }
+                .product-detail-page .product-meta {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 6px 10px !important;
+                    align-items: center !important;
+                    margin: 0 !important;
+                }
 
-            .product-detail-page .product-brand,
-            .product-detail-page .product-meta-item {
-                min-height: auto !important;
-                font-size: clamp(11px, 2.7vw, 13px) !important;
-                letter-spacing: 0.08em !important;
-                line-height: 1.4 !important;
-            }
+                .product-detail-page .product-brand,
+                .product-detail-page .product-meta-item {
+                    min-height: auto !important;
+                    font-size: clamp(11px, 2.7vw, 13px) !important;
+                    letter-spacing: 0.08em !important;
+                    line-height: 1.4 !important;
+                }
 
-            .product-detail-page .product-title-detail {
-                margin: 0 !important;
-                width: 100% !important;
-                max-width: 18ch !important;
-                font-size: clamp(1.5rem, 5.8vw, 2.15rem) !important;
-                line-height: 1.08 !important;
-                letter-spacing: -0.03em !important;
-                color: var(--pdp-heading) !important;
-                text-wrap: balance;
-            }
+                .product-detail-page .product-title-detail {
+                    margin: 0 !important;
+                    width: 100% !important;
+                    max-width: 18ch !important;
+                    font-size: clamp(1.5rem, 5.8vw, 2.15rem) !important;
+                    line-height: 1.08 !important;
+                    letter-spacing: -0.03em !important;
+                    color: var(--pdp-heading) !important;
+                    text-wrap: balance;
+                }
 
-            .product-detail-page .product-summary-row {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                align-items: center !important;
-                gap: 8px 14px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
+                .product-detail-page .product-summary-row {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    align-items: center !important;
+                    gap: 8px 14px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
 
-            .product-detail-page .product-rating,
-            .product-detail-page .product-price-section,
-            .product-detail-page .stock-status {
-                min-width: 0 !important;
-            }
+                .product-detail-page .product-rating,
+                .product-detail-page .product-price-section,
+                .product-detail-page .stock-status {
+                    min-width: 0 !important;
+                }
 
-            .product-detail-page .product-rating {
-                gap: 8px !important;
-                font-size: clamp(13px, 3.2vw, 15px) !important;
-            }
+                .product-detail-page .product-rating {
+                    gap: 8px !important;
+                    font-size: clamp(13px, 3.2vw, 15px) !important;
+                }
 
-            .product-detail-page .stars {
-                font-size: clamp(13px, 3vw, 15px) !important;
-            }
+                .product-detail-page .stars {
+                    font-size: clamp(13px, 3vw, 15px) !important;
+                }
 
-            .product-detail-page .product-price-section {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                align-items: center !important;
-                gap: 4px 8px !important;
-            }
+                .product-detail-page .product-price-section {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    align-items: center !important;
+                    gap: 4px 8px !important;
+                }
 
-            .product-detail-page .current-price {
-                font-size: clamp(1.9rem, 7vw, 2.4rem) !important;
-                line-height: 1 !important;
-            }
+                .product-detail-page .current-price {
+                    font-size: clamp(1.9rem, 7vw, 2.4rem) !important;
+                    line-height: 1 !important;
+                }
 
-            .product-detail-page .old-price {
-                font-size: clamp(1rem, 4vw, 1.2rem) !important;
-            }
+                .product-detail-page .old-price {
+                    font-size: clamp(1rem, 4vw, 1.2rem) !important;
+                }
 
-            .product-detail-page .discount-badge,
-            .product-detail-page .stock-badge {
-                font-size: clamp(10px, 2.2vw, 12px) !important;
-            }
+                .product-detail-page .discount-badge,
+                .product-detail-page .stock-badge {
+                    font-size: clamp(10px, 2.2vw, 12px) !important;
+                }
 
-            .product-detail-page .product-tax-note {
-                margin: -4px 0 0 !important;
-                font-size: clamp(11px, 2.8vw, 13px) !important;
-                line-height: 1.45 !important;
-            }
+                .product-detail-page .product-tax-note {
+                    margin: -4px 0 0 !important;
+                    font-size: clamp(11px, 2.8vw, 13px) !important;
+                    line-height: 1.45 !important;
+                }
 
-            .product-detail-page .product-description-short {
-                max-width: 100% !important;
-                margin: 0 !important;
-                font-size: clamp(13px, 3.25vw, 15px) !important;
-                line-height: 1.65 !important;
-                color: #5f5f68 !important;
-            }
+                .product-detail-page .product-description-short {
+                    max-width: 100% !important;
+                    margin: 0 !important;
+                    font-size: clamp(13px, 3.25vw, 15px) !important;
+                    line-height: 1.65 !important;
+                    color: #5f5f68 !important;
+                }
 
-            .product-detail-page .product-actions {
-                gap: clamp(12px, 3vw, 18px) !important;
-                width: 100% !important;
-            }
+                .product-detail-page .product-actions {
+                    gap: clamp(12px, 3vw, 18px) !important;
+                    width: 100% !important;
+                }
 
-            .product-detail-page .product-selections,
-            .product-detail-page .attribute-section,
-            .product-detail-page .quantity-section,
-            .product-detail-page .share-section,
-            .product-detail-page .delivery-check {
-                min-width: 0 !important;
-            }
+                .product-detail-page .product-selections,
+                .product-detail-page .attribute-section,
+                .product-detail-page .quantity-section,
+                .product-detail-page .share-section,
+                .product-detail-page .delivery-check {
+                    min-width: 0 !important;
+                }
 
-            .product-detail-page .attribute-section {
-                gap: 8px !important;
-                margin: 0 !important;
-                align-items: flex-start !important;
-            }
+                .product-detail-page .attribute-section {
+                    gap: 8px !important;
+                    margin: 0 !important;
+                    align-items: flex-start !important;
+                }
 
-            .product-detail-page .attribute-title,
-            .product-detail-page .quantity-title,
-            .product-detail-page .share-title,
-            .product-detail-page .delivery-title {
-                font-size: clamp(11px, 2.7vw, 13px) !important;
-                letter-spacing: 0.08em !important;
-                line-height: 1.45 !important;
-            }
+                .product-detail-page .attribute-title,
+                .product-detail-page .quantity-title,
+                .product-detail-page .share-title,
+                .product-detail-page .delivery-title {
+                    font-size: clamp(11px, 2.7vw, 13px) !important;
+                    letter-spacing: 0.08em !important;
+                    line-height: 1.45 !important;
+                }
 
-            .product-detail-page .attribute-title {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                align-items: baseline !important;
-                gap: 4px 6px !important;
-                text-transform: uppercase !important;
-                color: #667085 !important;
-            }
+                .product-detail-page .attribute-title {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    align-items: baseline !important;
+                    gap: 4px 6px !important;
+                    text-transform: uppercase !important;
+                    color: #667085 !important;
+                }
 
-            .product-detail-page .attribute-title span {
-                display: inline-flex !important;
-                align-items: center !important;
-                color: #1f2937 !important;
-                font-weight: 800 !important;
-                letter-spacing: 0.02em !important;
-                text-transform: none !important;
-            }
+                .product-detail-page .attribute-title span {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    color: #1f2937 !important;
+                    font-weight: 800 !important;
+                    letter-spacing: 0.02em !important;
+                    text-transform: none !important;
+                }
 
-            .product-detail-page .swatch-container {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                gap: 8px !important;
-                align-items: center !important;
-                justify-content: flex-start !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding-top: 2px !important;
-            }
+                .product-detail-page .swatch-container {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 8px !important;
+                    align-items: center !important;
+                    justify-content: flex-start !important;
+                    width: 100% !important;
+                    margin: 0 !important;
+                    padding-top: 2px !important;
+                }
 
-            .product-detail-page .color-swatch {
-                flex: 0 0 auto !important;
-                display: inline-flex !important;
-            }
+                .product-detail-page .color-swatch {
+                    flex: 0 0 auto !important;
+                    display: inline-flex !important;
+                }
 
-            .product-detail-page .size-btn {
-                min-height: clamp(34px, 9vw, 38px) !important;
-                padding: 6px 12px !important;
-                font-size: clamp(12px, 2.9vw, 13px) !important;
-                border-radius: 10px !important;
-            }
+                .product-detail-page .size-btn {
+                    min-height: clamp(34px, 9vw, 38px) !important;
+                    padding: 6px 12px !important;
+                    font-size: clamp(12px, 2.9vw, 13px) !important;
+                    border-radius: 10px !important;
+                }
 
-            .product-detail-page .quantity-section {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 8px !important;
-            }
+                .product-detail-page .quantity-section {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: flex-start !important;
+                    gap: 8px !important;
+                }
 
-            .product-detail-page .quantity-picker {
-                display: inline-grid !important;
-                grid-template-columns: 40px minmax(40px, auto) 40px !important;
-                align-items: center !important;
-                min-height: 42px !important;
-                height: 42px !important;
-                width: auto !important;
-                border-radius: 12px !important;
-                overflow: hidden !important;
-                border: 1px solid #e5e7eb !important;
-                background: #fff !important;
-            }
+                .product-detail-page .quantity-picker {
+                    display: inline-grid !important;
+                    grid-template-columns: 40px minmax(40px, auto) 40px !important;
+                    align-items: center !important;
+                    min-height: 42px !important;
+                    height: 42px !important;
+                    width: auto !important;
+                    border-radius: 12px !important;
+                    overflow: hidden !important;
+                    border: 1px solid #e5e7eb !important;
+                    background: #fff !important;
+                }
 
-            .product-detail-page .qty-btn,
-            .product-detail-page .qty-input {
-                width: 40px !important;
-                height: 42px !important;
-            }
+                .product-detail-page .qty-btn,
+                .product-detail-page .qty-input {
+                    width: 40px !important;
+                    height: 42px !important;
+                }
 
-            .product-detail-page .qty-input {
-                font-size: clamp(13px, 3vw, 15px) !important;
-            }
+                .product-detail-page .qty-input {
+                    font-size: clamp(13px, 3vw, 15px) !important;
+                }
 
-            .product-detail-page .product-actions-group {
-                display: grid !important;
-                grid-template-columns: minmax(0, 1fr) !important;
-                gap: 6px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+                .product-detail-page .product-actions-group {
+                    display: grid !important;
+                    grid-template-columns: minmax(0, 1fr) !important;
+                    gap: 6px !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
 
-            .product-detail-page .btn-add-cart,
-            .product-detail-page .btn-buy-now {
-                width: 100% !important;
-                min-height: clamp(46px, 12vw, 52px) !important;
-                height: auto !important;
-                padding: 0 16px !important;
-                border-radius: 12px !important;
-                font-size: clamp(12px, 3vw, 13.5px) !important;
-                font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
-                letter-spacing: 0.08em !important;
-                justify-content: center !important;
-            }
+                .product-detail-page .btn-add-cart,
+                .product-detail-page .btn-buy-now {
+                    width: 100% !important;
+                    min-height: clamp(46px, 12vw, 52px) !important;
+                    height: auto !important;
+                    padding: 0 16px !important;
+                    border-radius: 12px !important;
+                    font-size: clamp(12px, 3vw, 13.5px) !important;
+                    font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
+                    letter-spacing: 0.08em !important;
+                    justify-content: center !important;
+                }
 
-            .product-detail-page .share-section {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                align-items: center !important;
-                gap: 10px !important;
-                margin-top: 0 !important;
-                padding-top: 12px !important;
-            }
+                .product-detail-page .share-section {
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                    margin-top: 0 !important;
+                    padding-top: 12px !important;
+                }
 
-            .product-detail-page .share-links {
-                flex-wrap: wrap;
-                gap: 10px !important;
-            }
+                .product-detail-page .share-links {
+                    flex-wrap: wrap;
+                    gap: 10px !important;
+                }
 
-            .product-detail-page .delivery-check {
-                width: 100% !important;
-                margin-top: 0 !important;
-                padding: clamp(12px, 3.4vw, 16px) !important;
-                border-radius: clamp(14px, 3vw, 18px) !important;
-                background: linear-gradient(180deg, #fff 0%, var(--pdp-soft-bg) 100%) !important;
-            }
+                .product-detail-page .delivery-check {
+                    width: 100% !important;
+                    margin-top: 0 !important;
+                    padding: clamp(12px, 3.4vw, 16px) !important;
+                    border-radius: clamp(14px, 3vw, 18px) !important;
+                    background: linear-gradient(180deg, #fff 0%, var(--pdp-soft-bg) 100%) !important;
+                }
 
-            .product-detail-page .pincode-input-group {
-                display: grid !important;
-                grid-template-columns: minmax(0, 1fr) auto !important;
-                gap: 8px !important;
-            }
+                .product-detail-page .pincode-input-group {
+                    display: grid !important;
+                    grid-template-columns: minmax(0, 1fr) auto !important;
+                    gap: 8px !important;
+                }
 
-            .product-detail-page .pincode-input,
-            .product-detail-page .btn-pincode {
-                height: 42px !important;
-                border-radius: 10px !important;
-            }
+                .product-detail-page .pincode-input,
+                .product-detail-page .btn-pincode {
+                    height: 42px !important;
+                    border-radius: 10px !important;
+                }
 
-            .product-detail-page .btn-pincode {
-                min-width: 96px;
-            }
+                .product-detail-page .btn-pincode {
+                    min-width: 96px;
+                }
 
-            .product-detail-page .product-extra-info {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin-top: clamp(18px, 5vw, 28px) !important;
-                padding: var(--pdp-card-padding) !important;
-                border-radius: var(--pdp-card-radius) !important;
-                background: linear-gradient(180deg, #ffffff 0%, #fffaf6 100%) !important;
-                border: 1px solid var(--pdp-border) !important;
-                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05) !important;
-                overflow: clip !important;
-                box-sizing: border-box !important;
-            }
+                .product-detail-page .product-extra-info {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin-top: clamp(18px, 5vw, 28px) !important;
+                    padding: var(--pdp-card-padding) !important;
+                    border-radius: var(--pdp-card-radius) !important;
+                    background: linear-gradient(180deg, #ffffff 0%, #fffaf6 100%) !important;
+                    border: 1px solid var(--pdp-border) !important;
+                    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05) !important;
+                    overflow: clip !important;
+                    box-sizing: border-box !important;
+                }
 
-            .product-detail-page .tabs-info {
-                display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 10px !important;
-                padding-bottom: 14px !important;
-                border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
-            }
+                .product-detail-page .tabs-info {
+                    display: grid !important;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 10px !important;
+                    padding-bottom: 14px !important;
+                    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+                }
 
-            .product-detail-page .tab-btn {
-                width: 100% !important;
-                min-width: 0 !important;
-                min-height: 42px !important;
-                padding: 10px 12px !important;
-                border-radius: 999px !important;
-                font-size: clamp(11px, 2.8vw, 13px) !important;
-                line-height: 1.25 !important;
-                letter-spacing: 0.08em !important;
-                text-align: center !important;
-                white-space: normal !important;
-                color: #475467 !important;
-                border: 1px solid rgba(169, 27, 67, 0.12) !important;
-                background: linear-gradient(180deg, #ffffff 0%, #fff9f4 100%) !important;
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
-            }
+                .product-detail-page .tab-btn {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    min-height: 42px !important;
+                    padding: 10px 12px !important;
+                    border-radius: 999px !important;
+                    font-size: clamp(11px, 2.8vw, 13px) !important;
+                    line-height: 1.25 !important;
+                    letter-spacing: 0.08em !important;
+                    text-align: center !important;
+                    white-space: normal !important;
+                    color: #475467 !important;
+                    border: 1px solid rgba(169, 27, 67, 0.12) !important;
+                    background: linear-gradient(180deg, #ffffff 0%, #fff9f4 100%) !important;
+                    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
+                }
 
-            .product-detail-page .tab-btn.active {
-                color: #ffffff !important;
-                background: linear-gradient(135deg, #b01748 0%, #cf3c69 100%) !important;
-                border-color: transparent !important;
-                box-shadow: 0 14px 28px rgba(169, 27, 67, 0.22) !important;
-            }
+                .product-detail-page .tab-btn.active {
+                    color: #ffffff !important;
+                    background: linear-gradient(135deg, #b01748 0%, #cf3c69 100%) !important;
+                    border-color: transparent !important;
+                    box-shadow: 0 14px 28px rgba(169, 27, 67, 0.22) !important;
+                }
 
-            .product-detail-page .tab-btn.active::after {
-                display: none !important;
-            }
+                .product-detail-page .tab-btn.active::after {
+                    display: none !important;
+                }
 
-            .product-detail-page .tab-content-text {
-                max-width: min(100%, 72ch) !important;
-                font-size: clamp(14px, 3.2vw, 15px) !important;
-                line-height: 1.65 !important;
-            }
+                .product-detail-page .tab-content-text {
+                    max-width: min(100%, 72ch) !important;
+                    font-size: clamp(14px, 3.2vw, 15px) !important;
+                    line-height: 1.65 !important;
+                }
 
-            .product-detail-page .specs-table {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
+                .product-detail-page .specs-table {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
 
-            .product-detail-page .specs-label {
-                width: 38% !important;
-            }
+                .product-detail-page .specs-label {
+                    width: 38% !important;
+                }
 
-            .product-detail-page .specs-table td {
-                padding: 10px 12px !important;
-                font-size: clamp(13px, 3vw, 14px) !important;
-            }
+                .product-detail-page .specs-table td {
+                    padding: 10px 12px !important;
+                    font-size: clamp(13px, 3vw, 14px) !important;
+                }
 
-            .product-detail-page .reviews-container,
-            .product-detail-page .review-empty-state,
-            .product-detail-page .review-inline-panel {
-                max-width: 100% !important;
-                min-width: 0 !important;
-            }
+                .product-detail-page .reviews-container,
+                .product-detail-page .review-empty-state,
+                .product-detail-page .review-inline-panel {
+                    max-width: 100% !important;
+                    min-width: 0 !important;
+                }
 
             }
 
             @media (max-width: 359px) {
+
                 .product-detail-page .product-detail-grid,
                 .product-detail-page .product-extra-info {
                     padding: 12px !important;
@@ -2402,8 +2447,8 @@
                             }
                         } elseif ($product->image_path) {
                             $path = $product->image_path;
-                            $url = (Str::startsWith($path, 'products/') || Str::startsWith($path, 'categories/')) 
-                                ? asset('uploads/' . $path) 
+                            $url = (Str::startsWith($path, 'products/') || Str::startsWith($path, 'categories/'))
+                                ? asset('uploads/' . $path)
                                 : asset('images/' . $path);
                             $allImages[] = [
                                 'url' => $url,
@@ -2484,19 +2529,19 @@
                     <div class="product-summary-row flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
 
                         @if($product->reviews_count > 0)
-                        <div class="product-rating">
-                            <div class="stars">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
-                                @endfor
+                            <div class="product-rating">
+                                <div class="stars">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                    @endfor
+                                </div>
+                                <span>
+                                    {{ number_format($product->average_rating, 1) }}
+                                    @if ($product->reviews_count > 0)
+                                        ({{ $product->reviews_count }})
+                                    @endif
+                                </span>
                             </div>
-                            <span>
-                                {{ number_format($product->average_rating, 1) }}
-                                @if ($product->reviews_count > 0)
-                                    ({{ $product->reviews_count }})
-                                @endif
-                            </span>
-                        </div>
                         @endif
                         <div class="product-price-section">
                             <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
@@ -2512,8 +2557,8 @@
                                 $totalVariantStock = $product->product_variants->sum('stock_quantity');
                                 $isInStock =
                                     $product->product_variants->count() > 0
-                                        ? $totalVariantStock > 0
-                                        : $product->stock_quantity > 0;
+                                    ? $totalVariantStock > 0
+                                    : $product->stock_quantity > 0;
                             @endphp
                             <span id="stockStatus" class="stock-badge {{ $isInStock ? 'stock-in' : 'stock-out' }}">
                                 {{ $isInStock ? 'IN STOCK' : 'OUT OF STOCK' }}
@@ -2528,8 +2573,7 @@
                         </div>
                     @endif
 
-                    <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}"
-                        id="pdpForm">
+                    <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" id="pdpForm">
                         @csrf
                         <input type="hidden" name="quantity" id="qtyInput" value="1">
 
@@ -2545,8 +2589,7 @@
                                             {{ $attrName }}: <span id="label_{{ $attrId }}">Select
                                                 {{ $attrName }}</span>
                                         </h3>
-                                        <input type="hidden" name="attributes[{{ $attrId }}]"
-                                            id="attr_{{ $attrId }}" value="">
+                                        <input type="hidden" name="attributes[{{ $attrId }}]" id="attr_{{ $attrId }}" value="">
                                         <div class="swatch-container">
                                             @foreach ($group['values'] as $value)
                                                 @php
@@ -2619,13 +2662,11 @@
                                                 @endphp
 
                                                 @if ($canRenderAsSwatch)
-                                                    <div class="attribute-option color-swatch"
-                                                        data-attr-id="{{ $attrId }}"
+                                                    <div class="attribute-option color-swatch" data-attr-id="{{ $attrId }}"
                                                         data-value-id="{{ $value->id }}" onclick="selectAttribute(this)"
                                                         style="{{ $bgStyle }}" title="{{ $value->name }}"></div>
                                                 @else
-                                                    <button type="button" class="attribute-option size-btn"
-                                                        data-attr-id="{{ $attrId }}"
+                                                    <button type="button" class="attribute-option size-btn" data-attr-id="{{ $attrId }}"
                                                         data-value-id="{{ $value->id }}" onclick="selectAttribute(this)"
                                                         style="border: 1.5px solid #e0e0e0; background: #f5f5f5; color: #333; cursor: pointer; font-weight: 700; transition: all 0.15s ease;">
                                                         {{ $value->name }}
@@ -2654,9 +2695,9 @@
                                 <i class="fas fa-shopping-bag"></i>
                                 {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
                             </button>
-                            
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now {{ !$isInStock ? 'disabled' : '' }}" id="buyNowBtn"
-                                {{ !$isInStock ? 'disabled' : '' }}>
+
+                            <button type="submit" name="action" value="checkout"
+                                class="btn-buy-now {{ !$isInStock ? 'disabled' : '' }}" id="buyNowBtn" {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-bolt"></i>
                                 BUY IT NOW
                             </button>
@@ -2667,20 +2708,17 @@
                         <span class="share-title">Share this product:</span>
                         <div class="share-links">
                             <!-- SVG Social Icons (Simplified) -->
-                            <a href="#"><svg width="18" height="18" fill="currentColor"
-                                    viewBox="0 0 16 16">
+                            <a href="#"><svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
                                     <path
                                         d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951" />
                                 </svg></a>
-                            <a href="#"><svg width="18" height="18" fill="currentColor"
-                                    viewBox="0 0 16 16">
+                            <a href="#"><svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
                                     <path
                                         d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.417-.923 3.9 3.9 0 0 0 .923-1.417c.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.999 0zm0 1.44c2.144 0 2.405.008 3.25.047.781.036 1.206.166 1.493.28.384.148.658.324.945.61.285.286.463.56.611.944.113.287.243.712.28 1.493.038.845.046 1.106.046 3.25s-.008 2.405-.047 3.25c-.036.781-.166 1.206-.28 1.493-.148.384-.324.658-.61.945-.287.285-.56.463-.945.611-.286.113-.712.243-1.493.28-.845.038-1.106.047-3.25.047s-2.405-.009-3.25-.047c-.781-.036-1.206-.166-1.493-.28a3.14 3.14 0 0 1-.945-.611 3.14 3.14 0 0 1-.61-.945c-.114-.287-.244-.712-.28-1.493-.039-.845-.047-1.106-.047-3.25s.008-2.405.047-3.25c.036-.781.166-1.206.28-1.493.148-.384.324-.658.61-.945.286-.287.561-.463.945-.611.287-.113.712-.243 1.493-.28C5.594 1.448 5.854 1.44 8 1.44z" />
                                     <path
                                         d="M8 3.86a4.14 4.14 0 1 0 0 8.28 4.14 4.14 0 0 0 0-8.28zm0 6.84a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4zm4.316-6.685a.972.972 0 1 1-1.944 0 .972.972 0 0 1 1.944 0z" />
                                 </svg></a>
-                            <a href="#"><svg width="18" height="18" fill="currentColor"
-                                    viewBox="0 0 16 16">
+                            <a href="#"><svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
                                     <path
                                         d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.061 3.972L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                                 </svg></a>
@@ -2732,26 +2770,32 @@
                             @if ($product->reviews()->count() > 0)
                                 <div class="space-y-6">
                                     @foreach ($product->reviews as $review)
-                                        <div class="review-item" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
+                                        <div class="review-item"
+                                            style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
                                             <div class="review-header" style="margin-bottom: 12px;">
-                                                <div class="review-stars" style="color: #FFB800; font-size: 14px; margin-bottom: 6px; letter-spacing: 2px;">
+                                                <div class="review-stars"
+                                                    style="color: #FFB800; font-size: 14px; margin-bottom: 6px; letter-spacing: 2px;">
                                                     @for ($i = 1; $i <= 5; $i++)
                                                         <i class="{{ $i <= $review->stars ? 'fas' : 'far' }} fa-star"></i>
                                                     @endfor
                                                 </div>
                                                 <div class="review-meta" style="display: flex; align-items: center; gap: 10px;">
-                                                    <span class="reviewer-name" style="font-weight: 700; font-size: 14px; color: #1f2937;">{{ $review->user->name ?? 'User' }}</span>
-                                                    <span class="review-date" style="font-size: 12px; color: #94a3b8;">{{ $review->created_at->format('M d, Y') }}</span>
+                                                    <span class="reviewer-name"
+                                                        style="font-weight: 700; font-size: 14px; color: #1f2937;">{{ $review->user->name ?? 'User' }}</span>
+                                                    <span class="review-date"
+                                                        style="font-size: 12px; color: #94a3b8;">{{ $review->created_at->format('M d, Y') }}</span>
                                                 </div>
                                             </div>
-                                            <p class="review-text" style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">{{ $review->review }}</p>
+                                            <p class="review-text"
+                                                style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">
+                                                {{ $review->review }}
+                                            </p>
                                         </div>
                                     @endforeach
                                 </div>
                                 @auth
                                     @if ($hasPurchased)
-                                        <button type="button" class="review-write-btn" id="openReviewFormBtn"
-                                            style="margin-top: 12px;">
+                                        <button type="button" class="review-write-btn" id="openReviewFormBtn" style="margin-top: 12px;">
                                             <i class="far fa-pen-to-square"></i>
                                             {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                         </button>
@@ -2791,8 +2835,7 @@
                                             </div>
                                         @endif
                                     @else
-                                        <a href="{{ route('login') }}" class="review-write-btn"
-                                            style="text-decoration: none;">
+                                        <a href="{{ route('login') }}" class="review-write-btn" style="text-decoration: none;">
                                             <i class="far fa-pen-to-square"></i>
                                             Write a Review
                                         </a>
@@ -2810,7 +2853,8 @@
                                     <button type="button" class="review-modal-close" id="closeReviewFormBtn"
                                         aria-label="Close review form"><span>&times;</span></button>
                                 </div>
-                                <form class="validate-form" method="POST" action="{{ route('product.review.store', $product) }}" novalidate>
+                                <form class="validate-form" method="POST" action="{{ route('product.review.store', $product) }}"
+                                    novalidate>
                                     @csrf
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewStars">Your Rating</label>
@@ -2818,16 +2862,16 @@
                                             data-msg-required="Please select a rating.">
                                             <option value="">Select rating</option>
                                             @for ($i = 5; $i >= 1; $i--)
-                                                <option value="{{ $i }}"
-                                                    {{ old('stars', $userReview->stars ?? '') == $i ? 'selected' : '' }}>
-                                                    {{ $i }} Star{{ $i > 1 ? 's' : '' }}</option>
+                                                <option value="{{ $i }}" {{ old('stars', $userReview->stars ?? '') == $i ? 'selected' : '' }}>
+                                                    {{ $i }} Star{{ $i > 1 ? 's' : '' }}
+                                                </option>
                                             @endfor
                                         </select>
                                     </div>
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewText">Your Review</label>
-                                        <textarea class="review-form-textarea" name="review" id="reviewText" required minlength="10"
-                                            placeholder="Share your experience with this product..."
+                                        <textarea class="review-form-textarea" name="review" id="reviewText" required
+                                            minlength="10" placeholder="Share your experience with this product..."
                                             data-msg-required="Please enter your review."
                                             data-msg-minlength="Review must be at least 10 characters.">{{ old('review', $userReview->review ?? '') }}</textarea>
                                     </div>
@@ -2894,27 +2938,39 @@
                                                 style="text-decoration: none; color: inherit;">
                                                 <div class="product-image-v2" style="position: relative;">
                                                     <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
-                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="relatedWishlistBtn_{{ $related->id }}"
-                                                        aria-label="Add to Wishlist" data-product-id="{{ $related->id }}"
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn"
+                                                        id="relatedWishlistBtn_{{ $related->id }}" aria-label="Add to Wishlist"
+                                                        data-product-id="{{ $related->id }}"
                                                         style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="relatedWishlistIcon_{{ $related->id }}"
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"
+                                                            id="relatedWishlistIcon_{{ $related->id }}"
                                                             style="color: #A91B43; font-size: 18px;"></i>
                                                     </button>
                                                 </div>
-                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
-                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($related->name, 55) }}</h3>
-                                                    {{-- <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span> --}}
-                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
-                                                    @if($related->sale_price > 0)
-                                                        <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
-                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
-                                                    @else
-                                                        <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
-                                                        @if(isset($related->regular_price) && $related->regular_price > $related->price)
-                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                <div class="product-info-v2"
+                                                    style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2"
+                                                        style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">
+                                                        {{ \Illuminate\Support\Str::limit($related->name, 55) }}
+                                                    </h3>
+                                                    {{-- <span class="read-more-link"
+                                                        style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read
+                                                        More...</span> --}}
+                                                    <div class="product-price-v2"
+                                                        style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
+                                                        @if($related->sale_price > 0)
+                                                            <span
+                                                                class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
+                                                            <span class="product-price-old"
+                                                                style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                        @else
+                                                            <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
+                                                            @if(isset($related->regular_price) && $related->regular_price > $related->price)
+                                                                <span class="product-price-old"
+                                                                    style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                            @endif
                                                         @endif
-                                                    @endif
-                                                </div>
+                                                    </div>
                                                     <span class="add-to-cart-v2">View Details</span>
                                                 </div>
                                             </a>
@@ -2969,26 +3025,36 @@
                                                 style="text-decoration: none; color: inherit;">
                                                 <div class="product-image-v2" style="position: relative;">
                                                     <img src="{{ asset($recentImage) }}" alt="{{ $recent->name }}">
-                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="recentWishlistBtn_{{ $recent->id }}"
-                                                        aria-label="Add to Wishlist" data-product-id="{{ $recent->id }}"
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn"
+                                                        id="recentWishlistBtn_{{ $recent->id }}" aria-label="Add to Wishlist"
+                                                        data-product-id="{{ $recent->id }}"
                                                         style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="recentWishlistIcon_{{ $recent->id }}"
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"
+                                                            id="recentWishlistIcon_{{ $recent->id }}"
                                                             style="color: #A91B43; font-size: 18px;"></i>
                                                     </button>
                                                 </div>
-                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
-                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($recent->name, 55) }}</h3>
-                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
-                                                    @if($recent->sale_price > 0)
-                                                        <span class="price-current">₹{{ number_format($recent->sale_price, 0) }}</span>
-                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price ?? $recent->price, 0) }}</span>
-                                                    @else
-                                                        <span class="price-current">₹{{ number_format($recent->price, 0) }}</span>
-                                                        @if(isset($recent->regular_price) && $recent->regular_price > $recent->price)
-                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price, 0) }}</span>
+                                                <div class="product-info-v2"
+                                                    style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2"
+                                                        style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">
+                                                        {{ \Illuminate\Support\Str::limit($recent->name, 55) }}
+                                                    </h3>
+                                                    <div class="product-price-v2"
+                                                        style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
+                                                        @if($recent->sale_price > 0)
+                                                            <span
+                                                                class="price-current">₹{{ number_format($recent->sale_price, 0) }}</span>
+                                                            <span class="product-price-old"
+                                                                style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price ?? $recent->price, 0) }}</span>
+                                                        @else
+                                                            <span class="price-current">₹{{ number_format($recent->price, 0) }}</span>
+                                                            @if(isset($recent->regular_price) && $recent->regular_price > $recent->price)
+                                                                <span class="product-price-old"
+                                                                    style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price, 0) }}</span>
+                                                            @endif
                                                         @endif
-                                                    @endif
-                                                </div>
+                                                    </div>
                                                     <span class="add-to-cart-v2">View Details</span>
                                                 </div>
                                             </a>
@@ -3049,14 +3115,14 @@
             formData.append('action', 'cart');
 
             fetch(form.getAttribute('action'), {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
                 .then(response => {
                     if (response.status === 419) {
                         Swal.fire({
@@ -3077,11 +3143,11 @@
                         toastr.success(data.message || 'Cart updated.');
                         if (window.updateMiniCart) window.updateMiniCart();
                         if (window.notifyCartUpdate) window.notifyCartUpdate();
-                        
+
                         // Update local tracking
                         updateLocalCartQuantity(increment);
                     } else {
-                        toastr.error(data.message || 'Error updating cart.', {timeOut: 15000});
+                        toastr.error(data.message || 'Error updating cart.', { timeOut: 15000 });
                     }
                 })
                 .catch(error => {
@@ -3118,31 +3184,31 @@
         const initialProductInCart = @json($inCart);
 
         // Global Sync Listener for this product
-        window.syncCartStateWithServer = function() {
+        window.syncCartStateWithServer = function () {
             fetch('{{ url("cart/mini-cart") }}', {
                 headers: { 'Accept': 'application/json' }
             })
-            .then(res => res.json())
-            .then(data => {
-                // Reset local tracking
-                cartVariantIds = [];
-                cartVariantQuantities = {};
-                
-                // Re-populate from mini-cart data for THIS product
-                const thisProductId = {{ $product->id }};
-                data.items.forEach(item => {
-                    if (item.product_id == thisProductId) {
-                        if (item.variant_id) {
-                            cartVariantIds.push(item.variant_id);
-                            cartVariantQuantities[item.variant_id] = item.quantity;
-                        } else {
-                            cartVariantQuantities['base'] = item.quantity;
+                .then(res => res.json())
+                .then(data => {
+                    // Reset local tracking
+                    cartVariantIds = [];
+                    cartVariantQuantities = {};
+
+                    // Re-populate from mini-cart data for THIS product
+                    const thisProductId = {{ $product->id }};
+                    data.items.forEach(item => {
+                        if (item.product_id == thisProductId) {
+                            if (item.variant_id) {
+                                cartVariantIds.push(item.variant_id);
+                                cartVariantQuantities[item.variant_id] = item.quantity;
+                            } else {
+                                cartVariantQuantities['base'] = item.quantity;
+                            }
                         }
-                    }
+                    });
+                    // Trigger UI update
+                    checkVariant();
                 });
-                // Trigger UI update
-                checkVariant();
-            });
         };
 
         function selectAttribute(element) {
@@ -3304,7 +3370,7 @@
                 document.querySelector('.product-sku').innerText = baseSku;
                 updateStockStatus({{ $product->stock_quantity }});
                 updateGallery(null, null); // Show general images
-                
+
                 if (btn) {
                     // Check if the base product (no variant) is in cart
                     if (cartVariantQuantities['base'] || (initialProductInCart && cartVariantIds.length === 0)) {
@@ -3326,8 +3392,8 @@
             btn.style.background = '#2a2a2a';
             btn.type = 'button';
             btn.disabled = false;
-            btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
-            
+            btn.onclick = function () { window.location.href = "{{ route('cart') }}"; };
+
             // Hide Buy It Now button when product is already in cart
             const buyNowBtn = document.getElementById('buyNowBtn');
             if (buyNowBtn) buyNowBtn.style.display = 'none';
@@ -3339,7 +3405,7 @@
             btn.style.background = ''; // Revert to CSS default
             btn.type = 'submit';
             btn.onclick = null;
-            
+
             const buyNowBtn = document.getElementById('buyNowBtn');
             if (!isInStock) {
                 btn.classList.add('disabled');
@@ -3362,7 +3428,7 @@
             }
         }
 
-        window.onload = function() {
+        window.onload = function () {
             // Auto-select first option for each attribute section
             document.querySelectorAll('.attribute-section').forEach(section => {
                 const firstOption = section.querySelector('.attribute-option:not(.unavailable)');
@@ -3448,7 +3514,7 @@
         }
 
         // Initialize Swipers
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const reviewEntryState = document.getElementById('reviewEntryState');
             const reviewInlinePanel = document.getElementById('reviewInlinePanel');
             const openReviewFormBtn = document.getElementById('openReviewFormBtn');
@@ -3511,19 +3577,19 @@
             function initSwiper(selector, nextEl, prevEl) {
                 const el = document.querySelector(selector);
                 if (!el) return;
-                
+
                 const slideCount = el.querySelectorAll('.swiper-slide').length;
                 // Only loop if we have enough slides, otherwise centering and sliding misbehaves
-                const shouldLoop = slideCount > 4; 
+                const shouldLoop = slideCount > 4;
 
                 new Swiper(selector, {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
+                    slidesPerView: 1,
+                    spaceBetween: 16,
                     loop: shouldLoop,
                     centerInsufficientSlides: true, // Centers when slides are fewer than slidesPerView
                     observer: true,
                     observeParents: true,
-                    watchOverflow: true,
+                    watchOverflow: false, // Ensure arrows are always visible
                     autoplay: {
                         delay: 3500,
                         disableOnInteraction: false,
@@ -3533,9 +3599,18 @@
                         prevEl: prevEl,
                     },
                     breakpoints: {
-                        640: { slidesPerView: 2 },
-                        768: { slidesPerView: 3 },
-                        1024: { slidesPerView: 4 },
+                        501: {
+                            slidesPerView: 2,
+                            spaceBetween: 20
+                        },
+                        863: {
+                            slidesPerView: 3,
+                            spaceBetween: 24
+                        },
+                        1024: {
+                            slidesPerView: 4,
+                            spaceBetween: 30
+                        },
                     }
                 });
             }
@@ -3554,14 +3629,14 @@
                 formData.append('action', 'cart');
 
                 fetch(this.getAttribute('action'), {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    })
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
                     .then(response => {
                         if (response.status === 419) {
                             Swal.fire({
@@ -3581,7 +3656,7 @@
                         if (data.success) {
                             toastr.success(data.message || 'Added to cart.');
                             if (window.updateMiniCart) window.updateMiniCart();
-                            
+
                             // Re-fetch or locally update cartVariantIds if needed, 
                             // but for simplicity we can check the current matched variant
                             let selectedAttrs = [];

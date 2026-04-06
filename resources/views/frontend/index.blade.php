@@ -90,8 +90,8 @@
 
         .featured-decor-left {
             left: 0;
-            top: 460px;
-            bottom: auto !important;
+            bottom: 0;
+            top: auto !important;
         }
 
         .featured-decor-right {
@@ -505,7 +505,8 @@
         /* Single Promo Polish - Centered with 50% width on Desktop */
         .promo-swiper.single-promo-mode .swiper-wrapper {
             justify-content: center !important;
-            transform: none !important; /* CRITICAL: Stop Swiper from shifting the single slide */
+            transform: none !important;
+            /* CRITICAL: Stop Swiper from shifting the single slide */
             transition: none !important;
             display: flex !important;
         }
@@ -527,7 +528,7 @@
             /* Surgical Gradient Border: only border, no background color */
             border: 2px solid transparent;
             background: linear-gradient(white, white) padding-box,
-                        linear-gradient(135deg, #a91b43 0%, #ef9f29 52%, #a91b43 100%) border-box;
+                linear-gradient(135deg, #a91b43 0%, #ef9f29 52%, #a91b43 100%) border-box;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             /* Standard Proportions for 2-column view */
@@ -544,7 +545,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            border-radius: 17px; /* Slightly smaller for border gap */
+            border-radius: 17px;
+            /* Slightly smaller for border gap */
         }
 
         /* Nav positioning remains standard but closer to section */
@@ -1211,6 +1213,7 @@
         }
 
         @media (min-width: 641px) {
+
             .featured-section .featured-name,
             .offers-section .featured-name {
                 margin-bottom: 8px !important;
@@ -1229,7 +1232,8 @@
         }
 
         /* Home rails: mobile stability patch (New Arrivals + Offers) */
-        @media (max-width: 480px) {
+        @media (max-width: 500px) {
+
             .featured-section,
             .offers-section {
                 padding-left: 0 !important;
@@ -1243,7 +1247,7 @@
 
             .featured-swiper-container,
             .offers-swiper-container {
-                padding: 0 28px !important;
+                padding: 0 44px !important;
             }
 
             .featured-swiper .swiper-slide,
@@ -1268,7 +1272,7 @@
                 line-height: 1.3 !important;
                 min-height: 34px !important;
                 margin-top: 10px !important;
-                text-align: left !important;
+                text-align: center !important;
                 display: block !important;
                 width: 100% !important;
             }
@@ -1289,6 +1293,17 @@
             }
         }
 
+        @media (min-width: 501px) and (max-width: 768px) {
+            .featured-inner {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            .featured-swiper-container {
+                padding: 0 46px !important;
+            }
+        }
+
         @media (max-width: 360px) {
             .featured-inner {
                 padding-left: 10px !important;
@@ -1297,7 +1312,7 @@
 
             .featured-swiper-container,
             .offers-swiper-container {
-                padding: 0 24px !important;
+                padding: 0 40px !important;
             }
 
             .featured-card {
@@ -1306,15 +1321,16 @@
         }
 
         @media (max-width: 640px) {
+
             .featured-section .featured-card,
             .offers-section .featured-card {
-                align-items: stretch !important;
-                text-align: left !important;
+                align-items: center !important;
+                text-align: center !important;
             }
 
             .featured-section .featured-name,
             .offers-section .featured-name {
-                text-align: left !important;
+                text-align: center !important;
                 width: 100% !important;
                 min-height: 2.2em !important;
                 display: block !important;
@@ -1333,14 +1349,25 @@
 
         /* Final mobile nav alignment override */
         @media (max-width: 768px) {
+
             .featured-prev,
             .featured-next,
             .offers-prev,
             .offers-next,
             .category-prev,
             .category-next {
-                top: 50% !important;
+                top: 40% !important;
                 transform: translateY(-50%) !important;
+            }
+
+            .featured-prev,
+            .offers-prev {
+                left: 4px !important;
+            }
+
+            .featured-next,
+            .offers-next {
+                right: 4px !important;
             }
         }
 
@@ -1504,6 +1531,7 @@
         }
 
         @media (max-width: 768px) {
+
             .testimonial-swiper-wrap .testimonial-prev,
             .testimonial-swiper-wrap .testimonial-next {
                 top: 55% !important;
@@ -1522,6 +1550,7 @@
         }
 
         @media (max-width: 768px) {
+
             .hero,
             .hero-swiper,
             .hero-swiper .swiper-slide {
@@ -1560,7 +1589,8 @@
             <div class="swiper-wrapper">
                 @forelse($banners as $banner)
                     <div class="swiper-slide">
-                        <img src="{{ asset('uploads/' . $banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" draggable="false" />
+                        <img src="{{ asset('uploads/' . $banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}"
+                            draggable="false" />
                     </div>
                 @empty
                     <div class="swiper-slide">
@@ -1609,22 +1639,22 @@
 
     @if ($featuredProducts->count() > 0)
         <section class="featured-section" aria-labelledby="featured-title">
-            <img class="featured-decor featured-decor-left"
-                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
+
+
             <img class="featured-decor featured-decor-right"
                 src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
-
             <div class="featured-inner">
-                
+
                 <h2 id="featured-title" class="featured-title">New Arrivals</h2>
                 <p class="featured-subtitle">Fresh weaves, added daily - discover sarees handwoven just for you</p>
 
                 <div class="featured-swiper-container" style="position: relative;">
                     <div class="swiper featured-swiper">
+                        <!-- <div class="swiper collection-swiper"> -->
                         <div class="swiper-wrapper">
                             @foreach ($featuredProducts as $product)
                                 <div class="swiper-slide">
-                                    <article class="featured-card">
+                                    <article class="collection-card" style="text-align: center;">
                                         <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
                                             <div class="featured-media">
                                                 @php
@@ -1637,39 +1667,47 @@
                                                 @endphp
                                                 <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
                                                 @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
+                                                    <span class="featured-badge"
+                                                        style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
-                                                
+
                                             </div>
-                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                            <h3 class="featured-name"
+                                                style="text-align: center; min-height: 46px; margin: 12px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 16px; line-height: 1.4;">
+                                                {{ \Illuminate\Support\Str::limit($product->name, 55) }}
+                                            </h3>
                                             {{-- <span class="read-more-link">Read More...</span> --}}
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                        <div class="featured-footer">
-                                            <div class="featured-price-wrap">
-                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                        <div class="featured-footer"
+                                            style="padding: 0 4px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 12px; margin-top: 0;">
+                                            <div class="featured-price-wrap" style="justify-content: center;">
+                                                <span class="featured-price">&#8377;
+                                                    {{ number_format($product->price, 0) }}</span>
                                                 @if ($product->regular_price > $product->price)
                                                     <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
                                                 @endif
                                             </div>
-                                            <div class="featured-actions">
+                                            <div class="featured-actions" style="justify-content: center; gap: 16px;">
                                                 <button class="wishlist-btn home-rail-wishlist" type="button"
-                                                    data-product-id="{{ $product->id }}"
-                                                    aria-label="Add to wishlist"
+                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
                                                     aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
                                                     <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                                                 </button>
                                                 <button class="featured-cart-btn add-to-cart-btn" type="button"
-                                                    data-product-id="{{ $product->id }}"
-                                                    aria-label="Add to cart">
+                                                    data-product-id="{{ $product->id }}" aria-label="Add to cart">
                                                     <img src="{{ asset('images/local_mall.svg') }}" alt="">
                                                 </button>
                                             </div>
+                                            <button class="collection-cta" style="margin: 0 auto; width: 100%; max-width: 140px;"
+                                                onclick="window.location.href='{{ route('product.show', $product->slug) }}'">Shop
+                                                Now</button>
                                         </div>
                                     </article>
                                 </div>
                             @endforeach
                         </div>
+                        <!-- </div> -->
                     </div>
                     <!-- Add Navigation Outside Swiper -->
                     <div class="swiper-button-next featured-next"></div>
@@ -1685,82 +1723,83 @@
                     <span>{{ sprintf('%02d', count($featuredProducts)) }}</span>
                 </div>
             </div>
+            <img class="featured-decor featured-decor-left"
+                src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 2.png') }}" alt="" />
         </section>
     @endif
 
     {{-- @foreach($offerCollections as $collection)
-        <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
-            <div class="featured-inner">
-                
+    <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
+        <div class="featured-inner">
 
-                <h2 id="offers-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
-                <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
 
-                <div class="featured-swiper-container offers-swiper-container" style="position: relative;">
-                    <div class="swiper offers-swiper offers-swiper-{{ $collection->id }}">
-                        <div class="swiper-wrapper">
-                            @foreach ($collection->products as $product)
-                                <div class="swiper-slide">
-                                    <article class="featured-card">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
-                                            <div class="featured-media">
-                                                @php
-                                                    $productImage = 'images/pro.png';
-                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                                                        $productImage = 'uploads/' . $product->images[0];
-                                                    } elseif ($product->image_path) {
-                                                        $productImage = 'images/' . $product->image_path;
-                                                    }
-                                                @endphp
-                                                <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
-                                                @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
-                                                @endif
-                                            </div>
-                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
-                                            <span class="read-more-link">Read More...</span>
-                                        </a>
-                                        @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                        <div class="featured-footer">
-                                            <div class="featured-price-wrap">
-                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
-                                                @if ($product->regular_price > $product->price)
-                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="featured-actions">
-                                                <button class="wishlist-btn home-rail-wishlist" type="button"
-                                                    data-product-id="{{ $product->id }}"
-                                                    aria-label="Add to wishlist"
-                                                    aria-pressed="{{ $offerInWishlist ? 'true' : 'false' }}">
-                                                    <i class="{{ $offerInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
-                                                </button>
-                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
-                                                    data-product-id="{{ $product->id }}"
-                                                    aria-label="Add to cart">
-                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </article>
+            <h2 id="offers-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
+            <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
+
+            <div class="featured-swiper-container offers-swiper-container" style="position: relative;">
+                <div class="swiper offers-swiper offers-swiper-{{ $collection->id }}">
+                    <div class="swiper-wrapper">
+                        @foreach ($collection->products as $product)
+                        <div class="swiper-slide">
+                            <article class="featured-card">
+                                <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
+                                    <div class="featured-media">
+                                        @php
+                                        $productImage = 'images/pro.png';
+                                        if ($product->images && is_array($product->images) && count($product->images) > 0) {
+                                        $productImage = 'uploads/' . $product->images[0];
+                                        } elseif ($product->image_path) {
+                                        $productImage = 'images/' . $product->image_path;
+                                        }
+                                        @endphp
+                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
+                                        @if ($product->discount_percent > 0)
+                                        <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent)
+                                            }}% Off</span>
+                                        @endif
+                                    </div>
+                                    <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                    <span class="read-more-link">Read More...</span>
+                                </a>
+                                @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                <div class="featured-footer">
+                                    <div class="featured-price-wrap">
+                                        <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                        @if ($product->regular_price > $product->price)
+                                        <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="featured-actions">
+                                        <button class="wishlist-btn home-rail-wishlist" type="button"
+                                            data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
+                                            aria-pressed="{{ $offerInWishlist ? 'true' : 'false' }}">
+                                            <i class="{{ $offerInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                        </button>
+                                        <button class="featured-cart-btn add-to-cart-btn" type="button"
+                                            data-product-id="{{ $product->id }}" aria-label="Add to cart">
+                                            <img src="{{ asset('images/local_mall.svg') }}" alt="">
+                                        </button>
+                                    </div>
                                 </div>
-                            @endforeach
+                            </article>
                         </div>
+                        @endforeach
                     </div>
-                    <div class="swiper-button-next featured-next collection-next-{{ $collection->id }}"></div>
-                    <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
                 </div>
-
-                <div class="featured-progress mt-5" id="offersProgress-{{ $collection->id }}" style="margin-top: 50px;">
-                    <span id="offersCurrentSlide-{{ $collection->id }}">01</span>
-                    <div class="featured-progress-track" id="offersProgressTrack-{{ $collection->id }}">
-                        <div class="featured-progress-bg"></div>
-                        <div class="featured-progress-fill" id="offersProgressFill-{{ $collection->id }}"></div>
-                    </div>
-                    <span>{{ sprintf('%02d', count($collection->products)) }}</span>
-                </div>
+                <div class="swiper-button-next featured-next collection-next-{{ $collection->id }}"></div>
+                <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
             </div>
-        </section>
+
+            <div class="featured-progress mt-5" id="offersProgress-{{ $collection->id }}" style="margin-top: 50px;">
+                <span id="offersCurrentSlide-{{ $collection->id }}">01</span>
+                <div class="featured-progress-track" id="offersProgressTrack-{{ $collection->id }}">
+                    <div class="featured-progress-bg"></div>
+                    <div class="featured-progress-fill" id="offersProgressFill-{{ $collection->id }}"></div>
+                </div>
+                <span>{{ sprintf('%02d', count($collection->products)) }}</span>
+            </div>
+        </div>
+    </section>
     @endforeach --}}
 
     @if($categories->count() > 0)
@@ -1802,8 +1841,8 @@
                     <div class="swiper-wrapper">
                         @foreach ($ads->take(6) as $ad)
                             <div class="swiper-slide">
-                                <a class="promo-banner" href="{{ $ad->link ?: route('shop') }}"
-                                    @if ($ad->open_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                                <a class="promo-banner" href="{{ $ad->link ?: route('shop') }}" @if ($ad->open_new_tab)
+                                target="_blank" rel="noopener noreferrer" @endif
                                     aria-label="{{ $ad->title ?: 'Promotional banner' }}">
                                     <img src="{{ asset('uploads/' . $ad->image) }}"
                                         alt="{{ $ad->title ?: 'Promotional banner' }}" />
@@ -1844,7 +1883,7 @@
                                         </div>
                                     </div>
                                     <h3 class="testimonial-card-title">
-                                    <p class="testimonial-text">{{ $testimonial->review }}</p>
+                                        <p class="testimonial-text">{{ $testimonial->review }}</p>
                                 </article>
                             </div>
                         @empty
@@ -1895,7 +1934,7 @@
                         prevEl: '.saree-collection-prev',
                     },
                     breakpoints: {
-                        640: {
+                        641: {
                             slidesPerView: 2
                         },
                         768: {
@@ -1934,16 +1973,8 @@
                             slidesPerView: 1,
                             spaceBetween: 8
                         },
-                        400: {
-                            slidesPerView: 1,
-                            spaceBetween: 8
-                        },
-                        480: {
-                            slidesPerView: 1,
-                            spaceBetween: 10
-                        },
-                        768: {
-                            slidesPerView: 1,
+                        641: {
+                            slidesPerView: 2,
                             spaceBetween: 12
                         },
                         1024: {
@@ -1951,7 +1982,7 @@
                             spaceBetween: 15
                         },
                         1280: {
-                            slidesPerView: 5, // Show 5 fully to make 6th one scrollable
+                            slidesPerView: 5,
                             spaceBetween: 15
                         }
                     }
@@ -2063,8 +2094,8 @@
                     // isScrollable should technically be true if we have more than what's currently visible
                     // but we also need isLoopable for Swiper 11 to not break
                     const isScrollable = totalProducts >= 2; // Always scrollable if > 1 for mobile/tablet
-                    const isEnoughForDesktop = totalProducts > slidesPerView; 
-                    
+                    const isEnoughForDesktop = totalProducts > slidesPerView;
+
                     const progressTrack = document.getElementById(progressTrackId);
                     const progressFill = document.getElementById(progressFillId);
                     const currentSlide = document.getElementById(currentSlideId);
@@ -2111,7 +2142,7 @@
                     const swiper = new Swiper(swiperSelector, {
                         slidesPerView: 1.1,
                         spaceBetween: 14,
-                        loop: isLoopable, 
+                        loop: isLoopable,
                         watchOverflow: true,
                         allowTouchMove: isScrollable,
                         simulateTouch: isScrollable,
@@ -2128,28 +2159,27 @@
                                 slidesPerView: 1,
                                 spaceBetween: 12
                             },
-                            480: {
-                                slidesPerView: 1.2,
-                                spaceBetween: 14
+                            641: {
+                                slidesPerView: 2,
+                                spaceBetween: 20
                             },
-                            640: {
-                                slidesPerView: 2
-                            },
-                            768: {
-                                slidesPerView: 3
+                            780: {
+                                slidesPerView: 3,
+                                spaceBetween: 16
                             },
                             1024: {
-                                slidesPerView: 4
+                                slidesPerView: 4,
+                                spaceBetween: 20
                             },
                         },
                         on: {
-                            init: function() {
+                            init: function () {
                                 updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             },
-                            slideChange: function() {
+                            slideChange: function () {
                                 updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             },
-                            resize: function() {
+                            resize: function () {
                                 updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             }
                         }
@@ -2158,7 +2188,7 @@
                     const progressTrack = document.getElementById(progressTrackId);
                     if (progressTrack && isScrollable) {
                         progressTrack.style.cursor = 'pointer';
-                        progressTrack.addEventListener('click', function(event) {
+                        progressTrack.addEventListener('click', function (event) {
                             const rect = progressTrack.getBoundingClientRect();
                             const clickOffset = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
                             const clickRatio = rect.width === 0 ? 0 : clickOffset / rect.width;
@@ -2195,19 +2225,19 @@
                 @endforeach
 
                 // AJAX Add to Cart for Home Page buttons
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     const btn = e.target.closest('.add-to-cart-btn');
                     if (btn && !btn.closest('#pdpForm')) {
                         const productId = btn.getAttribute('data-product-id');
 
                         fetch(`{{ url('cart/add') }}/${productId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Accept': 'application/json'
-                                }
-                            })
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
                             .then(response => {
                                 if (response.status === 419) {
                                     Swal.fire({

@@ -4,125 +4,368 @@
 
 @section('content')
     @push('styles')
-    <style>
-        @media (max-width: 768px) {
-            .cart-page {
-                padding: 18px 0 30px;
+        <style>
+            /* Desktop Layout - Fixed Width Flexbox for Perfect Alignment */
+            @media (min-width: 769px) {
+                .cart-layout-grid {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    gap: 0 !important;
+                    width: 100%;
+                }
+
+                .col-product {
+                    width: 110px;
+                    flex-shrink: 0;
+                }
+
+                .col-details {
+                    flex-grow: 1;
+                    padding: 0 30px;
+                    min-width: 0;
+                }
+
+                .col-price {
+                    width: 130px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                }
+
+                .col-quantity {
+                    width: 170px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                }
+
+                .col-remove {
+                    width: 80px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                /* Header Specifics */
+                .cart-header-row {
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #f0f0f0;
+                    margin-bottom: 15px;
+                    font-weight: 800;
+                    color: #222;
+                    font-size: 16px;
+                }
+
+                .cart-header-row span {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: left;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    color: #888;
+                }
+
+                .cart-header-row .col-product,
+                .cart-header-row .col-details {
+                    justify-content: flex-start;
+                    text-align: left;
+                }
+
+                /* Reduce space on medium screens */
+                @media (max-width: 1100px) {
+                    .col-details {
+                        padding: 0 15px;
+                    }
+
+                    .col-price {
+                        width: 110px;
+                    }
+
+                    .col-quantity {
+                        width: 150px;
+                    }
+                }
+            }
+
+            .cart-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 380px !important;
+                gap: 40px !important;
+                align-items: start !important;
+                max-width: 1540px;
+                margin: 0 auto;
+                width: 100%;
             }
 
             .cart-items-list,
             .cart-summary {
-                padding: 18px;
-                border-radius: 16px;
+                background: #fff;
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             }
 
             .cart-item-row {
-                grid-template-columns: 72px 1fr auto !important;
-                grid-template-areas:
-                    "image info remove"
-                    "image price price"
-                    "image qty qty" !important;
-                align-items: start !important;
-                gap: 8px 14px !important;
-                padding: 16px 0 !important;
+                padding: 24px 0 !important;
+                border-bottom: 1px solid #f0f0f0 !important;
+            }
+
+            .cart-item-row:last-child {
+                border-bottom: none !important;
             }
 
             .cart-item-img {
-                width: 72px;
-                height: 72px;
+                width: 100px;
+                height: 125px;
+                border-radius: 12px;
+                overflow: hidden;
+                background: #f9f9f9;
+            }
+
+            .cart-item-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
 
             .cart-item-info h3 {
-                font-size: 15px;
-                line-height: 1.4;
-                margin-bottom: 6px !important;
-            }
-
-            .cart-item-info .item-variants {
-                font-size: 10px !important;
-                line-height: 1.5;
+                font-size: 18px;
+                font-weight: 700;
+                margin: 0 0 5px;
+                color: #111;
             }
 
             .cart-item-price {
-                font-size: 16px;
-                font-weight: 700;
+                font-size: 19px;
+                font-weight: 800;
+                position: relative;
+                right: 19px;
+                color: #A91B43;
             }
 
             .quantity-picker {
-                justify-self: start !important;
-                transform: scale(0.95);
-                transform-origin: left center;
-                margin-top: 2px;
-            }
-
-            .remove-item {
-                font-size: 20px;
-                line-height: 1;
-                padding: 0;
-            }
-
-            .summary-title {
-                font-size: 18px;
-                margin-bottom: 18px;
-                padding-bottom: 12px;
-            }
-
-            .summary-row,
-            .summary-total {
-                font-size: 15px;
-                gap: 12px;
-            }
-
-            .summary-total {
-                font-size: 18px;
-            }
-
-            .coupon-input-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .coupon-input,
-            .btn-apply-coupon {
-                width: 100%;
-                border-radius: 8px;
-            }
-
-            .btn-apply-coupon {
-                min-height: 46px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 0.02em;
+                gap: 0;
+                position: relative;
+                right: 15px;
+                /* background: #f8f9fa;
+                                                                                                                                                                                                                                                                                                                                                                border-radius: 10px;
+                                                                                                                                                                                                                                                                                                                                                                padding: 4px;
+                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #eee; */
+                width: fit-content;
             }
 
-            .btn-checkout,
-            .btn-continue-shopping {
-                margin-top: 0;
-                min-height: 48px;
+            .remove-item {
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: #fff5f5 !important;
+                color: #ff3b30 !important;
+                border: 1px solid #ffebeb !important;
+                font-size: 20px !important;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+
+            .remove-item:hover {
+                background: #ff3b30 !important;
+                color: #fff !important;
+                transform: scale(1.1);
+            }
+
+            .cart-summary {
+                position: sticky;
+                top: 24px;
+            }
+
+            .summary-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #f5f5f5;
+            }
+
+            .summary-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 15px;
+                color: #666;
                 font-size: 16px;
             }
-        }
 
-        .back-to-shop:hover {
-            color: #A91B43 !important;
-            transform: translateX(-5px);
-        }
-    </style>
+            .summary-total {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 25px;
+                padding-top: 20px;
+                border-top: 2px solid #f5f5f5;
+                font-size: 20px;
+                font-weight: 800;
+                color: #A91B43;
+            }
+
+            /* Responsive Adjustments for Ultra-Wide and Large Desktop */
+            @media (min-width: 1600px) {
+                .cart-grid {
+                    grid-template-columns: 1fr 420px !important;
+                }
+            }
+
+            /* Tablet Viewport (Stacking Sidebar) */
+            @media (max-width: 1100px) {
+                .cart-grid {
+                    grid-template-columns: 1fr !important;
+                    gap: 30px !important;
+                }
+
+                .cart-summary {
+                    position: static !important;
+                    max-width: 100%;
+                }
+            }
+
+            /* Mobile and Small Screen Adjustments */
+            @media (max-width: 768px) {
+                .cart-page {
+                    padding: 15px 0 40px;
+                    width: 95%;
+                    margin: 0 auto;
+                }
+
+                .cart-header-row {
+                    display: none !important;
+                }
+
+                .cart-items-list,
+                .cart-summary {
+                    padding: 20px;
+                    border-radius: 16px;
+                }
+
+                .cart-item-row {
+                    grid-template-columns: 90px 1fr auto !important;
+                    grid-template-areas:
+                        "image info remove"
+                        "image price remove"
+                        "image qty remove" !important;
+                    align-items: center !important;
+                    gap: 8px 15px !important;
+                    padding: 20px 0 !important;
+                    border-bottom: 1px solid #f0f0f0 !important;
+                    display: grid !important;
+                }
+
+                .cart-item-img {
+                    grid-area: image;
+                    width: 90px;
+                    height: 115px;
+                }
+
+                .cart-item-info {
+                    grid-area: info;
+                    padding-left: 0 !important;
+                }
+
+                .cart-item-info h3 {
+                    font-size: 16px;
+                    line-height: 1.4;
+                    margin-bottom: 5px !important;
+                }
+
+                .cart-item-info .item-variants {
+                    font-size: 11px !important;
+                }
+
+                .cart-item-price {
+                    grid-area: price;
+                    text-align: left;
+                    font-size: 17px;
+                    margin-left: 0 !important;
+                    position: relative;
+                    right: 0px;
+                }
+
+                .quantity-picker {
+                    grid-area: qty;
+                    justify-self: start !important;
+                    margin: 0 !important;
+                    scale: 0.95;
+                    transform-origin: left;
+                    position: relative;
+                    right: 0px;
+                }
+
+                .remove-item {
+                    grid-area: remove;
+                    align-self: center !important;
+                    justify-self: end !important;
+                    margin: 0 !important;
+                    font-size: 20px !important;
+                }
+
+                /* Summary Coupon Field stacking */
+                .coupon-input-group {
+                    flex-direction: row !important;
+                    gap: 12px !important;
+                }
+
+                .coupon-input-group input,
+                .coupon-input-group button {
+                    width: 20% !important;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .cart-item-row {
+                    grid-template-columns: 80px 1fr auto !important;
+                }
+
+                .coupon-input-group input,
+                .coupon-input-group button {
+                    width: 30% !important;
+                }
+
+                .cart-item-img {
+                    width: 80px;
+                    height: 130px;
+                }
+            }
+
+            .back-to-shop:hover {
+                color: #A91B43 !important;
+                transform: translateX(-5px);
+            }
+        </style>
     @endpush
     <main class="cart-page">
         <div class="page-shell">
             <div style="margin-bottom: 15px;">
-                <a href="{{ route('shop') }}" class="back-to-shop" style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 18px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <a href="{{ route('shop') }}" class="back-to-shop"
+                    style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 18px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
                     Continue Shopping
                 </a>
             </div>
 
-            <h1 class="auth-title" style="text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
-               Your Shopping Cart
+            <h1 class="auth-title"
+                style="text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                Your Shopping Cart
             </h1>
 
             @php
@@ -134,37 +377,49 @@
                     @if ($hasItems)
                         <form id="cartForm" method="POST" action="{{ route('cart.update') }}">
                             @csrf
-                            <div class="cart-header-row"
-                                style="display: grid; grid-template-columns: 80px 1fr 120px 150px 40px; gap: 20px; padding-bottom: 8px; border-bottom: 2px solid #eee; margin-bottom: 10px; font-weight: 700; color: #333;">
-                                <span style="font-size: 17px;">Product</span>
-                                <span style="font-size: 17px; padding-left: 20px;">Details</span>
-                                <span style="font-size: 17px; margin-left: -15px;">Unit Price</span>
-                                <span style="font-size: 17px;">Quantity</span>
-                                <span style="font-size: 17px;"></span>
+                            <div class="cart-header-row cart-layout-grid">
+                                <span class="col-product">Product</span>
+                                <span class="col-details">Details</span>
+                                <span class="col-price" style="text-align: right;">Unit Price</span>
+                                <span class="col-quantity">Quantity</span>
+                                <span class="col-remove">Action</span>
                             </div>
 
                             @foreach ($items as $item)
-                                <div class="cart-item-row" id="item-{{ $item['key'] }}">
-                                    <div class="cart-item-img">
+                                <div class="cart-item-row cart-layout-grid" id="item-{{ $item['key'] }}">
+                                    <div class="cart-item-img col-product">
                                         <img src="{{ $item['image_url'] }}" alt="{{ $item['name'] }}">
                                     </div>
-                                    <div class="cart-item-info" style="padding-left: 20px;">
-                                        <h3 style="margin-bottom: 5px;">{{ $item['name'] }}</h3>
+                                    <div class="cart-item-info col-details">
+                                        <h3>{{ $item['name'] }}</h3>
                                         @if(!empty($item['display_attributes']))
-                                            <div class="item-variants" style="font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-wrap: wrap; gap: 5px;">
+                                            <div class="item-variants"
+                                                style="font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-wrap: wrap; gap: 5px;">
                                                 @foreach($item['display_attributes'] as $attr)
-                                                    <span class="variant-tag" style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                                    <span class="variant-tag"
+                                                        style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px;">{{ $attr['name'] }}:
+                                                        {{ $attr['value'] }}</span>
                                                 @endforeach
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="cart-item-price" style="margin-left: -15px;">&#8377;{{ number_format($item['price'], 0) }}</div>
-                                    <div class="quantity-picker">
-                                        <button type="button" class="qty-btn" onclick="updateCartQty('{{ $item['key'] }}', -1)">-</button>
-                                        <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]" value="{{ $item['quantity'] }}" readonly>
-                                        <button type="button" class="qty-btn" onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
+                                    <div class="cart-item-price col-price">
+                                        &#8377;{{ number_format($item['price'], 0) }}</div>
+                                    <div class="quantity-picker col-quantity">
+                                        <div class="picker-container"
+                                            style="display: flex; align-items: center; background: #f8f9fa; border-radius: 10px; padding: 4px; border: 1px solid #eee; width: fit-content;">
+                                            <button type="button" class="qty-btn"
+                                                onclick="updateCartQty('{{ $item['key'] }}', -1)">-</button>
+                                            <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]"
+                                                value="{{ $item['quantity'] }}" readonly>
+                                            <button type="button" class="qty-btn"
+                                                onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
+                                        </div>
                                     </div>
-                                    <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')" aria-label="Remove item" style="color: #ff3b30; font-size: 24px; font-weight: bold; background: none; border: none; cursor: pointer; transition: transform 0.2s;">&times;</button>
+                                    <div class="col-remove">
+                                        <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')"
+                                            aria-label="Remove item">&times;</button>
+                                    </div>
                                 </div>
                             @endforeach
                         </form>
@@ -186,10 +441,10 @@
                         <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}</span>
                     </div>
                     @if($tax > 0)
-                    <div class="summary-row">
-                        <span>Estimated Tax (GST <span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
-                        <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
-                    </div>
+                        <div class="summary-row">
+                            <span>Estimated Tax (GST <span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
+                            <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
+                        </div>
                     @endif
                     <div class="summary-row" style="color: #2e7d32; font-weight: 600;">
                         <span>Coupon Discount</span>
@@ -221,7 +476,8 @@
                         @else
                             <form method="POST" action="{{ route('cart.coupon.apply') }}" class="coupon-input-group">
                                 @csrf
-                                <input type="text" name="code" class="coupon-input" placeholder="Promo code" value="{{ old('code') }}">
+                                <input type="text" name="code" class="coupon-input" placeholder="Promo code"
+                                    value="{{ old('code') }}">
                                 <button type="submit" class="btn-apply-coupon">Apply</button>
                             </form>
                         @endif
@@ -266,7 +522,7 @@
 
         function ajaxUpdateCart(key, qty) {
             // Show loading state on summary spans
-            ['subtotalDisp','taxDisp','totalDisp'].forEach(id => {
+            ['subtotalDisp', 'taxDisp', 'totalDisp'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.style.opacity = '0.4'; }
             });
@@ -283,67 +539,67 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 body: formData
             })
-            .then(res => {
-                if (res.status === 419) {
-                    Swal.fire({
-                        title: 'Session Expired',
-                        text: 'Your session has expired. Please refresh the page to continue.',
-                        icon: 'warning',
-                        confirmButtonText: 'Refresh Page',
-                        confirmButtonColor: '#A91B43'
-                    }).then(() => {
+                .then(res => {
+                    if (res.status === 419) {
+                        Swal.fire({
+                            title: 'Session Expired',
+                            text: 'Your session has expired. Please refresh the page to continue.',
+                            icon: 'warning',
+                            confirmButtonText: 'Refresh Page',
+                            confirmButtonColor: '#A91B43'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        throw new Error('CSRF token mismatch');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    // Update totals if returned
+                    if (data.subTotal !== undefined) {
+                        setAmt('subtotalDisp', data.subTotal);
+                        setAmt('taxDisp', data.tax);
+                        setAmt('totalDisp', data.grandTotal);
+
+                        if (data.taxPercentage !== undefined) {
+                            const taxLabel = document.getElementById('taxRateLabel');
+                            if (taxLabel) taxLabel.textContent = data.taxPercentage;
+                        }
+                        const shipEl = document.getElementById('shippingDisp');
+                        if (shipEl) {
+                            shipEl.textContent = data.shipping > 0 ? '₹' + fmt(data.shipping) : 'FREE';
+                            shipEl.style.opacity = '1';
+                        }
+                        const discEl = document.getElementById('discountDisp');
+                        if (discEl) {
+                            discEl.textContent = '-₹' + fmt(data.discount || 0);
+                            discEl.style.opacity = '1';
+                        }
+
+                        // toastr.success('Cart updated.');
+
+                        // BROADCAST to other tabs (but skip same-tab reload)
+                        if (window.notifyCartUpdate) {
+                            // We use a small flag to skip self-reload if we were to implement it
+                            localStorage.setItem('nandhini_cart_updated', Date.now());
+                        }
+
+                    } else {
                         window.location.reload();
-                    });
-                    throw new Error('CSRF token mismatch');
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (!data) return;
-
-                // Update totals if returned
-                if (data.subTotal !== undefined) {
-                    setAmt('subtotalDisp', data.subTotal);
-                    setAmt('taxDisp', data.tax);
-                    setAmt('totalDisp', data.grandTotal);
-                    
-                    if (data.taxPercentage !== undefined) {
-                        const taxLabel = document.getElementById('taxRateLabel');
-                        if (taxLabel) taxLabel.textContent = data.taxPercentage;
                     }
-                    const shipEl = document.getElementById('shippingDisp');
-                    if (shipEl) {
-                        shipEl.textContent = data.shipping > 0 ? '₹' + fmt(data.shipping) : 'FREE';
-                        shipEl.style.opacity = '1';
+                })
+                .catch((error) => {
+                    if (error.message !== 'CSRF token mismatch') {
+                        // Silently refresh or show error
+                        toastr.error('Connection error. Updating cart...');
+                        setTimeout(() => window.location.reload(), 1000);
                     }
-                    const discEl = document.getElementById('discountDisp');
-                    if (discEl) {
-                        discEl.textContent = '-₹' + fmt(data.discount || 0);
-                        discEl.style.opacity = '1';
-                    }
-
-                    // toastr.success('Cart updated.');
-                    
-                    // BROADCAST to other tabs (but skip same-tab reload)
-                    if (window.notifyCartUpdate) {
-                        // We use a small flag to skip self-reload if we were to implement it
-                        localStorage.setItem('nandhini_cart_updated', Date.now());
-                    }
-
-                } else {
-                    window.location.reload();
-                }
-            })
-            .catch((error) => {
-                if (error.message !== 'CSRF token mismatch') {
-                    // Silently refresh or show error
-                    toastr.error('Connection error. Updating cart...');
-                    setTimeout(() => window.location.reload(), 1000);
-                }
-            });
+                });
         }
 
-        window.refreshCartPage = function() {
+        window.refreshCartPage = function () {
             // Since cart list is complex, we just reload the page to get fresh state correctly
             window.location.reload();
         };

@@ -302,7 +302,7 @@
                         <img src="{{ asset('images/favorite.svg') }}" alt="" width="18" height="23">
                         <span class="cart-count wishlist-count-badge" style="{{ $wishlistCount > 0 ? '' : 'display:none;' }}">{{ $wishlistCount }}</span>
                     </button>
-                    <a href="{{ route('cart') }}" class="icon-btn" aria-label="Cart">
+                    <a href="{{ route('cart') }}" class="icon-btn1" aria-label="Cart">
                         <img src="{{ asset('images/local_mall.svg') }}" alt="" width="14" height="20" />
                         <span class="cart-count cart-count-badge" style="{{ $cartCount > 0 ? '' : 'display:none;' }}">{{ $cartCount }}</span>
                     </a>
