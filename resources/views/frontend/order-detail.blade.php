@@ -826,7 +826,7 @@
                             </div>
                             @if($order->discount > 0)
                                 <div class="summary-row">
-                                    <span>Discount {{ $order->coupon_code ? '('.$order->coupon_code.')' : '' }}</span>
+                                    <span>Discount</span>
                                     <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 2) }}</span>
                                 </div>
                             @endif

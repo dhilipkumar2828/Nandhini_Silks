@@ -355,7 +355,7 @@
                             </td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32;">Discount {{ $order->coupon_code ? '('.$order->coupon_code.')' : '' }}</td>
+                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32;">Discount</td>
                             <td style="text-align: right; border: none; font-weight: 600; color: #2e7d32;">-&#8377;{{ number_format($order->discount, 0) }}</td>
                         </tr>
                         <tr class="total-row">
