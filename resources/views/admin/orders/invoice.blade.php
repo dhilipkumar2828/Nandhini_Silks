@@ -6,7 +6,7 @@
     <title>Invoice #{{ str_pad($order->order_number, 6, '0', STR_PAD_LEFT) }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12.5px; color: #1e293b; background: #fff; }
 
         @page { margin: 0px; }
         .page { padding: 10px 40px 40px; }
@@ -15,24 +15,24 @@
         .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 3px solid #a91b43; padding-bottom: 20px; }
         .header-left { display: table-cell; width: 55%; vertical-align: top; }
         .header-right { display: table-cell; width: 45%; text-align: right; vertical-align: top; }
-        .brand-name { font-size: 24px; font-weight: bold; color: #a91b43; letter-spacing: 1px; }
-        .brand-tagline { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
-        .brand-address { font-size: 9px; color: #64748b; margin-top: 8px; line-height: 1.6; }
+        .brand-name { font-size: 28px; font-weight: bold; color: #a91b43; letter-spacing: 1px; }
+        .brand-tagline { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
+        .brand-address { font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.6; }
 
-        .invoice-title { font-size: 28px; font-weight: bold; color: #1e293b; }
-        .invoice-number { font-size: 11px; color: #64748b; margin-top: 4px; }
-        .invoice-date { font-size: 9px; color: #94a3b8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .invoice-title { font-size: 32px; font-weight: bold; color: #1e293b; }
+        .invoice-number { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .invoice-date { font-size: 11px; color: #94a3b8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Info Sections */
         .info-row { display: table; width: 100%; margin-bottom: 25px; }
         .info-cell { display: table-cell; width: 50%; vertical-align: top; }
         .info-cell:last-child { text-align: right; }
-        .info-label { font-size: 8px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
-        .info-value { font-size: 10px; color: #1e293b; line-height: 1.7; }
+        .info-label { font-size: 10px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .info-value { font-size: 12px; color: #1e293b; line-height: 1.7; }
         .info-value strong { font-weight: bold; }
 
         /* Status Badges */
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .badge-paid { background: #dcfce7; color: #16a34a; }
         .badge-pending { background: #fef9c3; color: #ca8a04; }
         .badge-failed { background: #fee2e2; color: #dc2626; }
@@ -45,11 +45,11 @@
         /* Table */
         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .items-table thead tr { background: #a91b43; color: #fff; }
-        .items-table thead th { padding: 10px 12px; text-align: left; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .items-table thead th { padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         .items-table thead th:last-child { text-align: right; }
         .items-table tbody tr { border-bottom: 1px solid #f1f5f9; }
         .items-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .items-table tbody td { padding: 10px 12px; font-size: 10px; color: #334155; }
+        .items-table tbody td { padding: 10px 12px; font-size: 12px; color: #334155; }
         .items-table tbody td:last-child { text-align: right; font-weight: bold; }
         .items-table td.product-name { font-weight: bold; color: #1e293b; }
 
@@ -58,27 +58,27 @@
         .totals-spacer { display: table-cell; width: 55%; }
         .totals-box { display: table-cell; width: 45%; }
         .total-row { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
-        .total-label { display: table-cell; font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .total-value { display: table-cell; text-align: right; font-size: 10px; font-weight: bold; color: #1e293b; }
+        .total-label { display: table-cell; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .total-value { display: table-cell; text-align: right; font-size: 12px; font-weight: bold; color: #1e293b; }
         .grand-total-row { display: table; width: 100%; padding: 10px 0; margin-top: 4px; background: #fdf2f5; border-radius: 6px; }
-        .grand-total-label { display: table-cell; padding: 0 12px; font-size: 11px; font-weight: bold; color: #a91b43; text-transform: uppercase; }
-        .grand-total-value { display: table-cell; text-align: right; padding: 0 12px; font-size: 14px; font-weight: bold; color: #a91b43; }
+        .grand-total-label { display: table-cell; padding: 0 12px; font-size: 13px; font-weight: bold; color: #a91b43; text-transform: uppercase; }
+        .grand-total-value { display: table-cell; text-align: right; padding: 0 12px; font-size: 16px; font-weight: bold; color: #a91b43; }
 
         /* Footer */
         .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; }
-        .footer-text { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .thank-you { font-size: 13px; font-weight: bold; color: #a91b43; margin-bottom: 6px; }
+        .footer-text { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .thank-you { font-size: 15px; font-weight: bold; color: #a91b43; margin-bottom: 6px; }
 
         /* Divider */
         .divider { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
 
         /* Tracking */
         .tracking-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-top: 20px; }
-        .tracking-title { font-size: 8px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tracking-title { font-size: 10px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .tracking-grid { display: table; width: 100%; }
         .tracking-cell { display: table-cell; width: 33%; }
-        .tracking-label { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tracking-value { font-size: 10px; font-weight: bold; color: #1e293b; margin-top: 2px; }
+        .tracking-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tracking-value { font-size: 12px; font-weight: bold; color: #1e293b; margin-top: 2px; }
 
         /* Watermark */
         .watermark {
@@ -220,13 +220,13 @@
                     @if(isset($fullPath) && is_file($fullPath))
                         <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 40px; height: 40px; border-radius: 4px;">
                     @else
-                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #94a3b8;">No Image</div>
+                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8;">No Image</div>
                     @endif
                 </td>
                 <td class="product-name" style="vertical-align: middle;">
                     {{ $item->product_name }}
                     @if($item->size || $item->color)
-                    <div style="font-size: 8px; color: #64748b; font-weight: normal; margin-top: 2px;">
+                    <div style="font-size: 10px; color: #64748b; font-weight: normal; margin-top: 2px;">
                         @if($item->size) Size: {{ $item->size }} @endif
                         @if($item->color) {{ $item->size ? '|' : '' }} Color: {{ $item->color }} @endif
                     </div>
