@@ -1,0 +1,15 @@
+<?php
+
+use App\Http\Controllers\CartController;
+use Illuminate\Http\Request;
+
+require __DIR__ . '/../vendor/autoload.php';
+$app = require __DIR__ . '/../bootstrap/app.php';
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+$controller = new CartController();
+$request = new Request(['pincode' => '636352']);
+$response = $controller->checkServiceability($request);
+
+echo $response->getContent();
+echo "\n";

@@ -2728,7 +2728,7 @@
                     <div class="delivery-check">
                         <p class="delivery-title">Check Delivery Availability</p>
                         <div class="pincode-input-group">
-                            <input type="text" class="pincode-input" placeholder="Enter Pincode" value="{{ session('checked_pincode') }}">
+                            <input type="text" class="pincode-input" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)" placeholder="Enter Pincode" value="{{ session('checked_pincode') }}">
                             <button type="button" class="btn-pincode">Check</button>
                         </div>
                         <p class="delivery-note">
@@ -3076,6 +3076,8 @@
 
 @push('scripts')
     <script>
+        let currentMaxQuantity = {{ $product->stock_quantity }};
+
         function changeImg(src, thumb) {
             document.getElementById('mainImg').src = src;
             const thumbs = document.querySelectorAll('.thumbnail');
@@ -3086,7 +3088,7 @@
         function updateQty(val) {
             const input = document.getElementById('qtyDisp');
             const hiddenInput = document.getElementById('qtyInput');
-            const maxQuantity = 10;
+            const maxQuantity = currentMaxQuantity;
             let current = parseInt(input.value);
             let next = current + val;
             if (next < 1) next = 1;
@@ -3346,6 +3348,7 @@
                 updatePriceDisplay(vSale, vRegular);
                 document.querySelector('.product-sku').innerText = matched.sku || baseSku;
                 updateStockStatus(matched.stock_quantity);
+                currentMaxQuantity = matched.stock_quantity;
 
                 // Swap Main Image and filter thumbnails for this variant
                 updateGallery(null, matched.id);
@@ -3369,6 +3372,7 @@
                 updatePriceDisplay(basePrice, baseRegularPrice);
                 document.querySelector('.product-sku').innerText = baseSku;
                 updateStockStatus({{ $product->stock_quantity }});
+                currentMaxQuantity = {{ $product->stock_quantity }};
                 updateGallery(null, null); // Show general images
 
                 if (btn) {

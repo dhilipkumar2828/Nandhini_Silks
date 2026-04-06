@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Cache;
 class ShiprocketService
 {
     protected string $baseUrl = 'https://apiv2.shiprocket.in/v1/external';
-    protected string $email;
-    protected string $password;
+    protected ?string $email;
+    protected ?string $password;
 
     public function __construct()
     {
