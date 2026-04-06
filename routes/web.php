@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
     Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
     Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
+    Route::post('/order/return-request/{id}', [FrontendController::class, 'returnRequest'])->name('order.return.request');
 
     // Checkout & Wishlist (Auth Required)
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');

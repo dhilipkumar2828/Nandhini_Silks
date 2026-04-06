@@ -137,38 +137,55 @@
                     </div>
                     
                     <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">AWB Number</label>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">AWB Tracking Number</label>
                         @if($order->shiprocket_awb)
-                            <span class="text-sm font-bold text-[#a91b43]">{{ $order->shiprocket_awb }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-black text-blue-900 tracking-wider">{{ $order->shiprocket_awb }}</span>
+                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black uppercase rounded">Assigned</span>
+                            </div>
                         @else
                             <form action="{{ route('admin.orders.shiprocket.awb', $order->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="text-xs text-blue-600 font-bold hover:underline">
-                                    <i class="fas fa-plus mr-1"></i> Assign AWB
+                                <button type="submit" class="flex items-center gap-1.5 text-[11px] bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 hover:text-blue-700 transition-all border border-blue-100 uppercase tracking-wider">
+                                    <i class="fas fa-plus-circle"></i> Generate AWB Now
                                 </button>
                             </form>
                         @endif
                     </div>
 
-                    <div class="pt-2 grid grid-cols-2 gap-3">
-                        <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank" class="flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">
-                            <i class="fas fa-print"></i> Label
+                    <div class="pt-4 grid grid-cols-2 gap-3">
+                        <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank" class="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]">
+                            <i class="fas fa-print text-xs"></i> Print Label
                         </a>
                         <form action="{{ route('admin.orders.shiprocket.pickup', $order->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">
-                                <i class="fas fa-box"></i> Pickup
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-[0.98]">
+                                <i class="fas fa-calendar-check text-xs"></i> Call Pickup
                             </button>
                         </form>
                     </div>
+
+                    @if($order->order_status == 'delivered')
+                        <div class="pt-2">
+                            <form action="{{ route('admin.orders.shiprocket.return', $order->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-rose-50 text-rose-600 border border-rose-100 py-2.5 rounded-xl text-[11px] font-bold hover:bg-rose-100 transition-all">
+                                    <i class="fas fa-rotate-left"></i> Initiate Channel Return
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             @else
-                <div class="text-center py-4">
-                    <p class="text-sm text-slate-400 mb-4 block">This order has not been synced to Shiprocket yet.</p>
+                <div class="text-center py-6 px-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
+                        <i class="fas fa-cloud-arrow-up text-slate-300 text-lg"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Requires Manual Synchronization</p>
                     <form action="{{ route('admin.orders.shiprocket.push', $order->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">
-                            <i class="fas fa-paper-plane mr-1.5"></i> Push to Shiprocket
+                        <button type="submit" class="w-full bg-[#a91b43] text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-rose-100 hover:bg-[#940437] transition-all active:scale-[0.98] uppercase tracking-widest">
+                            <i class="fas fa-bolt mr-2 text-xs"></i> Push to Shiprocket
                         </button>
                     </form>
                 </div>
@@ -197,6 +214,58 @@
                 {{ $order->admin_notes ?? 'No internal notes added.' }}
             </div>
         </div>
+
+        @if($order->return_status)
+        <div class="card-glass p-6 rounded-2xl border-2 border-amber-100 shadow-lg shadow-amber-50/50">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-undo text-amber-600 text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Return Request</h2>
+                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Customer Logic Flow</p>
+                </div>
+            </div>
+
+            <div class="space-y-5">
+                <div class="bg-amber-50/50 border border-amber-100 p-4 rounded-xl">
+                    <label class="text-[10px] font-bold uppercase text-amber-600 block mb-2 opacity-70">Customer Reason</label>
+                    <p class="text-sm font-bold text-slate-700 leading-relaxed italic">"{{ $order->return_reason }}"</p>
+                </div>
+
+                <form action="{{ route('orders.return.status', $order->id) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2">Update Return State</label>
+                        <select name="return_status" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all cursor-pointer">
+                            <option value="requested" {{ $order->return_status == 'requested' ? 'selected' : '' }}>Requested (Pending Review)</option>
+                            <option value="approved" {{ $order->return_status == 'approved' ? 'selected' : '' }}>Approved (Create Shiprocket Pickup)</option>
+                            <option value="rejected" {{ $order->return_status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="picked" {{ $order->return_status == 'picked' ? 'selected' : '' }}>Picked Up</option>
+                            <option value="received" {{ $order->return_status == 'received' ? 'selected' : '' }}>Received in Warehouse</option>
+                            <option value="refunded" {{ $order->return_status == 'refunded' ? 'selected' : '' }}>Refunded to Customer</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2">Internal Notes</label>
+                        <textarea name="admin_notes" rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 transition-all resize-none">{{ $order->return_admin_notes }}</textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-500 text-white text-center py-3 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg">
+                        Update Return State
+                    </button>
+                </form>
+
+                @if($order->reverse_awb)
+                <div class="pt-4 mt-4 border-t border-slate-100">
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block">Shiprocket AWB</label>
+                    <span class="text-sm font-black text-slate-800 tracking-wider">{{ $order->reverse_awb }}</span>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

@@ -77,8 +77,14 @@ class ProductController extends Controller
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
+            'weight' => 'required|numeric|min:0.1|max:10',
+            'v_weight.*' => 'nullable|numeric|min:0.1|max:10',
         ], [
             'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
+            'weight.max' => 'Weight cannot exceed 10 KG. Use format like 0.10 (100g).',
+            'weight.min' => 'Minimum weight should be 0.10 KG.',
+            'v_weight.*.max' => 'Variant weight cannot exceed 10 KG.',
+            'v_weight.*.min' => 'Minimum variant weight should be 0.10 KG.',
         ]);
 
         $isVariant = $request->input('is_variant') == '1';
@@ -284,8 +290,14 @@ class ProductController extends Controller
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
+            'weight' => 'required|numeric|min:0.1|max:10',
+            'v_weight.*' => 'nullable|numeric|min:0.1|max:10',
         ], [
             'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
+            'weight.max' => 'Weight cannot exceed 10 KG. Use format like 0.10 (100g).',
+            'weight.min' => 'Minimum weight should be 0.10 KG.',
+            'v_weight.*.max' => 'Variant weight cannot exceed 10 KG.',
+            'v_weight.*.min' => 'Minimum variant weight should be 0.10 KG.',
         ]);
 
         $isVariant = $request->input('is_variant') == '1';

@@ -141,9 +141,12 @@
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (grams)</label>
-                            <input type="text" name="weight" value="{{ old('weight') }}"
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="250">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Weight (KG) <span class="text-rose-500">*</span></label>
+                            <input type="number" name="weight" step="0.01" min="0.1" value="{{ old('weight', '0.10') }}" required
+                                class="w-full bg-[#fff5f5] border border-rose-200 px-3 py-2 rounded-lg text-sm font-bold text-rose-700 outline-none focus:border-[#a91b43] transition-all" placeholder="0.10">
+                            <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase tracking-tighter">
+                                <i class="fas fa-exclamation-triangle"></i> Mandatory: Use format 0.10 (100g) or 0.50 (500g)
+                            </p>
                         </div>
                         <div class="col-span-2">
                             <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
@@ -438,7 +441,32 @@ $(document).ready(function() {
     const specContent = $('#full_description').val();
     if (specContent) quillSpec.clipboard.dangerouslyPasteHTML(specContent);
 
-    $('#productForm').on('submit', function() {
+    $('#productForm').on('submit', function(e) {
+        let isValid = true;
+        
+        const isVar = $('#isVariantCheckbox').is(':checked');
+        if (!isVar) {
+            const weightVal = parseFloat($('input[name="weight"]:visible').val());
+            if (isNaN(weightVal) || weightVal < 0.1 || weightVal > 10) {
+                toastr.error("Weight must be between 0.10 and 10 KG! Check the format (e.g. 0.10, 0.50).");
+                isValid = false;
+            }
+        } else {
+            $('.v-weight-input').each(function() {
+                const val = parseFloat($(this).val());
+                if (isNaN(val) || val < 0.1 || val > 10) {
+                    toastr.error("Variant Weight must be between 0.10 and 10 KG!");
+                    isValid = false;
+                    return false;
+                }
+            });
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            return false;
+        }
+
         $('#short_description').val(quillDesc.root.innerHTML);
         $('#full_description').val(quillSpec.root.innerHTML);
     });
@@ -648,8 +676,11 @@ $(document).ready(function() {
                                 <input type="text" name="v_sku[${comboIds}]" value="${ui ? ui.sku : ''}" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. SKU-001">
                             </div>
                             <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Weight (gr)</label>
-                                <input type="text" name="v_weight[${comboIds}]" value="${ui ? ui.weight : ''}" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. 500">
+                                <label class="block text-[9px] font-black text-[#a91b43] uppercase tracking-widest mb-1">Weight (KG)</label>
+                                <input type="number" step="0.01" min="0.1" name="v_weight[${comboIds}]" value="${ui ? ui.weight : '0.10'}" class="w-full bg-white border border-rose-200 rounded-lg px-3 py-1.5 text-xs font-bold text-rose-700 outline-none focus:border-[#a91b43] transition-all" placeholder="0.10">
+                                <p class="text-[7px] text-rose-500 font-bold mt-1 uppercase leading-tight">
+                                    Format: 0.10 (100g)
+                                </p>
                             </div>
                             <div>
                                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Shipping Class</label>

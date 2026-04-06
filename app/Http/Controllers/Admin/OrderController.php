@@ -305,4 +305,46 @@ class OrderController extends Controller
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
     }
+
+    public function updateReturnStatus(Request $request, Order $order, ShiprocketService $shiprocket)
+    {
+        $request->validate([
+            'return_status' => 'required|in:requested,approved,rejected,picked,received,refunded',
+            'admin_notes' => 'nullable|string',
+        ]);
+
+        $oldStatus = $order->return_status;
+        $newStatus = $request->return_status;
+
+        $order->update([
+            'return_status'    => $newStatus,
+            'return_admin_notes' => $request->admin_notes,
+        ]);
+
+        // If newly approved, trigger Shiprocket return order creation
+        if ($newStatus === 'approved' && $oldStatus === 'requested') {
+            $result = $shiprocket->createReturnOrder($order);
+
+            if ($result['status'] && isset($result['data'])) {
+                $order->update([
+                    'shiprocket_return_order_id' => $result['data']['order_id'] ?? null,
+                    'shiprocket_return_shipment_id' => $result['data']['shipment_id'] ?? null,
+                    // If shiprocket returns AWB immediately in return creation
+                    'reverse_awb' => $result['data']['awb_code'] ?? null,
+                ]);
+                
+                return back()->with('success', 'Return request approved and sent to Shiprocket. Shipment ID: ' . ($result['data']['shipment_id'] ?? 'N/A'));
+            } else {
+                Log::error('Shiprocket Return Creation Failed: ' . ($result['message'] ?? 'Unknown error'));
+                return back()->with('warning', 'Status updated, but failed to create return in Shiprocket: ' . ($result['message'] ?? 'Check logs'));
+            }
+        }
+
+        // If refunded, maybe update payment status too
+        if ($newStatus === 'refunded') {
+            $order->update(['payment_status' => 'refunded']);
+        }
+
+        return back()->with('success', 'Return status updated to ' . strtoupper($newStatus));
+    }
 }

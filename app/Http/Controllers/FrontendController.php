@@ -408,7 +408,37 @@ class FrontendController extends Controller
             return redirect()->route('my-orders')->with('error', 'Order not found.');
         }
 
+        // dd($order);
+
         return view('frontend.order-detail', compact('order'));
+    }
+
+    public function returnRequest(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::guard('web')->id())
+            ->firstOrFail();
+
+        // Only allow returns for delivered orders
+        if ($order->order_status !== 'delivered') {
+            return back()->with('error', 'Only delivered orders can be returned.');
+        }
+
+        // Check if already requested
+        if ($order->return_status) {
+            return back()->with('error', 'Return request already exists for this order.');
+        }
+
+        $order->update([
+            'return_status' => 'requested',
+            'return_reason' => $request->reason,
+        ]);
+
+        return back()->with('success', 'Your return request has been submitted successfully. Our team will review it shortly.');
     }
 
     public function updateProfile(Request $request)

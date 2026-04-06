@@ -40,6 +40,12 @@ class Order extends Model
         'shiprocket_awb',
         'shiprocket_status',
         'edd',
+        'return_status',
+        'return_reason',
+        'return_admin_notes',
+        'reverse_awb',
+        'shiprocket_return_order_id',
+        'shiprocket_return_shipment_id',
     ];
 
     protected $casts = [
@@ -90,6 +96,19 @@ class Order extends Model
             'delivered'   => ['label' => 'Delivered',   'class' => 'bg-emerald-50 text-emerald-600'],
             'cancelled'   => ['label' => 'Cancelled',   'class' => 'bg-rose-50 text-rose-600'],
             default       => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
+        };
+    }
+
+    public function getReturnStatusBadgeAttribute()
+    {
+        return match($this->return_status) {
+            'requested' => ['label' => 'Return Requested', 'class' => 'bg-amber-50 text-amber-600'],
+            'approved'  => ['label' => 'Approved',         'class' => 'bg-emerald-50 text-emerald-600'],
+            'rejected'  => ['label' => 'Rejected',         'class' => 'bg-rose-50 text-rose-600'],
+            'picked'    => ['label' => 'Picked Up',        'class' => 'bg-blue-50 text-blue-600'],
+            'received'  => ['label' => 'Received',         'class' => 'bg-indigo-50 text-indigo-600'],
+            'refunded'  => ['label' => 'Refunded',         'class' => 'bg-emerald-50 text-emerald-600'],
+            default     => ['label' => 'No Return',        'class' => 'bg-slate-50 text-slate-600'],
         };
     }
 }
