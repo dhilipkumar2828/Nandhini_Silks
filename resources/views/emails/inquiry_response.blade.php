@@ -6,7 +6,7 @@
 <body>
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f0f0f0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
-            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="height: 60px; width: auto; background: white; padding: 5px; border-radius: 8px;">
+            <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="height: 60px; width: auto; background: white; padding: 5px; border-radius: 8px;">
         </div>
         
         <h1 style="color: #333; font-size: 22px; margin-bottom: 20px;">Hello {{ $inquiry->name }},</h1>

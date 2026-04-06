@@ -20,7 +20,7 @@
 <body>
     <div class="card">
         <div class="head">
-            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+            <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px;">
             <h1 style="display: block;">New Customer!</h1>
             <p style="margin: 8px 0 0; opacity: 0.8; font-weight: 600;">Someone just joined our family</p>
         </div>
