@@ -392,86 +392,45 @@
 
                             @php
                                 $indianStates = [
-                                    'Andhra Pradesh',
-                                    'Arunachal Pradesh',
-                                    'Assam',
-                                    'Bihar',
-                                    'Chhattisgarh',
-                                    'Goa',
-                                    'Gujarat',
-                                    'Haryana',
-                                    'Himachal Pradesh',
-                                    'Jharkhand',
-                                    'Karnataka',
-                                    'Kerala',
-                                    'Madhya Pradesh',
-                                    'Maharashtra',
-                                    'Manipur',
-                                    'Meghalaya',
-                                    'Mizoram',
-                                    'Nagaland',
-                                    'Odisha',
-                                    'Punjab',
-                                    'Rajasthan',
-                                    'Sikkim',
-                                    'Tamil Nadu',
-                                    'Telangana',
-                                    'Tripura',
-                                    'Uttar Pradesh',
-                                    'Uttarakhand',
-                                    'West Bengal',
-                                    'Andaman and Nicobar Islands',
-                                    'Chandigarh',
+                                    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+                                    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+                                    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+                                    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+                                    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+                                    'Andaman and Nicobar Islands', 'Chandigarh',
                                     'Dadra and Nagar Haveli and Daman and Diu',
-                                    'Delhi',
-                                    'Jammu and Kashmir',
-                                    'Ladakh',
-                                    'Lakshadweep',
-                                    'Puducherry'
+                                    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
                                 ];
                             @endphp
 
                             <div id="checkoutAddressForm">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL
-                                            NAME</label>
-                                        <input type="text" name="customer_name" id="field_name" placeholder="Full Name"
-                                            class="form-input-v4" value="{{ Auth::user()?->name }}" required
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL NAME</label>
+                                        <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required
                                             data-msg-required="Please enter full name.">
                                     </div>
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE
-                                            NUMBER</label>
-                                        <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number"
-                                            class="form-input-v4" value="{{ Auth::user()?->phone }}" required minlength="10"
-                                            maxlength="10" data-rule-digits="true"
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
+                                        <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required minlength="10" maxlength="10" data-rule-digits="true"
                                             data-msg-required="Please enter phone number."
                                             data-msg-digits="Please enter a valid 10-digit phone number."
                                             data-msg-minlength="Please enter a valid 10-digit phone number."
                                             data-msg-maxlength="Please enter a valid 10-digit phone number.">
                                     </div>
                                     <div class="form-group" style="grid-column: span 2;">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY
-                                            ADDRESS</label>
-                                        <input type="text" name="delivery_address" id="field_address"
-                                            placeholder="Flat No, Street, Area" class="form-input-v4" required
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY ADDRESS</label>
+                                        <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required
                                             data-msg-required="Please enter delivery address.">
                                     </div>
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                        <input type="text" name="city" id="field_city" placeholder="City"
-                                            class="form-input-v4" required
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
+                                        <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required
                                             oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
                                             data-msg-required="Please enter city.">
                                     </div>
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
                                         <select name="state" id="field_state" class="form-input-v4" required
                                             data-msg-required="Please select state.">
                                             <option value="">— Select State —</option>
@@ -481,121 +440,39 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                        <input type="text" name="pincode" id="field_zip" placeholder="Pincode"
-                                            class="form-input-v4" required minlength="6" maxlength="6"
-                                            data-rule-digits="true" inputmode="numeric"
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
+                                        <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" 
+                                            value="{{ old('pincode', session('checked_pincode')) }}" required minlength="6" maxlength="6" data-rule-digits="true"
+                                            inputmode="numeric"
+                                            oninput="checkPincodeAvailability(this.value)"
                                             data-msg-required="Please enter pincode."
                                             data-msg-digits="Please enter a valid 6-digit pincode."
                                             data-msg-minlength="Please enter a valid 6-digit pincode."
                                             data-msg-maxlength="Please enter a valid 6-digit pincode.">
+                                        <div id="pincodeAvailabilityMsg" style="font-size: 11px; margin-top: 5px; min-height: 15px;">
+                                            @if(session('checked_pincode') && session('checked_pincode_edd'))
+                                                <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by {{ session('checked_pincode_edd') }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label
-                                            style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
-                                        <input type="text" name="country" id="field_country" placeholder="Country"
-                                            class="form-input-v4" value="India" required
+                                        <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
+                                        <input type="text" name="country" id="field_country" placeholder="Country" class="form-input-v4" value="India" required
                                             oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
                                             data-msg-required="Please enter country.">
                                     </div>
                                 </div>
                                 @if(Auth::check())
-                                    <div style="margin-top: 10px;">
-                                        <label
-                                            style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: #444; font-weight: 600; user-select: none;">
-                                            <input type="checkbox" name="save_address" value="1"
-                                                style="accent-color: var(--pink-dark); width: 16px; height: 16px; cursor: pointer;">
-                                            Save this address for future use
-                                        </label>
-                                    </div>
+                                <div style="margin-top: 10px;">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: #444; font-weight: 600; user-select: none;">
+                                        <input type="checkbox" name="save_address" value="1" 
+                                            style="accent-color: var(--pink-dark); width: 16px; height: 16px; cursor: pointer;">
+                                        Save this address for future use
+                                    </label>
+                                </div>
                                 @endif
                             </div>
-                        </div>
-
-                        @php
-                        $indianStates = [
-                            'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
-                            'Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka',
-                            'Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram',
-                            'Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu',
-                            'Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
-                            'Andaman and Nicobar Islands','Chandigarh',
-                            'Dadra and Nagar Haveli and Daman and Diu',
-                            'Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'
-                        ];
-                        @endphp
-
-                        <div id="checkoutAddressForm">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL NAME</label>
-                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required
-                                        data-msg-required="Please enter full name.">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required minlength="10" maxlength="10" data-rule-digits="true"
-                                        data-msg-required="Please enter phone number."
-                                        data-msg-digits="Please enter a valid 10-digit phone number."
-                                        data-msg-minlength="Please enter a valid 10-digit phone number."
-                                        data-msg-maxlength="Please enter a valid 10-digit phone number.">
-                                </div>
-                                <div class="form-group" style="grid-column: span 2;">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY ADDRESS</label>
-                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required
-                                        data-msg-required="Please enter delivery address.">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required
-                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
-                                        data-msg-required="Please enter city.">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
-                                    <select name="state" id="field_state" class="form-input-v4" required
-                                        data-msg-required="Please select state.">
-                                        <option value="">— Select State —</option>
-                                        @foreach($indianStates as $state)
-                                            <option value="{{ $state }}">{{ $state }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" 
-                                        value="{{ old('pincode', session('checked_pincode')) }}" required minlength="6" maxlength="6" data-rule-digits="true"
-                                        inputmode="numeric"
-                                        oninput="checkPincodeAvailability(this.value)"
-                                        data-msg-required="Please enter pincode."
-                                        data-msg-digits="Please enter a valid 6-digit pincode."
-                                        data-msg-minlength="Please enter a valid 6-digit pincode."
-                                        data-msg-maxlength="Please enter a valid 6-digit pincode.">
-                                    <div id="pincodeAvailabilityMsg" style="font-size: 11px; margin-top: 5px; min-height: 15px;">
-                                        @if(session('checked_pincode') && session('checked_pincode_edd'))
-                                            <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by {{ session('checked_pincode_edd') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
-                                    <input type="text" name="country" id="field_country" placeholder="Country" class="form-input-v4" value="India" required
-                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
-                                        data-msg-required="Please enter country.">
-                                </div>
-                            </div>
-                            @if(Auth::check())
-                            <div style="margin-top: 10px;">
-                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: #444; font-weight: 600; user-select: none;">
-                                    <input type="checkbox" name="save_address" value="1" 
-                                        style="accent-color: var(--pink-dark); width: 16px; height: 16px; cursor: pointer;">
-                                    Save this address for future use
-                                </label>
-                            </div>
-                            @endif
-                        </div>
-                        <div class="card-v4" style="margin-bottom: 25px;">
+                        </div>       <div class="card-v4" style="margin-bottom: 25px;">
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                                 <h2 style="font-size: 20px; font-weight: 700; color: var(--pink-dark); margin: 0;">Billing
