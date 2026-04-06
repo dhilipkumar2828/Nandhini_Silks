@@ -176,7 +176,7 @@ const InvoiceGenerator = {
                             </tr>
                             ${discount > 0 ? `
                             <tr style="background: #f1fcf1;">
-                                <td style="padding: 10px; border: 1px solid #eee; color: #2e7d32; font-weight: 600;">Discount ${couponCode ? `(${couponCode})` : ''}</td>
+                                <td style="padding: 10px; border: 1px solid #eee; color: #2e7d32; font-weight: 600;">Discount</td>
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #2e7d32;">- ₹${InvoiceGenerator.formatCurrency(discount)}</td>
                             </tr>
                             ` : ''}
