@@ -346,7 +346,7 @@
                                 @endphp
                                 GST ({{ $effectiveTaxRate }}%)
                             </td>
-                            <td style="text-align: right; border: none; font-weight: 600;">&#8377;{{ number_format($order->tax, 0) }}</td>
+                            <td style="text-align: right; border: none; font-weight: 600;">&#8377;{{ number_format($order->tax, 2) }}</td>
                         </tr>
                         <tr class="tax-row">
                             <td colspan="2" style="text-align: right; border: none;">Shipping</td>
