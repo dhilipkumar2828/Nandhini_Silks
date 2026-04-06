@@ -818,10 +818,12 @@
         });
     }
 
+    let isPincodeServiceable = true; // Default to true so it doesn't block before checking
+
     let pinTimeout = null;
     function checkPincodeAvailability(val) {
         const msgEl = document.getElementById('pincodeAvailabilityMsg');
-        if (val.length === 6 && !isNaN(val)) {
+        if (val && val.length === 6 && !isNaN(val)) {
             if (pinTimeout) clearTimeout(pinTimeout);
             
             pinTimeout = setTimeout(() => {
@@ -839,18 +841,22 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
+                        isPincodeServiceable = true;
                         if(msgEl) msgEl.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by ${data.edd}</span>`;
                         updateShipping();
                     } else {
+                        isPincodeServiceable = false;
                         if(msgEl) msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
                     }
                 })
                 .catch(err => {
+                    isPincodeServiceable = true; // Recoverable? Default back to true but log it
                     if(msgEl) msgEl.innerHTML = '';
                     console.error('Pincode check error:', err);
                 });
             }, 500); 
         } else {
+            isPincodeServiceable = true;
             if(msgEl) msgEl.innerHTML = '';
         }
     }
@@ -858,13 +864,31 @@
     document.addEventListener('DOMContentLoaded', function() {
         applyBillingValidation();
         
+        const zipField = document.getElementById('field_zip');
+        if (zipField && zipField.value) {
+            checkPincodeAvailability(zipField.value);
+        }
+
         document.getElementById('field_state')?.addEventListener('change', updateShipping);
+        document.getElementById('field_zip')?.addEventListener('input', function() {
+            checkPincodeAvailability(this.value);
+        });
         document.getElementById('field_zip')?.addEventListener('change', function() {
             updateShipping();
-            checkPincodeAvailability(this.value);
         });
 
         document.getElementById('singleCheckoutForm')?.addEventListener('submit', function(e) {
+            if (!isPincodeServiceable) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Delivery Not Available',
+                    text: 'Please enter a serviceable pincode to proceed with your order.',
+                    icon: 'warning',
+                    confirmButtonColor: '#A91B43'
+                });
+                return false;
+            }
+
             const addr = document.getElementById('field_address').value.trim();
             const city = document.getElementById('field_city').value.trim();
             const state = document.getElementById('field_state').value.trim();
