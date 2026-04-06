@@ -126,8 +126,9 @@
             @endif
             <div class="brand-tagline">Premium Silk Collections</div>
             <div class="brand-address">
-                Salem, Tamil Nadu, India<br>
-                info@nandhinisilks.com | +91 XXXXX XXXXX
+                416/9 Aranmanai Street, S.V. Nagaram<br>
+                Arni - 632317, Tamil Nadu, India<br>
+                <strong>GSTIN:</strong> 33AAZFN1900B1ZK | <strong>Ph:</strong> +91 96295 52822
             </div>
         </div>
         <div class="header-right">
