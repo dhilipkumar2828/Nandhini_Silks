@@ -969,33 +969,48 @@
 
         function openReviewModal(productId, productName, productImg) {
             const modal = document.getElementById('reviewModal');
-            const form = document.getElementById('reviewForm');
-
-            document.getElementById('modalProductName').textContent = productName;
-            document.getElementById('modalProductImg').src = productImg;
-
-    function openReturnModal() {
-        const modal = document.getElementById('returnModal');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeReturnModal() {
-        const modal = document.getElementById('returnModal');
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-
-    // Close on outside click
-    window.onclick = function(event) {
-        const reviewModal = document.getElementById('reviewModal');
-        const returnModal = document.getElementById('returnModal');
-        if (event.target == reviewModal) {
-            closeReviewModal();
+            if (modal) {
+                document.getElementById('modalProductName').textContent = productName;
+                document.getElementById('modalProductImg').src = productImg;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
         }
-        if (event.target == returnModal) {
-            closeReturnModal();
+
+        function closeReviewModal() {
+            const modal = document.getElementById('reviewModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
         }
-    }
-</script>
+
+        function openReturnModal() {
+            const modal = document.getElementById('returnModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeReturnModal() {
+            const modal = document.getElementById('returnModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on outside click
+        window.onclick = function(event) {
+            const reviewModal = document.getElementById('reviewModal');
+            const returnModal = document.getElementById('returnModal');
+            if (event.target == reviewModal) {
+                closeReviewModal();
+            }
+            if (event.target == returnModal) {
+                closeReturnModal();
+            }
+        }
+    </script>
 @endpush
