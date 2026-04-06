@@ -87,7 +87,7 @@
                             <img src="{{ Auth::user()->profile_picture ? asset('uploads/'.Auth::user()->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
                         <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
-                        <p class="account-user-email">{{ Auth::user()->email }}</p>
+                        {{-- <p class="account-user-email">{{ Auth::user()->email }}</p> --}}
                     </div>
 
                     <ul class="account-nav">

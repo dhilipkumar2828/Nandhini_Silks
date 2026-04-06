@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="auth-tabs" id="authTabs">
-                    @if(session('error'))
+                    {{-- @if(session('error'))
                         <div class="alert" style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
                             <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
                         </div>
@@ -50,7 +50,7 @@
                         <div class="alert" style="color: #10b981; background: #d1fae5; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
                             <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
                         </div>
-                    @endif
+                    @endif --}}
                     
                     <button class="auth-tab active" id="loginTab">Login</button>
                     <button class="auth-tab" id="registerTab">Register</button>
