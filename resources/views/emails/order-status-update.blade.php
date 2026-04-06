@@ -52,7 +52,7 @@
             @endif
 
             <div class="timeline">
-                <table class="timeline-table">
+                {{-- <table class="timeline-table">
                     <tr>
                         <td class="timeline-step">
                             <div class="step-circle step-completed"></div>
@@ -80,7 +80,7 @@
                             <span class="step-label {{ $order->order_status == 'delivered' ? 'label-completed' : ($order->order_status == 'out for delivery' ? 'label-active' : '') }}">Delivered</span>
                         </td>
                     </tr>
-                </table>
+                </table> --}}
                 <div style="text-align: center; margin-top: 15px;">
                     <span style="font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; letter-spacing: 1px;">
                         Current Update: {{ strtoupper($order->order_status) }}
