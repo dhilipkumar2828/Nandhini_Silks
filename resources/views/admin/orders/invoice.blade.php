@@ -79,9 +79,34 @@
         .tracking-cell { display: table-cell; width: 33%; }
         .tracking-label { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
         .tracking-value { font-size: 10px; font-weight: bold; color: #1e293b; margin-top: 2px; }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 40%;
+            left: 10%;
+            width: 100%;
+            text-align: center;
+            opacity: 0.15;
+            transform: rotate(-35deg);
+            transform-origin: 50% 50%;
+            z-index: -1000;
+        }
+        .watermark-text {
+            font-size: 90px;
+            font-weight: bold;
+            color: #a91b43;
+            letter-spacing: 15px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
+@if($order->order_status == 'cancelled' || $order->payment_status == 'refunded')
+<div class="watermark">
+    <div class="watermark-text">{{ $order->order_status == 'cancelled' ? 'CANCELLED' : 'REFUNDED' }}</div>
+</div>
+@endif
 <div class="page">
 
     {{-- Header --}}
@@ -127,11 +152,11 @@
             <div class="info-value" style="margin-bottom:8px;">
                 @php
                     $pClass = match($order->payment_status) { 'paid'=>'paid','failed'=>'failed','refunded'=>'refunded', default=>'pending' };
-                    $oClass = match($order->order_status) { 'delivered'=>'delivered','dispatched'=>'dispatched','cancelled'=>'cancelled', default=>'processing' };
+                    $oClass = match($order->order_status) { 'delivered'=>'delivered','dispatched'=>'dispatched','cancelled'=>'cancelled', 'order placed'=>'processing', default=>'processing' };
                 @endphp
                 <span class="badge badge-{{ $pClass }}">{{ ucfirst($order->payment_status) }}</span>
                 &nbsp;
-                <span class="badge badge-{{ $oClass }}">{{ ucfirst($order->order_status) }}</span>
+                <span class="badge badge-{{ $oClass }}">{{ ucwords($order->order_status) }}</span>
             </div>
             <div class="info-label" style="margin-top:8px;">Payment Method</div>
             <div class="info-value">{{ strtoupper($order->payment_method) }}</div>

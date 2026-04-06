@@ -18,6 +18,42 @@ use Illuminate\Support\Facades\Mail;
 
 class CartController extends Controller
 {
+    public function checkServiceability(Request $request)
+    {
+        $pincode = $request->input('pincode');
+        $weight = $request->input('weight', 0.5);
+
+        if (!$pincode) {
+            return response()->json(['success' => false, 'message' => 'Please enter a pincode.']);
+        }
+
+        $shiprocket = new \App\Services\ShiprocketService();
+        $result = $shiprocket->checkServiceability($pincode, $weight);
+        
+        Log::info('Shiprocket Serviceability Result:', $result);
+
+        if ($result['status'] && isset($result['data']['available_courier_companies']) && count($result['data']['available_courier_companies']) > 0) {
+            $courier = $result['data']['available_courier_companies'][0];
+            $edd = $courier['etd'] ?? '3-5 days';
+
+            // Save to session for stickiness
+            session()->put('checked_pincode', $pincode);
+            session()->put('checked_pincode_edd', $edd);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Estimated delivery by " . $edd,
+                'edd' => $edd
+            ]);
+        }
+
+        session()->forget(['checked_pincode', 'checked_pincode_edd']);
+        return response()->json([
+            'success' => false,
+            'message' => $result['message'] ?? 'Delivery not available for this pincode.'
+        ]);
+    }
+
     private function getTaxRate(Product $product): float
     {
         if ($product->taxClass && $product->taxClass->rates->isNotEmpty()) {
@@ -494,9 +530,14 @@ class CartController extends Controller
                 'grand_total' => $totals['grandTotal'],
                 'payment_method' => $paymentMethod,
                 'payment_status' => 'pending',
-                'order_status' => 'pending',
+                'order_status' => 'order placed',
                 'delivery_address' => $fullDeliveryAddress,
                 'billing_address' => $fullBillingAddress,
+                'shipping_city' => $request->input('city'),
+                'shipping_state' => $request->input('state'),
+                'shipping_pincode' => $request->input('pincode'),
+                'shipping_country' => $request->input('country', 'India'),
+                'edd' => session('checked_pincode_edd'),
             ]);
 
             // Save Address if requested
@@ -606,11 +647,22 @@ class CartController extends Controller
             // Send order emails for COD
             $this->sendOrderEmails($order);
 
+            // Push to Shiprocket for COD
+            if ($paymentMethod === 'cod') {
+                $shiprocket = new \App\Services\ShiprocketService();
+                $srResult = $shiprocket->createOrder($order);
+                if ($srResult['status']) {
+                    Log::info('COD Order Pushed to Shiprocket: ' . $order->order_number);
+                } else {
+                    Log::error('Shiprocket COD Push Failed: ' . $srResult['message']);
+                }
+            }
+
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
             if (Auth::guard('web')->check()) {
                 \App\Models\CartItem::where('user_id', Auth::guard('web')->id())->delete();
             }
-            session()->forget(['cart', 'coupon_id']);
+            session()->forget(['cart', 'coupon_id', 'checked_pincode', 'checked_pincode_edd']);
             return redirect()->route('order-confirmation', $order)->with('success', 'Your order has been placed successfully! 🎉');
 
         } catch (\Throwable $e) {
@@ -785,9 +837,18 @@ class CartController extends Controller
             if (Auth::check()) {
                 \App\Models\CartItem::where('user_id', Auth::id())->delete();
             }
-            session()->forget(['cart', 'coupon_id']);
+            session()->forget(['cart', 'coupon_id', 'checked_pincode', 'checked_pincode_edd']);
 
             $this->sendOrderEmails($order);
+
+            // Push to Shiprocket after Payment Success
+            $shiprocket = new \App\Services\ShiprocketService();
+            $srResult = $shiprocket->createOrder($order);
+            if ($srResult['status']) {
+                Log::info('Razorpay Order Pushed to Shiprocket: ' . $order->order_number);
+            } else {
+                Log::error('Shiprocket Razorpay Push Failed: ' . $srResult['message']);
+            }
 
             return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
         }

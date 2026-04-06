@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
     Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
     Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
+    Route::post('/order/return-request/{id}', [FrontendController::class, 'returnRequest'])->name('order.return.request');
 
     // Checkout & Wishlist (Auth Required)
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
@@ -92,6 +93,7 @@ Route::get('/cart/mini-cart', [CartController::class, 'getMiniCart'])->name('car
  Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 Route::post('/cart/shipping', [CartController::class, 'updateShippingDestination'])->name('cart.shipping.update');
+Route::post('/check-serviceability', [CartController::class, 'checkServiceability'])->name('check-serviceability');
 
 Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
 
@@ -143,6 +145,11 @@ Route::group(['prefix' => 'admin'], function () {
         // Orders
         Route::resource('orders', OrderController::class)->names('admin.orders');
         Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
+        Route::post('orders/{order}/shiprocket/push', [OrderController::class, 'pushToShiprocket'])->name('admin.orders.shiprocket.push');
+        Route::post('orders/{order}/shiprocket/awb', [OrderController::class, 'assignShiprocketAWB'])->name('admin.orders.shiprocket.awb');
+        Route::get('orders/{order}/shiprocket/label', [OrderController::class, 'generateShiprocketLabel'])->name('admin.orders.shiprocket.label');
+        Route::post('orders/{order}/shiprocket/pickup', [OrderController::class, 'requestShiprocketPickup'])->name('admin.orders.shiprocket.pickup');
+        Route::post('orders/{order}/shiprocket/return', [OrderController::class, 'createShiprocketReturn'])->name('admin.orders.shiprocket.return');
 
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');

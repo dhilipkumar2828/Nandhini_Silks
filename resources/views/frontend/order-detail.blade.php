@@ -624,14 +624,83 @@
 @endpush
 
 @section('content')
-    <main class="account-page">
-        <div class="page-shell">
-            <div class="breadcrumb">
-                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
-                <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp;
-                <a href="{{ url('my-orders') }}">My Orders</a> &nbsp; / &nbsp;
-                <span>Order Details</span>
+<main class="account-page">
+    <div class="page-shell">
+        <div class="breadcrumb">
+            <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
+            <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp;
+            <a href="{{ url('my-orders') }}">My Orders</a> &nbsp; / &nbsp;
+            <span>Order Details</span>
+        </div>
+
+        <div class="order-detail-header">
+            <div>
+                <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
+                <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot; {{ $order->created_at->format('h:i A') }}</p>
+                @if($order->edd)
+                <p style="color: #27ae60; font-weight: 600; margin-top: 5px;"><i class="fas fa-truck"></i> Expected Delivery: {{ $order->edd }}</p>
+                @endif
             </div>
+            <div class="order-actions-top">
+                <button onclick="handleDownload({{ json_encode([
+                    'orderNumber' => 'NS' . $order->id,
+                    'date' => $order->created_at->format('M d, Y'),
+                    'customer' => [
+                        'name' => $order->billing_name ?: $order->customer_name,
+                        'address' => str_replace(["\r", "\n"], ', ', $order->delivery_address),
+                        'phone' => $order->billing_phone ?: $order->customer_phone
+                    ],
+                    'items' => $order->items->map(function($item) {
+                        return [
+                            'name' => $item->product_name,
+                            'image' => $item->getImageUrl(),
+                            'variant' => ($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : ''),
+                            'hsn' => "5007",
+                            'qty' => $item->quantity,
+                            'rate' => (float)$item->price,
+                            'taxRate' => 12
+                        ];
+                    })->toArray(),
+                    'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
+                    'subtotal' => (float)$order->sub_total,
+                    'taxAmount' => (float)$order->tax,
+                    'shipping' => (float)$order->shipping,
+                    'total' => (float)$order->grand_total
+                ]) }})" class="account-nav-link"
+                    style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Invoice
+                </button>
+                <a href="{{ route('shop') }}" class="account-nav-link"
+                    style="background: var(--pink); color: #fff; border: none; cursor: pointer; text-decoration: none; display: inline-block;">
+                    Buy More
+                </a>
+
+                @if($order->order_status === 'delivered')
+                    @if(!$order->return_status)
+                        <button onclick="openReturnModal()" class="account-nav-link"
+                            style="background: #fff; border: 1px solid #ff4d4f; color: #ff4d4f; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-undo"></i> Return items
+                        </button>
+                    @else
+                        @php $badge = $order->return_status_badge; @endphp
+                        <div class="status-badge {{ $badge['class'] }}" style="padding: 10px 20px; border-radius: 50px;">
+                            <i class="fas fa-shipping-fast mr-2"></i> {{ $badge['label'] }}
+                        </div>
+                        @if($order->reverse_awb)
+                            <div class="tracking-info" style="margin: 0; padding: 10px 15px;">
+                                <span style="font-size: 11px; color: #888; font-weight: 700;">REVERSE AWB:</span> 
+                                <span style="font-weight: 700; color: #333;">{{ $order->reverse_awb }}</span>
+                            </div>
+                        @endif
+                    @endif
+                @endif
+            </div>
+        </div>
 
             <div class="order-detail-header">
                 <div>
@@ -640,44 +709,20 @@
                         {{ $order->created_at->format('h:i A') }}
                     </p>
                 </div>
-                <div class="order-actions-top">
-                    <button onclick="handleDownload({{ json_encode([
-        'orderNumber' => 'NS' . $order->id,
-        'date' => $order->created_at->format('M d, Y'),
-        'customer' => [
-            'name' => $order->billing_name ?: $order->customer_name,
-            'address' => str_replace(["\r", "\n"], ', ', $order->delivery_address),
-            'phone' => $order->billing_phone ?: $order->customer_phone
-        ],
-        'items' => $order->items->map(function ($item) {
-            return [
-                'name' => $item->product_name,
-                'image' => $item->getImageUrl(),
-                'variant' => ($item->color ? 'Color: ' . $item->color : '') . ($item->size ? ' | Size: ' . $item->size : ''),
-                'hsn' => "5007",
-                'qty' => $item->quantity,
-                'rate' => (float) $item->price,
-                'taxRate' => 12
-            ];
-        })->toArray(),
-        'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
-        'subtotal' => (float) $order->sub_total,
-        'taxAmount' => (float) $order->tax,
-        'shipping' => (float) $order->shipping,
-        'total' => (float) $order->grand_total
-    ]) }})" class="account-nav-link"
-                        style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Download Invoice
-                    </button>
-                    <a href="{{ route('shop') }}" class="account-nav-link"
-                        style="background: var(--pink); color: #fff; border: none; cursor: pointer; text-decoration: none; display: inline-block;">
-                        Buy More
-                    </a>
+                <div class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : (in_array($order->order_status, ['pending', 'order placed']) ? 'active' : '') }}">
+                    <div class="step-icon">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}</div>
+                    <span class="step-label">Processing</span>
+                    <span class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Order Placed' }}</span>
+                </div>
+                <div class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
+                    <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}</div>
+                    <span class="step-label">Dispatched</span>
+                    <span class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
+                </div>
+                <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
+                    <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
+                    <span class="step-label">Delivered</span>
+                    <span class="step-date">{{ $order->order_status == 'delivered' ? 'Completed' : ($order->edd ?? 'Expected') }}</span>
                 </div>
             </div>
 
@@ -850,10 +895,8 @@
                 </div>
             </div>
         </div>
-    </main>
-@endsection
 
-<!-- Review Modal -->
+        <!-- Review Modal -->
 <div id="reviewModal" class="modal-overlay">
     <div class="modal-content" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
         <div class="modal-header">
@@ -902,8 +945,36 @@
                 </button>
             </div>
         </form>
+<!-- Return Modal -->
+<div id="returnModal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background:#fff; width: 450px; border-radius: 20px; padding: 30px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <button onclick="closeReturnModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 20px;"><i class="fas fa-times"></i></button>
+        
+        <div style="margin-bottom: 24px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: #fff1f0; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 15px;">
+                <i class="fas fa-undo" style="font-size: 24px; color: #ff4d4f;"></i>
+            </div>
+            <h2 class="modal-title">Request a Return</h2>
+            <p class="modal-subtitle" style="font-size: 13px !important; color: #64748b !important; text-transform: none !important; letter-spacing: normal !important; margin-top: 4px !important;">Tell us why you want to return this order</p>
+        </div>
+
+        <form id="returnForm" action="{{ route('order.return.request', $order->id) }}" method="POST">
+            @csrf
+            <div style="margin-top: 10px;">
+                <label class="stars-label">Reason for Return</label>
+                <textarea name="reason" rows="4" placeholder="Example: Wrong size delivered, Damaged product, etc." required style="width: 100%; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 15px; font-size: 14px; resize: none; outline: none; transition: border-color 0.2s;"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" style="margin-top: 24px; background: #ff4d4f; box-shadow: 0 4px 6px -1px rgba(255, 77, 79, 0.2);">
+                Submit Return Request
+            </button>
+        </form>
     </div>
 </div>
+
+    </div>
+</main>
+@endsection
 
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -925,25 +996,28 @@
             document.getElementById('modalProductName').textContent = productName;
             document.getElementById('modalProductImg').src = productImg;
 
-            // Dynamic Route Base on Product ID
-            form.action = "{{ url('product') }}/" + productId + "/review";
+    function openReturnModal() {
+        const modal = document.getElementById('returnModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+    function closeReturnModal() {
+        const modal = document.getElementById('returnModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
 
-        function closeReviewModal() {
-            const modal = document.getElementById('reviewModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
+    // Close on outside click
+    window.onclick = function(event) {
+        const reviewModal = document.getElementById('reviewModal');
+        const returnModal = document.getElementById('returnModal');
+        if (event.target == reviewModal) {
+            closeReviewModal();
         }
-
-        // Close on outside click
-        window.onclick = function (event) {
-            const modal = document.getElementById('reviewModal');
-            if (event.target == modal) {
-                closeReviewModal();
-            }
+        if (event.target == returnModal) {
+            closeReturnModal();
         }
-    </script>
+    }
+</script>
 @endpush

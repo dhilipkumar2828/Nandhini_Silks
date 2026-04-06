@@ -33,9 +33,6 @@ class InquiryCustomerMail extends Mailable
     {
         return new Envelope(
             subject: 'Thank you for your Inquiry - Nandhini Silks',
-            replyTo: [
-                new Address('noreply@nandhinisilks.com', 'Nandhini Silks'),
-            ],
         );
     }
 

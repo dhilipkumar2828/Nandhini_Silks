@@ -371,6 +371,7 @@
                                 'failed' => 'status-failed',
                                 'cancelled' => 'status-cancelled',
                                 'refunded' => 'status-refunded',
+                                'order placed' => 'status-pending',
                                 default => 'status-pending',
                             };
                         @endphp
@@ -383,8 +384,10 @@
                                         <span class="meta-value">#{{ $order->order_number }}</span>
                                     </div>
                                     <div class="meta-item" style="text-align: right;">
-                                        <span class="meta-label">Date Placed</span>
-                                        <span class="meta-value">{{ $order->created_at->format('M d, Y') }}</span>
+                                        <span class="meta-label">{{ $order->edd ? 'Arriving By' : 'Date Placed' }}</span>
+                                        <span class="meta-value" style="{{ $order->edd ? 'color: #27ae60;' : '' }}">
+                                            {{ $order->edd ?? $order->created_at->format('M d, Y') }}
+                                        </span>
                                     </div>
                                 </div>
                                 
@@ -399,7 +402,7 @@
                                         </span>
                                     </div>
                                     <div class="order-status-row">
-                                        <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                        <span class="status-badge {{ $orderStatusClass }}">{{ ucwords($orderStatus) }}</span>
                                     </div>
                                 </div>
                             </div>

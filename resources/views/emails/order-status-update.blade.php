@@ -14,6 +14,7 @@
         .status-processing { background-color: #ecfdf5; color: #10b981; border: 1px solid #10b981; }
         .status-dispatched { background-color: #fefce8; color: #facc15; border: 1px solid #facc15; }
         .status-delivered { background-color: #eff6ff; color: #3b82f6; border: 1px solid #3b82f6; }
+        .status-pending { background-color: #f7f7f7; color: #64748b; border: 1px solid #64748b; }
         .status-cancelled { background-color: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
         
         .order-info { background-color: #fdfaf0; border: 1px dashed #ad8b4e; padding: 20px; border-radius: 12px; margin: 25px 0; }
@@ -50,6 +51,7 @@
                     @elseif($order->order_status == 'dispatched') status-dispatched 
                     @elseif($order->order_status == 'delivered') status-delivered 
                     @elseif($order->order_status == 'cancelled') status-cancelled 
+                    @else status-pending
                     @endif">
                     Current Status: {{ strtoupper($order->order_status) }}
                 </span>

@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Coupon;
 use App\Models\Setting;
 use App\Mail\OrderStatusUpdate;
+use App\Services\ShiprocketService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -97,10 +98,10 @@ class OrderController extends Controller
         return view('admin.orders.edit', compact('order'));
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         $request->validate([
-            'order_status' => 'required|in:pending,processing,dispatched,delivered,cancelled',
+            'order_status' => 'required|in:pending,order placed,processing,dispatched,delivered,cancelled',
             'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',
@@ -109,6 +110,7 @@ class OrderController extends Controller
 
         $oldStatus = $order->order_status;
         $oldTracking = $order->tracking_number;
+        $newStatus = $request->order_status;
 
         $order->update($request->only([
             'order_status',
@@ -118,20 +120,83 @@ class OrderController extends Controller
             'admin_notes'
         ]));
 
+        // --- CUSTOM CANCELLATION LOGIC ---
+        if ($newStatus == 'cancelled' && $oldStatus != 'cancelled') {
+            // 1. Sync with Shiprocket if pushed
+            if ($order->shiprocket_order_id) {
+                $shiprocket->cancelOrder($order->shiprocket_order_id);
+            }
+
+            // 2. Restore Stock
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                if ($product) {
+                    $variantId = $item->variant_id;
+                    $restoreQty = (int) $item->quantity;
+
+                    if ($variantId) {
+                        $variant = \App\Models\ProductVariant::find($variantId);
+                        if ($variant) {
+                            $oldVStock = (int) $variant->stock_quantity;
+                            $newVStock = $oldVStock + $restoreQty;
+                            $variant->update(['stock_quantity' => $newVStock]);
+
+                            \App\Models\StockMovement::create([
+                                'product_id' => $product->id,
+                                'type' => 'restock',
+                                'quantity' => $restoreQty,
+                                'balance_after' => $newVStock,
+                                'reason' => 'Restored: Order #' . $order->order_number . ' cancelled',
+                            ]);
+                        }
+                    } else {
+                        $oldStock = (int) $product->stock_quantity;
+                        $newStock = $oldStock + $restoreQty;
+                        $product->update(['stock_quantity' => $newStock]);
+
+                        \App\Models\StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => 'restock',
+                            'quantity' => $restoreQty,
+                            'balance_after' => $newStock,
+                            'reason' => 'Restored: Order #' . $order->order_number . ' cancelled',
+                        ]);
+                    }
+                    
+                    // Sync parent stock
+                    if ($product->product_variants->count() > 0) {
+                        $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                        $product->update([
+                            'stock_quantity' => $totalVariantStock,
+                            'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+                        ]);
+                    } else {
+                        if ($product->stock_quantity > 0) {
+                            $product->update(['stock_status' => 'instock']);
+                        }
+                    }
+                }
+            }
+            
+            // 3. Mark as Refunded if it was Paid
+            if ($order->payment_status == 'paid') {
+                $order->update(['payment_status' => 'refunded']);
+            }
+        }
+
         // Send Email if status or tracking changed
         if ($oldStatus != $request->order_status || $oldTracking != $request->tracking_number) {
             try {
                 // Send to customer
-                Mail::to($order->customer_email)->send(new OrderStatusUpdate($order));
+                Mail::to($order->customer_email)->send(new \App\Mail\OrderStatusUpdate($order));
                 
                 // Send alert to admin
-                $adminEmail = Setting::getAdminEmail();
-                Mail::to($adminEmail)->send(new OrderStatusUpdate($order, true));
+                $adminEmail = \App\Models\Setting::getAdminEmail();
+                Mail::to($adminEmail)->send(new \App\Mail\OrderStatusUpdate($order, true));
                 
                 Log::info("Order #{$order->order_number} status updated and emails sent.");
             } catch (\Exception $e) {
                 Log::error("Failed to send order status email: " . $e->getMessage());
-                // Non-blocking for the admin UI
             }
         }
 
@@ -158,5 +223,128 @@ class OrderController extends Controller
             ]);
 
         return $pdf->download($filename);
+    }
+
+    public function pushToShiprocket(Order $order, ShiprocketService $shiprocket)
+    {
+        if ($order->shiprocket_order_id) {
+            return back()->with('error', 'Order already pushed to Shiprocket.');
+        }
+
+        $result = $shiprocket->createOrder($order);
+
+        if ($result['status']) {
+            return back()->with('success', 'Order pushed to Shiprocket successfully. Order ID: ' . $result['data']['order_id']);
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
+    }
+
+    public function assignShiprocketAWB(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_shipment_id) {
+            return back()->with('error', 'Order must be pushed to Shiprocket first.');
+        }
+
+        $result = $shiprocket->assignAWB($order->shiprocket_shipment_id);
+
+        if ($result['status']) {
+            $order->update([
+                'shiprocket_awb' => $result['awb'],
+                'tracking_number' => $result['awb'],
+                'courier_name' => 'Shiprocket',
+            ]);
+            return back()->with('success', 'AWB assigned successfully: ' . $result['awb']);
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
+    }
+
+    public function generateShiprocketLabel(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_shipment_id) {
+            return back()->with('error', 'Order must be pushed to Shiprocket first.');
+        }
+
+        $result = $shiprocket->generateLabel($order->shiprocket_shipment_id);
+
+        if ($result['status'] && isset($result['data']['label_url'])) {
+            return redirect($result['data']['label_url']);
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Failed to generate label link.'));
+    }
+
+    public function requestShiprocketPickup(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_shipment_id) {
+            return back()->with('error', 'Order must be pushed to Shiprocket first.');
+        }
+
+        $result = $shiprocket->requestPickup($order->shiprocket_shipment_id);
+
+        if ($result['status']) {
+            return back()->with('success', 'Pickup requested successfully.');
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
+    }
+
+    public function createShiprocketReturn(Order $order, ShiprocketService $shiprocket)
+    {
+        if ($order->order_status != 'delivered') {
+            return back()->with('error', 'Only delivered orders can be returned.');
+        }
+
+        $result = $shiprocket->createReturnOrder($order);
+
+        if ($result['status']) {
+            $order->update(['order_status' => 'refunded']); // or returned
+            return back()->with('success', 'Return order created in Shiprocket. Return ID: ' . $result['data']['shipment_id']);
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
+    }
+
+    public function updateReturnStatus(Request $request, Order $order, ShiprocketService $shiprocket)
+    {
+        $request->validate([
+            'return_status' => 'required|in:requested,approved,rejected,picked,received,refunded',
+            'admin_notes' => 'nullable|string',
+        ]);
+
+        $oldStatus = $order->return_status;
+        $newStatus = $request->return_status;
+
+        $order->update([
+            'return_status'    => $newStatus,
+            'return_admin_notes' => $request->admin_notes,
+        ]);
+
+        // If newly approved, trigger Shiprocket return order creation
+        if ($newStatus === 'approved' && $oldStatus === 'requested') {
+            $result = $shiprocket->createReturnOrder($order);
+
+            if ($result['status'] && isset($result['data'])) {
+                $order->update([
+                    'shiprocket_return_order_id' => $result['data']['order_id'] ?? null,
+                    'shiprocket_return_shipment_id' => $result['data']['shipment_id'] ?? null,
+                    // If shiprocket returns AWB immediately in return creation
+                    'reverse_awb' => $result['data']['awb_code'] ?? null,
+                ]);
+                
+                return back()->with('success', 'Return request approved and sent to Shiprocket. Shipment ID: ' . ($result['data']['shipment_id'] ?? 'N/A'));
+            } else {
+                Log::error('Shiprocket Return Creation Failed: ' . ($result['message'] ?? 'Unknown error'));
+                return back()->with('warning', 'Status updated, but failed to create return in Shiprocket: ' . ($result['message'] ?? 'Check logs'));
+            }
+        }
+
+        // If refunded, maybe update payment status too
+        if ($newStatus === 'refunded') {
+            $order->update(['payment_status' => 'refunded']);
+        }
+
+        return back()->with('success', 'Return status updated to ' . strtoupper($newStatus));
     }
 }

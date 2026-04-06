@@ -271,7 +271,7 @@
                 <div class="detail-box">
                     <div class="detail-label">Estimated Delivery</div>
                     <div class="detail-value">
-                        {{ now()->addDays(5)->format('d M') }} – {{ now()->addDays(7)->format('d M, Y') }}
+                        {{ $order->edd ?? (now()->addDays(5)->format('d M') . ' – ' . now()->addDays(7)->format('d M, Y')) }}
                     </div>
                 </div>
                 <div class="detail-box">

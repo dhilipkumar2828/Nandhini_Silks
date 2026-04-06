@@ -24,7 +24,7 @@
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Order Status</label>
                     <select name="order_status" class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#a91b43]/20 focus:border-[#a91b43] transition-all">
-                        <option value="pending" {{ $order->order_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="order placed" {{ $order->order_status == 'order placed' ? 'selected' : '' }}>Order Placed</option>
                         <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
                         <option value="dispatched" {{ $order->order_status == 'dispatched' ? 'selected' : '' }}>Dispatched</option>
                         <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered</option>

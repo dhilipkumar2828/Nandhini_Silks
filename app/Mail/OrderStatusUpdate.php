@@ -31,7 +31,7 @@ class OrderStatusUpdate extends Mailable
      */
     public function envelope(): Envelope
     {
-        $status = ucfirst($this->order->order_status);
+        $status = ucwords($this->order->order_status);
         $subject = $this->isForAdmin 
             ? "[Admin] Order #{$this->order->order_number} Status Updated to {$status}"
             : "Your Order #{$this->order->order_number} has been {$status}!";

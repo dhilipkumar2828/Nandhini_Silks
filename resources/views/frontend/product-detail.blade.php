@@ -2728,10 +2728,16 @@
                     <div class="delivery-check">
                         <p class="delivery-title">Check Delivery Availability</p>
                         <div class="pincode-input-group">
-                            <input type="text" class="pincode-input" placeholder="Enter Pincode">
-                            <button class="btn-pincode">Check</button>
+                            <input type="text" class="pincode-input" placeholder="Enter Pincode" value="{{ session('checked_pincode') }}">
+                            <button type="button" class="btn-pincode">Check</button>
                         </div>
-                        <p class="delivery-note">Free shipping on orders above ₹5,000.</p>
+                        <p class="delivery-note">
+                            @if(session('checked_pincode') && session('checked_pincode_edd'))
+                                <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by {{ session('checked_pincode_edd') }}</span>
+                            @else
+                                Free shipping on orders above ₹5,000.
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -3612,9 +3618,8 @@
             initSwiper('.related-swiper', '.related-next', '.related-prev');
             initSwiper('.recently-swiper', '.recently-next', '.recently-prev');
 
-        });
         // AJAX Add to Cart
-        document.getElementById('pdpForm').addEventListener('submit', function (e) {
+        document.getElementById('pdpForm')?.addEventListener('submit', function(e) {
             const action = e.submitter ? e.submitter.value : 'cart';
 
             if (action === 'cart') {
@@ -3691,5 +3696,53 @@
                     });
             }
         });
-    </script>
+
+        // Shiprocket Pincode Check Implementation
+        document.querySelector('.btn-pincode')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const btn = this;
+            const input = document.querySelector('.pincode-input');
+            const note = document.querySelector('.delivery-note');
+            const pincode = input.value.trim();
+
+            if (!pincode || pincode.length !== 6 || isNaN(pincode)) {
+                toastr.warning('Please enter a valid 6-digit pincode.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            note.innerHTML = '<span style="color: #666;">Checking availability...</span>';
+
+            fetch('{{ route("check-serviceability") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ pincode: pincode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = 'Check';
+                
+                if (data.success) {
+                    note.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
+                    toastr.success(data.message);
+                } else {
+                    note.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                    toastr.error(data.message);
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.innerHTML = 'Check';
+                note.innerHTML = '<span style="color: #e74c3c;">Service unavailable. Try again later.</span>';
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
 @endpush

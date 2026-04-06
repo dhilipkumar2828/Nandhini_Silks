@@ -1,8 +1,8 @@
 # Razorpay Payment Gateway Integration
 **Project:** Nandhini Silks — Laravel E-Commerce  
-**Mode:** Test (Sandbox)  
-**Date:** March 30, 2026  
-**MID:** SW9AHcjKJxFpor
+**Mode:** Live (Production)  
+**Date:** April 2, 2026  
+**MID:** SW9AHcjKJxFpor (Verify with dashboard)  
 
 ---
 
@@ -20,12 +20,12 @@ Customer Checkout → Backend creates Razorpay Order → Frontend opens Payment 
 
 ## Credentials & Configuration
 
-### Test Mode API Keys
+### Live Mode API Keys
 | Field | Value |
 |---|---|
-| **Key ID** | `rzp_test_SXMDgzpoyL2FOb` |
-| **Key Secret** | `ZnOzl2ETRGCqGgh6GBtuYxiW` |
-| **Mode** | Test (Sandbox) |
+| **Key ID** | `rzp_live_SYXqNIFrw0EEaW` |
+| **Key Secret** | `1JdT3SBTEPDhl6SCUiSMN2Aa` |
+| **Mode** | Live (Production) |
 | **MID** | SW9AHcjKJxFpor |
 | **Account** | nandhinisilks.arni@gmail.com |
 
@@ -33,9 +33,9 @@ Customer Checkout → Backend creates Razorpay Order → Frontend opens Payment 
 
 ### `.env` Configuration
 ```env
-# Razorpay Payment Gateway (Test Mode)
-RAZORPAY_KEY=rzp_test_SXMDgzpoyL2FOb
-RAZORPAY_SECRET=ZnOzI2ETRGCqGgh6GBtuYxiW
+# Razorpay Payment Gateway (Live Mode)
+RAZORPAY_KEY=rzp_live_SYXqNIFrw0EEaW
+RAZORPAY_SECRET=1JdT3SBTEPDhl6SCUiSMN2Aa
 ```
 
 ### `config/services.php`

@@ -48,6 +48,7 @@
                         'all' => 'All Orders',
                         'paid' => 'Paid',
                         'unpaid' => 'Unpaid',
+                        'order placed' => 'Order Placed',
                         'processing' => 'Processing',
                         'dispatched' => 'Dispatched',
                         'delivered' => 'Delivered',
@@ -117,7 +118,7 @@
                             @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-600 border-rose-200
                             @elseif($order->order_status == 'dispatched') bg-blue-100 text-blue-600 border-blue-200
                             @else bg-amber-100 text-amber-600 border-amber-200 @endif">
-                            {{ $order->order_status }}
+                            {{ ucwords($order->order_status) }}
                         </span>
                     </td>
                     <td class="py-3 text-right">

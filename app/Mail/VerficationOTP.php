@@ -30,10 +30,6 @@ class VerficationOTP extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('orders@nandhinisilks.com', 'Nandhini Silks'),
-            replyTo: [
-                new Address('orders@nandhinisilks.com', 'Nandhini Silks'),
-            ],
             subject: 'Your Verification Code',
         );
     }
