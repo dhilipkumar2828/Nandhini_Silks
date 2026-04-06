@@ -832,7 +832,7 @@ class CartController extends Controller
         }
 
         if ($signatureStatus && $order) {
-            $order->update(['payment_status' => 'paid', 'order_status' => 'shipped']);
+            $order->update(['payment_status' => 'paid', 'order_status' => 'order_placed']);
 
             if (Auth::check()) {
                 \App\Models\CartItem::where('user_id', Auth::id())->delete();
