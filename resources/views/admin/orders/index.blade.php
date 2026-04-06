@@ -49,8 +49,8 @@
                         'paid' => 'Paid',
                         'unpaid' => 'Unpaid',
                         'order placed' => 'Order Placed',
-                        'processing' => 'Processing',
-                        'dispatched' => 'Dispatched',
+                        'shipped' => 'Shipped',
+                        'out for delivery' => 'Out for Delivery',
                         'delivered' => 'Delivered',
                         'cancelled' => 'Cancelled'
                     ];
@@ -116,9 +116,9 @@
                         <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
                             @if($order->order_status == 'delivered') bg-emerald-100 text-emerald-600 border-emerald-200
                             @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-600 border-rose-200
-                            @elseif($order->order_status == 'dispatched') bg-blue-100 text-blue-600 border-blue-200
+                            @elseif($order->order_status == 'shipped' || $order->order_status == 'dispatched') bg-blue-100 text-blue-600 border-blue-200
                             @else bg-amber-100 text-amber-600 border-amber-200 @endif">
-                            {{ ucwords($order->order_status) }}
+                            {{ $order->order_status == 'dispatched' ? 'Shipped' : ucwords($order->order_status) }}
                         </span>
                     </td>
                     <td class="py-3 text-right">

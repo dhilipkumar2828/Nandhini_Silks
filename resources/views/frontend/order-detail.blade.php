@@ -713,21 +713,22 @@
                         <span class="step-date">{{ $order->created_at->format('M d') }}</span>
                     </div>
                     <div
-                        class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'pending' ? 'active' : '') }}">
+                        class="timeline-step {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'order placed' ? 'active' : '') }}">
                         <div class="step-icon">
-                            {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}
+                            {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? '✓' : '●' }}
                         </div>
-                        <span class="step-label">Processing</span>
+                        <span class="step-label">Shipped</span>
                         <span
-                            class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Pending' }}</span>
+                            class="step-date">{{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'Item Shipped' : 'Processing' }}</span>
                     </div>
                     <div
-                        class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
-                        <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}
+                        class="timeline-step {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'shipped' ? 'active' : '') }}">
+                        <div class="step-icon">
+                            {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? '✓' : '●' }}
                         </div>
-                        <span class="step-label">Dispatched</span>
+                        <span class="step-label">Out for Delivery</span>
                         <span
-                            class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
+                            class="step-date">{{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'Done' : 'Pending' }}</span>
                     </div>
                     <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
                         <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
@@ -855,8 +856,7 @@
                                 'paid' => 'status-delivered',
                                 'failed' => 'status-failed',
                                 'refunded' => 'status-refunded',
-                                'processing' => 'status-processing',
-                                'dispatched' => 'status-dispatched',
+                                'partial' => 'status-dispatched',
                                 default => 'status-pending',
                             };
                         @endphp

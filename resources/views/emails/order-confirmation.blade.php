@@ -29,6 +29,19 @@
             .container { margin: 0; border-radius: 0; width: 100%; }
             .content { padding: 25px 20px; }
         }
+        /* Timeline Styles */
+        .timeline { margin: 30px 0; padding: 20px 0; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+        .timeline-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .timeline-step { text-align: center; vertical-align: top; }
+        .step-circle { width: 24px; height: 24px; border-radius: 50%; display: inline-block; background-color: #e5e7eb; border: 4px solid #f3f4f6; }
+        .step-active { background-color: #a91b43 !important; border-color: #fdf2f8 !important; }
+        .step-completed { background-color: #10b981 !important; border-color: #ecfdf5 !important; }
+        .step-line { height: 4px; background-color: #e5e7eb; margin-top: 14px; }
+        .line-active { background-color: #a91b43 !important; }
+        .line-completed { background-color: #10b981 !important; }
+        .step-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 8px; display: block; letter-spacing: 0.5px; }
+        .label-active { color: #a91b43 !important; }
+        .label-completed { color: #10b981 !important; }
     </style>
 </head>
 <body>
@@ -40,6 +53,43 @@
         <div class="content">
             <h2 style="color: #111; font-weight: 800; margin-top: 0;">Hello, {{ $order->customer_name }}!</h2>
             <p>We've received your order and are spinning our looms to get it ready for shipment. Thank you for choosing Nandhini Silks for your celebration.</p>
+            
+            <div class="timeline">
+                <table class="timeline-table">
+                    <tr>
+                        <td class="timeline-step">
+                            <div class="step-circle step-active"></div>
+                            <span class="step-label label-active">Placed</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle"></div>
+                            <span class="step-label">Shipped</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle"></div>
+                            <span class="step-label">Arriving</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle"></div>
+                            <span class="step-label">Delivered</span>
+                        </td>
+                    </tr>
+                </table>
+                <div style="text-align: center; margin-top: 15px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; letter-spacing: 1px;">
+                        Current Update: ORDER PLACED
+                    </span>
+                </div>
+            </div>
             
             <div class="order-info">
                 <p><strong>Order Number:</strong> #{{ $order->order_number }}</p>
@@ -84,13 +134,13 @@
                             </tr>
                             @if($order->tax > 0)
                             <tr>
-                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Tax:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 0) }}</td>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Tax:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 2) }}</td>
                             </tr>
                             @endif
                             <tr>
-                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Shipping:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 0) }}</td>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Shipping:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 2) }}</td>
                             </tr>
                             @if($order->discount > 0)
                             <tr>

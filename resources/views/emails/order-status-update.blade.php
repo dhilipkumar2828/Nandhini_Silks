@@ -16,14 +16,20 @@
         .status-delivered { background-color: #eff6ff; color: #3b82f6; border: 1px solid #3b82f6; }
         .status-pending { background-color: #f7f7f7; color: #64748b; border: 1px solid #64748b; }
         .status-cancelled { background-color: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
-        
-        .order-info { background-color: #fdfaf0; border: 1px dashed #ad8b4e; padding: 20px; border-radius: 12px; margin: 25px 0; }
-        .order-info p { margin: 5px 0; font-size: 14px; color: #555; }
-        .order-info strong { color: #a91b43; }
-        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .table td { padding: 15px 12px; border-bottom: 1px solid #f9f9f9; font-size: 14px; vertical-align: middle; }
-        .button { display: inline-block; padding: 16px 40px; background-color: #a91b43; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 16px; margin-top: 35px; box-shadow: 0 10px 20px rgba(169, 27, 67, 0.2); }
-        .footer { background-color: #fafafa; padding: 30px; text-align: center; color: #888; font-size: 12px; border-top: 1px solid #eeeeee; }
+        /* Timeline Styles */
+        .timeline { margin: 30px 0; padding: 20px 0; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+        .timeline-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .timeline-step { text-align: center; vertical-align: top; }
+        .step-circle { width: 24px; height: 24px; border-radius: 50%; display: inline-block; background-color: #e5e7eb; border: 4px solid #f3f4f6; }
+        .step-active { background-color: #a91b43 !important; border-color: #fdf2f8 !important; }
+        .step-completed { background-color: #10b981 !important; border-color: #ecfdf5 !important; }
+        .step-line { height: 4px; background-color: #e5e7eb; margin-top: 14px; }
+        .line-active { background-color: #a91b43 !important; }
+        .line-completed { background-color: #10b981 !important; }
+        .step-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 8px; display: block; letter-spacing: 0.5px; }
+        .label-active { color: #a91b43 !important; }
+        .label-completed { color: #10b981 !important; }
+
         @media only screen and (max-width: 600px) {
             .container { margin: 0; border-radius: 0; width: 100%; }
             .content { padding: 25px 20px; }
@@ -45,16 +51,41 @@
                 <p>We're pleased to share an update on your order. Something special is coming your way from the heart of Arani weaving.</p>
             @endif
 
-            <div style="text-align: center;">
-                <span class="status-badge 
-                    @if($order->order_status == 'processing') status-processing 
-                    @elseif($order->order_status == 'dispatched') status-dispatched 
-                    @elseif($order->order_status == 'delivered') status-delivered 
-                    @elseif($order->order_status == 'cancelled') status-cancelled 
-                    @else status-pending
-                    @endif">
-                    Current Status: {{ strtoupper($order->order_status) }}
-                </span>
+            <div class="timeline">
+                <table class="timeline-table">
+                    <tr>
+                        <td class="timeline-step">
+                            <div class="step-circle step-completed"></div>
+                            <span class="step-label label-completed">Placed</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'line-completed' : '' }}"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'step-completed' : ($order->order_status == 'order placed' ? 'step-active' : '') }}"></div>
+                            <span class="step-label {{ in_array($order->order_status, ['shipped', 'out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'order placed' ? 'label-active' : '') }}">Shipped</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'line-completed' : '' }}"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'step-completed' : ($order->order_status == 'shipped' ? 'step-active' : '') }}"></div>
+                            <span class="step-label {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'label-completed' : ($order->order_status == 'shipped' ? 'label-active' : '') }}">Arriving</span>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 10px;">
+                            <div class="step-line {{ $order->order_status == 'delivered' ? 'line-completed' : '' }}"></div>
+                        </td>
+                        <td class="timeline-step">
+                            <div class="step-circle {{ $order->order_status == 'delivered' ? 'step-completed' : ($order->order_status == 'out for delivery' ? 'step-active' : '') }}"></div>
+                            <span class="step-label {{ $order->order_status == 'delivered' ? 'label-completed' : ($order->order_status == 'out for delivery' ? 'label-active' : '') }}">Delivered</span>
+                        </td>
+                    </tr>
+                </table>
+                <div style="text-align: center; margin-top: 15px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; letter-spacing: 1px;">
+                        Current Update: {{ strtoupper($order->order_status) }}
+                    </span>
+                </div>
             </div>
 
             <div class="order-info">
@@ -106,13 +137,13 @@
                             </tr>
                             @if($order->tax > 0)
                             <tr>
-                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Tax:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 0) }}</td>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Tax:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 2) }}</td>
                             </tr>
                             @endif
                             <tr>
-                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Shipping:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 0) }}</td>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Shipping:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 2) }}</td>
                             </tr>
                             @if($order->discount > 0)
                             <tr>

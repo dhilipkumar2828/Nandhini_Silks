@@ -90,12 +90,12 @@ class Order extends Model
     public function getOrderStatusBadgeAttribute()
     {
         return match($this->order_status) {
-            'order placed' => ['label' => 'Order Placed', 'class' => 'bg-slate-50 text-slate-600'],
-            'processing'  => ['label' => 'Processing',  'class' => 'bg-blue-50 text-blue-600'],
-            'dispatched'  => ['label' => 'Dispatched',  'class' => 'bg-orange-50 text-orange-600'],
-            'delivered'   => ['label' => 'Delivered',   'class' => 'bg-emerald-50 text-emerald-600'],
-            'cancelled'   => ['label' => 'Cancelled',   'class' => 'bg-rose-50 text-rose-600'],
-            default       => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
+            'order placed'     => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
+            'shipped'          => ['label' => 'Shipped',          'class' => 'bg-blue-50 text-blue-600'],
+            'out for delivery' => ['label' => 'Out for Delivery', 'class' => 'bg-indigo-50 text-indigo-600'],
+            'delivered'        => ['label' => 'Delivered',        'class' => 'bg-emerald-50 text-emerald-600'],
+            'cancelled'        => ['label' => 'Cancelled',        'class' => 'bg-rose-50 text-rose-600'],
+            default            => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
         };
     }
 

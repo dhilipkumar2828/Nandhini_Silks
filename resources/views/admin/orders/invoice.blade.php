@@ -152,7 +152,7 @@
             <div class="info-value" style="margin-bottom:8px;">
                 @php
                     $pClass = match($order->payment_status) { 'paid'=>'paid','failed'=>'failed','refunded'=>'refunded', default=>'pending' };
-                    $oClass = match($order->order_status) { 'delivered'=>'delivered','dispatched'=>'dispatched','cancelled'=>'cancelled', 'order placed'=>'processing', default=>'processing' };
+                    $oClass = match($order->order_status) { 'delivered'=>'delivered','shipped'=>'dispatched','out for delivery'=>'dispatched','dispatched'=>'dispatched','cancelled'=>'cancelled', 'order placed'=>'processing', default=>'processing' };
                 @endphp
                 <span class="badge badge-{{ $pClass }}">{{ ucfirst($order->payment_status) }}</span>
                 &nbsp;
