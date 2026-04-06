@@ -408,8 +408,6 @@ class FrontendController extends Controller
             return redirect()->route('my-orders')->with('error', 'Order not found.');
         }
 
-        // dd($order);
-
         return view('frontend.order-detail', compact('order'));
     }
 

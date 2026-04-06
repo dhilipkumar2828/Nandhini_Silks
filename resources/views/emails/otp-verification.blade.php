@@ -17,7 +17,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2 style="color: #a91b43; margin: 0;">Nandhini Silks</h2>
+            <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 60px; width: auto;">
         </div>
         <div class="content">
             <p>Hello,</p>

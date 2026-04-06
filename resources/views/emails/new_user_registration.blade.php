@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks Logo" style="height: 60px; width: auto;">
+        <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks Logo" style="height: 60px; width: auto;">
     </div>
     
     <div class="card">
