@@ -29,10 +29,10 @@ class OrderController extends Controller
                 $query->where('payment_status', '=', 'paid');
             } elseif ($request->status == 'unpaid') {
                 $query->where('payment_status', '=', 'pending');
-            } elseif ($request->status == 'processing') {
-                $query->where('order_status', '=', 'processing');
-            } elseif ($request->status == 'dispatched') {
-                $query->where('order_status', '=', 'dispatched');
+            } elseif ($request->status == 'shipped') {
+                $query->where('order_status', '=', 'shipped');
+            } elseif ($request->status == 'out for delivery') {
+                $query->where('order_status', '=', 'out for delivery');
             } else {
                 $query->where('order_status', '=', $request->status);
             }
@@ -102,7 +102,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         $request->validate([
-            'order_status' => 'required|in:pending,order placed,processing,dispatched,delivered,cancelled',
+            'order_status' => 'required|in:pending,order placed,shipped,out for delivery,delivered,cancelled',
             'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',

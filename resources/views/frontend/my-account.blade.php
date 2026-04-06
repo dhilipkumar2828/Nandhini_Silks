@@ -143,9 +143,9 @@
                                 @php
                                     $orderStatus = strtolower(trim((string) $order->order_status));
                                     $orderStatusClass = match($orderStatus) {
-                                        'processing' => 'status-processing',
-                                        'dispatched' => 'status-dispatched',
                                         'shipped' => 'status-shipped',
+                                        'out for delivery' => 'status-shipped',
+                                        'dispatched' => 'status-shipped',
                                         'delivered' => 'status-delivered',
                                         'failed' => 'status-failed',
                                         'cancelled' => 'status-cancelled',
