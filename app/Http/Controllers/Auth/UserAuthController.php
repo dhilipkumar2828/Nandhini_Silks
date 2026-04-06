@@ -212,7 +212,7 @@ class UserAuthController extends Controller
             Log::info('Password reset broker return status: ' . __($status));
 
             if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
-                return back()->with('status', __($status));
+                return redirect()->route('login')->with('success', __($status));
             }
 
             Log::warning('Password reset failed due to broker status: ' . __($status));
