@@ -19,8 +19,9 @@
                     <thead>
                         <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
                             <th class="pb-3 font-bold">Product</th>
-                            <th class="pb-3 font-bold">Price</th>
-                            <th class="pb-3 font-bold">Qty</th>
+                            <th class="pb-3 font-bold text-right">Price</th>
+                            <th class="pb-3 font-bold text-right">Qty</th>
+                            <th class="pb-3 font-bold text-right">Tax</th>
                             <th class="pb-3 font-bold text-right">Total</th>
                         </tr>
                     </thead>
@@ -41,33 +42,37 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 text-slate-600">₹{{ number_format($item->price, 2) }}</td>
-                            <td class="py-4 text-slate-600">{{ $item->quantity }}</td>
-                            <td class="py-4 text-right font-bold text-slate-800">₹{{ number_format($item->total, 2) }}</td>
+                            <td class="py-4 text-slate-600 text-right">₹{{ number_format($item->price, 2) }}</td>
+                            <td class="py-4 text-slate-600 text-right">{{ $item->quantity }}</td>
+                            <td class="py-4 text-slate-600 text-right">
+                                <div>₹{{ number_format($item->tax_amount ?? 0, 2) }}</div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">({{ $item->tax_rate ?? 0 }}%)</div>
+                            </td>
+                            <td class="py-4 text-right font-black text-slate-800">₹{{ number_format($item->total, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="text-slate-600">
-                            <td colspan="3" class="pt-4 text-right pr-4 font-bold text-[10px] uppercase">Sub Total</td>
+                            <td colspan="4" class="pt-4 text-right pr-4 font-bold text-[10px] uppercase">Sub Total</td>
                             <td class="pt-4 text-right font-bold">₹{{ number_format($order->sub_total, 2) }}</td>
                         </tr>
                         @if($order->discount > 0)
                         <tr class="text-rose-500">
-                            <td colspan="3" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Discount</td>
+                            <td colspan="4" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Discount</td>
                             <td class="py-1 text-right font-bold">-₹{{ number_format($order->discount, 2) }}</td>
                         </tr>
                         @endif
                         <tr class="text-slate-600">
-                            <td colspan="3" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Shipping</td>
+                            <td colspan="4" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Shipping</td>
                             <td class="py-1 text-right font-bold">₹{{ number_format($order->shipping, 2) }}</td>
                         </tr>
                         <tr class="text-slate-600">
-                            <td colspan="3" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Tax</td>
+                            <td colspan="4" class="py-1 text-right pr-4 font-bold text-[10px] uppercase">Tax (GST)</td>
                             <td class="py-1 text-right font-bold">₹{{ number_format($order->tax, 2) }}</td>
                         </tr>
                         <tr class="text-slate-800 text-lg">
-                            <td colspan="3" class="pt-4 text-right pr-4 font-bold">Grand Total</td>
+                            <td colspan="4" class="pt-4 text-right pr-4 font-bold">Grand Total</td>
                             <td class="pt-4 text-right font-bold text-[#a91b43]">₹{{ number_format($order->grand_total, 2) }}</td>
                         </tr>
                     </tfoot>

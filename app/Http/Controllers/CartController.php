@@ -287,8 +287,7 @@ class CartController extends Controller
 
         // AJAX request — return JSON totals for dynamic display
         if ($request->ajax() || $request->wantsJson()) {
-            $items = array_values($cart);
-            $totals = $this->calculateTotals($items);
+            $totals = $this->calculateTotals($cart);
             return response()->json([
                 'success'    => true,
                 'subTotal'   => $totals['subTotal'],
@@ -298,6 +297,7 @@ class CartController extends Controller
                 'discount'   => $totals['discount'],
                 'grandTotal' => $totals['grandTotal'],
                 'itemCount'  => $totals['itemCount'],
+                'items'      => $cart, // Return original cart with keys
             ]);
         }
 
@@ -572,6 +572,8 @@ class CartController extends Controller
                     'color' => $item['color'] ?? null,
                     'attributes' => $item['display_attributes'] ?? [],
                     'price' => $item['price'],
+                    'tax_rate' => $item['tax_rate'] ?? 0,
+                    'tax_amount' => $item['tax_amount'] ?? 0,
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
                 ]);
@@ -989,7 +991,7 @@ class CartController extends Controller
         }
     }
 
-    private function calculateTotals(array $items): array
+    private function calculateTotals(array &$items): array
     {
         $subTotal = 0;
         $itemCount = 0;
@@ -1009,23 +1011,33 @@ class CartController extends Controller
         $coupon = $couponResult['coupon'];
         $taxableAmount = max(0, $subTotal - $discount);
         
-        // DYNAMIC TAX CALCULATION [PERFECT FIX]
+        // DYNAMIC TAX CALCULATION [FIXED 0% LOGIC]
         $tax = 0;
         $firstRate = 0;
-        foreach ($items as $item) {
+        foreach ($items as &$item) {
             $product = Product::with('taxClass.rates')->find($item['product_id']);
+            $rate = 0;
             if ($product) {
-                // Get the float rate (0.1, 0.05 etc)
                 $rate = $this->getTaxRate($product);
-                if ($firstRate === 0) {
-                    $firstRate = $rate * 100; // Track first applicable rate in percentage (10, 5 etc)
+                // Fix: Only set firstRate if we find a non-zero rate, to avoid showing 0% if first item is 0%
+                if ($rate > 0 && $firstRate === 0) {
+                    $firstRate = $rate * 100;
                 }
-                $tax += ($item['price'] * $item['quantity']) * $rate;
+                
+                $itemTax = ($item['price'] * $item['quantity']) * $rate;
+                $tax += $itemTax;
+                
+                // Add tax info to item for display in table
+                $item['tax_rate'] = $rate * 100;
+                $item['tax_amount'] = $itemTax;
+            } else {
+                $item['tax_rate'] = 0;
+                $item['tax_amount'] = 0;
             }
         }
 
         $tax = round($tax, 2);
-        $taxPercentage = $firstRate ?: 0; // Default to 5 if none found
+        $taxPercentage = $firstRate ?: 0; 
         $grandTotal = round($taxableAmount + $tax + $shipping, 2);
 
         return compact('subTotal', 'discount', 'tax', 'taxPercentage', 'shipping', 'grandTotal', 'itemCount', 'coupon');
@@ -1095,11 +1107,12 @@ class CartController extends Controller
         }
 
         $now = now();
-        if ($coupon->valid_from && $now->lt($coupon->valid_from)) {
+        // Added 5-minute grace period for Both Start and End times
+        if ($coupon->valid_from && $now->lt($coupon->valid_from->copy()->subMinutes(5))) {
             Log::info('COUPON REJECTED: Before valid date.', ['code' => $coupon->code, 'now' => $now, 'valid_from' => $coupon->valid_from]);
             return $this->invalidateCoupon();
         }
-        if ($coupon->expires_at && $now->gt($coupon->expires_at)) {
+        if ($coupon->expires_at && $now->gt($coupon->expires_at->copy()->addMinutes(5))) {
             Log::info('COUPON REJECTED: Expired.', ['code' => $coupon->code, 'now' => $now, 'expires_at' => $coupon->expires_at]);
             return $this->invalidateCoupon();
         }

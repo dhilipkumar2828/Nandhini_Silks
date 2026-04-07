@@ -324,7 +324,6 @@
             <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST"
                 novalidate>
                 @csrf
-                <input type="hidden" name="payment_method" id="payment_method_input" value="razorpay">
                 <input type="hidden" name="customer_email" value="{{ Auth::user()?->email }}">
 
                 <div class="checkout-grid"
@@ -590,6 +589,10 @@
                                                         · {{ $attr['name'] }}: {{ $attr['value'] }}
                                                     @endforeach
                                                 @endif
+                                                <span style="display: block; color: #555; font-weight: 600; margin-top: 2px;">
+                                                    Tax: &#8377;<span id="itemTaxAmt-{{ $item['key'] }}">{{ number_format($item['tax_amount'] ?? 0, 2) }}</span>
+                                                    ({{ $item['tax_rate'] ?? 0 }}%)
+                                                </span>
                                             </div>
                                         </div>
                                         <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">
@@ -610,8 +613,8 @@
                                         {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
                                     </span>
                                 </div>
-                                <div class="summary-row-v4">
-                                    <span>Tax (<span id="tax_rate_label">{{ $taxPercentage ?? 0 }}</span>%)</span>
+                                <div class="summary-row-v4" id="tax_row_container" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
+                                    <span>Tax (GST)</span>
                                     <span id="tax_cost_display">&#8377;{{ number_format($tax, 2) }}</span>
                                 </div>
                                 @if($discount > 0)
@@ -634,7 +637,7 @@
                                 <label
                                     style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #A91B43; border-radius: 12px; transition: all 0.2s ease; background: #fffcfd;"
                                     onclick="selectPayment('razorpay', this)">
-                                    <input type="radio" name="pay_choice_radio" checked style="accent-color: #A91B43;">
+                                    <input type="radio" name="payment_method" value="razorpay" checked style="accent-color: #A91B43;">
                                     <div style="flex: 1;">
                                         <div style="font-size: 13px; font-weight: 700; color: #333;">Secure Payment</div>
                                         <div style="font-size: 11px; color: #888;">UPI, Cards, NetBanking</div>
@@ -645,7 +648,7 @@
                                 <label
                                     style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #f0f0f0; border-radius: 12px; transition: all 0.2s ease; background: #fff;"
                                     onclick="selectPayment('cod', this)">
-                                    <input type="radio" name="pay_choice_radio" style="accent-color: #A91B43;">
+                                    <input type="radio" name="payment_method" value="cod" style="accent-color: #A91B43;">
                                     <div style="flex: 1;">
                                         <div style="font-size: 13px; font-weight: 700; color: #333;">Cash on Delivery</div>
                                         <div style="font-size: 11px; color: #888;">Pay when you receive</div>
@@ -718,15 +721,14 @@
     }
 
     function selectPayment(method, element) {
-        document.getElementById('payment_method_input').value = method;
         document.querySelectorAll('#paymentOptions label').forEach(l => {
             l.style.border = '1px solid #f0f0f0';
             l.style.background = '#fff';
-            l.querySelector('input').checked = false;
         });
         element.style.border = '1px solid #A91B43';
         element.style.background = '#fffcfd';
-        element.querySelector('input').checked = true;
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
     }
 
     function toggleSavedAddresses(checkbox) {
@@ -791,13 +793,25 @@
             return r.json();
         })
         .then(response => {
-            if (response.success) {
-                document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
-                document.getElementById('tax_cost_display').textContent = response.taxFormatted;
-                document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
+                if (response.success) {
+                    document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
+                    document.getElementById('tax_cost_display').textContent = response.taxFormatted;
+                    document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
 
-                if (response.taxPercentage !== undefined) {
-                    const taxLabel = document.getElementById('tax_rate_label');
+                    const taxRow = document.getElementById('tax_row_container');
+                    if (taxRow) {
+                        taxRow.style.display = (response.tax > 0) ? 'flex' : 'none';
+                    }
+
+                    // Update item-wise taxes if available in response
+                    if (response.items) {
+                        Object.keys(response.items).forEach(key => {
+                            const item = response.items[key];
+                            const amtEl = document.getElementById(`itemTaxAmt-${key}`);
+                            if (amtEl) amtEl.textContent = Number(item.tax_amount).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+                        });
+                    }
+                }
                     if (taxLabel) taxLabel.textContent = response.taxPercentage;
                 }
 

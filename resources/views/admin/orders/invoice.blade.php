@@ -3,299 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Invoice #{{ str_pad($order->order_number, 6, '0', STR_PAD_LEFT) }}</title>
+    <title>Invoice #{{ $order->order_number }}</title>
     <style>
+        /* Modern Typography & Reset */
+        @font-face {
+            font-family: 'Outfit';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/outfit/v11/QGYsz_OBy1qW9CzEt3lEGRY.ttf) format('truetype');
+        }
+        @font-face {
+            font-family: 'Outfit';
+            font-style: normal;
+            font-weight: 700;
+            src: url(https://fonts.gstatic.com/s/outfit/v11/QGYsz_OBy1qW9CzEt3lEGRY.ttf) format('truetype');
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12.5px; color: #1e293b; background: #fff; }
+        body { 
+            font-family: 'Outfit', 'DejaVu Sans', sans-serif; 
+            font-size: 13px; 
+            color: #333; 
+            line-height: 1.5;
+            background: #fff;
+        }
 
-        @page { margin: 0px; }
-        .page { padding: 10px 40px 40px; }
+        @page { margin: 0; }
+        .invoice-container { padding: 30px 45px; background: #fff; position: relative; }
 
-        /* Header */
-        .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 3px solid #a91b43; padding-bottom: 20px; }
-        .header-left { display: table-cell; width: 55%; vertical-align: top; }
-        .header-right { display: table-cell; width: 45%; text-align: right; vertical-align: top; }
-        .brand-name { font-size: 28px; font-weight: bold; color: #a91b43; letter-spacing: 1px; }
-        .brand-tagline { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
-        .brand-address { font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.6; }
+        /* Premium Header */
+        .header { 
+            border-bottom: 2px solid #a91b43; 
+            padding-bottom: 15px; 
+            margin-bottom: 25px;
+            display: table;
+            width: 100%;
+        }
+        .header-left { display: table-cell; width: 60%; vertical-align: top; }
+        .header-right { display: table-cell; width: 40%; text-align: right; vertical-align: top; }
 
-        .invoice-title { font-size: 32px; font-weight: bold; color: #1e293b; }
-        .invoice-number { font-size: 13px; color: #64748b; margin-top: 4px; }
-        .invoice-date { font-size: 11px; color: #94a3b8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .brand-name { font-size: 24px; font-weight: 800; color: #a91b43; letter-spacing: 0.2px; margin-bottom: 3px; line-height: 1; }
+        .brand-address { font-size: 11px; color: #555; line-height: 1.4; }
 
-        /* Info Sections */
-        .info-row { display: table; width: 100%; margin-bottom: 25px; }
-        .info-cell { display: table-cell; width: 50%; vertical-align: top; }
-        .info-cell:last-child { text-align: right; }
-        .info-label { font-size: 10px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
-        .info-value { font-size: 12px; color: #1e293b; line-height: 1.7; }
-        .info-value strong { font-weight: bold; }
+        .invoice-title { font-size: 30px; font-weight: 800; color: #a91b43; text-transform: uppercase; margin: 0; line-height: 1; }
+        .order-info { margin-top: 10px; font-size: 13px; color: #333; }
+        .info-item { margin-bottom: 2px; }
+        .info-label { color: #888; font-weight: normal; }
 
-        /* Status Badges */
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        .badge-paid { background: #dcfce7; color: #16a34a; }
-        .badge-pending { background: #fef9c3; color: #ca8a04; }
-        .badge-failed { background: #fee2e2; color: #dc2626; }
-        .badge-refunded { background: #e0e7ff; color: #4f46e5; }
-        .badge-delivered { background: #dcfce7; color: #16a34a; }
-        .badge-dispatched { background: #dbeafe; color: #2563eb; }
-        .badge-processing { background: #fef9c3; color: #ca8a04; }
-        .badge-cancelled { background: #fee2e2; color: #dc2626; }
+        /* Customer Info Grid */
+        .details-grid { display: table; width: 100%; margin-bottom: 35px; border-spacing: 20px 0; margin-left: -20px; }
+        .details-cell { display: table-cell; width: 50%; vertical-align: top; }
+        .card { 
+            background: #fffcf0; 
+            border: 1px solid #f9e1e8; 
+            border-radius: 12px; 
+            padding: 18px; 
+        }
+        .card-secondary { background: #fafafa; border: 1px solid #eee; }
+        
+        .card-label { 
+            font-size: 11px; 
+            color: #a91b43; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 10px; 
+        }
+        .customer-name { font-size: 20px; font-weight: 800; color: #333; margin-bottom: 5px; }
+        .address-text { font-size: 14px; color: #555; line-height: 1.5; }
 
-        /* Table */
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .items-table thead tr { background: #a91b43; color: #fff; }
-        .items-table thead th { padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-        .items-table thead th:last-child { text-align: right; }
-        .items-table tbody tr { border-bottom: 1px solid #f1f5f9; }
-        .items-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .items-table tbody td { padding: 10px 12px; font-size: 12px; color: #334155; }
-        .items-table tbody td:last-child { text-align: right; font-weight: bold; }
-        .items-table td.product-name { font-weight: bold; color: #1e293b; }
+        /* Items Table */
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+        .items-table thead tr { background: #a91b43; color: white; }
+        .items-table th { padding: 15px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border: 1px solid #a91b43; text-align: center; }
+        .items-table th.text-left { text-align: left; }
+        .items-table th.text-right { text-align: right; }
+
+        .items-table td { padding: 15px 12px; border: 1px solid #eee; vertical-align: middle; font-size: 14px; }
+        .items-table tr:nth-child(even) { background: #fafafa; }
+        
+        .product-info { display: table; width: 100%; }
+        .product-img { display: table-cell; width: 45px; vertical-align: middle; }
+        .product-details { display: table-cell; padding-left: 12px; vertical-align: middle; }
+        .product-name { font-size: 16px; font-weight: 800; color: #1a1a1a; margin-bottom: 3px; }
+        .product-meta { font-size: 12px; color: #999; }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
         /* Totals */
-        .totals-wrapper { display: table; width: 100%; }
-        .totals-spacer { display: table-cell; width: 55%; }
-        .totals-box { display: table-cell; width: 45%; }
-        .total-row { display: table; width: 100%; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
-        .total-label { display: table-cell; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .total-value { display: table-cell; text-align: right; font-size: 12px; font-weight: bold; color: #1e293b; }
-        .grand-total-row { display: table; width: 100%; padding: 10px 0; margin-top: 4px; background: #fdf2f5; border-radius: 6px; }
-        .grand-total-label { display: table-cell; padding: 0 12px; font-size: 13px; font-weight: bold; color: #a91b43; text-transform: uppercase; }
-        .grand-total-value { display: table-cell; text-align: right; padding: 0 12px; font-size: 16px; font-weight: bold; color: #a91b43; }
+        .totals-section { display: table; width: 100%; margin-bottom: 40px; }
+        .totals-spacer { display: table-cell; width: 60%; }
+        .totals-box { display: table-cell; width: 40%; }
+        
+        .totals-table { width: 100%; border-collapse: collapse; border: 1px solid #eee; }
+        .totals-table td { padding: 12px; border: 1px solid #eee; font-size: 15px; color: #666; }
+        .totals-table td.val { text-align: right; font-weight: 700; color: #333; width: 50%; }
+        .total-row { background: #a91b43; color: white !important; }
+        .total-row td { color: white !important; font-size: 22px !important; font-weight: 800 !important; border-color: #a91b43 !important; }
 
         /* Footer */
-        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; }
-        .footer-text { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .thank-you { font-size: 15px; font-weight: bold; color: #a91b43; margin-bottom: 6px; }
+        .footer-grid { display: table; width: 100%; border-top: 1.5px solid #f0f0f0; padding-top: 30px; margin-top: 20px; }
+        .words-section { display: table-cell; width: 65%; vertical-align: bottom; }
+        .signature-section { display: table-cell; width: 35%; text-align: right; vertical-align: bottom; }
+        
+        .words-label { font-size: 12px; color: #bbb; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .words-value { background: #fffcf0; padding: 10px 15px; border-radius: 8px; font-size: 16px; font-weight: 700; color: #a91b43; display: inline-block; }
+        
+        .legal-declaration { margin-top: 25px; font-size: 12px; color: #999; font-style: italic; border-left: 3px solid #a91b43; padding-left: 15px; line-height: 1.5; }
+        
+        .signature-title { font-size: 12px; font-weight: 800; color: #333; text-transform: uppercase; margin-bottom: 50px; }
+        .signature-line { border-top: 2px solid #333; padding-top: 10px; font-size: 13px; font-weight: 800; color: #a91b43; text-transform: uppercase; display: inline-block; width: 220px; }
 
-        /* Divider */
-        .divider { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
-
-        /* Tracking */
-        .tracking-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-top: 20px; }
-        .tracking-title { font-size: 10px; font-weight: bold; color: #a91b43; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .tracking-grid { display: table; width: 100%; }
-        .tracking-cell { display: table-cell; width: 33%; }
-        .tracking-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tracking-value { font-size: 12px; font-weight: bold; color: #1e293b; margin-top: 2px; }
-
-        /* Watermark */
-        .watermark {
-            position: fixed;
-            top: 40%;
-            left: 10%;
-            width: 100%;
-            text-align: center;
-            opacity: 0.15;
-            transform: rotate(-35deg);
-            transform-origin: 50% 50%;
-            z-index: -1000;
-        }
-        .watermark-text {
-            font-size: 90px;
-            font-weight: bold;
-            color: #a91b43;
-            letter-spacing: 15px;
-            text-transform: uppercase;
-        }
+        .final-footer { margin-top: 60px; text-align: center; font-size: 13px; color: #999; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+        .final-footer strong { color: #555; }
     </style>
 </head>
 <body>
-@if($order->order_status == 'cancelled' || $order->payment_status == 'refunded')
-<div class="watermark">
-    <div class="watermark-text">{{ $order->order_status == 'cancelled' ? 'CANCELLED' : 'REFUNDED' }}</div>
-</div>
-@endif
-<div class="page">
-
-    {{-- Header --}}
-    <div class="header">
-        <div class="header-left">
-            @php
-                $logoPath = public_path('images/nandhini-logo.png');
-                $logoBase64 = '';
-                if ($logoPath && is_file($logoPath)) {
-                    $logoBase64 = base64_encode(@file_get_contents($logoPath));
-                }
-            @endphp
-            @if($logoBase64)
-                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 50px; width: auto; margin-bottom: 5px;">
-            @else
-                <div class="brand-name">Nandhini Silks</div>
-            @endif
-            <div class="brand-tagline">Premium Silk Collections</div>
-            <div class="brand-address">
-                416/9 Aranmanai Street, S.V. Nagaram<br>
-                Arni - 632317, Tamil Nadu, India<br>
-                <strong>GSTIN:</strong> 33AAZFN1900B1ZK | <strong>Ph:</strong> +91 96295 52822
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="invoice-title">INVOICE</div>
-            <div class="invoice-number">#{{ str_pad($order->order_number, 6, '0', STR_PAD_LEFT) }}</div>
-            <div class="invoice-date">{{ $order->created_at->format('d M Y, h:i A') }}</div>
-        </div>
-    </div>
-
-    {{-- Customer & Order Info --}}
-    <div class="info-row">
-        <div class="info-cell">
-            <div class="info-label">Bill To</div>
-            <div class="info-value">
-                <strong>{{ $order->customer_name }}</strong><br>
-                {{ $order->customer_email }}<br>
-                {{ $order->customer_phone }}
-            </div>
-        </div>
-        <div class="info-cell">
-            <div class="info-label">Order Status</div>
-            <div class="info-value" style="margin-bottom:8px;">
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
                 @php
-                    $pClass = match($order->payment_status) { 'paid'=>'paid','failed'=>'failed','refunded'=>'refunded', default=>'pending' };
-                    $oClass = match($order->order_status) { 'delivered'=>'delivered','shipped'=>'dispatched','out for delivery'=>'dispatched','dispatched'=>'dispatched','cancelled'=>'cancelled', 'order placed'=>'processing', default=>'processing' };
+                    $logoPath = public_path('images/image 1.png');
+                    $logoBase64 = '';
+                    if ($logoPath && is_file($logoPath)) {
+                        $logoBase64 = base64_encode(@file_get_contents($logoPath));
+                    }
                 @endphp
-                <span class="badge badge-{{ $pClass }}">{{ ucfirst($order->payment_status) }}</span>
-                &nbsp;
-                <span class="badge badge-{{ $oClass }}">{{ ucwords($order->order_status) }}</span>
+                @if($logoBase64)
+                    <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 45px; width: auto; margin-bottom: 8px;">
+                @endif
+                <div class="brand-name">NANDHINI SILKS</div>
+                <div class="brand-address">
+                    416/9 Aranmanai Street, S.V. Nagaram, Arni - 632317<br>
+                    Tamil Nadu, India | Ph: +91 96295 52822
+                    <div style="margin-top: 2px;"><strong>GSTIN:</strong> 33AAZFN1900B1ZK</div>
+                </div>
             </div>
-            <div class="info-label" style="margin-top:8px;">Payment Method</div>
-            <div class="info-value">{{ strtoupper($order->payment_method) }}</div>
+            <div class="header-right">
+                <h1 class="invoice-title">Tax Invoice</h1>
+                <div class="order-info">
+                    <div class="info-item"><span class="info-label">Invoice No:</span> <strong>#{{ $order->order_number }}</strong></div>
+                    <div class="info-item"><span class="info-label">Date:</span> <strong>{{ $order->created_at->format('d-m-Y') }}</strong></div>
+                    <div class="info-item"><span class="info-label">Payment Status:</span> <strong>{{ strtoupper($order->payment_method) }}</strong></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    {{-- Delivery Address --}}
-    <div style="margin-bottom: 20px;">
-        <div class="info-label">Delivery Address</div>
-        <div class="info-value" style="margin-top: 6px; background:#f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
-            {{ $order->delivery_address }}
-        </div>
-    </div>
-
-    {{-- Items Table --}}
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width:5%">#</th>
-                <th style="width:10%; text-align:center;">Image</th>
-                <th style="width:40%">Product</th>
-                <th style="width:15%; text-align:center;">Qty</th>
-                <th style="width:15%; text-align:right;">Unit Price</th>
-                <th style="width:15%; text-align:right;">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $i => $item)
-            <tr>
-                <td style="vertical-align: middle;">{{ $i + 1 }}</td>
-                <td style="text-align:center; vertical-align: middle; padding: 5px;">
-                    @php
-                        $itemPath = $item->product_image;
-                        if (!$itemPath && $item->product) {
-                            $itemPath = $item->product->image_path;
-                            if (!$itemPath && !empty($item->product->images)) {
-                                $images = $item->product->images;
-                                if (is_string($images)) $images = json_decode($images, true);
-                                if (is_array($images) && count($images) > 0) $itemPath = $images[0];
-                            }
-                        }
-                        
-                        $fullPath = null;
-                        if ($itemPath) {
-                            if (Str::startsWith($itemPath, 'products/') || Str::startsWith($itemPath, 'categories/')) {
-                                $fullPath = public_path('uploads/' . $itemPath);
-                            } else {
-                                $fullPath = public_path('images/' . $itemPath);
-                            }
-                        }
-                        
-                        if (!$fullPath || !is_file($fullPath)) {
-                            $fullPath = public_path('images/pro1.png');
-                        }
-                        
-                        // Final safety check for fallback image
-                        if (!is_file($fullPath)) {
-                            $logoBase64 = null; // We'll just show text or nothing
-                        }
-                    @endphp
-                    @if(isset($fullPath) && is_file($fullPath))
-                        <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 40px; height: 40px; border-radius: 4px;">
-                    @else
-                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8;">No Image</div>
-                    @endif
-                </td>
-                <td class="product-name" style="vertical-align: middle;">
-                    {{ $item->product_name }}
-                    @if($item->size || $item->color)
-                    <div style="font-size: 10px; color: #64748b; font-weight: normal; margin-top: 2px;">
-                        @if($item->size) Size: {{ $item->size }} @endif
-                        @if($item->color) {{ $item->size ? '|' : '' }} Color: {{ $item->color }} @endif
+        <!-- Details Grid -->
+        <div class="details-grid">
+            <div class="details-cell">
+                <div class="card">
+                    <div class="card-label">Billing & Shipping Details</div>
+                    <div class="customer-name">{{ $order->customer_name }}</div>
+                    <div class="address-text">
+                        {!! nl2br(e($order->delivery_address)) !!}
                     </div>
+                    <div style="margin-top: 10px; font-weight: 700;">Phone: {{ $order->customer_phone }}</div>
+                </div>
+            </div>
+            <div class="details-cell">
+                <div class="card card-secondary">
+                    <div style="padding: 10px 0;">
+                        <span style="color: #777;">Place of Supply:</span>
+                        <strong style="float: right;">Tamil Nadu</strong>
+                    </div>
+                    <div style="padding: 10px 0; border-top: 1px solid #eee;">
+                        <span style="color: #777;">Order Source:</span>
+                        <strong style="float: right;">nandhinisilks.com</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%">SNo</th>
+                    <th style="width: 10%">Preview</th>
+                    <th class="text-left" style="width: 45%">Item Description</th>
+                    <th style="width: 8%">Qty</th>
+                    <th class="text-right" style="width: 12%">Rate</th>
+                    <th class="text-right" style="width: 10%">Tax</th>
+                    <th class="text-right" style="width: 10%">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->items as $i => $item)
+                <tr>
+                    <td class="text-center">{{ $i + 1 }}</td>
+                    <td class="text-center">
+                        @php
+                            $itemPath = $item->product_image;
+                            if (!$itemPath && $item->product) $itemPath = $item->product->image_path;
+                            $fullPath = null;
+                            if ($itemPath) {
+                                if (Str::startsWith($itemPath, 'products/')) $fullPath = public_path('uploads/' . $itemPath);
+                                else $fullPath = public_path('images/' . $itemPath);
+                            }
+                            if (!$fullPath || !is_file($fullPath)) $fullPath = public_path('images/pro1.png');
+                        @endphp
+                        @if(isset($fullPath) && is_file($fullPath))
+                            <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 45px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #f0f0f0;">
+                        @endif
+                    </td>
+                    <td>
+                        <div class="product-name">{{ $item->product_name }}</div>
+                        <div class="product-meta">HSN: 5007 | Variant: {{ ($item->color ? $item->color : '') . ($item->size ? ' / '.$item->size : '') ?: '-' }}</div>
+                    </td>
+                    <td class="text-center" style="font-weight: 700;">{{ $item->quantity }}</td>
+                    <td class="text-right">₹{{ number_format($item->price, 2) }}</td>
+                    <td class="text-right">
+                        ₹{{ number_format($item->tax_amount ?? 0, 2) }}
+                        <div style="font-size: 10px; color: #999;">({{ $item->tax_rate ?? 0 }}%)</div>
+                    </td>
+                    <td class="text-right" style="font-weight: 800; color: #1a1a1a;">₹{{ number_format($item->total, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals-section">
+            <div class="totals-spacer"></div>
+            <div class="totals-box">
+                <table class="totals-table">
+                    <tr>
+                        <td>Subtotal</td>
+                        <td class="val">₹{{ number_format($order->sub_total, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax (GST)</td>
+                        <td class="val">₹{{ number_format($order->tax, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Shipping Fees</td>
+                        <td class="val" style="color: {{ $order->shipping > 0 ? '#333' : '#2e7d32' }}">{{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}</td>
+                    </tr>
+                    @if($order->discount > 0)
+                    <tr style="background: #f1fcf1;">
+                        <td style="color: #2e7d32; font-weight: 700;">Discount</td>
+                        <td class="val" style="color: #2e7d32;">- ₹{{ number_format($order->discount, 2) }}</td>
+                    </tr>
                     @endif
-                </td>
-                <td style="text-align:center; vertical-align: middle;">{{ $item->quantity }}</td>
-                <td style="text-align:right; vertical-align: middle;">&#8377;{{ number_format($item->price, 2) }}</td>
-                <td style="text-align:right; vertical-align: middle;">&#8377;{{ number_format($item->total, 2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    {{-- Totals --}}
-    <div class="totals-wrapper">
-        <div class="totals-spacer">
-            {{-- Spacer for left side --}}
-        </div>
-        <div class="totals-box">
-            <div class="total-row">
-                <div class="total-label">Sub Total</div>
-                <div class="total-value">&#8377;{{ number_format($order->sub_total, 2) }}</div>
-            </div>
-            @if($order->discount > 0)
-            <div class="total-row">
-                <div class="total-label" style="color:#dc2626;">Discount</div>
-                <div class="total-value" style="color:#dc2626;">- &#8377;{{ number_format($order->discount, 2) }}</div>
-            </div>
-            @endif
-            <div class="total-row">
-                <div class="total-label">Tax</div>
-                <div class="total-value">&#8377;{{ number_format($order->tax, 2) }}</div>
-            </div>
-            <div class="total-row">
-                <div class="total-label">Shipping</div>
-                <div class="total-value">&#8377;{{ number_format($order->shipping, 2) }}</div>
-            </div>
-            <div class="grand-total-row">
-                <div class="grand-total-label">Grand Total</div>
-                <div class="grand-total-value">&#8377;{{ number_format($order->grand_total, 2) }}</div>
+                    <tr class="total-row">
+                        <td>Net Total</td>
+                        <td class="val">₹{{ number_format($order->grand_total, 2) }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
-    </div>
 
-    {{-- Tracking Info --}}
-    @if($order->tracking_number)
-    <div class="tracking-box">
-        <div class="tracking-title">Shipment Tracking</div>
-        <div class="tracking-grid">
-            <div class="tracking-cell">
-                <div class="tracking-label">Courier</div>
-                <div class="tracking-value">{{ $order->courier_name ?? 'N/A' }}</div>
+        <!-- Words & Signature -->
+        <div class="footer-grid">
+            <div class="words-section">
+                <div class="words-label">Amount in Words</div>
+                @php
+                    $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+                    $words = $f->format($order->grand_total);
+                @endphp
+                <div class="words-value">{{ ucwords($words) }} Rupees Only</div>
+                
+                <div class="legal-declaration">
+                    <strong>Legal Declaration:</strong><br>
+                    This digital receipt serves as an official tax invoice. Certified that the particulars given above are true and correct and the amount indicated represents the price actually charged. Computer generated - No signature required.
+                </div>
             </div>
-            <div class="tracking-cell">
-                <div class="tracking-label">Tracking Number</div>
-                <div class="tracking-value">{{ $order->tracking_number }}</div>
+            <div class="signature-section">
+                <div class="signature-title">For NANDHINI SILKS</div>
+                <div class="signature-line">Authorized Signatory</div>
             </div>
         </div>
-    </div>
-    @endif
 
-    {{-- Footer --}}
-    <div class="footer">
-        <div class="thank-you">Thank you for shopping with Nandhini Silks!</div>
-        <div class="footer-text">This is a computer-generated invoice. No signature required.</div>
-        <div class="footer-text" style="margin-top:4px;">For queries: info@nandhinisilks.com</div>
+        <!-- Final Footer -->
+        <div class="final-footer">
+            Thank you for choosing Nandhini Silks - Arani's Pride in Handloom Artistry since years.<br>
+            Visit us online at <strong>www.nandhinisilks.com</strong>
+        </div>
     </div>
-
-</div>
 </body>
 </html>

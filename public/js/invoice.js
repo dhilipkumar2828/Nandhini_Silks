@@ -137,6 +137,7 @@ const InvoiceGenerator = {
                                 <th style="padding: 12px; text-align: left; border: 1px solid #a91b43;">Item Description</th>
                                 <th style="padding: 12px; text-align: center; border: 1px solid #a91b43;">Qty</th>
                                 <th style="padding: 12px; text-align: right; border: 1px solid #a91b43;">Rate</th>
+                                <th style="padding: 12px; text-align: right; border: 1px solid #a91b43;">Tax</th>
                                 <th style="padding: 12px; text-align: right; border: 1px solid #a91b43;">Amount</th>
                             </tr>
                         </thead>
@@ -153,6 +154,10 @@ const InvoiceGenerator = {
                                     </td>
                                     <td style="padding: 12px; border: 1px solid #eee; text-align: center; font-weight: 600;">${item.qty}</td>
                                     <td style="padding: 12px; border: 1px solid #eee; text-align: right;">₹${InvoiceGenerator.formatCurrency(item.rate)}</td>
+                                    <td style="padding: 12px; border: 1px solid #eee; text-align: right;">
+                                        ₹${InvoiceGenerator.formatCurrency(item.taxAmount || 0)}
+                                        <div style="font-size: 11px; color: #999;">(${item.taxRate || 0}%)</div>
+                                    </td>
                                     <td style="padding: 12px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #1a1a1a;">₹${InvoiceGenerator.formatCurrency(item.qty * item.rate)}</td>
                                 </tr>
                             `).join('')}
@@ -167,7 +172,7 @@ const InvoiceGenerator = {
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(subtotal)}</td>
                             </tr>
                             <tr>
-                                <td style="padding: 10px; border: 1px solid #eee; color: #666;">Tax</td>
+                                <td style="padding: 10px; border: 1px solid #eee; color: #666;">Tax (GST)</td>
                                 <td style="padding: 10px; border: 1px solid #eee; text-align: right; font-weight: 600;">₹${InvoiceGenerator.formatCurrency(taxAmount)}</td>
                             </tr>
                             <tr>

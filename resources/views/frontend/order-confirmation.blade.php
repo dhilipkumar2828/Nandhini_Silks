@@ -143,18 +143,20 @@
         text-align: left;
     }
     .order-summary-table th {
-        padding: 10px 0;
+        padding: 12px 10px;
         border-bottom: 2px solid #f0f0f0;
         color: #aaa;
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1px;
+        font-weight: 700;
     }
     .order-summary-table td {
-        padding: 14px 0;
+        padding: 16px 10px;
         border-bottom: 1px solid #f8f8f8;
-        font-size: 13px;
+        font-size: 14px;
         color: #444;
+        vertical-align: middle;
     }
     .tax-row td { color: #888; font-size: 12px; }
     .total-row td { font-size: 18px !important; font-weight: 700 !important; padding-top: 18px !important; }
@@ -304,23 +306,24 @@
             <table class="order-summary-table">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th style="text-align: right;">Price</th>
+                        <th style="padding-left: 0;">Product</th>
+                        <th style="text-align: right;">Qty</th>
+                        <th style="text-align: right;">Tax</th>
+                        <th style="text-align: right; padding-right: 0;">Price</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if($order)
                         @foreach($order->items as $item)
                         <tr>
-                            <td>
+                            <td style="padding-left: 0;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <img src="{{ $item->product && $item->product->image_path ? asset('images/' . $item->product->image_path) : asset('images/product_detail.png') }}"
-                                         width="38" height="48" style="object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+                                         width="45" height="55" style="object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid #eee;">
                                     <div>
-                                        <div style="font-weight: 600; font-size: 13px;">{{ $item->product_name }}</div>
+                                        <div style="font-weight: 700; font-size: 14px; color: #1a1a1a;">{{ $item->product_name }}</div>
                                         @if($item->size || $item->color)
-                                            <div style="font-size: 11px; color: #aaa; margin-top: 2px;">
+                                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 600;">
                                                 {{ $item->color ? 'Color: '.$item->color : '' }}
                                                 {{ ($item->color && $item->size) ? ' · ' : '' }}
                                                 {{ $item->size ? 'Size: '.$item->size : '' }}
@@ -329,38 +332,35 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $item->quantity }}</td>
-                            <td style="text-align: right; font-weight: 600;">&#8377;{{ number_format($item->total, 0) }}</td>
+                            <td style="text-align: right; font-weight: 600;">{{ $item->quantity }}</td>
+                            <td style="text-align: right;">
+                                <div style="font-weight: 700; color: #444;">&#8377;{{ number_format($item->tax_amount ?? 0, 2) }}</div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">({{ $item->tax_rate ?? 0 }}%)</div>
+                            </td>
+                            <td style="text-align: right; font-weight: 800; color: #1a1a1a; padding-right: 0;">&#8377;{{ number_format($item->total, 0) }}</td>
                         </tr>
                         @endforeach
                         <tr>
-                            <td colspan="2" style="text-align: right; border: none; padding-top: 20px; color: #888; font-size: 12px;">Subtotal</td>
-                            <td style="text-align: right; border: none; padding-top: 20px; font-weight: 600;">&#8377;{{ number_format($order->sub_total, 0) }}</td>
+                            <td colspan="3" style="text-align: right; border: none; padding-top: 20px; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Subtotal</td>
+                            <td style="text-align: right; border: none; padding-top: 20px; font-weight: 700; color: #333; padding-right: 0;">&#8377;{{ number_format($order->sub_total, 0) }}</td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="2" style="text-align: right; border: none;">
-                                @php
-                                    $effectiveTaxRate = ($order->sub_total - $order->discount) > 0 
-                                        ? round(($order->tax / ($order->sub_total - $order->discount)) * 100) 
-                                        : 0;
-                                @endphp
-                                GST ({{ $effectiveTaxRate }}%)
-                            </td>
-                            <td style="text-align: right; border: none; font-weight: 600;">&#8377;{{ number_format($order->tax, 2) }}</td>
+                            <td colspan="3" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tax (GST)</td>
+                            <td style="text-align: right; border: none; font-weight: 700; color: #333; padding-right: 0;">&#8377;{{ number_format($order->tax, 2) }}</td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="2" style="text-align: right; border: none;">Shipping</td>
-                            <td style="text-align: right; border: none; font-weight: 600; color: {{ $order->shipping > 0 ? '#333' : '#2e7d32' }};">
+                            <td colspan="3" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Shipping</td>
+                            <td style="text-align: right; border: none; font-weight: 700; color: {{ $order->shipping > 0 ? '#333' : '#2e7d32' }}; padding-right: 0;">
                                 {{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 0) : 'FREE' }}
                             </td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32;">Discount</td>
-                            <td style="text-align: right; border: none; font-weight: 600; color: #2e7d32;">-&#8377;{{ number_format($order->discount, 0) }}</td>
+                            <td colspan="3" style="text-align: right; border: none; color: #2e7d32; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Discount</td>
+                            <td style="text-align: right; border: none; font-weight: 700; color: #2e7d32; padding-right: 0;">-&#8377;{{ number_format($order->discount, 0) }}</td>
                         </tr>
                         <tr class="total-row">
-                            <td colspan="2" style="text-align: right; border: none; color: #333;">Total Paid</td>
-                            <td style="text-align: right; border: none; color: #A91B43;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
+                            <td colspan="3" style="text-align: right; border: none; color: #333; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Total Paid</td>
+                            <td style="text-align: right; border: none; color: #A91B43; font-size: 24px; padding-right: 0;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
                         </tr>
                     @endif
                 </tbody>
@@ -454,7 +454,8 @@
                         hsn: "5007",
                         qty: {{ $item->quantity }},
                         rate: {{ $item->price }},
-                        taxRate: 5
+                        taxRate: {{ $item->tax_rate ?? 0 }},
+                        taxAmount: {{ $item->tax_amount ?? 0 }}
                     },
                     @endforeach
                 @endif
