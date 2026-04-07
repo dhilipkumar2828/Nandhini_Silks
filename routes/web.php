@@ -150,6 +150,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('orders/{order}/shiprocket/label', [OrderController::class, 'generateShiprocketLabel'])->name('admin.orders.shiprocket.label');
         Route::post('orders/{order}/shiprocket/pickup', [OrderController::class, 'requestShiprocketPickup'])->name('admin.orders.shiprocket.pickup');
         Route::post('orders/{order}/shiprocket/return', [OrderController::class, 'createShiprocketReturn'])->name('admin.orders.shiprocket.return');
+        Route::post('orders/{order}/return-status', [OrderController::class, 'updateReturnStatus'])->name('admin.orders.return.status');
 
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');

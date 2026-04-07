@@ -125,7 +125,7 @@
         <div class="card-glass p-6 rounded-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold text-slate-800">Shiprocket Logistics</h2>
-                <img src="https://www.shiprocket.in/wp-content/themes/shiprocket/assets/images/shiprocket-logo.svg" alt="Shiprocket" class="h-5">
+                <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6">
             </div>
             
             @if($order->shiprocket_order_id)
@@ -158,6 +158,7 @@
                         @endif
                     </div>
 
+                    @if($order->shiprocket_awb)
                     <div class="pt-4 grid grid-cols-2 gap-3">
                         <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank" class="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]">
                             <i class="fas fa-print text-xs"></i> Print Label
@@ -169,6 +170,7 @@
                             </button>
                         </form>
                     </div>
+                    @endif
 
                     @if($order->order_status == 'delivered')
                         <div class="pt-2">
@@ -238,7 +240,7 @@
                     <p class="text-sm font-bold text-slate-700 leading-relaxed italic">"{{ $order->return_reason }}"</p>
                 </div>
 
-                <form action="{{ route('orders.return.status', $order->id) }}" method="POST" class="space-y-4">
+                <form action="{{ route('admin.orders.return.status', $order->id) }}" method="POST" class="space-y-4">
                     @csrf
                     <div>
                         <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2">Update Return State</label>
