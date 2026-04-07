@@ -793,35 +793,34 @@
             return r.json();
         })
         .then(response => {
-                if (response.success) {
-                    document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
-                    document.getElementById('tax_cost_display').textContent = response.taxFormatted;
-                    document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
+            if (response.success) {
+                document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
+                document.getElementById('tax_cost_display').textContent = response.taxFormatted;
+                document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
 
-                    const taxRow = document.getElementById('tax_row_container');
-                    if (taxRow) {
-                        taxRow.style.display = (response.tax > 0) ? 'flex' : 'none';
-                    }
-
-                    // Update item-wise taxes if available in response
-                    if (response.items) {
-                        Object.keys(response.items).forEach(key => {
-                            const item = response.items[key];
-                            const amtEl = document.getElementById(`itemTaxAmt-${key}`);
-                            if (amtEl) amtEl.textContent = Number(item.tax_amount).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
-                        });
-                    }
+                const taxRow = document.getElementById('tax_row_container');
+                if (taxRow) {
+                    taxRow.style.display = (response.tax > 0) ? 'flex' : 'none';
                 }
-                    if (taxLabel) taxLabel.textContent = response.taxPercentage;
+
+                // Update item-wise taxes if available in response
+                if (response.items) {
+                    Object.keys(response.items).forEach(key => {
+                        const item = response.items[key];
+                        const amtEl = document.getElementById(`itemTaxAmt-${key}`);
+                        if (amtEl) amtEl.textContent = Number(item.tax_amount).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+                    });
                 }
 
                 const shippingEl = document.getElementById('shipping_cost_display');
-                if (response.shipping > 0) {
-                    shippingEl.style.color = '';
-                    shippingEl.style.fontWeight = '';
-                } else {
-                    shippingEl.style.color = '#2ecc71';
-                    shippingEl.style.fontWeight = '700';
+                if (shippingEl) {
+                    if (response.shipping > 0) {
+                        shippingEl.style.color = '';
+                        shippingEl.style.fontWeight = '';
+                    } else {
+                        shippingEl.style.color = '#2ecc71';
+                        shippingEl.style.fontWeight = '700';
+                    }
                 }
             }
         })
