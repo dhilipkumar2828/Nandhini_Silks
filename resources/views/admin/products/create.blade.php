@@ -441,14 +441,31 @@ $(document).ready(function() {
     const specContent = $('#full_description').val();
     if (specContent) quillSpec.clipboard.dangerouslyPasteHTML(specContent);
 
+    // --- Consolidated Form Submission Validation ---
     $('#productForm').on('submit', function(e) {
         let isValid = true;
-        
+        $('#imagesErrorMsg, #nameErrorMsg, #slugErrorMsg').addClass('hidden');
+        $('.border-rose-500').removeClass('border-rose-500');
+
+        // 1. Check Uniqueness (Async check results)
+        if (!$('#nameErrorMsg').hasClass('hidden')) {
+            toastr.error("Product name already exists!");
+            $('#productName').addClass('border-rose-500');
+            isValid = false;
+        }
+        if (!$('#slugErrorMsg').hasClass('hidden')) {
+            toastr.error("Product slug already exists!");
+            $('#productSlug').addClass('border-rose-500');
+            isValid = false;
+        }
+
+        // 2. Weight Validation
         const isVar = $('#isVariantCheckbox').is(':checked');
         if (!isVar) {
             const weightVal = parseFloat($('input[name="weight"]:visible').val());
             if (isNaN(weightVal) || weightVal < 0.1 || weightVal > 10) {
-                toastr.error("Weight must be between 0.10 and 10 KG! Check the format (e.g. 0.10, 0.50).");
+                toastr.error("Weight must be between 0.10 and 10 KG!");
+                $('input[name="weight"]:visible').addClass('border-rose-500');
                 isValid = false;
             }
         } else {
@@ -456,20 +473,67 @@ $(document).ready(function() {
                 const val = parseFloat($(this).val());
                 if (isNaN(val) || val < 0.1 || val > 10) {
                     toastr.error("Variant Weight must be between 0.10 and 10 KG!");
+                    $(this).addClass('border-rose-500');
                     isValid = false;
                     return false;
                 }
             });
         }
-        
+
+        // 3. Image & Variant Validation
+        if (!isVar) {
+            const $imgInput = $('#generalImagesInput');
+            if (!$imgInput[0].files || $imgInput[0].files.length === 0) {
+                isValid = false;
+                $('#imagesErrorMsg').removeClass('hidden');
+                toastr.error("Please upload at least one image.");
+            }
+        } else {
+            const $rows = $('#variantMatrixBody tr');
+            if ($rows.length === 0) {
+                isValid = false;
+                toastr.error("Please configure at least one variant.");
+            } else {
+                $rows.each(function() {
+                    const $row = $(this);
+                    const $vImg = $row.find('.v-file-input');
+                    const $vPrice = $row.find('.v-price-input');
+                    const $vSku = $row.find('input[name*="v_sku"]');
+
+                    if ($vPrice.val() === '') {
+                        isValid = false;
+                        $vPrice.addClass('border-rose-500');
+                    }
+                    if ($vSku.val() === '') {
+                        isValid = false;
+                        $vSku.addClass('border-rose-500');
+                    }
+                    if (!$vImg[0].files || $vImg[0].files.length === 0) {
+                        isValid = false;
+                        $row.find('label').addClass('border-rose-500');
+                        $row.find('.v-img-error-msg').removeClass('hidden');
+                    }
+                });
+            }
+        }
+
         if (!isValid) {
             e.preventDefault();
+            // Scroll to first error
+            const $firstError = $('.border-rose-500').first();
+            if ($firstError.length) {
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $firstError.offset().top - 200
+                }, 500);
+            }
             return false;
         }
 
+        // Populate hidden fields from Quill
         $('#short_description').val(quillDesc.root.innerHTML);
         $('#full_description').val(quillSpec.root.innerHTML);
     });
+    // --- End Consolidated Submission ---
     // --- End Quill ---
 
     function slugify(text) {
@@ -742,67 +806,7 @@ $(document).ready(function() {
         helper([], 0); return r;
     }
 
-    // Handle form submission validation
-    $('#productForm').on('submit', function(e) {
-        let isValid = true;
-        $('#imagesErrorMsg').addClass('hidden');
-
-        const isVar = $('#isVariantCheckbox').is(':checked');
-        
-        if (!isVar) {
-            // Main Images check (browser handles SKU/Price via 'required')
-            const $imgInput = $('#generalImagesInput');
-            if (!$imgInput[0].files || $imgInput[0].files.length === 0) {
-                isValid = false;
-                $('#imagesErrorMsg').removeClass('hidden');
-            }
-        } else {
-            // Variant matrix check
-            const $rows = $('#variantMatrixBody tr');
-            if ($rows.length > 0) {
-                $rows.each(function() {
-                    const $row = $(this);
-                    const $vImg = $row.find('.v-file-input');
-                    const $vPrice = $row.find('.v-price-input');
-                    const $vSku = $row.find('input[name*="v_sku"]');
-
-                    if ($vPrice.val() === '') {
-                        isValid = false;
-                        $vPrice.addClass('border-rose-500');
-                    } else {
-                        $vPrice.removeClass('border-rose-500');
-                    }
-                    
-                    if ($vSku.val() === '') {
-                        isValid = false;
-                        $vSku.addClass('border-rose-500');
-                    } else {
-                        $vSku.removeClass('border-rose-500');
-                    }
-
-                    if (!$vImg[0].files || $vImg[0].files.length === 0) {
-                        isValid = false;
-                        $row.find('label').addClass('border-rose-500');
-                        $row.find('.v-img-error-msg').removeClass('hidden');
-                    } else {
-                        $row.find('label').removeClass('border-rose-500');
-                        $row.find('.v-img-error-msg').addClass('hidden');
-                    }
-                });
-            }
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-            // Scroll to first visible error (our custom ones or browser highlighted ones if possible)
-            const $firstError = $('.text-rose-500:not(.hidden), .border-rose-500').first();
-            if ($firstError.length) {
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: $firstError.offset().top - 200
-                }, 500);
-            }
-        }
-    });
+    // Duplicate submit handler removed and merged into the main consolidated handler above.
 
     // Toggle required attributes based on variant state
     function updateRequiredState() {

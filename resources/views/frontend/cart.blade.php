@@ -16,30 +16,40 @@
                 }
 
                 .col-product {
-                    width: 110px;
+                    width: 100px;
                     flex-shrink: 0;
                 }
 
                 .col-details {
                     flex-grow: 1;
-                    padding: 0 30px;
+                    padding: 0 20px;
                     min-width: 0;
                 }
 
                 .col-price {
-                    width: 130px;
+                    width: 140px;
                     flex-shrink: 0;
                     display: flex;
-                    justify-content: flex-start;
+                    justify-content: center;
                     align-items: center;
                 }
 
                 .col-quantity {
-                    width: 170px;
+                    width: 160px;
                     flex-shrink: 0;
                     display: flex;
-                    justify-content: flex-start;
+                    justify-content: center;
                     align-items: center;
+                }
+
+                .col-tax {
+                    width: 140px;
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-weight: 700;
+                    color: #444;
                 }
 
                 .col-remove {
@@ -143,8 +153,6 @@
             .cart-item-price {
                 font-size: 19px;
                 font-weight: 800;
-                position: relative;
-                right: 19px;
                 color: #A91B43;
             }
 
@@ -153,12 +161,6 @@
                 align-items: center;
                 justify-content: center;
                 gap: 0;
-                position: relative;
-                right: 15px;
-                /* background: #f8f9fa;
-                                                                                                                                                                                                                                                                                                                                                                border-radius: 10px;
-                                                                                                                                                                                                                                                                                                                                                                padding: 4px;
-                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #eee; */
                 width: fit-content;
             }
 
@@ -259,9 +261,10 @@
                     grid-template-areas:
                         "image info remove"
                         "image price remove"
+                        "image tax remove"
                         "image qty remove" !important;
                     align-items: center !important;
-                    gap: 8px 15px !important;
+                    gap: 5px 15px !important;
                     padding: 20px 0 !important;
                     border-bottom: 1px solid #f0f0f0 !important;
                     display: grid !important;
@@ -295,6 +298,14 @@
                     margin-left: 0 !important;
                     position: relative;
                     right: 0px;
+                }
+
+                .col-tax {
+                    grid-area: tax;
+                    justify-self: start !important;
+                    margin: 0 !important;
+                    font-size: 14px;
+                    position: relative;
                 }
 
                 .quantity-picker {
@@ -380,8 +391,9 @@
                             <div class="cart-header-row cart-layout-grid">
                                 <span class="col-product">Product</span>
                                 <span class="col-details">Details</span>
-                                <span class="col-price" style="text-align: right;">Unit Price</span>
+                                <span class="col-price">Unit Price</span>
                                 <span class="col-quantity">Quantity</span>
+                                <span class="col-tax">Tax</span>
                                 <span class="col-remove">Action</span>
                             </div>
 
@@ -416,6 +428,12 @@
                                                 onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
                                         </div>
                                     </div>
+                                    <div class="col-tax">
+                                        <div class="tax-info" style="display: flex; flex-direction: column; align-items: center;">
+                                            <span style="font-size: 15px; color: #444; font-weight: 800;">&#8377;<span id="taxAmt-{{ $item['key'] }}">{{ number_format($item['tax_amount'] ?? 0, 2) }}</span></span>
+                                            <span style="font-size: 11px; color: #888; font-weight: 600;">(<span id="taxRate-{{ $item['key'] }}">{{ $item['tax_rate'] ?? 0 }}</span>%)</span>
+                                        </div>
+                                    </div>
                                     <div class="col-remove">
                                         <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')"
                                             aria-label="Remove item">&times;</button>
@@ -440,12 +458,10 @@
                         <span>Shipping</span>
                         <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}</span>
                     </div>
-                    @if($tax > 0)
-                        <div class="summary-row">
-                            <span>Estimated Tax (<span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
-                            <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
-                        </div>
-                    @endif
+                    <div class="summary-row" id="taxRow" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
+                        <span>Estimated Tax (GST)</span>
+                        <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
+                    </div>
                     <div class="summary-row" style="color: #2e7d32; font-weight: 600;">
                         <span>Coupon Discount</span>
                         <span id="discountDisp">-&#8377;{{ number_format($discount ?? 0, 2) }}</span>
@@ -560,13 +576,15 @@
                     // Update totals if returned
                     if (data.subTotal !== undefined) {
                         setAmt('subtotalDisp', data.subTotal);
-                        setAmt('taxDisp', data.tax);
+                        if (data.tax !== undefined) {
+                            setAmt('taxDisp', data.tax);
+                            const taxRow = document.getElementById('taxRow');
+                            if (taxRow) {
+                                taxRow.style.display = (data.tax > 0) ? 'flex' : 'none';
+                            }
+                        }
                         setAmt('totalDisp', data.grandTotal);
 
-                        if (data.taxPercentage !== undefined) {
-                            const taxLabel = document.getElementById('taxRateLabel');
-                            if (taxLabel) taxLabel.textContent = data.taxPercentage;
-                        }
                         const shipEl = document.getElementById('shippingDisp');
                         if (shipEl) {
                             shipEl.textContent = data.shipping > 0 ? '₹' + fmt(data.shipping) : 'FREE';
@@ -578,7 +596,16 @@
                             discEl.style.opacity = '1';
                         }
 
-                        // toastr.success('Cart updated.');
+                        // Update item-wise tax values
+                        if (data.items) {
+                            Object.keys(data.items).forEach(key => {
+                                const item = data.items[key];
+                                const amtEl = document.getElementById(`taxAmt-${key}`);
+                                const rateEl = document.getElementById(`taxRate-${key}`);
+                                if (amtEl) amtEl.textContent = fmt(item.tax_amount || 0);
+                                if (rateEl) rateEl.textContent = item.tax_rate || 0;
+                            });
+                        }
 
                         // BROADCAST to other tabs (but skip same-tab reload)
                         if (window.notifyCartUpdate) {

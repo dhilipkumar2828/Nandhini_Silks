@@ -142,7 +142,7 @@
         .order-items-table th:first-child,
         .order-items-table td:first-child {
             text-align: left !important;
-            width: 45%;
+            width: 35%;
         }
 
         .order-items-table th {
@@ -759,6 +759,7 @@
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Qty</th>
+                                    <th>Tax</th>
                                     <th>Subtotal</th>
                                     <th>Actions</th>
                                 </tr>
@@ -792,6 +793,10 @@
                                         </td>
                                         <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
                                         <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
+                                        <td data-label="Tax">
+                                            &#8377;{{ number_format($item->tax_amount ?? 0, 2) }}
+                                            <div style="font-size: 10px; color: #94a3b8;">({{ $item->tax_rate ?? 0 }}%)</div>
+                                        </td>
                                         <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}
                                         </td>
                                         <td class="item-actions-cell" data-label="Actions" style="margin-top: 25px;">
@@ -820,9 +825,9 @@
                                 <span
                                     style="color: #52c41a;">{{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}</span>
                             </div>
-                            <div class="summary-row tax-row">
-                                <span>Tax</span>
-                                <span class="tax-val">&#8377;{{ number_format($order->tax, 2) }}</span>
+                            <div class="summary-row">
+                                <span>Tax (GST)</span>
+                                <span>&#8377;{{ number_format($order->tax, 2) }}</span>
                             </div>
                             @if($order->discount > 0)
                                 <div class="summary-row">
