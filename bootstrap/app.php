@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->validateCsrfTokens(except: [
             'check-serviceability',
+            'api/v1/update-logistics/callback',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

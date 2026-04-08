@@ -358,6 +358,71 @@
                 color: #A91B43 !important;
                 transform: translateX(-5px);
             }
+
+            /* Pincode Check Styles in Summary */
+            .summary-pincode-check {
+                margin: 20px 0;
+                padding: 15px;
+                background: #fdfafb;
+                border-radius: 12px;
+                border: 1px solid #f8e8ee;
+            }
+
+            .summary-pincode-check p {
+                font-size: 13px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .pincode-summary-group {
+                display: flex;
+                gap: 8px;
+            }
+
+            .pincode-summary-input {
+                flex: 1;
+                height: 38px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 0 12px;
+                font-size: 14px;
+                outline: none;
+            }
+
+            .pincode-summary-input:focus {
+                border-color: #A91B43;
+            }
+
+            .btn-pincode-summary {
+                background: #A91B43;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 0 12px;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .btn-pincode-summary:hover {
+                background: #8e1638;
+            }
+
+            .btn-pincode-summary:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            #summaryDeliveryNote {
+                font-size: 12px;
+                margin-top: 8px;
+                line-height: 1.4;
+            }
         </style>
     @endpush
     <main class="cart-page">
@@ -456,7 +521,13 @@
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
-                        <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}</span>
+                        <span id="shippingDisp">
+                            @if(session()->has('shipping_rate'))
+                                {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
+                            @else
+                                <span style="font-size: 12px; color: #888; font-weight: 500;">(Calculated after check)</span>
+                            @endif
+                        </span>
                     </div>
                     <div class="summary-row" id="taxRow" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
                         <span>Estimated Tax (GST)</span>
@@ -498,6 +569,23 @@
                             </form>
                         @endif
                     </div>
+
+                    @if($hasItems)
+                    <div class="summary-pincode-check">
+                        <p><i class="fas fa-truck" style="color: #A91B43;"></i> Delivery Availability</p>
+                        <div class="pincode-summary-group">
+                            <input type="text" class="pincode-summary-input" maxlength="6" 
+                                placeholder="Enter Pincode" value="{{ session('checked_pincode') }}"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)">
+                            <button type="button" class="btn-pincode-summary">Check</button>
+                        </div>
+                        <div id="summaryDeliveryNote">
+                            @if(session('checked_pincode') && session('checked_pincode_edd'))
+                                <span style="color: #2e7d32; font-weight: 600;"><i class="fas fa-check-circle"></i> Delivery by {{ session('checked_pincode_edd') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="summary-total">
                         <span>Total</span>
@@ -630,6 +718,54 @@
             // Since cart list is complex, we just reload the page to get fresh state correctly
             window.location.reload();
         };
+
+        // Cart Page Pincode Check
+        document.querySelector('.btn-pincode-summary')?.addEventListener('click', function() {
+            const btn = this;
+            const input = document.querySelector('.pincode-summary-input');
+            const note = document.getElementById('summaryDeliveryNote');
+            const pincode = input.value.trim();
+
+            if (pincode.length !== 6) {
+                toastr.warning('Please enter a 6-digit pincode.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            note.innerHTML = '<span style="color: #666;">Checking...</span>';
+
+            fetch('{{ route("check-serviceability") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ pincode: pincode })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = 'Check';
+
+                if (data.success) {
+                    note.innerHTML = `<span style="color: #2e7d32; font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
+                    toastr.success(data.message);
+                    
+                    // Refresh totals
+                    ajaxUpdateCart('', ''); // calling update without key refreshes totals
+                } else {
+                    note.innerHTML = `<span style="color: #c62828; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                    toastr.error(data.message);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = 'Check';
+                note.innerHTML = '<span style="color: #c62828;">Error checking availability.</span>';
+            });
+        });
 
         function setAmt(id, val) {
             const el = document.getElementById(id);

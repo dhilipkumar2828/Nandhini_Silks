@@ -25,13 +25,19 @@ class AdminDashboardController extends Controller
         // Latest 10 Orders
         $latestOrders = Order::latest()->limit(10)->get();
 
+        // Shiprocket Wallet (Step 12)
+        $shiprocket = new \App\Services\ShiprocketService();
+        $srWalletRes = $shiprocket->getWalletBalance();
+        $srWallet = $srWalletRes['status'] ? $srWalletRes['data']['data']['wallet_balance'] : 'N/A';
+
         return view('admin.dashboard', compact(
             'totalSales',
             'totalOrders',
             'totalUsers',
             'totalProducts',
             'recentUsers',
-            'latestOrders'
+            'latestOrders',
+            'srWallet'
         ));
     }
 }

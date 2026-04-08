@@ -20,34 +20,71 @@ class CartController extends Controller
 {
     public function checkServiceability(Request $request)
     {
-        $pincode = $request->input('pincode');
-        $weight = $request->input('weight', 0.5);
+        $pincode   = $request->input('pincode');
+        $productId = $request->input('product_id'); 
+        $weight    = 0.5; // Final weight to send
 
         if (!$pincode) {
             return response()->json(['success' => false, 'message' => 'Please enter a pincode.']);
         }
 
+        // 1. If product_id is provided (Product Detail Page)
+        if ($productId) {
+            $prod = Product::find($productId);
+            if ($prod) {
+                $weight = $prod->weight > 0 ? (float)$prod->weight : 0.5;
+            }
+        } 
+        // 2. Otherwise use Cart Weight (Checkout / Cart Page)
+        else {
+            $cartItems = $this->getCart(); // Use consistently across the controller
+            $totalWeight = 0;
+            foreach ($cartItems as $item) {
+                // Try to find weight from item's metadata or re-fetch product
+                $p = Product::find($item['product_id'] ?? 0);
+                $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
+                $totalWeight += $w * (int)($item['quantity'] ?? 1);
+            }
+            $weight = $totalWeight > 0 ? $totalWeight : 0.5;
+        }
+
         $shiprocket = new \App\Services\ShiprocketService();
-        $result = $shiprocket->checkServiceability($pincode, $weight);
+        $result = $shiprocket->checkServiceability($pincode, (float) $weight);
         
-        Log::info('Shiprocket Serviceability Result:', $result);
+        Log::info('Shiprocket Serviceability Result (Weight: ' . $weight . '):', $result);
+
+        Log::info('checkServiceability - productId: ' . ($productId ?? 'NULL') . ' pincode: ' . $pincode);
 
         if ($result['status'] && isset($result['data']['available_courier_companies']) && count($result['data']['available_courier_companies']) > 0) {
+            // Get the first (often cheapest/recommended) courier
             $courier = $result['data']['available_courier_companies'][0];
             $edd = $courier['etd'] ?? '3-5 days';
+            
+            // Prefer 'rate' as it usually represents the total final freight charge
+            $freight = (float) ($courier['rate'] ?? $courier['freight_charges'] ?? 0);
+            
+            // Apply a small markup or ensure a minimum if needed (optional)
+            // $freight = $freight + 10; 
 
-            // Save to session for stickiness
-            session()->put('checked_pincode', $pincode);
-            session()->put('checked_pincode_edd', $edd);
+            // Save to session for stickiness ONLY if it's a cart-level check (no productId)
+            if (!$productId || $productId == "null" || $productId == "undefined") {
+                session()->put('checked_pincode', $pincode);
+                session()->put('checked_pincode_edd', $edd);
+                session()->put('shipping_rate', $freight);
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => "Estimated delivery by " . $edd,
-                'edd' => $edd
+                'message' => "Estimated delivery by " . $edd . " (Shipping: ₹" . number_format($freight, 2) . ")",
+                'edd' => $edd,
+                'shipping_rate' => $freight,
+                'shipping_rate_formatted' => '₹' . number_format($freight, 2)
             ]);
         }
 
-        session()->forget(['checked_pincode', 'checked_pincode_edd']);
+        if (!$productId) {
+            session()->forget(['checked_pincode', 'checked_pincode_edd', 'shipping_rate']);
+        }
         return response()->json([
             'success' => false,
             'message' => $result['message'] ?? 'Delivery not available for this pincode.'
@@ -66,6 +103,11 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->getCart();
+
+        if (empty($cart)) {
+            session()->forget(['checked_pincode', 'checked_pincode_edd', 'shipping_rate']);
+        }
+
         $items = [];
         foreach ($cart as $key => $item) {
             $item['key'] = $key;
@@ -649,16 +691,8 @@ class CartController extends Controller
             // Send order emails for COD
             $this->sendOrderEmails($order);
 
-            // Push to Shiprocket for COD
-            if ($paymentMethod === 'cod') {
-                $shiprocket = new \App\Services\ShiprocketService();
-                $srResult = $shiprocket->createOrder($order);
-                if ($srResult['status']) {
-                    Log::info('COD Order Pushed to Shiprocket: ' . $order->order_number);
-                } else {
-                    Log::error('Shiprocket COD Push Failed: ' . $srResult['message']);
-                }
-            }
+            // Shiprocket push is now manual from Admin side.
+            // if ($paymentMethod === 'cod') { ... }
 
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
             if (Auth::guard('web')->check()) {
@@ -843,14 +877,8 @@ class CartController extends Controller
 
             $this->sendOrderEmails($order);
 
-            // Push to Shiprocket after Payment Success
-            $shiprocket = new \App\Services\ShiprocketService();
-            $srResult = $shiprocket->createOrder($order);
-            if ($srResult['status']) {
-                Log::info('Razorpay Order Pushed to Shiprocket: ' . $order->order_number);
-            } else {
-                Log::error('Shiprocket Razorpay Push Failed: ' . $srResult['message']);
-            }
+            // Shiprocket push is now manual from Admin side.
+            // $shiprocket = new \App\Services\ShiprocketService(); ...
 
             return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
         }
@@ -1197,59 +1225,17 @@ class CartController extends Controller
 
     private function calculateShipping(array $items): float
     {
-        $totalShipping = 0;
-        
-        // Get shipping info from session if available (set during checkout)
-        $destination = session()->get('shipping_destination', [
-            'country' => 'India', // Default
-            'state' => null,
-            'zip' => null
-        ]);
-
-        foreach ($items as $item) {
-            $product = Product::find($item['product_id'], ['*']);
-            if (!$product) continue;
-
-            $shippingClassId = null;
-            
-            // Check variant first if it exists
-            if (!empty($item['variant_id'])) {
-                $variant = \App\Models\ProductVariant::find($item['variant_id'], ['*']);
-                if ($variant && $variant->shipping_class_id) {
-                    $shippingClassId = $variant->shipping_class_id;
-                }
-            }
-
-            // Fallback to parent product shipping class
-            if (!$shippingClassId) {
-                $shippingClassId = $product->shipping_class_id;
-            }
-
-            if (!$shippingClassId) continue;
-
-            $shippingClass = \App\Models\ShippingClass::find($shippingClassId);
-            if (!$shippingClass || !$shippingClass->status) continue;
-
-            // Find best matching rate
-            $rate = \App\Models\ShippingRate::where('shipping_class_id', $shippingClass->id)
-                ->where('status', 1)
-                ->where(function($query) use ($destination) {
-                    $query->where('country', $destination['country'])
-                          ->orWhere('country', 'All')
-                          ->orWhereNull('country');
-                })
-                ->orderByRaw("CASE WHEN country = ? THEN 0 ELSE 1 END", [$destination['country']])
-                ->first();
-
-            if ($rate) {
-                // Modified: Add shipping cost ONCE per unique product entry in cart, 
-                // regardless of its quantity. This ensures multiple products add up 
-                // but single product increment doesn't add extra shipping.
-                $totalShipping += (float)$rate->cost;
-            }
+        if (empty($items)) {
+            return 0.0;
         }
 
-        return round($totalShipping, 2);
+        // Only return shipping if explicitly checked (cart-level or saved in session)
+        if (!session()->has('shipping_rate')) {
+            return 0.0;
+        }
+
+        // Retrieve dynamic rate from Shiprocket serviceability check (stored in session)
+        return (float) session()->get('shipping_rate', 0.0);
     }
 
     private function invalidateCoupon(): array

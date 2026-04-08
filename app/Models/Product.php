@@ -28,7 +28,6 @@ class Product extends Model
         'discount_percent',
         'tax_class',
         'tax_class_id',
-        'shipping_class_id',
         'stock_quantity',
         'reserved_stock',
         'low_stock_threshold',
@@ -38,7 +37,6 @@ class Product extends Model
         'offer_collection',
         'weight',
         'dimensions',
-        'shipping_class',
         'attributes',
         'variants',
         'color_images',
@@ -89,10 +87,7 @@ class Product extends Model
         return $this->belongsTo(TaxClass::class, 'tax_class_id');
     }
 
-    public function shippingClass()
-    {
-        return $this->belongsTo(ShippingClass::class, 'shipping_class_id');
-    }
+
 
     public function stockMovements()
     {

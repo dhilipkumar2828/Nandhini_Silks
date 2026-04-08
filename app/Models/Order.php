@@ -111,5 +111,98 @@ class Order extends Model
             default     => ['label' => 'No Return',        'class' => 'bg-slate-50 text-slate-600'],
         };
     }
+    public function syncStatus($newStatus, $shiprocketStatus = null, $trackingNumber = null)
+    {
+        $oldStatus = $this->order_status;
+        $updates = ['order_status' => $newStatus];
+
+        if ($shiprocketStatus) {
+            $updates['shiprocket_status'] = $shiprocketStatus;
+        }
+
+        if ($trackingNumber) {
+            $updates['tracking_number'] = $trackingNumber;
+            // Also update AWB if not set
+            if (!$this->shiprocket_awb && $trackingNumber) {
+                $updates['shiprocket_awb'] = $trackingNumber;
+                $updates['courier_name'] = 'Shiprocket';
+            }
+        }
+
+        // Special Logic: Delivered marks Payment as Paid
+        if ($newStatus === 'delivered' && $this->payment_status !== 'paid') {
+            $updates['payment_status'] = 'paid';
+        }
+
+        // Special Logic: Cancelled restores stock
+        if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+            $this->restoreStock();
+            if ($this->payment_status === 'paid') {
+                $updates['payment_status'] = 'refunded';
+            }
+        }
+
+        $this->update($updates);
+
+        // Send Emails if status changed
+        if ($oldStatus !== $newStatus) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($this->customer_email)->send(new \App\Mail\OrderStatusUpdate($this));
+                $adminEmail = \App\Models\Setting::getAdminEmail();
+                \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\OrderStatusUpdate($this, true));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to send status update email for Order #{$this->order_number}: " . $e->getMessage());
+            }
+        }
+
+        return true;
+    }
+
+    public function restoreStock()
+    {
+        foreach ($this->items as $item) {
+            $product = $item->product;
+            if ($product) {
+                $variantId = $item->variant_id;
+                $restoreQty = (int) $item->quantity;
+
+                if ($variantId) {
+                    $variant = \App\Models\ProductVariant::find($variantId);
+                    if ($variant) {
+                        $variant->increment('stock_quantity', $restoreQty);
+                        \App\Models\StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => 'restock',
+                            'quantity' => $restoreQty,
+                            'balance_after' => $variant->stock_quantity,
+                            'reason' => 'Restored: Order #' . $this->order_number . ' cancelled',
+                        ]);
+                    }
+                } else {
+                    $product->increment('stock_quantity', $restoreQty);
+                    \App\Models\StockMovement::create([
+                        'product_id' => $product->id,
+                        'type' => 'restock',
+                        'quantity' => $restoreQty,
+                        'balance_after' => $product->stock_quantity,
+                        'reason' => 'Restored: Order #' . $this->order_number . ' cancelled',
+                    ]);
+                }
+                
+                // Sync parent stock
+                if ($product->product_variants->count() > 0) {
+                    $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                    $product->update([
+                        'stock_quantity' => $totalVariantStock,
+                        'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+                    ]);
+                } else {
+                    if ($product->stock_quantity > 0) {
+                        $product->update(['stock_status' => 'instock']);
+                    }
+                }
+            }
+        }
+    }
 }
 

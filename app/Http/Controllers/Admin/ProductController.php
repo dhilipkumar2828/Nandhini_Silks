@@ -45,11 +45,10 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
-        $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->orderBy('name')->get(['id', 'name']);
         $offerCollections = OfferCollection::where('status', 'active')->get();
 
-        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'shippingClasses', 'products', 'offerCollections'));
+        return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'products', 'offerCollections'));
     }
 
     public function store(Request $request)
@@ -74,7 +73,6 @@ class ProductController extends Controller
             'show_offer_on_homepage' => 'nullable|boolean',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
-            'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
             'weight' => 'required|numeric|min:0.1|max:10',
@@ -188,7 +186,6 @@ class ProductController extends Controller
                     'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
                     'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
                     'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
-                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];
@@ -258,11 +255,10 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
-        $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->where('id', '!=', $product->id)->orderBy('name')->get(['id', 'name']);
         $offerCollections = OfferCollection::where('status', 'active')->get();
         
-        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'shippingClasses', 'products', 'offerCollections'));
+        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'products', 'offerCollections'));
     }
 
     public function update(Request $request, Product $product)
@@ -287,7 +283,6 @@ class ProductController extends Controller
             'show_offer_on_homepage' => 'nullable|boolean',
             'attributes' => 'nullable|array',
             'tax_class_id' => 'nullable|exists:tax_classes,id',
-            'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
             'weight' => 'required|numeric|min:0.1|max:10',
@@ -414,7 +409,6 @@ class ProductController extends Controller
                     'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
                     'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
                     'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
-                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];

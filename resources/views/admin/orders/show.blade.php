@@ -95,12 +95,9 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Current Status</label>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                        @if($order->order_status == 'delivered') bg-emerald-100 text-emerald-700 
-                        @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-700
-                        @elseif($order->order_status == 'dispatched') bg-blue-100 text-blue-700
-                        @else bg-amber-100 text-amber-700 @endif">
-                        {{ ucwords($order->order_status) }}
+                    @php $statusBadge = $order->getOrderStatusBadgeAttribute(); @endphp
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $statusBadge['class'] }}">
+                        {{ $statusBadge['label'] }}
                     </span>
                 </div>
                 <div>
@@ -124,8 +121,25 @@
 
         <div class="card-glass p-6 rounded-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-slate-800">Shiprocket Logistics</h2>
-                <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Shiprocket Logistics</h2>
+                    @if($order->shiprocket_status)
+                        <span class="text-[10px] font-black uppercase tracking-widest text-[#a91b43] bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                            Live: {{ $order->shiprocket_status }}
+                        </span>
+                    @endif
+                </div>
+                <div class="flex items-center gap-2">
+                    @if($order->shiprocket_shipment_id)
+                        <form action="{{ route('admin.orders.shiprocket.sync', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all shadow-sm" title="Sync Live Status">
+                                <i class="fas fa-sync-alt text-xs"></i>
+                            </button>
+                        </form>
+                    @endif
+                    <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6">
+                </div>
             </div>
             
             @if($order->shiprocket_order_id)
@@ -167,6 +181,12 @@
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-[0.98]">
                                 <i class="fas fa-calendar-check text-xs"></i> Call Pickup
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.orders.shiprocket.invoice', $order->id) }}" method="POST" class="col-span-2">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-indigo-700 hover:shadow-lg transition-all active:scale-[0.98]">
+                                <i class="fas fa-file-invoice text-xs"></i> Generate Shiprocket Invoice (Step 7)
                             </button>
                         </form>
                     </div>

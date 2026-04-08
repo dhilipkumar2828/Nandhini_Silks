@@ -113,93 +113,25 @@ class OrderController extends Controller
         $oldTracking = $order->tracking_number;
         $newStatus = $request->order_status;
 
-        $order->update($request->only([
-            'order_status',
-            'payment_status',
-            'tracking_number',
-            'courier_name',
-            'admin_notes'
-        ]));
-
-        // --- CUSTOM CANCELLATION LOGIC ---
+        // If manually cancelling, tell Shiprocket to cancel too
         if ($newStatus == 'cancelled' && $oldStatus != 'cancelled') {
-            // 1. Sync with Shiprocket if pushed
             if ($order->shiprocket_order_id) {
                 $shiprocket->cancelOrder($order->shiprocket_order_id);
             }
-
-            // 2. Restore Stock
-            foreach ($order->items as $item) {
-                $product = $item->product;
-                if ($product) {
-                    $variantId = $item->variant_id;
-                    $restoreQty = (int) $item->quantity;
-
-                    if ($variantId) {
-                        $variant = \App\Models\ProductVariant::find($variantId);
-                        if ($variant) {
-                            $oldVStock = (int) $variant->stock_quantity;
-                            $newVStock = $oldVStock + $restoreQty;
-                            $variant->update(['stock_quantity' => $newVStock]);
-
-                            \App\Models\StockMovement::create([
-                                'product_id' => $product->id,
-                                'type' => 'restock',
-                                'quantity' => $restoreQty,
-                                'balance_after' => $newVStock,
-                                'reason' => 'Restored: Order #' . $order->order_number . ' cancelled',
-                            ]);
-                        }
-                    } else {
-                        $oldStock = (int) $product->stock_quantity;
-                        $newStock = $oldStock + $restoreQty;
-                        $product->update(['stock_quantity' => $newStock]);
-
-                        \App\Models\StockMovement::create([
-                            'product_id' => $product->id,
-                            'type' => 'restock',
-                            'quantity' => $restoreQty,
-                            'balance_after' => $newStock,
-                            'reason' => 'Restored: Order #' . $order->order_number . ' cancelled',
-                        ]);
-                    }
-                    
-                    // Sync parent stock
-                    if ($product->product_variants->count() > 0) {
-                        $totalVariantStock = $product->product_variants->sum('stock_quantity');
-                        $product->update([
-                            'stock_quantity' => $totalVariantStock,
-                            'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
-                        ]);
-                    } else {
-                        if ($product->stock_quantity > 0) {
-                            $product->update(['stock_status' => 'instock']);
-                        }
-                    }
-                }
-            }
-            
-            // 3. Mark as Refunded if it was Paid
-            if ($order->payment_status == 'paid') {
-                $order->update(['payment_status' => 'refunded']);
-            }
         }
 
-        // Send Email if status or tracking changed
-        if ($oldStatus != $request->order_status || $oldTracking != $request->tracking_number) {
-            try {
-                // Send to customer
-                Mail::to($order->customer_email)->send(new \App\Mail\OrderStatusUpdate($order));
-                
-                // Send alert to admin
-                $adminEmail = \App\Models\Setting::getAdminEmail();
-                Mail::to($adminEmail)->send(new \App\Mail\OrderStatusUpdate($order, true));
-                
-                Log::info("Order #{$order->order_number} status updated and emails sent.");
-            } catch (\Exception $e) {
-                Log::error("Failed to send order status email: " . $e->getMessage());
-            }
-        }
+        $order->syncStatus(
+            $newStatus,
+            null, // Not a shiprocket-triggered sync
+            $request->tracking_number
+        );
+
+        // Update other fields manually
+        $order->update($request->only([
+            'payment_status',
+            'courier_name',
+            'admin_notes'
+        ]));
 
         return redirect()->route('admin.orders.show', $order->id)->with('success', 'Order updated successfully.');
     }
@@ -276,6 +208,26 @@ class OrderController extends Controller
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Failed to generate label link.'));
     }
 
+    public function generateShiprocketInvoice(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_order_id) {
+            return back()->with('error', 'Order must be pushed to Shiprocket first.');
+        }
+
+        $result = $shiprocket->generateInvoice($order->shiprocket_order_id);
+
+        if ($result['status']) {
+            $invoiceUrl = $result['data']['invoice_url'] ?? null;
+            if ($invoiceUrl) {
+                $order->update(['shiprocket_invoice_url' => $invoiceUrl]);
+                return redirect($invoiceUrl);
+            }
+            return back()->with('success', 'Invoice generated successfully.');
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Failed to generate invoice.'));
+    }
+
     public function requestShiprocketPickup(Order $order, ShiprocketService $shiprocket)
     {
         if (!$order->shiprocket_shipment_id) {
@@ -348,11 +300,40 @@ class OrderController extends Controller
 
         // Send Email to Customer
         try {
-            Mail::to($order->customer_email)->send(new ReturnStatusCustomerMail($order));
+            Mail::to($order->customer_email)->send(new \App\Mail\ReturnStatusCustomerMail($order));
         } catch (\Exception $e) {
             Log::error('Return Status Update Email Error: ' . $e->getMessage());
         }
 
         return back()->with('success', 'Return status updated to ' . strtoupper($newStatus));
+    }
+
+    public function syncShiprocketStatus(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_shipment_id) {
+            return back()->with('error', 'No Shipment ID found for this order.');
+        }
+
+        $trackingData = $shiprocket->trackOrder($order->shiprocket_shipment_id);
+        
+        Log::info('Order sync manually triggered', ['order_id' => $order->id, 'shipment_id' => $order->shiprocket_shipment_id]);
+
+        if (isset($trackingData['tracking_data']) && $trackingData['tracking_data']['track_status'] == 1) {
+            $shipmentTrack = $trackingData['tracking_data']['shipment_track'][0] ?? null;
+            if ($shipmentTrack) {
+                // Mocking a webhook payload to use the existing status mapping logic in service
+                $mockPayload = [
+                    'shipment_id'    => $order->shiprocket_shipment_id,
+                    'current_status' => $shipmentTrack['current_status'],
+                    'awb'            => $shipmentTrack['awb_code'] ?? $order->shiprocket_awb,
+                ];
+
+                $shiprocket->processWebhook($mockPayload);
+                
+                return back()->with('success', 'Status synced from Shiprocket: ' . $shipmentTrack['current_status']);
+            }
+        }
+
+        return back()->with('error', 'Shiprocket tracking data not available yet.');
     }
 }
