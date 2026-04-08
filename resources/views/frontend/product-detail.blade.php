@@ -3725,7 +3725,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ pincode: pincode })
+                body: JSON.stringify({ pincode: pincode, product_id: "{{ $product->id }}" })
             })
             .then(response => response.json())
             .then(data => {

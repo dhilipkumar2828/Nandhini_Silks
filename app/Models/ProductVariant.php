@@ -16,7 +16,6 @@ class ProductVariant extends Model
         'stock_quantity',
         'low_stock_threshold',
         'weight',
-        'shipping_class_id',
         'image',
         'images',
         'status',

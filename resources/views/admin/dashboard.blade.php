@@ -37,7 +37,7 @@
                 ['label' => 'Total Sales', 'value' => '₹' . number_format($totalSales, 0), 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
                 ['label' => 'Total Orders', 'value' => number_format($totalOrders), 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
                 ['label' => 'Registered Users', 'value' => number_format($totalUsers), 'icon' => 'fa-users', 'color' => 'indigo'],
-                ['label' => 'Total Products', 'value' => number_format($totalProducts), 'icon' => 'fa-box-open', 'color' => 'rose'],
+                ['label' => 'Shiprocket Wallet', 'value' => (is_numeric($srWallet) ? '₹' . number_format($srWallet, 2) : $srWallet), 'icon' => 'fa-wallet', 'color' => 'emerald'],
             ];
         @endphp
 

@@ -153,14 +153,6 @@
                                 <i class="fas fa-exclamation-triangle"></i> Mandatory: Use format 0.10 (100g) or 0.50 (500g)
                             </p>
                         </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Shipping Class</label>
-                            <select name="shipping_class_id" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                                <option value="">No Shipping Class</option>
-                                @foreach($shippingClasses as $sc)
-                                    <option value="{{ $sc->id }}" {{ old('shipping_class_id', $product->shipping_class_id) == $sc->id ? 'selected' : '' }}>{{ $sc->name }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -689,7 +681,6 @@ $(document).ready(function() {
                     low: $(this).find(`input[name="v_low_stock[${combo}]"]`).val(),
                     sku: $(this).find(`input[name="v_sku[${combo}]"]`).val(),
                     weight: $(this).find(`input[name="v_weight[${combo}]"]`).val(),
-                    ship: $(this).find(`select[name="v_shipping_class[${combo}]"]`).val(),
                     existing_images: $(this).find('.existing-images-input').val(),
                     new_preview: $(this).find('.v-new-previews').html()
                 };
@@ -792,15 +783,6 @@ $(document).ready(function() {
                                 <p class="text-[7px] text-rose-500 font-bold mt-1 uppercase leading-tight">
                                     Format: 0.10 (100g)
                                 </p>
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Shipping Class</label>
-                                <select name="v_shipping_class[${comboIds}]" class="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-600 outline-none focus:border-[#a91b43] transition-all">
-                                    <option value="">Select Class</option>
-                                    @foreach($shippingClasses as $sc)
-                                        <option value="{{ $sc->id }}" ${ui ? (ui.ship == "{{ $sc->id }}" ? 'selected' : '') : (existing && existing.shipping_class_id == {{ $sc->id }} ? 'selected' : '')}>{{ $sc->name }}</option>
-                                    @endforeach
-                                </select>
                             </div>
                             <input type="hidden" name="variant_combinations[]" value="${comboIds}" class="variant-comb-input">
                         </div>

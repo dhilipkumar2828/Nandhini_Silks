@@ -149,7 +149,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('orders/{order}/shiprocket/awb', [OrderController::class, 'assignShiprocketAWB'])->name('admin.orders.shiprocket.awb');
         Route::get('orders/{order}/shiprocket/label', [OrderController::class, 'generateShiprocketLabel'])->name('admin.orders.shiprocket.label');
         Route::post('orders/{order}/shiprocket/pickup', [OrderController::class, 'requestShiprocketPickup'])->name('admin.orders.shiprocket.pickup');
+        Route::post('orders/{order}/shiprocket/invoice', [OrderController::class, 'generateShiprocketInvoice'])->name('admin.orders.shiprocket.invoice');
         Route::post('orders/{order}/shiprocket/return', [OrderController::class, 'createShiprocketReturn'])->name('admin.orders.shiprocket.return');
+        Route::post('orders/{order}/shiprocket/sync', [OrderController::class, 'syncShiprocketStatus'])->name('admin.orders.shiprocket.sync');
         Route::post('orders/{order}/return-status', [OrderController::class, 'updateReturnStatus'])->name('admin.orders.return.status');
 
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
@@ -171,9 +173,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class)->names('admin.coupons');
         Route::resource('offer-collections', \App\Http\Controllers\Admin\OfferCollectionController::class)->names('admin.offer-collections');
 
-        // Shipping Management
-        Route::resource('shipping-classes', \App\Http\Controllers\Admin\ShippingClassController::class)->names('admin.shipping-classes');
-        Route::resource('shipping-rates', \App\Http\Controllers\Admin\ShippingRateController::class)->names('admin.shipping-rates');
+        // Shipping is now 100% handled by Shiprocket — local Shipping Classes/Rates removed.
 
         // Users
         Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.users');
@@ -226,3 +226,9 @@ Route::group(['prefix' => 'admin'], function () {
 Route::fallback(function () {
     return redirect()->route('home');
 });
+
+// ─── Shiprocket Webhook (Step 10) ───────────────────────────────────────────
+// Add this URL in Shiprocket Dashboard → Settings → API → Webhook URL
+// Make sure it's excluded from CSRF in bootstrap/app.php
+Route::post('/api/v1/update-logistics/callback', [\App\Http\Controllers\ShiprocketWebhookController::class, 'handle'])
+    ->name('shiprocket.webhook');
