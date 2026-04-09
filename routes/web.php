@@ -154,6 +154,11 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('orders/{order}/shiprocket/sync', [OrderController::class, 'syncShiprocketStatus'])->name('admin.orders.shiprocket.sync');
         Route::post('orders/{order}/return-status', [OrderController::class, 'updateReturnStatus'])->name('admin.orders.return.status');
 
+        // Shipping Intelligence / Pincode Checker
+        Route::get('shipping-calculator', [\App\Http\Controllers\Admin\ShippingCalculatorController::class, 'index'])->name('admin.shipping.calculator');
+        Route::post('shipping-calculator/check', [\App\Http\Controllers\Admin\ShippingCalculatorController::class, 'check'])->name('admin.shipping.calculator.check');
+        Route::post('shipping-calculator/track', [\App\Http\Controllers\Admin\ShippingCalculatorController::class, 'track'])->name('admin.shipping.calculator.track');
+
         Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
         Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
 

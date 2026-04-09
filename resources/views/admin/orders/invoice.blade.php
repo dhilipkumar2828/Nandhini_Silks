@@ -29,93 +29,93 @@
         }
 
         @page { margin: 0; }
-        .invoice-container { padding: 30px 45px; background: #fff; position: relative; }
+        .invoice-container { padding: 25px 40px; background: #fff; position: relative; }
 
         /* Premium Header */
         .header { 
             border-bottom: 2px solid #a91b43; 
-            padding-bottom: 15px; 
-            margin-bottom: 25px;
+            padding-bottom: 12px; 
+            margin-bottom: 20px;
             display: table;
             width: 100%;
         }
         .header-left { display: table-cell; width: 60%; vertical-align: top; }
         .header-right { display: table-cell; width: 40%; text-align: right; vertical-align: top; }
 
-        .brand-name { font-size: 24px; font-weight: 800; color: #a91b43; letter-spacing: 0.2px; margin-bottom: 3px; line-height: 1; }
-        .brand-address { font-size: 11px; color: #555; line-height: 1.4; }
+        .brand-name { font-size: 22px; font-weight: 800; color: #a91b43; letter-spacing: 0.2px; margin-bottom: 3px; line-height: 1; }
+        .brand-address { font-size: 10px; color: #555; line-height: 1.3; }
 
-        .invoice-title { font-size: 30px; font-weight: 800; color: #a91b43; text-transform: uppercase; margin: 0; line-height: 1; }
-        .order-info { margin-top: 10px; font-size: 13px; color: #333; }
+        .invoice-title { font-size: 26px; font-weight: 800; color: #a91b43; text-transform: uppercase; margin: 0; line-height: 1; }
+        .order-info { margin-top: 8px; font-size: 12px; color: #333; }
         .info-item { margin-bottom: 2px; }
         .info-label { color: #888; font-weight: normal; }
 
         /* Customer Info Grid */
-        .details-grid { display: table; width: 100%; margin-bottom: 35px; border-spacing: 20px 0; margin-left: -20px; }
+        .details-grid { display: table; width: 100%; margin-bottom: 25px; border-spacing: 15px 0; margin-left: -15px; }
         .details-cell { display: table-cell; width: 50%; vertical-align: top; }
         .card { 
             background: #fffcf0; 
             border: 1px solid #f9e1e8; 
-            border-radius: 12px; 
-            padding: 18px; 
+            border-radius: 10px; 
+            padding: 15px; 
         }
         .card-secondary { background: #fafafa; border: 1px solid #eee; }
         
         .card-label { 
-            font-size: 11px; 
+            font-size: 10px; 
             color: #a91b43; 
             font-weight: 800; 
             text-transform: uppercase; 
             letter-spacing: 1px; 
-            margin-bottom: 10px; 
+            margin-bottom: 8px; 
         }
-        .customer-name { font-size: 20px; font-weight: 800; color: #333; margin-bottom: 5px; }
-        .address-text { font-size: 14px; color: #555; line-height: 1.5; }
+        .customer-name { font-size: 18px; font-weight: 800; color: #333; margin-bottom: 3px; }
+        .address-text { font-size: 13px; color: #555; line-height: 1.4; }
 
         /* Items Table */
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
         .items-table thead tr { background: #a91b43; color: white; }
-        .items-table th { padding: 15px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border: 1px solid #a91b43; text-align: center; }
+        .items-table th { padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border: 1px solid #a91b43; text-align: center; }
         .items-table th.text-left { text-align: left; }
         .items-table th.text-right { text-align: right; }
 
-        .items-table td { padding: 15px 12px; border: 1px solid #eee; vertical-align: middle; font-size: 14px; }
+        .items-table td { padding: 10px 8px; border: 1px solid #eee; vertical-align: middle; font-size: 13px; }
         .items-table tr:nth-child(even) { background: #fafafa; }
         
         .product-info { display: table; width: 100%; }
-        .product-img { display: table-cell; width: 45px; vertical-align: middle; }
-        .product-details { display: table-cell; padding-left: 12px; vertical-align: middle; }
-        .product-name { font-size: 16px; font-weight: 800; color: #1a1a1a; margin-bottom: 3px; }
-        .product-meta { font-size: 12px; color: #999; }
+        .product-img { display: table-cell; width: 35px; vertical-align: middle; }
+        .product-details { display: table-cell; padding-left: 10px; vertical-align: middle; }
+        .product-name { font-size: 14px; font-weight: 800; color: #1a1a1a; margin-bottom: 2px; }
+        .product-meta { font-size: 11px; color: #999; }
 
         .text-right { text-align: right; }
         .text-center { text-align: center; }
 
         /* Totals */
-        .totals-section { display: table; width: 100%; margin-bottom: 40px; }
+        .totals-section { display: table; width: 100%; margin-bottom: 30px; page-break-inside: avoid; }
         .totals-spacer { display: table-cell; width: 60%; }
         .totals-box { display: table-cell; width: 40%; }
         
         .totals-table { width: 100%; border-collapse: collapse; border: 1px solid #eee; }
-        .totals-table td { padding: 12px; border: 1px solid #eee; font-size: 15px; color: #666; }
+        .totals-table td { padding: 10px; border: 1px solid #eee; font-size: 14px; color: #666; }
         .totals-table td.val { text-align: right; font-weight: 700; color: #333; width: 50%; }
         .total-row { background: #a91b43; color: white !important; }
-        .total-row td { color: white !important; font-size: 22px !important; font-weight: 800 !important; border-color: #a91b43 !important; }
+        .total-row td { color: white !important; font-size: 18px !important; font-weight: 800 !important; border-color: #a91b43 !important; }
 
         /* Footer */
-        .footer-grid { display: table; width: 100%; border-top: 1.5px solid #f0f0f0; padding-top: 30px; margin-top: 20px; }
+        .footer-grid { display: table; width: 100%; border-top: 1.5px solid #f0f0f0; padding-top: 20px; margin-top: 10px; page-break-inside: avoid; }
         .words-section { display: table-cell; width: 65%; vertical-align: bottom; }
         .signature-section { display: table-cell; width: 35%; text-align: right; vertical-align: bottom; }
         
-        .words-label { font-size: 12px; color: #bbb; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .words-value { background: #fffcf0; padding: 10px 15px; border-radius: 8px; font-size: 16px; font-weight: 700; color: #a91b43; display: inline-block; }
+        .words-label { font-size: 11px; color: #bbb; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .words-value { background: #fffcf0; padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: 700; color: #a91b43; display: inline-block; }
         
-        .legal-declaration { margin-top: 25px; font-size: 12px; color: #999; font-style: italic; border-left: 3px solid #a91b43; padding-left: 15px; line-height: 1.5; }
+        .legal-declaration { margin-top: 15px; font-size: 11px; color: #999; font-style: italic; border-left: 3px solid #a91b43; padding-left: 12px; line-height: 1.4; }
         
-        .signature-title { font-size: 12px; font-weight: 800; color: #333; text-transform: uppercase; margin-bottom: 50px; }
-        .signature-line { border-top: 2px solid #333; padding-top: 10px; font-size: 13px; font-weight: 800; color: #a91b43; text-transform: uppercase; display: inline-block; width: 220px; }
+        .signature-title { font-size: 11px; font-weight: 800; color: #333; text-transform: uppercase; margin-bottom: 40px; }
+        .signature-line { border-top: 2px solid #333; padding-top: 8px; font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; display: inline-block; width: 180px; }
 
-        .final-footer { margin-top: 60px; text-align: center; font-size: 13px; color: #999; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+        .final-footer { margin-top: 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #f0f0f0; padding-top: 15px; }
         .final-footer strong { color: #555; }
     </style>
 </head>
@@ -206,7 +206,7 @@
                             if (!$fullPath || !is_file($fullPath)) $fullPath = public_path('images/pro1.png');
                         @endphp
                         @if(isset($fullPath) && is_file($fullPath))
-                            <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 45px; height: 55px; object-fit: cover; border-radius: 6px; border: 1px solid #f0f0f0;">
+                            <img src="data:image/png;base64,{{ base64_encode(@file_get_contents($fullPath)) }}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #f0f0f0;">
                         @endif
                     </td>
                     <td>

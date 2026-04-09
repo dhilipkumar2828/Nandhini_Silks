@@ -49,9 +49,6 @@ class ShiprocketService
         }
     }
 
-    /**
-     * Make an authenticated HTTP request, auto-retry on 401 with fresh token.
-     */
     private function request(string $method, string $endpoint, array $data = []): \Illuminate\Http\Client\Response
     {
         $token = $this->getToken();
@@ -62,6 +59,15 @@ class ShiprocketService
             Log::warning('Shiprocket 401 — refreshing token and retrying…');
             $token = $this->getToken(true);
             $response = Http::withToken($token)->{$method}("{$this->baseUrl}{$endpoint}", $data);
+        }
+
+        if (!$response->successful()) {
+            Log::error('Shiprocket API Error:', [
+                'endpoint' => $endpoint,
+                'status'   => $response->status(),
+                'payload'  => $data,
+                'response' => $response->json(),
+            ]);
         }
 
         return $response;
@@ -77,16 +83,17 @@ class ShiprocketService
 
         foreach ($order->items as $item) {
             $product = $item->product;
+            $unitPriceWithTax = (float) $item->price + (float) (($item->tax_amount ?? 0) / ($item->quantity ?: 1));
             $items[] = [
                 'name'          => $item->product_name,
-                'sku'           => $product->sku ?? 'SKU-' . $product->id,
+                'sku'           => $product->sku ?? 'SKU-' . ($product->id ?? time()),
                 'units'         => $item->quantity,
-                'selling_price' => $item->price,
+                'selling_price' => $unitPriceWithTax,
                 'discount'      => 0,
                 'tax'           => 0,
                 'hsn'           => 0,
             ];
-            $totalWeight += ($product->weight > 0 ? $product->weight : 0.5) * $item->quantity;
+            $totalWeight += (($product->weight ?? 0.5) > 0 ? $product->weight : 0.5) * $item->quantity;
         }
 
         $nameParts = explode(' ', trim($order->customer_name), 2);
@@ -116,7 +123,7 @@ class ShiprocketService
             'giftwrap_charges'        => 0,
             'transaction_parameters'  => ['is_gift' => false, 'gift_message' => ''],
             'total_discount'          => (float) $order->discount,
-            'sub_total'               => (float) $order->grand_total,
+            'sub_total'               => (float) ($order->grand_total - $order->shipping),
             'length'                  => 10,
             'breadth'                 => 10,
             'height'                  => 10,
@@ -342,16 +349,22 @@ class ShiprocketService
                 return false;
             }
 
-            // Find the order
+            // Find the order (check both original and return IDs)
             $order = null;
             if ($awb) {
-                $order = Order::where('shiprocket_awb', $awb)->first();
+                $order = Order::where('shiprocket_awb', $awb)
+                             ->orWhere('reverse_awb', $awb)
+                             ->first();
             }
             if (!$order && $shipmentId) {
-                $order = Order::where('shiprocket_shipment_id', $shipmentId)->first();
+                $order = Order::where('shiprocket_shipment_id', $shipmentId)
+                             ->orWhere('shiprocket_return_shipment_id', $shipmentId)
+                             ->first();
             }
             if (!$order && $orderId) {
-                $order = Order::where('shiprocket_order_id', $orderId)->first();
+                $order = Order::where('shiprocket_order_id', $orderId)
+                             ->orWhere('shiprocket_return_order_id', $orderId)
+                             ->first();
             }
 
             if (!$order) {
@@ -359,30 +372,49 @@ class ShiprocketService
                 return false;
             }
 
+            // Determine if this is a return shipment signal
+            $isReturn = ($awb && $order->reverse_awb === $awb) || 
+                        ($shipmentId && $order->shiprocket_return_shipment_id == $shipmentId);
+
             // Map Shiprocket status → our order status
             $statusMap = [
                 'PICKED UP'       => 'shipped',
                 'IN TRANSIT'      => 'shipped',
                 'OUT FOR DELIVERY' => 'out for delivery',
                 'DELIVERED'       => 'delivered',
+                'RETURN RECEIVED'  => 'received',
                 'RTO'             => 'returned',
                 'RTO INITIATED'   => 'returned',
                 'UNDELIVERED'     => 'cancelled',
                 'CANCELLED'       => 'cancelled',
+                'QC PASSED'       => 'received',
+                'QC FAILED'       => 'requested',
             ];
 
             $normalizedStatus = strtoupper(trim($status ?? ''));
-            $newOrderStatus   = $statusMap[$normalizedStatus] ?? null;
+            $newMappedStatus   = $statusMap[$normalizedStatus] ?? null;
 
-            if ($newOrderStatus) {
-                $order->syncStatus(
-                    $newOrderStatus, 
-                    $status, // the raw shiprocket status (e.g. PICKED UP)
-                    $awb     // the awb from webhook
-                );
+            if ($isReturn) {
+                // Update return-specific fields
+                if ($newMappedStatus) {
+                    $order->update(['return_status' => $newMappedStatus]);
+                    // If return is received, we can mark it as such
+                    if ($newMappedStatus === 'received') {
+                        $order->update(['order_status' => 'returned']);
+                    }
+                }
+                $order->update(['shiprocket_status' => 'Return: ' . $status]);
             } else {
-                // If not mapped to a major order_status, at least update the shiprocket_status badge
-                $order->update(['shiprocket_status' => $status]);
+                // Original forward shipment logic
+                if ($newMappedStatus) {
+                    $order->syncStatus(
+                        $newMappedStatus, 
+                        $status, 
+                        $awb
+                    );
+                } else {
+                    $order->update(['shiprocket_status' => $status]);
+                }
             }
 
             return true;

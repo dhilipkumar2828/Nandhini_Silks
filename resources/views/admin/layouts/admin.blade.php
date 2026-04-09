@@ -612,6 +612,11 @@
                 <span class="font-bold ml-2 text-[15.5px]">Stock Maintenance</span>
             </a>
 
+            <a href="{{ route('admin.shipping.calculator') }}" class="nav-link {{ request()->routeIs('admin.shipping.calculator') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-truck-fast text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Delivery Pincode</span>
+            </a>
+
             <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-cog text-base"></i></div>
                 <span class="font-bold ml-2 text-[15.5px]">System Settings</span>

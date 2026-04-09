@@ -746,6 +746,7 @@
             })
             .then(res => res.json())
             .then(data => {
+                console.log('Full API Response:', data); // Added for debugging
                 btn.disabled = false;
                 btn.innerHTML = 'Check';
 
@@ -753,8 +754,17 @@
                     note.innerHTML = `<span style="color: #2e7d32; font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
                     toastr.success(data.message);
                     
-                    // Refresh totals
-                    ajaxUpdateCart('', ''); // calling update without key refreshes totals
+                    // Instant update summary from returned totals
+                    if (data.totals) {
+                        setAmt('subtotalDisp', data.totals.subTotal);
+                        setAmt('taxDisp', data.totals.tax);
+                        setAmt('totalDisp', data.totals.grandTotal);
+                        
+                        const shipEl = document.getElementById('shippingDisp');
+                        if (shipEl) {
+                            shipEl.textContent = data.totals.shipping > 0 ? '₹' + fmt(data.totals.shipping) : 'FREE';
+                        }
+                    }
                 } else {
                     note.innerHTML = `<span style="color: #c62828; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
                     toastr.error(data.message);

@@ -90,32 +90,54 @@
 
     <!-- Sidebar: Order Status & Actions -->
     <div class="space-y-6">
-        <div class="card-glass p-6 rounded-2xl">
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Order Status</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Current Status</label>
-                    @php $statusBadge = $order->getOrderStatusBadgeAttribute(); @endphp
-                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ $statusBadge['class'] }}">
-                        {{ $statusBadge['label'] }}
-                    </span>
+        <div class="card-glass p-0 rounded-2xl overflow-hidden shadow-xl border-slate-100/50">
+            <div class="p-5 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Workflow Engine</h2>
+                <i class="fas fa-microchip text-rose-500 text-xs"></i>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Status Sync -->
+                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-5">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Order Processing State</label>
+                        <select name="order_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all cursor-pointer">
+                            <option value="order placed" {{ $order->order_status == 'order placed' ? 'selected' : '' }}>Order Placed (Pending)</option>
+                            <option value="shipped" {{ $order->order_status == 'shipped' ? 'selected' : '' }}>Shipped (In Transit)</option>
+                            <option value="out for delivery" {{ $order->order_status == 'out for delivery' ? 'selected' : '' }}>Out for Delivery</option>
+                            <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered (Complete)</option>
+                            <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Financial Settlement</label>
+                        <select name="payment_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all cursor-pointer">
+                            <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending Payment</option>
+                            <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid (Confirmed)</option>
+                            <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>Payment Failed</option>
+                            <option value="refunded" {{ $order->payment_status == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Internal Intelligence (Admin Notes)</label>
+                        <textarea name="admin_notes" rows="3" placeholder="Add private notes about this order..." 
+                                  class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-600 outline-none focus:border-indigo-500 transition-all resize-none shadow-inner">{{ $order->admin_notes }}</textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black hover:shadow-xl hover:shadow-slate-200 transition-all active:scale-[0.98]">
+                        <i class="fas fa-save mr-2"></i> Deploy Status Updates
+                    </button>
+                </form>
+
+                <div class="pt-4 border-t border-slate-100 space-y-3">
+                    <a href="{{ route('admin.orders.invoice', $order->id) }}" class="flex items-center justify-center gap-3 w-full border-2 border-slate-100 text-slate-600 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                        <i class="fas fa-file-invoice text-rose-500"></i> Download Official Invoice
+                    </a>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Payment Status</label>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                        @if($order->payment_status == 'paid') bg-emerald-100 text-emerald-700 
-                        @elseif($order->payment_status == 'failed') bg-rose-100 text-rose-700
-                        @else bg-amber-100 text-amber-700 @endif">
-                        {{ $order->payment_status }} ({{ $order->payment_method }})
-                    </span>
-                </div>
-                <hr class="border-slate-100">
-                <a href="{{ route('admin.orders.edit', $order->id) }}" class="block w-full bg-[#a91b43] text-white text-center py-2.5 rounded-xl text-sm font-bold hover:bg-[#940437] transition-all">
-                    Update Order Status
-                </a>
-                <a href="{{ route('admin.orders.invoice', $order->id) }}" class="block w-full bg-slate-800 text-white text-center py-2.5 rounded-xl text-sm font-bold hover:bg-slate-900 transition-all">
-                    <i class="fas fa-file-download mr-1.5"></i> Download Invoice
-                </a>
             </div>
         </div>
 
@@ -186,7 +208,7 @@
                         <form action="{{ route('admin.orders.shiprocket.invoice', $order->id) }}" method="POST" class="col-span-2">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-indigo-700 hover:shadow-lg transition-all active:scale-[0.98]">
-                                <i class="fas fa-file-invoice text-xs"></i> Generate Shiprocket Invoice (Step 7)
+                                <i class="fas fa-file-invoice text-xs"></i> Generate Shiprocket Invoice
                             </button>
                         </form>
                     </div>
@@ -243,51 +265,81 @@
         </div>
 
         @if($order->return_status)
-        <div class="card-glass p-6 rounded-2xl border-2 border-amber-100 shadow-lg shadow-amber-50/50">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-undo text-amber-600 text-lg"></i>
+        <div class="card-glass p-0 rounded-3xl border-2 border-amber-100/50 shadow-2xl shadow-amber-900/5 overflow-hidden">
+            <div class="bg-gradient-to-r from-amber-50 to-white px-6 py-5 border-b border-amber-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-amber-200">
+                        <i class="fas fa-reply-all text-amber-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Recovery Protocol</h2>
+                        <p class="text-[9px] font-bold text-amber-600 uppercase tracking-tighter italic">Customer-Initiated Return</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Return Request</h2>
-                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Customer Logic Flow</p>
+                <div class="text-right">
+                    <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        State: {{ strtoupper($order->return_status) }}
+                    </span>
                 </div>
             </div>
 
-            <div class="space-y-5">
-                <div class="bg-amber-50/50 border border-amber-100 p-4 rounded-xl">
-                    <label class="text-[10px] font-bold uppercase text-amber-600 block mb-2 opacity-70">Customer Reason</label>
-                    <p class="text-sm font-bold text-slate-700 leading-relaxed italic">"{{ $order->return_reason }}"</p>
+            <div class="p-6 space-y-6">
+                <!-- Return Context -->
+                <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl relative">
+                    <i class="fas fa-quote-left absolute top-4 left-4 text-slate-200 text-2xl"></i>
+                    <label class="text-[10px] font-black uppercase text-slate-400 block mb-3 relative z-10 pl-6">Statement of Reason</label>
+                    <p class="text-sm font-bold text-slate-700 leading-relaxed italic pl-6">"{{ $order->return_reason }}"</p>
                 </div>
 
-                <form action="{{ route('admin.orders.return.status', $order->id) }}" method="POST" class="space-y-4">
+                <!-- Action Logic -->
+                <form action="{{ route('admin.orders.return.status', $order->id) }}" method="POST" class="space-y-5">
                     @csrf
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2">Update Return State</label>
-                        <select name="return_status" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-50 transition-all cursor-pointer">
-                            <option value="requested" {{ $order->return_status == 'requested' ? 'selected' : '' }}>Requested (Pending Review)</option>
-                            <option value="approved" {{ $order->return_status == 'approved' ? 'selected' : '' }}>Approved (Create Shiprocket Pickup)</option>
-                            <option value="rejected" {{ $order->return_status == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                            <option value="picked" {{ $order->return_status == 'picked' ? 'selected' : '' }}>Picked Up</option>
-                            <option value="received" {{ $order->return_status == 'received' ? 'selected' : '' }}>Received in Warehouse</option>
-                            <option value="refunded" {{ $order->return_status == 'refunded' ? 'selected' : '' }}>Refunded to Customer</option>
-                        </select>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="group">
+                            <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Transition To</label>
+                            <select name="return_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer">
+                                <option value="requested" {{ $order->return_status == 'requested' ? 'selected' : '' }}>Requested (Under Review)</option>
+                                <option value="approved" {{ $order->return_status == 'approved' ? 'selected' : '' }}>Approve (Trigger Shiprocket Pickup)</option>
+                                <option value="rejected" {{ $order->return_status == 'rejected' ? 'selected' : '' }}>Reject Request</option>
+                                <option value="picked" {{ $order->return_status == 'picked' ? 'selected' : '' }}>Picked Up (Reverse AWB)</option>
+                                <option value="received" {{ $order->return_status == 'received' ? 'selected' : '' }}>Received & Verified</option>
+                                <option value="refunded" {{ $order->return_status == 'refunded' ? 'selected' : '' }}>Refunded (Complete)</option>
+                            </select>
+                            <p class="mt-2 text-[9px] text-slate-400 font-medium leading-tight">Note: Selecting 'Approve' will automatically attempt to create a return order in Shiprocket.</p>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Processing Intelligence</label>
+                            <textarea name="admin_notes" rows="3" placeholder="Notes for this return workflow..." 
+                                      class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-600 outline-none focus:border-amber-500 transition-all resize-none shadow-inner">{{ $order->return_admin_notes }}</textarea>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2">Internal Notes</label>
-                        <textarea name="admin_notes" rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-amber-400 transition-all resize-none">{{ $order->return_admin_notes }}</textarea>
-                    </div>
-
-                    <button type="submit" class="w-full bg-amber-500 text-white text-center py-3 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg">
-                        Update Return State
+                    <button type="submit" class="w-full bg-amber-500 text-white py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-100 transition-all active:scale-[0.98]">
+                        <i class="fas fa-check-double mr-2"></i> Update Recovery State
                     </button>
                 </form>
 
-                @if($order->reverse_awb)
-                <div class="pt-4 mt-4 border-t border-slate-100">
-                    <label class="text-[10px] font-bold uppercase text-slate-400 block">Shiprocket AWB</label>
-                    <span class="text-sm font-black text-slate-800 tracking-wider">{{ $order->reverse_awb }}</span>
+                @if($order->shiprocket_return_shipment_id || $order->reverse_awb)
+                <div class="pt-6 border-t border-slate-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-4 opacity-50">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Reverse Logistics ID</span>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        @if($order->reverse_awb)
+                        <div class="px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
+                            <div class="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter">Reverse AWB</div>
+                            <div class="text-xs font-black text-indigo-900 tracking-wider">{{ $order->reverse_awb }}</div>
+                        </div>
+                        @endif
+                        @if($order->shiprocket_return_shipment_id)
+                        <div class="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl">
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Shipment ID</div>
+                            <div class="text-xs font-black text-slate-800 tracking-wider">{{ $order->shiprocket_return_shipment_id }}</div>
+                        </div>
+                        @endif
+                    </div>
                 </div>
                 @endif
             </div>
