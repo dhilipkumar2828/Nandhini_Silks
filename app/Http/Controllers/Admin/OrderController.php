@@ -50,8 +50,17 @@ class OrderController extends Controller
 
         $perPage = $request->get('per_page', 10);
         $orders = $query->latest('created_at')->paginate($perPage)->withQueryString();
+
+        $counts = [
+            'all' => Order::count(),
+            'order placed' => Order::where('order_status', 'order placed')->count(),
+            'shipped' => Order::where('order_status', 'shipped')->count(),
+            'out for delivery' => Order::where('order_status', 'out for delivery')->count(),
+            'delivered' => Order::where('order_status', 'delivered')->count(),
+            'cancelled' => Order::where('order_status', 'cancelled')->count(),
+        ];
         
-        return view('admin.orders.index', compact('orders'));
+        return view('admin.orders.index', compact('orders', 'counts'));
     }
 
     public function create()
@@ -179,15 +188,10 @@ class OrderController extends Controller
             return back()->with('error', 'Order must be pushed to Shiprocket first.');
         }
 
-        $result = $shiprocket->assignAWB($order->shiprocket_shipment_id);
+        $result = $shiprocket->assignCourierAndAWB($order);
 
         if ($result['status']) {
-            $order->update([
-                'shiprocket_awb' => $result['awb'],
-                'tracking_number' => $result['awb'],
-                'courier_name' => 'Shiprocket',
-            ]);
-            return back()->with('success', 'AWB assigned successfully: ' . $result['awb']);
+            return back()->with('success', 'AWB assigned successfully: ' . $result['awb'] . ' (via ' . ($result['courier'] ?? 'Partner') . ')');
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));

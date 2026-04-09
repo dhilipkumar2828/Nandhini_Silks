@@ -73,12 +73,18 @@ class CartController extends Controller
                 session()->put('shipping_rate', $freight);
             }
 
+            // Recalculate full totals for the response
+            $items = array_values($this->getCart());
+            $totals = $this->calculateTotals($items);
+
             return response()->json([
                 'success' => true,
                 'message' => "Estimated delivery by " . $edd . " (Shipping: ₹" . number_format($freight, 2) . ")",
                 'edd' => $edd,
                 'shipping_rate' => $freight,
-                'shipping_rate_formatted' => '₹' . number_format($freight, 2)
+                'shipping_rate_formatted' => $freight > 0 ? '₹' . number_format($freight, 2) : 'FREE',
+                'totals' => $totals,
+                'shiprocket_response' => $result // Full response for debugging
             ]);
         }
 
@@ -87,7 +93,8 @@ class CartController extends Controller
         }
         return response()->json([
             'success' => false,
-            'message' => $result['message'] ?? 'Delivery not available for this pincode.'
+            'message' => $result['message'] ?? 'Delivery not available for this pincode.',
+            'shiprocket_response' => $result // Full response for debugging
         ]);
     }
 
@@ -326,6 +333,11 @@ class CartController extends Controller
         }
 
         $this->putCart($cart);
+        
+        // Only reset shipping if quantities actually changed
+        if ($request->filled('quantities')) {
+            session()->forget('shipping_rate');
+        }
 
         // AJAX request — return JSON totals for dynamic display
         if ($request->ajax() || $request->wantsJson()) {
@@ -357,6 +369,7 @@ class CartController extends Controller
             unset($cart[$key]);
         }
         $this->putCart($cart);
+        session()->forget('shipping_rate');
         
         $totalItems = collect($cart)->sum('quantity');
 
@@ -1229,10 +1242,12 @@ class CartController extends Controller
             return 0.0;
         }
 
-        // Only return shipping if explicitly checked (cart-level or saved in session)
-        if (!session()->has('shipping_rate')) {
-            return 0.0;
+        // Retrieve dynamic rate from session if set
+        if (session()->has('shipping_rate')) {
+            return (float) session()->get('shipping_rate');
         }
+        
+        return 0.0;
 
         // Retrieve dynamic rate from Shiprocket serviceability check (stored in session)
         return (float) session()->get('shipping_rate', 0.0);
