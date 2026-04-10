@@ -322,7 +322,7 @@ class ShiprocketService
     public function trackByAWB(string $awb): ?array
     {
         try {
-            $response = $this->request('get', "/courier/track?awb={$awb}");
+            $response = $this->request('get', "/courier/track/awb/{$awb}");
             return $response->json();
         } catch (\Exception $e) {
             Log::error('Shiprocket Track AWB Exception: ' . $e->getMessage());
@@ -378,6 +378,10 @@ class ShiprocketService
 
             // Map Shiprocket status → our order status
             $statusMap = [
+                'READY TO SHIP'    => 'processing',
+                'PICKUP SCHEDULED' => 'processing',
+                'PICKUP GENERATED' => 'processing',
+                'PICKUP RESCHEDULED' => 'processing',
                 'PICKED UP'       => 'shipped',
                 'IN TRANSIT'      => 'shipped',
                 'OUT FOR DELIVERY' => 'out for delivery',
@@ -386,7 +390,9 @@ class ShiprocketService
                 'RTO'             => 'returned',
                 'RTO INITIATED'   => 'returned',
                 'UNDELIVERED'     => 'cancelled',
-                'CANCELLED'       => 'cancelled',
+                'CANCELED'        => 'cancelled', // Single L variation
+                'CANCELLED'       => 'cancelled', // Double L variation
+                'DISPATCHED'      => 'shipped',
                 'QC PASSED'       => 'received',
                 'QC FAILED'       => 'requested',
             ];
