@@ -91,6 +91,7 @@ class Order extends Model
     {
         return match($this->order_status) {
             'order placed'     => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
+            'processing'       => ['label' => 'Processing',       'class' => 'bg-amber-50 text-amber-600'],
             'shipped'          => ['label' => 'Shipped',          'class' => 'bg-blue-50 text-blue-600'],
             'out for delivery' => ['label' => 'Out for Delivery', 'class' => 'bg-indigo-50 text-indigo-600'],
             'delivered'        => ['label' => 'Delivered',        'class' => 'bg-emerald-50 text-emerald-600'],

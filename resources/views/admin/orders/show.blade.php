@@ -105,6 +105,7 @@
                         <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-tighter">Order Processing State</label>
                         <select name="order_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all cursor-pointer">
                             <option value="order placed" {{ $order->order_status == 'order placed' ? 'selected' : '' }}>Order Placed (Pending)</option>
+                            <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
                             <option value="shipped" {{ $order->order_status == 'shipped' ? 'selected' : '' }}>Shipped (In Transit)</option>
                             <option value="out for delivery" {{ $order->order_status == 'out for delivery' ? 'selected' : '' }}>Out for Delivery</option>
                             <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered (Complete)</option>
@@ -278,7 +279,7 @@
                 </div>
                 <div class="text-right">
                     <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                        State: {{ strtoupper($order->return_status) }}
+                        State: {{ strtoupper($order->return_status ?? 'NONE') }}
                     </span>
                 </div>
             </div>

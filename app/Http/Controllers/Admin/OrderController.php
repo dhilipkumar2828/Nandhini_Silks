@@ -334,7 +334,8 @@ class OrderController extends Controller
 
                 $shiprocket->processWebhook($mockPayload);
                 
-                return back()->with('success', 'Status synced from Shiprocket: ' . $shipmentTrack['current_status']);
+                $statusCode = $shipmentTrack['status_code'] ?? ($shipmentTrack['current_status_id'] ?? 'N/A');
+                return back()->with('success', "Status synced from Shiprocket: {$shipmentTrack['current_status']} (Code: {$statusCode})");
             }
         }
 
