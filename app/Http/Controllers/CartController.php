@@ -79,7 +79,7 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Estimated delivery by " . $edd . " (Shipping: ₹" . number_format($freight, 2) . ")",
+                'message' => "Estimated delivery by " . $edd,
                 'edd' => $edd,
                 'shipping_rate' => $freight,
                 'shipping_rate_formatted' => $freight > 0 ? '₹' . number_format($freight, 2) : 'FREE',
