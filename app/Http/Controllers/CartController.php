@@ -37,12 +37,24 @@ class CartController extends Controller
         } 
         // 2. Otherwise use Cart Weight (Checkout / Cart Page)
         else {
-            $cartItems = $this->getCart(); // Use consistently across the controller
+            $cartItems = $this->getCart(); 
             $totalWeight = 0;
             foreach ($cartItems as $item) {
-                // Try to find weight from item's metadata or re-fetch product
-                $p = Product::find($item['product_id'] ?? 0);
-                $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
+                $w = 0;
+                // Check Variant Weight first
+                if (isset($item['variant_id']) && $item['variant_id'] > 0) {
+                    $variant = \App\Models\ProductVariant::find($item['variant_id']);
+                    if ($variant && $variant->weight > 0) {
+                        $w = (float) $variant->weight;
+                    }
+                }
+                
+                // Fallback to Product Weight if variant weight is 0 or no variant
+                if ($w <= 0) {
+                    $p = Product::find($item['product_id'] ?? 0);
+                    $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
+                }
+                
                 $totalWeight += $w * (int)($item['quantity'] ?? 1);
             }
             $weight = $totalWeight > 0 ? $totalWeight : 0.5;
@@ -60,17 +72,30 @@ class CartController extends Controller
             $courier = $result['data']['available_courier_companies'][0];
             $edd = $courier['etd'] ?? '3-5 days';
             
-            // Prefer 'rate' as it usually represents the total final freight charge
-            $freight = (float) ($courier['rate'] ?? $courier['freight_charges'] ?? 0);
+            // CORRECT CALCULATION based on Shiprocket Dashboard:
+            // 1. Prepaid = Base Freight + Other/Notify Charges
+            $baseFreight = (float) ($courier['freight_charge'] ?? 0);
+            $otherFees = (float) ($courier['other_charges'] ?? 0) 
+                       + (float) ($courier['whatsapp_charges'] ?? 0)
+                       + (float) ($courier['coverage_charges'] ?? 0)
+                       + (float) ($courier['entry_tax'] ?? 0);
+            $prepaidRate = $baseFreight + $otherFees;
             
-            // Apply a small markup or ensure a minimum if needed (optional)
-            // $freight = $freight + 10; 
-
+            // 2. COD = Prepaid Rate + COD Charges
+            // Note: Shiprocket's 'rate' field for COD sometimes misses the notify/whatsapp charges
+            $codFee = (float) ($courier['cod_charges'] ?? 0);
+            $codRate = $prepaidRate + $codFee;
+            
             // Save to session for stickiness ONLY if it's a cart-level check (no productId)
             if (!$productId || $productId == "null" || $productId == "undefined") {
                 session()->put('checked_pincode', $pincode);
                 session()->put('checked_pincode_edd', $edd);
-                session()->put('shipping_rate', $freight);
+                session()->put('shipping_rate_prepaid', $prepaidRate);
+                session()->put('shipping_rate_cod', $codRate);
+                
+                // Set default shipping rate based on initial payment method (usually prepaid)
+                $method = $request->input('payment_method', 'razorpay');
+                session()->put('shipping_rate', ($method === 'cod') ? $codRate : $prepaidRate);
             }
 
             // Recalculate full totals for the response
@@ -81,15 +106,18 @@ class CartController extends Controller
                 'success' => true,
                 'message' => "Estimated delivery by " . $edd,
                 'edd' => $edd,
-                'shipping_rate' => $freight,
-                'shipping_rate_formatted' => $freight > 0 ? '₹' . number_format($freight, 2) : 'FREE',
+                'shipping_rate_prepaid' => $prepaidRate,
+                'shipping_rate_cod' => $codRate,
+                'shipping_rate' => $totals['shipping'],
+                'shipping_rate_formatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 2) : 'FREE',
                 'totals' => $totals,
-                'shiprocket_response' => $result // Full response for debugging
+                'total_weight' => $weight,
+                'shiprocket_response' => $result
             ]);
         }
 
         if (!$productId) {
-            session()->forget(['checked_pincode', 'checked_pincode_edd', 'shipping_rate']);
+            session()->forget(['checked_pincode', 'checked_pincode_edd', 'shipping_rate', 'shipping_rate_prepaid', 'shipping_rate_cod']);
         }
         return response()->json([
             'success' => false,
@@ -456,10 +484,39 @@ class CartController extends Controller
         ];
 
         session()->put('shipping_destination', $destination);
+        
+        // Clear shipping if ZIP is missing or less than 6 digits
+        if (empty($destination['zip']) || strlen($destination['zip']) < 6) {
+            session()->forget(['shipping_rate', 'shipping_rate_prepaid', 'shipping_rate_cod', 'checked_pincode']);
+        }
+        
+        if ($request->has('payment_method')) {
+            $method = $request->input('payment_method');
+            if ($method === 'cod' && session()->has('shipping_rate_cod')) {
+                session()->put('shipping_rate', session('shipping_rate_cod'));
+            } elseif ($method !== 'cod' && session()->has('shipping_rate_prepaid')) {
+                session()->put('shipping_rate', session('shipping_rate_prepaid'));
+            }
+        }
 
         $cart = $this->getCart();
         $items = array_values($cart);
         $totals = $this->calculateTotals($items);
+
+        // Calculate total weight for UI
+        $totalWeight = 0;
+        foreach ($items as $item) {
+            $w = 0;
+            if (isset($item['variant_id']) && $item['variant_id'] > 0) {
+                $v = \App\Models\ProductVariant::find($item['variant_id']);
+                if ($v && $v->weight > 0) $w = (float) $v->weight;
+            }
+            if ($w <= 0) {
+                $p = Product::find($item['product_id'] ?? 0);
+                $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
+            }
+            $totalWeight += $w * (int)($item['quantity'] ?? 1);
+        }
 
         return response()->json([
             'success' => true,
@@ -467,6 +524,7 @@ class CartController extends Controller
             'tax' => $totals['tax'],
             'taxPercentage' => $totals['taxPercentage'],
             'grandTotal' => $totals['grandTotal'],
+            'total_weight' => $totalWeight,
             'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 2) : 'FREE',
             'taxFormatted' => '₹' . number_format($totals['tax'], 2),
             'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 2),
@@ -1242,7 +1300,15 @@ class CartController extends Controller
             return 0.0;
         }
 
-        // Retrieve dynamic rate from session if set
+        // 1. Check if method is passed in request first (Checkout Page)
+        $method = request('payment_method');
+        if ($method === 'cod' && session()->has('shipping_rate_cod')) {
+            return (float) session()->get('shipping_rate_cod');
+        } elseif ($method && $method !== 'cod' && session()->has('shipping_rate_prepaid')) {
+            return (float) session()->get('shipping_rate_prepaid');
+        }
+
+        // 2. Fallback to existing session rate
         if (session()->has('shipping_rate')) {
             return (float) session()->get('shipping_rate');
         }

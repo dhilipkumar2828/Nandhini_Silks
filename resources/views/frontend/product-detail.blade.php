@@ -2545,12 +2545,15 @@
                         @endif
                         <div class="product-price-section">
                             <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
-                            @if ($product->regular_price > $product->price)
-                                <span class="old-price"
-                                    id="displayRegularPrice">₹{{ number_format($product->regular_price, 0) }}</span>
-                                <span class="discount-badge" id="displayDiscount">{{ $product->discount_percent }}%
-                                    OFF</span>
-                            @endif
+                            @php
+                                $hasDiscount = $product->regular_price > $product->price;
+                            @endphp
+                            <span class="old-price" id="displayRegularPrice" style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
+                                ₹{{ number_format($product->regular_price ?? 0, 0) }}
+                            </span>
+                            <span class="discount-badge" id="displayDiscount" style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
+                                {{ $product->discount_percent }}% OFF
+                            </span>
                         </div>
                         <div class="stock-status">
                             @php
@@ -3341,9 +3344,9 @@
             if (matched) {
                 // If variant has only one price column, assume it's the 'Sale price' 
                 // and compare with Main Regular Price or its own if available
-                let vSale = parseFloat(matched.sale_price || matched.price || basePrice);
-                let vRegular = parseFloat(matched.price && matched.sale_price && matched.price > matched.sale_price ?
-                    matched.price : baseRegularPrice);
+                let vSale = parseFloat(matched.sale_price) > 0 ? parseFloat(matched.sale_price) : parseFloat(matched.price || basePrice);
+                let vRegular = parseFloat(matched.sale_price) > 0 && parseFloat(matched.price) > parseFloat(matched.sale_price) ?
+                    parseFloat(matched.price) : parseFloat(baseRegularPrice);
 
                 updatePriceDisplay(vSale, vRegular);
                 document.querySelector('.product-sku').innerText = matched.sku || baseSku;

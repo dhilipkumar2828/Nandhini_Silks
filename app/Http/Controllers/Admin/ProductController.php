@@ -95,7 +95,8 @@ class ProductController extends Controller
             $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
         }
 
-        $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
+        $data['price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : ($data['regular_price'] ?? $request->regular_price);
+        $data['sale_price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : null;
         $vStocks = $request->input('v_stock');
         $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
         
@@ -305,7 +306,8 @@ class ProductController extends Controller
             $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
         }
 
-        $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
+        $data['price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : ($data['regular_price'] ?? $request->regular_price);
+        $data['sale_price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : null;
         $vStocks = $request->input('v_stock');
         $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
 
@@ -405,7 +407,7 @@ class ProductController extends Controller
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
                     'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
-                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'sale_price' => (floatval($request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price))) > 0 ? ($request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price)) : null,
                     'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
                     'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
                     'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
@@ -455,10 +457,9 @@ class ProductController extends Controller
                     $firstVariantState = [
                         'primary_image' => $newVariant->image,
                         'image_path' => $newVariant->image,
-                        'images' => (array)$newVariant->images,
                         'regular_price' => $newVariant->price,
-                        'price' => $newVariant->sale_price ?: $newVariant->price,
-                        'sale_price' => $newVariant->sale_price,
+                        'price' => (floatval($newVariant->sale_price) > 0) ? $newVariant->sale_price : $newVariant->price,
+                        'sale_price' => (floatval($newVariant->sale_price) > 0) ? $newVariant->sale_price : null,
                         'stock_quantity' => $newVariant->stock_quantity,
                         'sku' => $newVariant->sku ?: $product->sku
                     ];

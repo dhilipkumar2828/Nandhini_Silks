@@ -112,7 +112,7 @@ class Product extends Model
     public function getDiscountPercentAttribute($value)
     {
         if ($value) return $value;
-        if ($this->regular_price > 0 && $this->sale_price && $this->sale_price < $this->regular_price) {
+        if ($this->regular_price > 0 && floatval($this->sale_price) > 0 && $this->sale_price < $this->regular_price) {
             return round((($this->regular_price - $this->sale_price) / $this->regular_price) * 100, 2);
         }
         return 0;

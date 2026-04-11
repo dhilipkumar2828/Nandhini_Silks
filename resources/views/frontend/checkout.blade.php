@@ -355,6 +355,7 @@
 
                                         <div id="savedAddressesSection"
                                             style="display: none; margin-top: 15px; overflow-x: auto; padding: 5px 0; scroll-behavior: smooth; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+                                            <p style="font-size: 11px; font-weight: 700; color: #a91b43; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Choose any one address</p>
                                             <div style="display: flex; gap: 15px; width: 100%;">
                                                 @foreach($addresses as $addr)
                                                     <div class="saved-address-card" onclick="selectSavedAddress(this)"
@@ -602,15 +603,23 @@
                             </div>
 
                             <div style="border-top: 1px dashed #eee; padding-top: 16px; margin-bottom: 4px;">
+                                {{-- <div class="summary-row-v4" id="weight_row_container" style="display: none;">
+                                    <span>Total Weight</span>
+                                    <span id="total_weight_display">0.00 kg</span>
+                                </div> --}}
                                 <div class="summary-row-v4">
                                     <span>Subtotal</span>
                                     <span>&#8377;{{ number_format($subTotal, 2) }}</span>
                                 </div>
-                                <div class="summary-row-v4">
+                                <div class="summary-row-v4" id="shipping_row_container" style="display: {{ $shipping > 0 ? 'flex' : 'none' }};">
                                     <span>Delivery Charges</span>
                                     <span id="shipping_cost_display"
-                                        style="{{ $shipping > 0 ? '' : 'color: #2ecc71; font-weight: 700;' }} font-size: 12px;">
-                                        {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
+                                        style="{{ $shipping > 0 ? '' : 'color: #888; font-weight: 500;' }} font-size: 13px;">
+                                        @if($shipping > 0)
+                                            ₹{{ number_format($shipping, 2) }}
+                                        @else
+                                            (Enter Pincode)
+                                        @endif
                                     </span>
                                 </div>
                                 <div class="summary-row-v4" id="tax_row_container" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
@@ -657,9 +666,17 @@
                                 </label>
                             </div>
 
-                            <button type="submit" class="btn-review-v4"
-                                style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px;">
-                                Place Order
+                            {{-- TERMS & CONDITIONS --}}
+                            <div class="terms-container" style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" id="termsCheckbox" onchange="toggleCondition()" style="width: 18px; height: 18px; cursor: pointer; margin-top: 2px; accent-color: #A91B43;">
+                                <label for="termsCheckbox" style="font-size: 13px; color: #555; cursor: pointer; line-height: 1.4;">
+                                    I agree to the <a href="{{ route('terms') }}" target="_blank" style="color: #A91B43; text-decoration: underline;">Terms & Conditions</a> and <a href="{{ route('privacy-policy') }}" target="_blank" style="color: #A91B43; text-decoration: underline;">Privacy Policy</a>.
+                                </label>
+                            </div>
+
+                            <button type="submit" id="placeOrderBtn" class="btn-review-v4"
+                                 style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px; {{ $shipping > 0 ? '' : 'opacity: 0.6; cursor: not-allowed;' }}" {{ $shipping > 0 ? '' : 'disabled' }}>
+                                 Place Order
                             </button>
 
                             <div
@@ -729,6 +746,17 @@
         element.style.background = '#fffcfd';
         const radio = element.querySelector('input[type="radio"]');
         if (radio) radio.checked = true;
+        
+        // Show Toastr and update totals
+        if (typeof toastr !== 'undefined' && document.getElementById('shipping_row_container')?.style.display === 'flex') {
+            if (method === 'cod') {
+                toastr.info('Shipping amount updated for Cash on Delivery.');
+            } else {
+                toastr.info('Shipping amount updated for Online Payment.');
+            }
+        }
+        
+        updateShipping();
     }
 
     function toggleSavedAddresses(checkbox) {
@@ -765,7 +793,8 @@
     function updateShipping() {
         const state = document.getElementById('field_state').value;
         const zip = document.getElementById('field_zip').value;
-        if (!state && !zip) return;
+        const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'razorpay';
+        // Removed return so empty zip can clear session
 
         fetch("{{ route('cart.shipping.update') }}", {
             method: 'POST',
@@ -775,7 +804,12 @@
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ state: state, zip: zip, country: document.getElementById('field_country')?.value || 'India' })
+            body: JSON.stringify({ 
+                state: state, 
+                zip: zip, 
+                country: document.getElementById('field_country')?.value || 'India',
+                payment_method: method
+            })
         })
         .then(r => {
             if (r.status === 419) {
@@ -794,9 +828,20 @@
         })
         .then(response => {
             if (response.success) {
-                document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
+                const shippingDiv = document.getElementById('shipping_cost_display');
+                if (shippingDiv) shippingDiv.textContent = response.shippingFormatted;
+                
                 document.getElementById('tax_cost_display').textContent = response.taxFormatted;
                 document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
+
+                const weightDiv = document.getElementById('total_weight_display');
+                const weightRow = document.getElementById('weight_row_container');
+                if (weightDiv && response.total_weight && response.shipping > 0) {
+                    weightDiv.innerText = parseFloat(response.total_weight).toFixed(2) + ' kg';
+                    if (weightRow) weightRow.style.display = 'flex';
+                } else {
+                    if (weightRow) weightRow.style.display = 'none';
+                }
 
                 const taxRow = document.getElementById('tax_row_container');
                 if (taxRow) {
@@ -831,7 +876,7 @@
         });
     }
 
-    let isPincodeServiceable = true; // Default to true so it doesn't block before checking
+    let isPincodeServiceable = false; // Default to false
 
     let pinTimeout = null;
     function checkPincodeAvailability(val) {
@@ -849,7 +894,10 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ pincode: val })
+                    body: JSON.stringify({ 
+                        pincode: val,
+                        payment_method: document.querySelector('input[name="payment_method"]:checked')?.value || 'razorpay'
+                    })
                 })
                 .then(r => r.json())
                 .then(data => {
@@ -857,9 +905,21 @@
                         isPincodeServiceable = true;
                         if(msgEl) msgEl.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by ${data.edd}</span>`;
                         updateShipping();
+                        const shippingRow = document.getElementById('shipping_row_container');
+                        if (shippingRow) shippingRow.style.display = 'flex';
+                        const weightEl = document.getElementById('total_weight_display');
+                        if (weightEl && data.total_weight) {
+                            weightEl.innerText = data.total_weight.toFixed(2) + ' kg';
+                            const weightRow = document.getElementById('weight_row_container');
+                            if (weightRow) weightRow.style.display = 'flex';
+                        }
+                        setPlaceOrderEnabled(true);
                     } else {
                         isPincodeServiceable = false;
-                        if(msgEl) msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                        if (msgEl) msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                        const shippingRow = document.getElementById('shipping_row_container');
+                        if (shippingRow) shippingRow.style.display = 'none';
+                        setPlaceOrderEnabled(false);
                     }
                 })
                 .catch(err => {
@@ -869,9 +929,38 @@
                 });
             }, 500); 
         } else {
-            isPincodeServiceable = true;
+            isPincodeServiceable = false;
             if(msgEl) msgEl.innerHTML = '';
+            const shippingRow = document.getElementById('shipping_row_container');
+            if (shippingRow) shippingRow.style.display = 'none';
+            const weightRow = document.getElementById('weight_row_container');
+            if (weightRow) weightRow.style.display = 'none';
+            setPlaceOrderEnabled(false);
+            const shippingEl = document.getElementById('shipping_cost_display');
+            if(shippingEl) shippingEl.innerText = '(Enter Pincode)';
+            updateShipping(); // Refresh totals to clear shipping cost
         }
+    }
+
+    function setPlaceOrderEnabled(enabled) {
+        isPincodeServiceable = enabled; // Synchronize with the state
+        const btn = document.getElementById('placeOrderBtn');
+        const termsChecked = document.getElementById('termsCheckbox').checked;
+        if (!btn) return;
+        
+        if (isPincodeServiceable && termsChecked) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+        }
+    }
+
+    function toggleCondition() {
+        setPlaceOrderEnabled(isPincodeServiceable);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -884,6 +973,9 @@
 
         document.getElementById('field_state')?.addEventListener('change', updateShipping);
         document.getElementById('field_zip')?.addEventListener('input', function() {
+            setPlaceOrderEnabled(false);
+            const shippingEl = document.getElementById('shipping_cost_display');
+            if(shippingEl) shippingEl.innerText = '(Checking...)';
             checkPincodeAvailability(this.value);
         });
         document.getElementById('field_zip')?.addEventListener('change', function() {
