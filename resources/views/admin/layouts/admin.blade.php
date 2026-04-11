@@ -425,6 +425,14 @@
 </head>
 
 <body class="min-h-screen flex">
+    <!-- Admin Loader Overlay -->
+    <div id="adminLoader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white/70 backdrop-blur-[2px]" style="display: none;">
+        <div class="flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-[#a91b43]/20 border-t-[#a91b43] rounded-full animate-spin"></div>
+            <p class="mt-4 text-[#a91b43] font-black tracking-widest text-[10px] uppercase">Please Wait...</p>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <aside class="sidebar-glass w-64 fixed h-full flex flex-col z-50 text-slate-600">
         <a href="{{ route('admin.dashboard') }}">
@@ -822,6 +830,20 @@
                 if (parseFloat(pastedData) < 0) {
                     e.preventDefault();
                     this.value = 0;
+                }
+            });
+
+            // Global Form Loader Logic
+            $(document).on('submit', 'form:not(.no-loader)', function(e) {
+                const form = $(this);
+                // Check if validation is active and form is valid
+                const isValidatorActive = form.data('validator');
+                if (isValidatorActive) {
+                    if (form.valid()) {
+                        $('#adminLoader').show();
+                    }
+                } else {
+                    $('#adminLoader').show();
                 }
             });
         });

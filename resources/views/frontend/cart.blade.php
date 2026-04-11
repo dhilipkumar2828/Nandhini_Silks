@@ -519,24 +519,28 @@
                         <span>Subtotal ({{ $itemCount ?? 0 }} items)</span>
                         <span id="subtotalDisp">&#8377;{{ number_format($subTotal ?? 0, 2) }}</span>
                     </div>
-                    <div class="summary-row">
+                    {{-- <div class="summary-row">
                         <span>Shipping</span>
                         <span id="shippingDisp">
                             @if(session()->has('shipping_rate'))
                                 {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
                             @else
-                                <span style="font-size: 12px; color: #888; font-weight: 500;">(Calculated after check)</span>
+                                <span style="font-size: 12px; color: #888; font-weight: 500;">(Calculated after check out)</span>
                             @endif
                         </span>
-                    </div>
+                    </div> --}}
                     <div class="summary-row" id="taxRow" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
                         <span>Estimated Tax (GST)</span>
                         <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
                     </div>
+                    
+
+                    @if($discount > 0)
                     <div class="summary-row" style="color: #2e7d32; font-weight: 600;">
                         <span>Coupon Discount</span>
                         <span id="discountDisp">-&#8377;{{ number_format($discount ?? 0, 2) }}</span>
                     </div>
+                    @endif
 
                     <div class="coupon-section">
                         <p style="font-size: 15px; font-weight: 600; color: #333;">Have a coupon code?</p>
@@ -570,22 +574,22 @@
                         @endif
                     </div>
 
-                    @if($hasItems)
-                    <div class="summary-pincode-check">
-                        <p><i class="fas fa-truck" style="color: #A91B43;"></i> Delivery Availability</p>
-                        <div class="pincode-summary-group">
-                            <input type="text" class="pincode-summary-input" maxlength="6" 
-                                placeholder="Enter Pincode" value="{{ session('checked_pincode') }}"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)">
-                            <button type="button" class="btn-pincode-summary">Check</button>
+                    {{-- @if($hasItems)
+                        <div class="summary-pincode-check">
+                            <p><i class="fas fa-truck" style="color: #A91B43;"></i> Delivery Availability</p>
+                            <div class="pincode-summary-group">
+                                <input type="text" class="pincode-summary-input" maxlength="6" 
+                                    placeholder="Enter Pincode" value="{{ session('checked_pincode') }}"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)">
+                                <button type="button" class="btn-pincode-summary">Check</button>
+                            </div>
+                            <div id="summaryDeliveryNote">
+                                @if(session('checked_pincode') && session('checked_pincode_edd'))
+                                    <span style="color: #2e7d32; font-weight: 600;"><i class="fas fa-check-circle"></i> Delivery by {{ session('checked_pincode_edd') }}</span>
+                                @endif
+                            </div>
                         </div>
-                        <div id="summaryDeliveryNote">
-                            @if(session('checked_pincode') && session('checked_pincode_edd'))
-                                <span style="color: #2e7d32; font-weight: 600;"><i class="fas fa-check-circle"></i> Delivery by {{ session('checked_pincode_edd') }}</span>
-                            @endif
-                        </div>
-                    </div>
-                    @endif
+                    @endif --}}
 
                     <div class="summary-total">
                         <span>Total</span>
