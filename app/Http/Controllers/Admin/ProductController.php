@@ -217,6 +217,7 @@ class ProductController extends Controller
                         'price' => $newVariant->sale_price ?: $newVariant->price,
                         'sale_price' => $newVariant->sale_price,
                         'stock_quantity' => $newVariant->stock_quantity,
+                        'weight' => $newVariant->weight,
                         'sku' => $newVariant->sku ?: $product->sku
                     ];
                     $variantFound = true;
@@ -286,7 +287,7 @@ class ProductController extends Controller
             'tax_class_id' => 'nullable|exists:tax_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
-            'weight' => 'required|numeric|min:0.1|max:10',
+            'weight' => $isVariant ? 'nullable' : 'required|numeric|min:0.1|max:10',
             'v_weight.*' => 'nullable|numeric|min:0.1|max:10',
         ], [
             'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
@@ -309,7 +310,9 @@ class ProductController extends Controller
         $data['price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : ($data['regular_price'] ?? $request->regular_price);
         $data['sale_price'] = (floatval($request->sale_price) > 0) ? $request->sale_price : null;
         $vStocks = $request->input('v_stock');
+        $vWeights = $request->input('v_weight');
         $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
+        $data['weight'] = $isVariant && empty($request->weight) ? ($vWeights ? (is_array($vWeights) ? reset($vWeights) : 0.10) : 0.10) : ($request->weight ?? 0.10);
 
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
         $data['related_products'] = $request->input('related_products', []);
