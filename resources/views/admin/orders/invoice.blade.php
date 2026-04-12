@@ -115,6 +115,20 @@
         .signature-title { font-size: 11px; font-weight: 800; color: #333; text-transform: uppercase; margin-bottom: 40px; }
         .signature-line { border-top: 2px solid #333; padding-top: 8px; font-size: 12px; font-weight: 800; color: #a91b43; text-transform: uppercase; display: inline-block; width: 180px; }
 
+        /* Variant Badge Style */
+        .variant-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #f5f5f5;
+            color: #555;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-right: 4px;
+            margin-top: 4px;
+        }
+
         .final-footer { margin-top: 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #f0f0f0; padding-top: 15px; }
         .final-footer strong { color: #555; }
     </style>
@@ -211,7 +225,19 @@
                     </td>
                     <td>
                         <div class="product-name">{{ $item->product_name }}</div>
-                        <div class="product-meta">HSN: 5007 | Variant: {{ ($item->color ? $item->color : '') . ($item->size ? ' / '.$item->size : '') ?: '-' }}</div>
+                        <div class="product-meta">
+                            HSN: 5007 | 
+                            @if(!empty($item->attributes) && is_array($item->attributes))
+                                @foreach($item->attributes as $attr)
+                                    <span class="variant-badge">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                @endforeach
+                            @elseif($item->color || $item->size)
+                                @if($item->color) <span class="variant-badge">Color: {{ $item->color }}</span> @endif
+                                @if($item->size) <span class="variant-badge">Size: {{ $item->size }}</span> @endif
+                            @else
+                                -
+                            @endif
+                        </div>
                     </td>
                     <td class="text-center" style="font-weight: 700;">{{ $item->quantity }}</td>
                     <td class="text-right">₹{{ number_format($item->price, 2) }}</td>

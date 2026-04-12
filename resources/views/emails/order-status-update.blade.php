@@ -115,8 +115,18 @@
                     <tr>
                         <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">
                             <span style="font-weight: 700; color: #111; font-size: 15px;">{{ $item->product_name }}</span>
-                            @if($item->size || $item->color)
-                            <br><span style="color: #999; font-size: 11px;">{{ $item->size }}{{ $item->size && $item->color ? ' | ' : '' }}{{ $item->color }}</span>
+                            @if(!empty($item->attributes) && is_array($item->attributes))
+                                @foreach($item->attributes as $attr)
+                                    <br><span style="color: #666; font-size: 11px; font-weight: 700;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                @endforeach
+                            @else
+                                @if($item->size || $item->color)
+                                    <br><span style="color: #666; font-size: 11px; font-weight: 700;">
+                                        @if($item->size) Size: {{ $item->size }} @endif
+                                        @if($item->size && $item->color) | @endif
+                                        @if($item->color) Color: {{ $item->color }} @endif
+                                    </span>
+                                @endif
                             @endif
                         </td>
                         <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: center; font-weight: 700; color: #111;">{{ $item->quantity }}</td>

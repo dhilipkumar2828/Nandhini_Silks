@@ -150,7 +150,14 @@ const InvoiceGenerator = {
                                     </td>
                                     <td style="padding: 12px; border: 1px solid #eee;">
                                         <strong style="color: #1a1a1a; font-size: 18px;">${item.name}</strong><br>
-                                        <div style="font-size: 14px; color: #999; margin-top: 4px;">HSN: ${item.hsn} | Variant: ${item.variant}</div>
+                                        <div style="font-size: 14px; color: #999; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
+                                            <span style="margin-right: 5px;">HSN: ${item.hsn}</span>
+                                            ${(item.variant && item.variant !== '-') ? 
+                                                item.variant.split('|').map(v => v.split('/').map(sub => `
+                                                    <span style="display: inline-block; padding: 2px 6px; background: #f5f5f5; color: #555; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">${sub.trim()}</span>
+                                                `).join('')).join('') : ''
+                                            }
+                                        </div>
                                     </td>
                                     <td style="padding: 12px; border: 1px solid #eee; text-align: center; font-weight: 600;">${item.qty}</td>
                                     <td style="padding: 12px; border: 1px solid #eee; text-align: right;">₹${InvoiceGenerator.formatCurrency(item.rate)}</td>

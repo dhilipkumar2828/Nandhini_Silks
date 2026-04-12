@@ -83,17 +83,42 @@ class ShiprocketService
 
         foreach ($order->items as $item) {
             $product = $item->product;
+            $variant = $item->variant;
             $unitPriceWithTax = (float) $item->price + (float) (($item->tax_amount ?? 0) / ($item->quantity ?: 1));
+            
+            // Prioritize Variant SKU, then Product SKU
+            $sku = ($variant && $variant->sku) ? $variant->sku : ($product->sku ?? 'SKU-' . ($product->id ?? time()));
+            
+            // If no variant SKU was found, ensure uniqueness by appending attributes
+            if (!$variant || !$variant->sku) {
+                $variantParts = [];
+                if (!empty($item->attributes) && is_array($item->attributes)) {
+                    foreach ($item->attributes as $attr) {
+                        $variantParts[] = $attr['value'];
+                    }
+                } else {
+                    if ($item->size) $variantParts[] = $item->size;
+                    if ($item->color) $variantParts[] = $item->color;
+                }
+
+                if (!empty($variantParts)) {
+                    $sku .= '-' . \Illuminate\Support\Str::slug(implode('-', $variantParts));
+                }
+            }
+            
             $items[] = [
                 'name'          => $item->product_name,
-                'sku'           => $product->sku ?? 'SKU-' . ($product->id ?? time()),
+                'sku'           => $sku,
                 'units'         => $item->quantity,
                 'selling_price' => $unitPriceWithTax,
                 'discount'      => 0,
                 'tax'           => 0,
                 'hsn'           => 0,
             ];
-            $totalWeight += (($product->weight ?? 0.5) > 0 ? $product->weight : 0.5) * $item->quantity;
+
+            // Prioritize Variant Weight
+            $itemWeight = ($variant && ($variant->weight > 0)) ? (float)$variant->weight : (float)($product->weight ?? 0.5);
+            $totalWeight += ($itemWeight > 0 ? $itemWeight : 0.5) * $item->quantity;
         }
 
         $nameParts = explode(' ', trim($order->customer_name), 2);
