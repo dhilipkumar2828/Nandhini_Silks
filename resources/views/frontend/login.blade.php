@@ -227,9 +227,12 @@
             });
         });
 
-        // If there are errors other than login email/password mismatches, switch to register tab
-        @if($errors->has('name') || $errors->has('phone') || $errors->has('password_confirmation'))
+        // Switch to register tab if redirected from login with an email OR if there are registration errors
+        @if(request()->has('email') || $errors->has('name') || $errors->has('phone') || $errors->has('password_confirmation'))
             registerTab.click();
+            @if(request()->has('email'))
+                document.getElementById('regEmail').value = "{{ request('email') }}";
+            @endif
         @endif
     </script>
 @endpush
