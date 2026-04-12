@@ -323,11 +323,20 @@
                                     <div>
                                         <div style="font-weight: 700; font-size: 14px; color: #1a1a1a;">{{ $item->product_name }}</div>
                                         @if($item->size || $item->color)
-                                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 600;">
-                                                {{ $item->color ? 'Color: '.$item->color : '' }}
-                                                {{ ($item->color && $item->size) ? ' · ' : '' }}
-                                                {{ $item->size ? 'Size: '.$item->size : '' }}
-                                            </div>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+                                            @if(!empty($item->attributes) && is_array($item->attributes))
+                                                @foreach($item->attributes as $attr)
+                                                    <span style="display: inline-block; padding: 2px 8px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 10px; font-weight: 700;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                                @endforeach
+                                            @elseif($item->size || $item->color)
+                                                @if($item->color)
+                                                    <span style="display: inline-block; padding: 2px 8px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 10px; font-weight: 700;">Color: {{ $item->color }}</span>
+                                                @endif
+                                                @if($item->size)
+                                                    <span style="display: inline-block; padding: 2px 8px; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 10px; font-weight: 700;">Size: {{ $item->size }}</span>
+                                                @endif
+                                            @endif
+                                        </div>
                                         @endif
                                     </div>
                                 </div>
@@ -450,7 +459,7 @@
                     {
                         name: "{{ $item->product_name }}",
                         image: "{{ $item->product && $item->product->image_path ? asset('images/' . $item->product->image_path) : asset('images/product_detail.png') }}",
-                        variant: "{{ ($item->color ? $item->color : '') . ($item->size ? ' / '.$item->size : '') ?: '-' }}",
+                        variant: "{!! !empty($item->attributes) ? implode(' | ', array_map(function($a) { return $a['name'] . ': ' . $a['value']; }, (array)$item->attributes)) : ((($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : '')) ?: '-') !!}",
                         hsn: "5007",
                         qty: {{ $item->quantity }},
                         rate: {{ $item->price }},

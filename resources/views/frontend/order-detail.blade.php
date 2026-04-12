@@ -191,13 +191,16 @@
         }
 
         .item-meta span {
-            background: #f7fafc;
-            border: 1px solid #edf2f7;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             display: inline-block;
-            font-weight: 600;
-            color: #4a5568;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: -0.02em;
         }
 
         .item-actions-cell {
@@ -654,7 +657,7 @@
                         return [
                             'name' => $item->product_name,
                             'image' => $item->getImageUrl(),
-                            'variant' => ($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : ''),
+                            'variant' => !empty($item->attributes) ? implode(' | ', array_map(function($a) { return $a['name'] . ': ' . $a['value']; }, (array)$item->attributes)) : (($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : '')),
                             'hsn' => "5007",
                             'qty' => $item->quantity,
                             'rate' => (float)$item->price,
@@ -709,34 +712,56 @@
             <div class="timeline-card">
                 <h3 class="info-title">Order Status</h3>
                 <div class="timeline">
-                    <div class="timeline-step completed">
-                        <div class="step-icon">&#10003;</div>
-                        <span class="step-label">Order Placed</span>
-                        <span class="step-date">{{ $order->created_at->format('M d') }}</span>
-                    </div>
-                    <div
-                        class="timeline-step {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'order placed' ? 'active' : '') }}">
-                        <div class="step-icon">
-                            {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? '✓' : '●' }}
+                    @if($order->order_status == 'cancelled')
+                        <div class="timeline-step completed">
+                            <div class="step-icon">✓</div>
+                            <span class="step-label">Order Placed</span>
+                            <span class="step-date">{{ $order->created_at->format('M d') }}</span>
                         </div>
-                        <span class="step-label">Shipped</span>
-                        <span
-                            class="step-date">{{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'Item Shipped' : 'Processing' }}</span>
-                    </div>
-                    <div
-                        class="timeline-step {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'shipped' ? 'active' : '') }}">
-                        <div class="step-icon">
-                            {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? '✓' : '●' }}
+                        <div class="timeline-step cancelled">
+                            <div class="step-icon" style="background-color: #ef4444; border-color: #fee2e2; color: white;">✕</div>
+                            <span class="step-label" style="color: #ef4444;">Cancelled</span>
+                            <span class="step-date">Order Cancelled</span>
                         </div>
-                        <span class="step-label">Out for Delivery</span>
-                        <span
-                            class="step-date">{{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'Done' : 'Pending' }}</span>
-                    </div>
-                    <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
-                        <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
-                        <span class="step-label">Delivered</span>
-                        <span class="step-date">{{ $order->order_status == 'delivered' ? 'Completed' : 'Expected' }}</span>
-                    </div>
+                    @else
+                        <div class="timeline-step completed">
+                            <div class="step-icon">✓</div>
+                            <span class="step-label">Order Placed</span>
+                            <span class="step-date">{{ $order->created_at->format('M d') }}</span>
+                        </div>
+                        <div
+                            class="timeline-step {{ in_array($order->order_status, ['processing', 'ready to ship', 'shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'order placed' ? 'active' : '') }}">
+                            <div class="step-icon">
+                                {{ in_array($order->order_status, ['processing', 'ready to ship', 'shipped', 'dispatched', 'out for delivery', 'delivered']) ? '✓' : '●' }}
+                            </div>
+                            <span class="step-label">Processing</span>
+                            <span
+                                class="step-date">{{ in_array($order->order_status, ['processing', 'ready to ship', 'shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'Completed' : 'Pending' }}</span>
+                        </div>
+                        <div
+                            class="timeline-step {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'completed' : (in_array($order->order_status, ['processing', 'ready to ship']) ? 'active' : '') }}">
+                            <div class="step-icon">
+                                {{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? '✓' : '●' }}
+                            </div>
+                            <span class="step-label">Shipped</span>
+                            <span
+                                class="step-date">{{ in_array($order->order_status, ['shipped', 'dispatched', 'out for delivery', 'delivered']) ? 'Item Shipped' : 'Pending' }}</span>
+                        </div>
+                        <div
+                            class="timeline-step {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'completed' : ($order->order_status == 'shipped' ? 'active' : '') }}">
+                            <div class="step-icon">
+                                {{ in_array($order->order_status, ['out for delivery', 'delivered']) ? '✓' : '●' }}
+                            </div>
+                            <span class="step-label">Out for Delivery</span>
+                            <span
+                                class="step-date">{{ in_array($order->order_status, ['out for delivery', 'delivered']) ? 'On the way' : 'Pending' }}</span>
+                        </div>
+                        <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
+                            <div class="step-icon">{{ $order->order_status == 'delivered' ? '✓' : '○' }}</div>
+                            <span class="step-label">Delivered</span>
+                            <span class="step-date">{{ $order->order_status == 'delivered' ? 'Completed' : 'Expected' }}</span>
+                        </div>
+                    @endif
                 </div>
 
                 @if($order->tracking_number)

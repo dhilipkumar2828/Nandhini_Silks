@@ -32,7 +32,7 @@ class SyncShiprocketOrders extends Command
 
         // Get orders that are currently in transit, shipped or out for delivery
         // These are the only ones that need constant tracking
-        $activeOrders = Order::whereIn('order_status', ['shipped', 'out for delivery', 'order placed', 'processing'])
+        $activeOrders = Order::whereIn('order_status', ['shipped', 'out for delivery', 'order placed', 'processing', 'ready to ship'])
             ->whereNotNull('shiprocket_shipment_id')
             ->get();
 

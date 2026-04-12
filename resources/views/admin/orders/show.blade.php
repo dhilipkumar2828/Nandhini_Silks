@@ -34,9 +34,25 @@
                                     <div>
                                         <div class="font-bold text-slate-800">{{ $item->product_name }}</div>
                                         @if($item->size || $item->color)
-                                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                                            @if($item->size) Size: {{ $item->size }} @endif
-                                            @if($item->color) {{ $item->size ? '|' : '' }} Color: {{ $item->color }} @endif
+                                        <div class="flex flex-wrap gap-2 mt-2">
+                                            @if(!empty($item->attributes) && is_array($item->attributes))
+                                                @foreach($item->attributes as $attr)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 tracking-tighter">
+                                                        {{ $attr['name'] }}: {{ $attr['value'] }}
+                                                    </span>
+                                                @endforeach
+                                            @elseif($item->size || $item->color)
+                                                @if($item->size) 
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 tracking-tighter">
+                                                    Size: {{ $item->size }}
+                                                </span>
+                                                @endif
+                                                @if($item->color) 
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 tracking-tighter">
+                                                    Color: {{ $item->color }}
+                                                </span>
+                                                @endif
+                                            @endif
                                         </div>
                                         @endif
                                     </div>
@@ -106,6 +122,7 @@
                         <select name="order_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all cursor-pointer">
                             <option value="order placed" {{ $order->order_status == 'order placed' ? 'selected' : '' }}>Order Placed (Pending)</option>
                             <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
+                            <option value="ready to ship" {{ $order->order_status == 'ready to ship' ? 'selected' : '' }}>Ready to Ship</option>
                             <option value="shipped" {{ $order->order_status == 'shipped' ? 'selected' : '' }}>Shipped (In Transit)</option>
                             <option value="out for delivery" {{ $order->order_status == 'out for delivery' ? 'selected' : '' }}>Out for Delivery</option>
                             <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered (Complete)</option>

@@ -54,6 +54,8 @@ class OrderController extends Controller
         $counts = [
             'all' => Order::count(),
             'order placed' => Order::where('order_status', 'order placed')->count(),
+            'processing' => Order::where('order_status', 'processing')->count(),
+            'ready to ship' => Order::where('order_status', 'ready to ship')->count(),
             'shipped' => Order::where('order_status', 'shipped')->count(),
             'out for delivery' => Order::where('order_status', 'out for delivery')->count(),
             'delivered' => Order::where('order_status', 'delivered')->count(),
@@ -111,7 +113,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         $request->validate([
-            'order_status' => 'required|in:pending,order placed,shipped,out for delivery,delivered,cancelled',
+            'order_status' => 'required|in:pending,order placed,processing,ready to ship,shipped,out for delivery,delivered,cancelled',
             'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',
@@ -176,7 +178,10 @@ class OrderController extends Controller
         $result = $shiprocket->createOrder($order);
 
         if ($result['status']) {
-            return back()->with('success', 'Order pushed to Shiprocket successfully. Order ID: ' . $result['data']['order_id']);
+            // Automatically update status to 'ready to ship' and send emails
+            $order->syncStatus('ready to ship');
+            
+            return back()->with('success', 'Order pushed to Shiprocket successfully and status updated to Ready to Ship.');
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));

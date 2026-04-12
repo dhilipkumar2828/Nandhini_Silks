@@ -19,6 +19,7 @@ class OrderItem extends Model
         'size',
         'color',
         'attributes',
+        'variant_id',
     ];
 
     protected $casts = [
@@ -33,6 +34,11 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
     public function getImageUrl()
