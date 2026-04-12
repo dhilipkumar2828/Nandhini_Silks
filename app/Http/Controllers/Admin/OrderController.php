@@ -227,7 +227,7 @@ class OrderController extends Controller
         $order->update(['pickup_scheduled_at' => $pickupDate]);
 
         // Update order status + send emails
-        $order->syncStatus('processing');
+        $order->syncStatus('ready to ship');
 
         if (!$pickupResult['status']) {
             return back()->with('warning',
