@@ -113,7 +113,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         $request->validate([
-            'order_status' => 'required|in:pending,order placed,processing,ready to ship,shipped,out for delivery,delivered,cancelled',
+            'order_status' => 'required|in:pending,order placed,processing,ready to ship,shipped,out for delivery,delivered,cancelled,returned,refunded',
             'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',
@@ -178,13 +178,68 @@ class OrderController extends Controller
         $result = $shiprocket->createOrder($order);
 
         if ($result['status']) {
-            // Automatically update status to 'ready to ship' and send emails
             $order->syncStatus('ready to ship');
-            
             return back()->with('success', 'Order pushed to Shiprocket successfully and status updated to Ready to Ship.');
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
+    }
+
+    /**
+     * All-in-one: Push to Shiprocket + Auto-assign AWB + Schedule Pickup with chosen date.
+     * Admin selects pickup date from modal → single form submit does everything.
+     */
+    public function pushWithPickup(Request $request, Order $order, ShiprocketService $shiprocket)
+    {
+        $request->validate([
+            'pickup_date' => 'required|date|after_or_equal:today',
+        ]);
+
+        if ($order->shiprocket_order_id) {
+            return back()->with('error', 'Order already pushed to Shiprocket.');
+        }
+
+        // ── STEP 1: Create order in Shiprocket ─────────────────────────────
+        $createResult = $shiprocket->createOrder($order);
+        if (!$createResult['status']) {
+            return back()->with('error', 'Shiprocket Push Failed: ' . ($createResult['message'] ?? 'Unknown Error'));
+        }
+
+        // Reload order to get fresh shiprocket_shipment_id
+        $order->refresh();
+
+        // ── STEP 2: Auto-assign AWB ─────────────────────────────────────────
+        $awbResult = $shiprocket->assignCourierAndAWB($order);
+        if (!$awbResult['status']) {
+            // Pushed successfully but AWB failed — still mark ready to ship
+            $order->syncStatus('ready to ship');
+            return back()->with('warning', 'Order pushed to Shiprocket ✓ but AWB assignment failed: ' . ($awbResult['message'] ?? 'Try assigning AWB manually.'));
+        }
+
+        // Reload again after AWB assigned
+        $order->refresh();
+
+        // ── STEP 3: Schedule Pickup with chosen date ────────────────────────
+        $pickupDate = $request->pickup_date; // YYYY-MM-DD
+        $pickupResult = $shiprocket->requestPickup($order->shiprocket_shipment_id, $pickupDate);
+
+        // Save pickup scheduled date in DB
+        $order->update(['pickup_scheduled_at' => $pickupDate]);
+
+        // Update order status + send emails
+        $order->syncStatus('processing');
+
+        if (!$pickupResult['status']) {
+            return back()->with('warning',
+                "✓ Pushed & AWB ({$awbResult['awb']}) assigned via {$awbResult['courier']}. " .
+                "⚠ Pickup scheduling failed: " . ($pickupResult['message'] ?? 'Try manually.')
+            );
+        }
+
+        return back()->with('success',
+            "✅ Order pushed to Shiprocket! AWB: {$awbResult['awb']} via {$awbResult['courier']}. " .
+            "Pickup scheduled for {$pickupDate}."
+        );
     }
 
     public function assignShiprocketAWB(Order $order, ShiprocketService $shiprocket)
@@ -215,6 +270,31 @@ class OrderController extends Controller
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Failed to generate label link.'));
+    }
+
+    public function generateShiprocketManifest(Order $order, ShiprocketService $shiprocket)
+    {
+        if (!$order->shiprocket_shipment_id) {
+            return back()->with('error', 'Order must be pushed to Shiprocket first.');
+        }
+
+        if (!$order->shiprocket_awb) {
+            return back()->with('error', 'AWB must be assigned before generating manifest.');
+        }
+
+        $result = $shiprocket->generateManifest($order->shiprocket_shipment_id);
+
+        if ($result['status']) {
+            $manifestUrl = $result['manifest_url'] ?? null;
+            if ($manifestUrl) {
+                $order->update(['shiprocket_manifest_url' => $manifestUrl]);
+                return redirect($manifestUrl);
+            }
+            // Manifest generated but URL not returned — save what we have
+            return back()->with('success', 'Manifest generated successfully. Check Shiprocket dashboard to download.');
+        }
+
+        return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Failed to generate manifest.'));
     }
 
     public function generateShiprocketInvoice(Order $order, ShiprocketService $shiprocket)
@@ -254,15 +334,27 @@ class OrderController extends Controller
 
     public function createShiprocketReturn(Order $order, ShiprocketService $shiprocket)
     {
-        if ($order->order_status != 'delivered') {
+        if ($order->order_status !== 'delivered') {
             return back()->with('error', 'Only delivered orders can be returned.');
+        }
+
+        if ($order->return_status && in_array($order->return_status, ['approved', 'picked', 'received', 'refunded'])) {
+            return back()->with('error', 'Return already processed for this order.');
         }
 
         $result = $shiprocket->createReturnOrder($order);
 
         if ($result['status']) {
-            $order->update(['order_status' => 'refunded']); // or returned
-            return back()->with('success', 'Return order created in Shiprocket. Return ID: ' . $result['data']['shipment_id']);
+            $data = $result['data'] ?? [];
+            $order->update([
+                'return_status'                 => 'approved',
+                'shiprocket_return_order_id'    => $data['order_id'] ?? null,
+                'shiprocket_return_shipment_id' => $data['shipment_id'] ?? null,
+                'reverse_awb'                   => $data['awb_code'] ?? null,
+            ]);
+            // Use syncStatus to properly set order_status = 'returned' + trigger email
+            $order->syncStatus('returned');
+            return back()->with('success', 'Return order created in Shiprocket. Shipment ID: ' . ($data['shipment_id'] ?? 'N/A'));
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
@@ -302,9 +394,14 @@ class OrderController extends Controller
             }
         }
 
-        // If refunded, maybe update payment status too
+        // If refunded, update payment status too and trigger email
         if ($newStatus === 'refunded') {
             $order->update(['payment_status' => 'refunded']);
+        }
+
+        // If return is received, mark order as returned
+        if ($newStatus === 'received') {
+            $order->syncStatus('returned');
         }
 
         // Send Email to Customer

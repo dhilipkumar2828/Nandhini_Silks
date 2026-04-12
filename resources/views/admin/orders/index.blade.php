@@ -41,7 +41,7 @@
             $currentStatus = request('status', 'all');
             $statusConfigs = [
                 'all' => ['label' => 'All Orders', 'color' => 'rose'],
-                'order placed' => ['label' => 'Order Placed', 'color' => 'amber'],
+                'order placed' => ['label' => 'New Order', 'color' => 'amber'],
                 'processing' => ['label' => 'Processing', 'color' => 'orange'],
                 'ready to ship' => ['label' => 'Ready to Ship', 'color' => 'indigo'],
                 'shipped' => ['label' => 'Shipped', 'color' => 'blue'],

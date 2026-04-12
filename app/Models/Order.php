@@ -35,17 +35,27 @@ class Order extends Model
         'admin_notes',
         'tracking_number',
         'courier_name',
+        // Shiprocket core fields
         'shiprocket_order_id',
         'shiprocket_shipment_id',
         'shiprocket_awb',
         'shiprocket_status',
+        'shiprocket_courier_id',
+        'shiprocket_courier_name',
+        'shiprocket_label_url',
+        'shiprocket_manifest_url',
+        'shiprocket_invoice_url',
+        'shiprocket_webhook_status',
+        'pickup_scheduled_at',
         'edd',
+        // Return fields
         'return_status',
         'return_reason',
         'return_admin_notes',
         'reverse_awb',
         'shiprocket_return_order_id',
         'shiprocket_return_shipment_id',
+        'shipment_track_activities',
     ];
 
     protected $casts = [
@@ -55,6 +65,7 @@ class Order extends Model
         'shipping'                  => 'decimal:2',
         'grand_total'               => 'decimal:2',
         'different_billing_address' => 'boolean',
+        'shipment_track_activities' => 'array',
     ];
 
     public function items()
@@ -97,6 +108,8 @@ class Order extends Model
             'out for delivery' => ['label' => 'Out for Delivery', 'class' => 'bg-emerald-50 text-emerald-600'],
             'delivered'        => ['label' => 'Delivered',        'class' => 'bg-teal-50 text-teal-600'],
             'cancelled'        => ['label' => 'Cancelled',        'class' => 'bg-rose-50 text-rose-600'],
+            'returned'         => ['label' => 'Returned',         'class' => 'bg-purple-50 text-purple-600'],
+            'refunded'         => ['label' => 'Refunded',         'class' => 'bg-indigo-50 text-indigo-600'],
             default            => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
         };
     }
@@ -116,6 +129,30 @@ class Order extends Model
     public function syncStatus($newStatus, $shiprocketStatus = null, $trackingNumber = null)
     {
         $oldStatus = $this->order_status;
+
+        // Prevent overwriting a final state with an earlier one
+        // (e.g., don't revert 'delivered' back to 'shipped' via cron glitch)
+        $statusPriority = [
+            'order placed'     => 1,
+            'processing'       => 2,
+            'ready to ship'    => 3,
+            'shipped'          => 4,
+            'out for delivery' => 5,
+            'delivered'        => 6,
+            'returned'         => 7,
+            'refunded'         => 8,
+            'cancelled'        => 9,
+        ];
+
+        $oldPriority = $statusPriority[$oldStatus] ?? 0;
+        $newPriority = $statusPriority[$newStatus] ?? 0;
+
+        // Only allow backwards movement for 'cancelled' and 'returned' explicitly
+        if ($newPriority < $oldPriority && !in_array($newStatus, ['cancelled', 'returned'])) {
+            \Illuminate\Support\Facades\Log::warning("Skipping status downgrade for Order #{$this->order_number}: {$oldStatus} → {$newStatus}");
+            return false;
+        }
+
         $updates = ['order_status' => $newStatus];
 
         if ($shiprocketStatus) {
@@ -124,19 +161,22 @@ class Order extends Model
 
         if ($trackingNumber) {
             $updates['tracking_number'] = $trackingNumber;
-            // Also update AWB if not set
-            if (!$this->shiprocket_awb && $trackingNumber) {
+            // Also update AWB if not already set
+            if (!$this->shiprocket_awb) {
                 $updates['shiprocket_awb'] = $trackingNumber;
-                $updates['courier_name'] = 'Shiprocket';
+            }
+            // Update courier_name if shiprocket_courier_name is available
+            if ($this->shiprocket_courier_name && !$this->courier_name) {
+                $updates['courier_name'] = $this->shiprocket_courier_name;
             }
         }
 
-        // Special Logic: Delivered marks Payment as Paid
+        // Special Logic: Delivered → mark payment as Paid (for COD)
         if ($newStatus === 'delivered' && $this->payment_status !== 'paid') {
             $updates['payment_status'] = 'paid';
         }
 
-        // Special Logic: Cancelled restores stock
+        // Special Logic: Cancelled → restore stock + mark refunded if prepaid
         if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
             $this->restoreStock();
             if ($this->payment_status === 'paid') {
@@ -146,7 +186,7 @@ class Order extends Model
 
         $this->update($updates);
 
-        // Send Emails if status changed
+        // Send Emails only if status actually changed
         if ($oldStatus !== $newStatus) {
             try {
                 \Illuminate\Support\Facades\Mail::to($this->customer_email)->send(new \App\Mail\OrderStatusUpdate($this));
