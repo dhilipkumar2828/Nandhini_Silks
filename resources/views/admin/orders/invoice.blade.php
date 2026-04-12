@@ -118,16 +118,18 @@
         /* Variant Badge Style */
         .variant-badge {
             display: inline-block;
-            padding: 2px 6px;
-            background: #f5f5f5;
-            color: #555;
-            border: 1px solid #ddd;
+            padding: 2px 8px;
+            background: #fdfdfd;
+            color: #666;
+            border: 1px solid #e5e7eb;
             border-radius: 4px;
             font-size: 9px;
             font-weight: 700;
-            margin-right: 4px;
-            margin-top: 4px;
+            margin-right: 6px;
+            margin-top: 3px;
+            text-transform: capitalize;
         }
+        .variant-container { margin-top: 2px; }
 
         .final-footer { margin-top: 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #f0f0f0; padding-top: 15px; }
         .final-footer strong { color: #555; }
@@ -225,8 +227,8 @@
                     </td>
                     <td>
                         <div class="product-name">{{ $item->product_name }}</div>
-                        <div class="product-meta">
-                            HSN: 5007 | 
+                        <div class="product-meta">HSN: 5007</div>
+                        <div class="variant-container">
                             @if(!empty($item->attributes) && is_array($item->attributes))
                                 @foreach($item->attributes as $attr)
                                     <span class="variant-badge">{{ $attr['name'] }}: {{ $attr['value'] }}</span>
@@ -234,8 +236,6 @@
                             @elseif($item->color || $item->size)
                                 @if($item->color) <span class="variant-badge">Color: {{ $item->color }}</span> @endif
                                 @if($item->size) <span class="variant-badge">Size: {{ $item->size }}</span> @endif
-                            @else
-                                -
                             @endif
                         </div>
                     </td>

@@ -193,6 +193,24 @@
                             <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Shipment ID</label>
                             <span class="text-sm font-bold text-slate-800">{{ $order->shiprocket_shipment_id ?? '-' }}</span>
                         </div>
+                        @if($order->pickup_scheduled_at)
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Pickup Scheduled</label>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-black rounded-lg border border-emerald-100">
+                                <i class="fas fa-calendar-check text-[10px]"></i>
+                                {{ \Carbon\Carbon::parse($order->pickup_scheduled_at)->format('d M Y') }}
+                            </span>
+                        </div>
+                        @endif
+                        @if($order->edd)
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Est. Delivery</label>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-black rounded-lg border border-blue-100">
+                                <i class="fas fa-truck text-[10px]"></i>
+                                {{ \Carbon\Carbon::parse($order->edd)->format('d M Y') }}
+                            </span>
+                        </div>
+                        @endif
                     </div>
                     
                     <div>
@@ -214,15 +232,36 @@
 
                     @if($order->shiprocket_awb)
                     <div class="pt-4 grid grid-cols-2 gap-3">
-                        <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank" class="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]">
+                        {{-- Print Label --}}
+                        <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank"
+                            class="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-black hover:shadow-lg transition-all active:scale-[0.98]">
                             <i class="fas fa-print text-xs"></i> Print Label
                         </a>
+
+                        {{-- Call Pickup --}}
                         <form action="{{ route('admin.orders.shiprocket.pickup', $order->id) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-[0.98]">
                                 <i class="fas fa-calendar-check text-xs"></i> Call Pickup
                             </button>
                         </form>
+
+                        {{-- Generate Manifest --}}
+                        @if($order->shiprocket_manifest_url)
+                            <a href="{{ $order->shiprocket_manifest_url }}" target="_blank"
+                                class="col-span-2 flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-violet-700 hover:shadow-lg transition-all active:scale-[0.98]">
+                                <i class="fas fa-file-arrow-down text-xs"></i> Download Manifest
+                            </a>
+                        @else
+                            <form action="{{ route('admin.orders.shiprocket.manifest', $order->id) }}" method="POST" class="col-span-2">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-violet-700 hover:shadow-lg transition-all active:scale-[0.98]">
+                                    <i class="fas fa-clipboard-list text-xs"></i> Generate Manifest
+                                </button>
+                            </form>
+                        @endif
+
+                        {{-- Shiprocket Invoice --}}
                         <form action="{{ route('admin.orders.shiprocket.invoice', $order->id) }}" method="POST" class="col-span-2">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-indigo-700 hover:shadow-lg transition-all active:scale-[0.98]">
@@ -248,14 +287,87 @@
                     <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
                         <i class="fas fa-cloud-arrow-up text-slate-300 text-lg"></i>
                     </div>
-                    <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Requires Manual Synchronization</p>
-                    <form action="{{ route('admin.orders.shiprocket.push', $order->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="w-full bg-[#a91b43] text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-rose-100 hover:bg-[#940437] transition-all active:scale-[0.98] uppercase tracking-widest">
-                            <i class="fas fa-bolt mr-2 text-xs"></i> Push to Shiprocket
-                        </button>
-                    </form>
+                    <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Push & Schedule Pickup</p>
+                    {{-- Trigger Modal --}}
+                    <button type="button" onclick="document.getElementById('pickupModal').classList.remove('hidden')"
+                        class="w-full bg-[#a91b43] text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-rose-100 hover:bg-[#940437] transition-all active:scale-[0.98] uppercase tracking-widest">
+                        <i class="fas fa-bolt mr-2 text-xs"></i> Push to Shiprocket
+                    </button>
                 </div>
+
+                {{-- ── Pickup Date Modal ────────────────────────────────────────── --}}
+                <div id="pickupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+                    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+                        {{-- Header --}}
+                        <div class="bg-gradient-to-r from-[#a91b43] to-rose-500 px-6 py-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-truck text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-black text-white uppercase tracking-widest">Push to Shiprocket</h3>
+                                    <p class="text-[10px] text-rose-200 font-semibold">Order #{{ $order->order_number }}</p>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('pickupModal').classList.add('hidden')"
+                                class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all">
+                                <i class="fas fa-times text-white text-xs"></i>
+                            </button>
+                        </div>
+
+                        {{-- Body --}}
+                        <form action="{{ route('admin.orders.shiprocket.push-with-pickup', $order->id) }}" method="POST" class="p-6 space-y-5">
+                            @csrf
+
+                            {{-- What will happen info --}}
+                            <div class="bg-slate-50 rounded-2xl p-4 space-y-2.5">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">What happens when you submit:</p>
+                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
+                                    <span class="w-6 h-6 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">1</span>
+                                    Order will be created in Shiprocket
+                                </div>
+                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
+                                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">2</span>
+                                    AWB will be auto-assigned (best courier selected)
+                                </div>
+                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
+                                    <span class="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">3</span>
+                                    Pickup will be scheduled on your chosen date
+                                </div>
+                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
+                                    <span class="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">4</span>
+                                    Email notification sent to Customer &amp; Admin
+                                </div>
+                            </div>
+
+                            {{-- Date Picker --}}
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 block mb-2 tracking-widest">
+                                    <i class="fas fa-calendar-alt text-rose-400 mr-1"></i> Select Pickup Date
+                                </label>
+                                <input type="date" name="pickup_date" id="pickup_date"
+                                    min="{{ date('Y-m-d') }}"
+                                    value="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                    class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-400/10 transition-all cursor-pointer"
+                                    required>
+                                <p class="mt-1.5 text-[10px] text-slate-400 font-medium">* Only today or a future date can be selected</p>
+                            </div>
+
+                            {{-- Buttons --}}
+                            <div class="flex gap-3 pt-1">
+                                <button type="button" onclick="document.getElementById('pickupModal').classList.add('hidden')"
+                                    class="flex-1 py-3 border-2 border-slate-100 text-slate-500 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                                    Cancel
+                                </button>
+                                <button type="submit" id="pushSubmitBtn"
+                                    class="flex-1 py-3 bg-[#a91b43] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#940437] shadow-lg shadow-rose-100 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                    <i class="fas fa-bolt text-xs"></i> Push & Schedule
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             @endif
         </div>
 

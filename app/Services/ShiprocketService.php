@@ -291,6 +291,28 @@ class ShiprocketService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // STEP 6b — Generate Manifest
+    // ─────────────────────────────────────────────────────────────────────────
+    public function generateManifest($shipmentId): array
+    {
+        try {
+            $response = $this->request('post', '/manifests/generate', [
+                'shipment_id' => [$shipmentId],
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $manifestUrl = $data['manifest_url'] ?? null;
+                return ['status' => true, 'manifest_url' => $manifestUrl, 'data' => $data];
+            }
+            return ['status' => false, 'message' => $response->json('message') ?? 'Failed to generate manifest'];
+        } catch (\Exception $e) {
+            Log::error('Shiprocket Manifest Exception: ' . $e->getMessage());
+            return ['status' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // STEP 7 — Generate GST Invoice (optional)
     // ─────────────────────────────────────────────────────────────────────────
     public function generateInvoice($orderId): array
@@ -313,12 +335,14 @@ class ShiprocketService
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 8 — Schedule Pickup
     // ─────────────────────────────────────────────────────────────────────────
-    public function requestPickup($shipmentId): array
+    public function requestPickup($shipmentId, ?string $pickupDate = null): array
     {
         try {
-            $response = $this->request('post', '/courier/generate/pickup', [
-                'shipment_id' => [$shipmentId],
-            ]);
+            $payload = ['shipment_id' => [$shipmentId]];
+            if ($pickupDate) {
+                $payload['pickup_date'] = $pickupDate; // Format: YYYY-MM-DD
+            }
+            $response = $this->request('post', '/courier/generate/pickup', $payload);
 
             if ($response->successful()) {
                 return ['status' => true, 'data' => $response->json()];
@@ -374,7 +398,7 @@ class ShiprocketService
                 return false;
             }
 
-            // Find the order (check both original and return IDs)
+            // Find the order — check both forward and return shipment identifiers
             $order = null;
             if ($awb) {
                 $order = Order::where('shiprocket_awb', $awb)
@@ -397,54 +421,66 @@ class ShiprocketService
                 return false;
             }
 
-            // Determine if this is a return shipment signal
-            $isReturn = ($awb && $order->reverse_awb === $awb) || 
+            // ── Store Tracking Activities (Scans) ──────────────────────────
+            $activities = $payload['shipment_track_activities'] ?? $payload['scans'] ?? null;
+            if ($activities && is_array($activities)) {
+                $order->update(['shipment_track_activities' => $activities]);
+            }
+
+            // Determine if this update is for the return shipment
+            $isReturn = ($awb && $order->reverse_awb === $awb) ||
                         ($shipmentId && $order->shiprocket_return_shipment_id == $shipmentId);
 
-            // Map Shiprocket status → our order status
+            // ── Status Map: Shiprocket raw status → our internal status ──────────
             $statusMap = [
-                'READY TO SHIP'    => 'processing',
-                'PICKUP SCHEDULED' => 'processing',
-                'PICKUP GENERATED' => 'processing',
+                'READY TO SHIP'      => 'processing',
+                'PICKUP SCHEDULED'   => 'processing',
+                'PICKUP GENERATED'   => 'processing',
                 'PICKUP RESCHEDULED' => 'processing',
-                'PICKED UP'       => 'shipped',
-                'IN TRANSIT'      => 'shipped',
-                'OUT FOR DELIVERY' => 'out for delivery',
-                'DELIVERED'       => 'delivered',
-                'RETURN RECEIVED'  => 'received',
-                'RTO'             => 'returned',
-                'RTO INITIATED'   => 'returned',
-                'UNDELIVERED'     => 'cancelled',
-                'CANCELED'        => 'cancelled', // Single L variation
-                'CANCELLED'       => 'cancelled', // Double L variation
-                'DISPATCHED'      => 'shipped',
-                'QC PASSED'       => 'received',
-                'QC FAILED'       => 'requested',
+                'PICKUP EXCEPTION'   => 'processing',
+                'PICKED UP'          => 'shipped',
+                'IN TRANSIT'         => 'shipped',
+                'DISPATCHED'         => 'shipped',
+                'OUT FOR DELIVERY'   => 'out for delivery',
+                'DELIVERED'          => 'delivered',
+                'RETURN RECEIVED'    => 'received',
+                'QC PASSED'          => 'received',
+                'QC FAILED'          => 'requested',
+                'RTO'                => 'returned',
+                'RTO INITIATED'      => 'returned',
+                'UNDELIVERED'        => 'cancelled',
+                'CANCELED'           => 'cancelled',
+                'CANCELLED'          => 'cancelled',
             ];
 
             $normalizedStatus = strtoupper(trim($status ?? ''));
-            $newMappedStatus   = $statusMap[$normalizedStatus] ?? null;
+            $newMappedStatus  = $statusMap[$normalizedStatus] ?? null;
 
             if ($isReturn) {
-                // Update return-specific fields
+                // ── Return Shipment Logic ─────────────────────────────────────────
                 if ($newMappedStatus) {
                     $order->update(['return_status' => $newMappedStatus]);
-                    // If return is received, we can mark it as such
+
+                    // When the return item is received back at warehouse → set order as returned
                     if ($newMappedStatus === 'received') {
-                        $order->update(['order_status' => 'returned']);
+                        $order->syncStatus('returned', 'Return Received', null);
                     }
                 }
                 $order->update(['shiprocket_status' => 'Return: ' . $status]);
+                Log::info("Shiprocket Return Update - Order #{$order->order_number}: return_status={$newMappedStatus}");
             } else {
-                // Original forward shipment logic
+                // ── Forward Shipment Logic ────────────────────────────────────────
                 if ($newMappedStatus) {
-                    $order->syncStatus(
-                        $newMappedStatus, 
-                        $status, 
+                    $result = $order->syncStatus(
+                        $newMappedStatus,
+                        $status,
                         $awb
                     );
+                    Log::info("Shiprocket Forward Update - Order #{$order->order_number}: {$order->order_status} → {$newMappedStatus} (result=" . ($result ? 'updated' : 'skipped') . ")");
                 } else {
+                    // Unknown Shiprocket status — just log it, don't touch order_status
                     $order->update(['shiprocket_status' => $status]);
+                    Log::info("Shiprocket Unmapped Status - Order #{$order->order_number}: raw='{$status}'");
                 }
             }
 
@@ -454,6 +490,7 @@ class ShiprocketService
             return false;
         }
     }
+
 
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 11 — Returns / RTO
@@ -468,18 +505,18 @@ class ShiprocketService
                 'pickup_customer_name'   => $order->customer_name,
                 'pickup_last_name'       => '',
                 'pickup_address'         => $order->delivery_address,
-                'pickup_city'            => $order->shipping_city    ?? 'Unnamed City',
-                'pickup_state'           => $order->shipping_state   ?? 'Unnamed State',
-                'pickup_country'         => $order->shipping_country ?? 'India',
+                'pickup_city'            => $order->shipping_city    ?? '-',
+                'pickup_state'           => $order->shipping_state   ?? '-',
+                'pickup_country'         => $order->shipping_country ?? '-',
                 'pickup_pincode'         => $order->shipping_pincode,
                 'pickup_phone'           => $order->customer_phone,
                 'shipping_customer_name' => config('app.name', 'Nandhini Silks'),
-                'shipping_address'       => 'Salem, Tamil Nadu, India',
-                'shipping_city'          => 'Salem',
+                'shipping_address'       => '416/9 Aranmanai Street ,S.V. Nagaram, Arni',
+                'shipping_city'          => 'Thiruvannamalai',
                 'shipping_state'         => 'Tamil Nadu',
                 'shipping_country'       => 'India',
-                'shipping_pincode'       => '636001',
-                'shipping_phone'         => '9999999999',
+                'shipping_pincode'       => '632317',
+                'shipping_phone'         => '9994504410',
                 'order_items'            => [],
                 'payment_method'         => 'Prepaid',
                 'total_weight'           => 0.5,

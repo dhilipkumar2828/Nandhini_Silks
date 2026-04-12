@@ -22,8 +22,43 @@ use App\Models\OfferCollection;
 use App\Mail\ReturnRequestAdminMail;
 use Illuminate\Support\Facades\Mail;
 
+use App\Services\ShiprocketService;
+
 class FrontendController extends Controller
 {
+    public function trackOrder(Request $request, ShiprocketService $shiprocket)
+    {
+        $orderId = $request->get('id');
+        
+        if (!$orderId) {
+            return redirect()->route('home')->with('error', 'Please enter a valid tracking ID or Order Number.');
+        }
+
+        // Find the order by number or shipment id
+        $order = Order::where('order_number', $orderId)
+            ->orWhere('shiprocket_shipment_id', $orderId)
+            ->orWhere('tracking_number', $orderId)
+            ->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found. Please check your Order Number.');
+        }
+
+        $trackingData = null;
+        if ($order->shiprocket_shipment_id) {
+            $trackingData = $shiprocket->trackOrder($order->shiprocket_shipment_id);
+            
+            // Save tracking activities to DB if available
+            if (isset($trackingData['tracking_data']['shipment_track_activities'])) {
+                $order->update([
+                    'shipment_track_activities' => $trackingData['tracking_data']['shipment_track_activities']
+                ]);
+            }
+        }
+
+        return view('frontend.track-order-result', compact('order', 'trackingData'));
+    }
+
     public function index()
     {
         $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();

@@ -43,6 +43,7 @@ use App\Http\Controllers\WishlistController;
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
 Route::post('/contact', [FrontendController::class, 'contactSubmit'])->name('contact.submit');
+Route::get('/track-order', [FrontendController::class, 'trackOrder'])->name('track-order');
 
 Route::get('/search', [FrontendController::class, 'search'])->name('search');
 
@@ -146,8 +147,12 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('orders', OrderController::class)->names('admin.orders');
         Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
         Route::post('orders/{order}/shiprocket/push', [OrderController::class, 'pushToShiprocket'])->name('admin.orders.shiprocket.push');
+        Route::post('orders/{order}/shiprocket/push-with-pickup', [OrderController::class, 'pushWithPickup'])->name('admin.orders.shiprocket.push-with-pickup');
+
         Route::post('orders/{order}/shiprocket/awb', [OrderController::class, 'assignShiprocketAWB'])->name('admin.orders.shiprocket.awb');
         Route::get('orders/{order}/shiprocket/label', [OrderController::class, 'generateShiprocketLabel'])->name('admin.orders.shiprocket.label');
+        Route::post('orders/{order}/shiprocket/manifest', [OrderController::class, 'generateShiprocketManifest'])->name('admin.orders.shiprocket.manifest');
+
         Route::post('orders/{order}/shiprocket/pickup', [OrderController::class, 'requestShiprocketPickup'])->name('admin.orders.shiprocket.pickup');
         Route::post('orders/{order}/shiprocket/invoice', [OrderController::class, 'generateShiprocketInvoice'])->name('admin.orders.shiprocket.invoice');
         Route::post('orders/{order}/shiprocket/return', [OrderController::class, 'createShiprocketReturn'])->name('admin.orders.shiprocket.return');

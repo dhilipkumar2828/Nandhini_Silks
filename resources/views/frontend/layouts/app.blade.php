@@ -238,6 +238,27 @@
             display: block;
             cursor: pointer;
         }
+
+        .header-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tracking-box {
+            width: 200px !important;
+            border-color: #666 !important;
+        }
+        
+        .tracking-box input {
+            color: #555 !important;
+        }
+
+        @media (max-width: 991px) {
+            .tracking-wrap {
+                display: none;
+            }
+        }
     </style>
 
     <!-- Flatpickr -->
@@ -288,12 +309,25 @@
             </a>
 
             <div class="header-right">
-                <div class="search-wrap">
-                    <form action="{{ route('search') }}" method="GET" class="search-box">
-                        <img src="{{ asset('images/search.svg') }}" alt="Search" />
-                        <input type="text" name="q" placeholder="Search" aria-label="Search" value="{{ request('q') }}" />
-                        <button type="submit" style="display: none;"></button>
-                    </form>
+                <div class="header-actions-group">
+                    <div class="search-wrap">
+                        <form action="{{ route('search') }}" method="GET" class="search-box">
+                            <img src="{{ asset('images/search.svg') }}" alt="Search" />
+                            <input type="text" name="q" placeholder="Search" aria-label="Search" value="{{ request('q') }}" />
+                            <button type="submit" style="display: none;"></button>
+                        </form>
+                    </div>
+
+                    @auth
+                        @if(Auth::user()->orders()->count() > 0)
+                            <div class="tracking-wrap">
+                                <form action="{{ route('track-order') }}" method="GET" class="search-box tracking-box">
+                                    <i class="fas fa-truck" style="margin-left: 5px; color: #666; font-size: 14px;"></i>
+                                    <input type="text" name="id" placeholder="Track Order ID" aria-label="Track Order" value="{{ request('id') }}" required />
+                                </form>
+                            </div>
+                        @endif
+                    @endauth
                 </div>
 
                 <div class="actions">
