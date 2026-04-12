@@ -142,6 +142,19 @@
                                 <a href="{{ route('admin.users.edit', $user->id) }}" class="flex items-center justify-center w-8 h-8 text-amber-500 bg-amber-50/50 hover:bg-amber-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-amber-100" title="Edit User">
                                     <i class="fas fa-edit text-[10px]"></i>
                                 </a>
+                                @if($user->id !== auth()->id())
+                                    <button type="button" 
+                                            class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100 delete-user-btn" 
+                                            data-id="{{ $user->id }}" 
+                                            data-name="{{ $user->name }}"
+                                            title="Delete User">
+                                        <i class="fas fa-trash text-[10px]"></i>
+                                    </button>
+                                    <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -158,4 +171,35 @@
         {{ $users->appends(request()->query())->links() }}
     </div>
 </div>
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('.delete-user-btn').click(function() {
+            const userId = $(this).data('id');
+            const userName = $(this).data('name');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You are about to delete user "${userName}". This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#a91b43',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl px-6 py-2.5 font-bold',
+                    cancelButton: 'rounded-xl px-6 py-2.5 font-bold'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`delete-form-${userId}`).submit();
+                }
+            });
+        });
+    });
+</script>
+@endpush
 @endsection

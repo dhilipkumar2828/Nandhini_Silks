@@ -186,7 +186,7 @@ Route::group(['prefix' => 'admin'], function () {
         // Shipping is now 100% handled by Shiprocket — local Shipping Classes/Rates removed.
 
         // Users
-        Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.users');
+        Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.users');
         Route::post('users/{user}/addresses', [UserController::class, 'storeAddress'])->name('admin.users.addresses.store');
         Route::put('users/{user}/addresses/{address}', [UserController::class, 'updateAddress'])->name('admin.users.addresses.update');
         Route::delete('users/{user}/addresses/{address}', [UserController::class, 'destroyAddress'])->name('admin.users.addresses.destroy');
