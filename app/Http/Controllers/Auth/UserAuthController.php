@@ -25,14 +25,22 @@ class UserAuthController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if (!$user) {
-            return back()->withErrors([
-                'email' => 'Email is wrong.',
-            ])->onlyInput('email');
+            // Smart Redirect: If email doesn't exist, take them to Register page 
+            // and pre-fill the email they just typed.
+            return redirect()->route('login', ['email' => $credentials['email']])
+                ->with('error', "No account found with this email. Please register to create your account.");
         }
 
         if (!Hash::check($credentials['password'], $user->password)) {
             return back()->withErrors([
                 'password' => 'Password is wrong.',
+            ])->onlyInput('email');
+        }
+
+        // ── Check if account is ACTIVE ───────────────────────────────────
+        if (strtoupper($user->account_status) === 'INACTIVE') {
+            return back()->withErrors([
+                'email' => 'Your account is inactive. Please contact support to reactivate your account.',
             ])->onlyInput('email');
         }
 
