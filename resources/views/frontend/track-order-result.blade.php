@@ -189,11 +189,19 @@
                 </div>
             @else
                 {{-- Same fallback as before for orders not yet in Shiprocket --}}
-                <div class="shiprocket-status">
+                <div class="shiprocket-status" style="border-left-color: {{ in_array($order->order_status, ['cancelled', 'returned']) ? '#dc3545' : '#28a745' }};">
                     <h5>Order Status</h5>
-                    <div class="current-label">{{ ucwords($order->order_status) }}</div>
+                    <div class="current-label" style="color: {{ $order->order_status === 'cancelled' ? '#dc3545' : '#1a1a1a' }};">{{ ucwords($order->order_status) }}</div>
                     <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                        Your order is currently being processed. Once it is shipped, you will receive real-time updates here.
+                        @if($order->order_status === 'cancelled')
+                            This order has been cancelled. If this was a mistake, please contact our support team.
+                        @elseif($order->order_status === 'returned')
+                            This order has been returned.
+                        @elseif($order->order_status === 'delivered')
+                            Your order has been delivered successfully. Thank you for shopping with us!
+                        @else
+                            Your order is currently being processed. Once it is shipped, you will receive real-time updates here.
+                        @endif
                     </p>
                 </div>
                 
@@ -209,6 +217,26 @@
                             <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->created_at->format('g:i a') }}</div>
                         </div>
                     </div>
+
+                    @if($order->order_status === 'cancelled')
+                        <div class="status-step completed" style="margin-top: 10px;">
+                            <div class="status-icon" style="background: #dc3545;"><i class="fas fa-times" style="font-size: 10px;"></i></div>
+                            <div class="status-info">
+                                <h4 style="color: #dc3545;">Order Cancelled</h4>
+                                <p>This order was cancelled on {{ $order->updated_at->format('D, jS M \'y') }}.</p>
+                                <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->updated_at->format('g:i a') }}</div>
+                            </div>
+                        </div>
+                    @elseif($order->order_status === 'returned')
+                         <div class="status-step completed" style="margin-top: 10px;">
+                            <div class="status-icon" style="background: #6f42c1;"><i class="fas fa-undo" style="font-size: 10px;"></i></div>
+                            <div class="status-info">
+                                <h4 style="color: #6f42c1;">Order Returned</h4>
+                                <p>The items have been returned.</p>
+                                <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->updated_at->format('g:i a') }}</div>
+                            </div>
+                        </div>
+                    @endif
                     
                     @if(in_array($order->order_status, ['processing', 'ready to ship', 'shipped', 'delivered']))
                         <div class="status-step completed">

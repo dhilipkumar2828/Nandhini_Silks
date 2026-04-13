@@ -246,5 +246,65 @@ class Order extends Model
             }
         }
     }
+
+    public function reduceStock()
+    {
+        foreach ($this->items as $item) {
+            $product = $item->product;
+            if ($product) {
+                $variantId = $item->variant_id;
+                $itemQty = (int) $item->quantity;
+
+                if ($variantId) {
+                    $variant = \App\Models\ProductVariant::find($variantId);
+                    if ($variant) {
+                        $oldVStock = (int) $variant->stock_quantity;
+                        $newVStock = max(0, $oldVStock - $itemQty);
+                        $variant->update(['stock_quantity' => $newVStock]);
+
+                        \App\Models\StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => 'sale',
+                            'quantity' => $itemQty,
+                            'balance_after' => $newVStock,
+                            'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $this->order_number,
+                        ]);
+                    }
+                } else {
+                    $oldStock = (int) $product->stock_quantity;
+                    $newStock = max(0, $oldStock - $itemQty);
+                    $product->update(['stock_quantity' => $newStock]);
+
+                    \App\Models\StockMovement::create([
+                        'product_id' => $product->id,
+                        'type' => 'sale',
+                        'quantity' => $itemQty,
+                        'balance_after' => $newStock,
+                        'reason' => 'Sold in Order #' . $this->order_number,
+                    ]);
+                }
+
+                // Sync parent product stock
+                if ($product->product_variants->count() > 0) {
+                    $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                    $product->update([
+                        'stock_quantity' => $totalVariantStock,
+                        'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+                    ]);
+                } else {
+                    if ($product->stock_quantity <= 0) {
+                        $product->update(['stock_status' => 'outofstock']);
+                    }
+                }
+            }
+        }
+
+        if ($this->coupon_id) {
+            $coupon = \App\Models\Coupon::find($this->coupon_id);
+            if ($coupon) {
+                $coupon->increment('times_used');
+            }
+        }
+    }
 }
 
