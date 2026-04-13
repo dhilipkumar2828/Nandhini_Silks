@@ -243,6 +243,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            justify-content: flex-end;
         }
 
         .tracking-box {
@@ -256,7 +257,66 @@
 
         @media (max-width: 991px) {
             .tracking-wrap {
-                display: none;
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .header-row {
+                display: grid !important;
+                grid-template-columns: auto auto;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 15px 10px !important;
+                padding-bottom: 15px !important;
+            }
+            .brand-link {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            .brand {
+                width: 140px !important;
+            }
+            .header-right {
+                display: contents !important;
+            }
+            .actions {
+                grid-column: 2;
+                grid-row: 1;
+                width: auto !important;
+                justify-content: flex-end !important;
+                margin: 0 !important;
+            }
+            .header-actions-group {
+                grid-column: 1 / span 2;
+                grid-row: 2;
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 10px !important;
+                justify-content: space-between !important;
+            }
+            .search-wrap, .tracking-wrap {
+                flex: 1;
+                min-width: 0;
+            }
+            .search-box, .tracking-box {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 40px !important;
+            }
+            .search-box input, .tracking-box input {
+                font-size: 14px !important;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .header-actions-group {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .search-wrap, .tracking-wrap {
+                width: 100%;
             }
         }
     </style>
