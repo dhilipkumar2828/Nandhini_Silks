@@ -34,7 +34,7 @@
                     <th class="pb-3">Location (C/S/Z)</th>
                     <th class="pb-3">Rate (%)</th>
                     <th class="pb-3">Priority</th>
-                    <th class="pb-3">Options</th>
+                    {{-- <th class="pb-3">Options</th> --}}
                     <th class="pb-3">Status</th>
                     <th class="pb-3 text-right">Actions</th>
                 </tr>
@@ -56,7 +56,7 @@
                     <td class="py-3 text-center">
                         <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ $rate->priority }}</span>
                     </td>
-                    <td class="py-3">
+                    {{-- <td class="py-3">
                         <div class="flex flex-col space-y-0.5">
                             <span class="text-[9px] font-bold {{ $rate->is_compound ? 'text-amber-500' : 'text-slate-300' }}">
                                 <i class="fas fa-layer-group mr-1 font-bold"></i> Compound
@@ -65,7 +65,7 @@
                                 <i class="fas fa-truck mr-1 font-bold"></i> Shipping
                             </span>
                         </div>
-                    </td>
+                    </td> --}}
                     <td class="py-3">
                         <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $rate->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
                             {{ $rate->status ? 'Active' : 'Inactive' }}
