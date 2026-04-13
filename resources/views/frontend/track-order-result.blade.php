@@ -161,9 +161,30 @@
             @endphp
 
             @if($activities)
-                <div class="shiprocket-status">
+                @php
+                    $isCancelled = str_contains(strtolower($track ? $track['current_status'] : $order->order_status), 'cancel');
+                    $isReturned = str_contains(strtolower($track ? $track['current_status'] : $order->order_status), 'return');
+                    $statusColor = $isCancelled ? '#dc3545' : ($isReturned ? '#6f42c1' : '#28a745');
+                    
+                    $currentStatusRaw = $track ? str_replace('Manifested - ', '', $track['current_status']) : ucwords($order->shiprocket_status ?? $order->order_status);
+                    
+                    // Same friendly map for consistency
+                    $friendlyMap = [
+                        'Manifest uploaded' => 'Order packed & shipping label generated',
+                        'Pickup scheduled' => 'Courier pickup scheduled',
+                        'Out for Pickup' => 'Courier partner assigned for pickup',
+                        'Seller cancelled the order' => 'Order cancelled by seller',
+                        'Canceled' => 'Order Cancelled',
+                        'Shipped' => 'Order Shipped & In Transit',
+                        'Delivered' => 'Order Delivered Successfully'
+                    ];
+                    $currentStatusDisplay = $friendlyMap[$currentStatusRaw] ?? $currentStatusRaw;
+                @endphp
+                <div class="shiprocket-status" style="border-left-color: {{ $statusColor }};">
                     <h5>Current Logistics Status</h5>
-                    <div class="current-label">{{ $track ? $track['current_status'] : ucwords($order->shiprocket_status ?? $order->order_status) }}</div>
+                    <div class="current-label" style="color: {{ $statusColor === '#28a745' ? '#1a1a1a' : $statusColor }};">
+                        {{ $currentStatusDisplay }}
+                    </div>
                     <p style="margin-top: 10px; font-size: 14px; color: #666;">
                         <strong>Courier:</strong> {{ $track ? $track['courier_name'] : ($order->courier_name ?? 'Delivery Partner') }} | 
                         <strong>AWB:</strong> {{ $track ? ($track['awb_code'] ?? 'N/A') : ($order->shiprocket_awb ?? 'N/A') }}
@@ -171,14 +192,38 @@
                 </div>
 
                 <div class="status-timeline">
-                    {{-- Reverse activities to show latest on top if they come in chronological order, 
-                         but Shiprocket usually sends latest first. We'll ensure consistency. --}}
                     @foreach($activities as $activity)
-                        <div class="status-step completed">
-                            <div class="status-icon"><i class="fas fa-circle" style="font-size: 8px;"></i></div>
+                        @php
+                            $actTitle = str_replace('Manifested - ', '', $activity['activity']);
+                            
+                            // Customer-friendly Status Mapping
+                            $friendlyMap = [
+                                'Manifest uploaded' => 'Order packed & shipping label generated',
+                                'Pickup scheduled' => 'Courier pickup scheduled',
+                                'Out for Pickup' => 'Courier partner assigned for pickup',
+                                'Seller cancelled the order' => 'Order cancelled by seller',
+                                'Packed' => 'Order packed successfully',
+                                'Pickup Error' => 'Pickup attempt delayed',
+                                'Pickup Rescheduled' => 'Pickup rescheduled by courier',
+                                'Shipped' => 'Order Shipped & In Transit',
+                                'Delivered' => 'Order Delivered Successfully'
+                            ];
+                            
+                            $actTitle = $friendlyMap[$actTitle] ?? $actTitle;
+
+                            $isActCancelled = str_contains(strtolower($actTitle), 'cancel');
+                            $isActReturned = str_contains(strtolower($actTitle), 'return');
+                            $actColor = $isActCancelled ? '#dc3545' : ($isActReturned ? '#6f42c1' : '#28a745');
+                        @endphp
+                        <div class="status-step completed" style="--timeline-color: {{ $actColor }};">
+                            <style>
+                                .status-step[style*="--timeline-color: {{ $actColor }}"] .status-icon { background: {{ $actColor }}; }
+                                .status-step[style*="--timeline-color: {{ $actColor }}"]::after { background: {{ $actColor }}; }
+                            </style>
+                            <div class="status-icon"><i class="fas {{ $isActCancelled ? 'fa-times' : ($isActReturned ? 'fa-undo' : 'fa-circle') }}" style="font-size: {{ $isActCancelled || $isActReturned ? '10px' : '8px' }};"></i></div>
                             <div class="status-info">
                                 <div class="flex items-center justify-between">
-                                    <h4>{{ $activity['activity'] }}</h4>
+                                    <h4 style="color: {{ $isActCancelled || $isActReturned ? $actColor : '#222' }};">{{ $actTitle }}</h4>
                                     <div class="status-date" style="margin-bottom: 0;">{{ \Carbon\Carbon::parse($activity['date'])->format('D, jS M \'y') }}</div>
                                 </div>
                                 <p>{{ $activity['location'] }}</p>
