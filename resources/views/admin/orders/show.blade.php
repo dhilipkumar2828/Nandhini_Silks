@@ -113,7 +113,7 @@
             </div>
             <div class="p-6 space-y-6">
                 <!-- Status Sync -->
-                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-5">
+                <form action="{{ route('admin.orders.update', $order->id) }}" method="POST" class="space-y-5 no-loader">
                     @csrf
                     @method('PUT')
                     
@@ -122,10 +122,10 @@
                         <select name="order_status" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all cursor-pointer">
                             <option value="order placed" {{ $order->order_status == 'order placed' ? 'selected' : '' }}>Order Placed (Pending)</option>
                             <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
-                            <option value="ready to ship" {{ $order->order_status == 'ready to ship' ? 'selected' : '' }}>Ready to Ship</option>
-                            <option value="shipped" {{ $order->order_status == 'shipped' ? 'selected' : '' }}>Shipped (In Transit)</option>
-                            <option value="out for delivery" {{ $order->order_status == 'out for delivery' ? 'selected' : '' }}>Out for Delivery</option>
-                            <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered (Complete)</option>
+                            <option value="ready to ship" {{ $order->order_status == 'ready to ship' ? 'selected' : '' }} disabled>Ready to Ship (Automated)</option>
+                            <option value="shipped" {{ $order->order_status == 'shipped' ? 'selected' : '' }} disabled>Shipped (In Transit - Automated)</option>
+                            <option value="out for delivery" {{ $order->order_status == 'out for delivery' ? 'selected' : '' }} disabled>Out for Delivery (Automated)</option>
+                            <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }} disabled>Delivered (Complete - Automated)</option>
                             <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
@@ -171,7 +171,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     @if($order->shiprocket_shipment_id)
-                        <form action="{{ route('admin.orders.shiprocket.sync', $order->id) }}" method="POST">
+                        <form action="{{ route('admin.orders.shiprocket.sync', $order->id) }}" method="POST" class="no-loader">
                             @csrf
                             <button type="submit" class="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all shadow-sm" title="Sync Live Status">
                                 <i class="fas fa-sync-alt text-xs"></i>
@@ -221,7 +221,7 @@
                                 <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black uppercase rounded">Assigned</span>
                             </div>
                         @else
-                            <form action="{{ route('admin.orders.shiprocket.awb', $order->id) }}" method="POST">
+                            <form action="{{ route('admin.orders.shiprocket.awb', $order->id) }}" method="POST" class="no-loader">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-1.5 text-[11px] bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 hover:text-blue-700 transition-all border border-blue-100 uppercase tracking-wider">
                                     <i class="fas fa-plus-circle"></i> Generate AWB Now
@@ -239,7 +239,7 @@
                         </a>
 
                         {{-- Call Pickup --}}
-                        <form action="{{ route('admin.orders.shiprocket.pickup', $order->id) }}" method="POST">
+                        <form action="{{ route('admin.orders.shiprocket.pickup', $order->id) }}" method="POST" class="no-loader">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-[0.98]">
                                 <i class="fas fa-calendar-check text-xs"></i> Call Pickup
@@ -253,7 +253,7 @@
                                 <i class="fas fa-file-arrow-down text-xs"></i> Download Manifest
                             </a>
                         @else
-                            <form action="{{ route('admin.orders.shiprocket.manifest', $order->id) }}" method="POST" class="col-span-2">
+                            <form action="{{ route('admin.orders.shiprocket.manifest', $order->id) }}" method="POST" class="col-span-2 no-loader">
                                 @csrf
                                 <button type="submit" class="w-full flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-violet-700 hover:shadow-lg transition-all active:scale-[0.98]">
                                     <i class="fas fa-clipboard-list text-xs"></i> Generate Manifest
@@ -262,7 +262,7 @@
                         @endif
 
                         {{-- Shiprocket Invoice --}}
-                        <form action="{{ route('admin.orders.shiprocket.invoice', $order->id) }}" method="POST" class="col-span-2">
+                        <form action="{{ route('admin.orders.shiprocket.invoice', $order->id) }}" method="POST" class="col-span-2 no-loader">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl text-[11px] font-bold hover:bg-indigo-700 hover:shadow-lg transition-all active:scale-[0.98]">
                                 <i class="fas fa-file-invoice text-xs"></i> Generate Shiprocket Invoice
@@ -273,7 +273,7 @@
 
                     @if($order->order_status == 'delivered')
                         <div class="pt-2">
-                            <form action="{{ route('admin.orders.shiprocket.return', $order->id) }}" method="POST">
+                            <form action="{{ route('admin.orders.shiprocket.return', $order->id) }}" method="POST" class="no-loader">
                                 @csrf
                                 <button type="submit" class="w-full flex items-center justify-center gap-2 bg-rose-50 text-rose-600 border border-rose-100 py-2.5 rounded-xl text-[11px] font-bold hover:bg-rose-100 transition-all">
                                     <i class="fas fa-rotate-left"></i> Initiate Channel Return
@@ -316,7 +316,7 @@
                         </div>
 
                         {{-- Body --}}
-                        <form action="{{ route('admin.orders.shiprocket.push-with-pickup', $order->id) }}" method="POST" class="p-6 space-y-5">
+                        <form action="{{ route('admin.orders.shiprocket.push-with-pickup', $order->id) }}" method="POST" class="p-6 space-y-5 no-loader">
                             @csrf
 
                             {{-- What will happen info --}}
@@ -422,7 +422,7 @@
                 </div>
 
                 <!-- Action Logic -->
-                <form action="{{ route('admin.orders.return.status', $order->id) }}" method="POST" class="space-y-5">
+                <form action="{{ route('admin.orders.return.status', $order->id) }}" method="POST" class="space-y-5 no-loader">
                     @csrf
                     <div class="grid grid-cols-1 gap-4">
                         <div class="group">

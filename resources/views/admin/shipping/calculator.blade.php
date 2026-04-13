@@ -95,7 +95,7 @@
                     Rate Parameters
                 </h2>
                 
-                <form @submit.prevent="submitCalculator" class="space-y-6">
+                <form @submit.prevent="submitCalculator" class="space-y-6 no-loader">
                     @csrf
                     <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase text-slate-500 tracking-tighter ml-1">Delivery Pincode</label>
@@ -138,7 +138,7 @@
                     Live Tracking Gateway
                 </h2>
                 
-                <form @submit.prevent="submitTracker" class="space-y-6">
+                <form @submit.prevent="submitTracker" class="space-y-6 no-loader">
                     @csrf
                     <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase text-slate-500 tracking-tighter ml-1">Tracking Number / AWB</label>

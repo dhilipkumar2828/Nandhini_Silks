@@ -140,7 +140,7 @@
                         <table border="0" cellspacing="0" cellpadding="0" style="width: 250px;">
                             <tr>
                                 <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Subtotal:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->sub_total, 0) }}</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->sub_total, 2) }}</td>
                             </tr>
                             @if($order->tax > 0)
                             <tr>
@@ -155,12 +155,12 @@
                             @if($order->discount > 0)
                             <tr>
                                 <td style="padding-bottom: 8px; color: #10b981; font-size: 14px;">Discount:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #10b981; text-align: right; font-size: 14px;">-₹{{ number_format($order->discount, 0) }}</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #10b981; text-align: right; font-size: 14px;">-₹{{ number_format($order->discount, 2) }}</td>
                             </tr>
                             @endif
                             <tr>
                                 <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; font-size: 18px;">TOTAL:</td>
-                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; text-align: right; font-size: 24px;">₹{{ number_format($order->grand_total, 0) }}</td>
+                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; text-align: right; font-size: 24px;">₹{{ number_format($order->grand_total, 2) }}</td>
                             </tr>
                         </table>
                     </td>
