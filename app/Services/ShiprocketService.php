@@ -200,7 +200,17 @@ class ShiprocketService
             Log::info('Shiprocket Serviceability Response:', $response->json() ?? []);
 
             if ($response->successful()) {
-                return ['status' => true, 'data' => $response->json('data')];
+                $data = $response->json('data');
+
+                // Filter out "Air" couriers as requested (e.g., Xpressbees Air, Blue Dart Air)
+                if (isset($data['available_courier_companies']) && is_array($data['available_courier_companies'])) {
+                    $data['available_courier_companies'] = array_values(array_filter($data['available_courier_companies'], function($courier) {
+                        $name = strtolower($courier['courier_name'] ?? '');
+                        return !str_contains($name, 'air');
+                    }));
+                }
+
+                return ['status' => true, 'data' => $data];
             }
             return ['status' => false, 'message' => $response->json('message') ?? 'Pincode not serviceable'];
         } catch (\Exception $e) {
