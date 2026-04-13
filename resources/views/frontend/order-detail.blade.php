@@ -128,7 +128,6 @@
 
         .order-items-table tr {
             border-bottom: 1px solid #e5e7eb;
-            /* Joint line across the whole row */
         }
 
         .order-items-table th,
@@ -138,7 +137,6 @@
             text-align: center !important;
         }
 
-        /* Product column specific override */
         .order-items-table th:first-child,
         .order-items-table td:first-child {
             text-align: left !important;
@@ -224,7 +222,32 @@
             transform: translateY(-1px);
         }
 
-        /* Modal Styles */
+        .write-review-btn {
+            background: var(--pink);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .write-review-btn:hover {
+            background: #940437;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(169, 27, 67, 0.3);
+        }
+
+        .write-review-btn:active {
+            transform: translateY(0);
+        }
+
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -312,7 +335,6 @@
             box-shadow: 0 0 0 4px rgba(169, 27, 67, 0.05);
         }
 
-        /* Modal Styling Utilities */
         .modal-product-thumbnail {
             width: 64px;
             height: 64px;
@@ -495,9 +517,19 @@
             }
         }
 
+        /* ===== PROPER TWO-COLUMN MOBILE TABLE ===== */
         @media (max-width: 768px) {
             .timeline-card {
                 padding: 20px 18px;
+            }
+
+            .order-detail-header {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+                gap: 20px;
             }
 
             .timeline {
@@ -536,6 +568,7 @@
                 padding: 18px;
             }
 
+            /* TABLE CONVERSION */
             .order-items-table,
             .order-items-table thead,
             .order-items-table tbody,
@@ -553,26 +586,28 @@
             .order-items-table tbody {
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
+                gap: 20px;
             }
 
+            /* Each row becomes a card */
             .order-items-table tr {
-                padding: 14px;
-                border: 1px solid #f1e7ea;
+                padding: 18px;
+                border: 1px solid #e8d6db;
                 border-radius: 14px;
                 background: #fff;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
             }
 
-            .order-items-table td {
+            /* Product cell - full width */
+            .order-items-table td:first-child {
                 padding: 0;
                 border-bottom: none;
+                display: block;
             }
 
-            .order-items-table td+td {
-                margin-top: 10px;
-            }
-
-            .item-cell {
+            .order-items-table td:first-child .item-cell {
                 align-items: flex-start;
                 gap: 12px;
             }
@@ -586,20 +621,24 @@
             .item-name {
                 margin-bottom: 4px;
                 line-height: 1.35;
+                font-size: 13px;
             }
 
             .item-meta {
                 line-height: 1.5;
             }
 
+            /* Other cells - two column layout */
             .order-items-table td:not(:first-child) {
+                padding: 0;
+                border-bottom: none;
                 display: flex;
-                align-items: center;
                 justify-content: space-between;
-                gap: 16px;
-                font-size: 14px;
+                align-items: center;
+                gap: 20px;
             }
 
+            /* Label on left */
             .order-items-table td:not(:first-child)::before {
                 content: attr(data-label);
                 color: #8f8f8f;
@@ -610,28 +649,150 @@
                 flex-shrink: 0;
             }
 
+            /* Value on right */
+            .order-items-table td:not(:first-child)>span,
+            .order-items-table td:not(:first-child)>div {
+                text-align: right;
+                font-weight: 600;
+                color: #333;
+                font-size: 14px;
+            }
+
+            /* Special handling for tax */
+            .order-items-table td[data-label="Tax"] {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 2px;
+            }
+
+            .text-bottom {
+                position: relative;
+                bottom: 20px;
+            }
+
+            .order-items-table td[data-label="Tax"]::before {
+                width: 100%;
+                text-align: left;
+            }
+
+            .order-items-table td[data-label="Tax"] small {
+                font-size: 10px !important;
+                color: #94a3b8;
+                display: block;
+            }
+
+            .order-items-table td[data-label="Actions"]::before {
+                display: none !important;
+            }
+
+            /* Actions cell */
             .item-actions-cell {
-                align-items: flex-start;
+                width: 100%;
+                align-items: center;
+                justify-content: center;
                 gap: 6px;
+                display: flex;
+                flex-direction: column;
             }
 
             .item-actions-cell::before {
-                align-self: flex-start;
+                display: none;
             }
 
             .action-link {
                 font-size: 13px;
+                align-self: center;
+            }
+
+            .write-review-btn {
+                width: 30%;
+                justify-content: center;
+            }
+
+            .top-head {
+                position: relative;
+                bottom: 10px;
             }
         }
 
-        @media (max-width: 678px) {
+        /* ULTRA SMALL - 480px */
+        @media (max-width: 480px) {
+            .order-items-table tr {
+                padding: 16px 14px;
+                gap: 10px;
+            }
+
+            .order-items-table td:not(:first-child) {
+                gap: 15px;
+            }
+
+            .order-items-table td:not(:first-child)::before {
+                font-size: 10px;
+            }
+
+            .order-items-table td:not(:first-child)>span,
+            .order-items-table td:not(:first-child)>div {
+                font-size: 13px;
+            }
+
+            .item-img {
+                width: 48px;
+                height: 48px;
+            }
+
+            .item-name {
+                font-size: 12px;
+            }
+
+            .write-review-btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+        }
+
+        /* EXTRA SMALL - 360px */
+        @media (max-width: 360px) {
             .order-detail-header {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin-bottom: 30px;
-                flex-wrap: wrap;
-                gap: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-items-table tr {
+                padding: 14px 12px;
+            }
+
+            .order-items-table td:not(:first-child) {
+                gap: 12px;
+            }
+
+            .order-items-table td:not(:first-child)::before {
+                font-size: 9px;
+                min-width: 70px;
+            }
+
+            .order-items-table td:not(:first-child)>span,
+            .order-items-table td:not(:first-child)>div {
+                font-size: 12px;
+            }
+
+            .item-img {
+                width: 44px;
+                height: 44px;
+            }
+
+            .item-name {
+                font-size: 11px;
+            }
+
+            .item-meta span {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+
+            .write-review-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+                gap: 4px;
             }
         }
     </style>
@@ -721,8 +882,6 @@
                     @endif
                 </div>
             </div>
-
-
 
             <div class="timeline-card">
                 <h3 class="info-title">Order Status</h3>
@@ -832,15 +991,24 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
-                                        <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
+                                        <td data-label="Price"><span>&#8377;{{ number_format($item->price, 0) }}</span></td>
+                                        <td data-label="Qty"><span>{{ $item->quantity }}</span></td>
                                         <td data-label="Tax">
-                                            &#8377;{{ number_format($item->tax_amount ?? 0, 2) }}
-                                            <div style="font-size: 10px; color: #94a3b8;">({{ $item->tax_rate ?? 0 }}%)</div>
+                                            <span class="text-bottom">&#8377;{{ number_format($item->tax_amount ?? 0, 2) }}<br>
+                                                <small>({{ $item->tax_rate ?? 0 }}%)</small></span>
                                         </td>
-                                        <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}
+                                        <td class="top-head" data-label="Subtotal">
+                                            <span>&#8377;{{ number_format($item->price * $item->quantity, 0) }}</span>
                                         </td>
-
+                                        <td data-label="Actions">
+                                            <div class="item-actions-cell">
+                                                <button type="button"
+                                                    onclick="openReviewModal({{ $item->id }}, '{{ $item->product_name }}', '{{ $item->getImageUrl() }}')"
+                                                    class="write-review-btn">
+                                                    <i class="fas fa-star"></i> Write Review
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -1027,7 +1195,6 @@
                 document.getElementById('modalProductName').textContent = productName;
                 document.getElementById('modalProductImg').src = productImg;
 
-                // Set form action dynamically
                 const form = document.getElementById('reviewForm');
                 if (form) {
                     let action = "{{ route('product.review.store', ':id') }}";
@@ -1064,7 +1231,6 @@
             }
         }
 
-        // Close on outside click
         window.onclick = function (event) {
             const reviewModal = document.getElementById('reviewModal');
             const returnModal = document.getElementById('returnModal');
