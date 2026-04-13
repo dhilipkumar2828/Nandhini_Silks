@@ -106,6 +106,12 @@ class ShiprocketService
                 }
             }
             
+            $itemPath = $item->product_image;
+            if (!$itemPath && $item->product) {
+                $itemPath = $item->product->image_path;
+            }
+            $imageUrl = $itemPath ? asset('uploads/' . $itemPath) : null;
+
             $items[] = [
                 'name'          => $item->product_name,
                 'sku'           => $sku,
@@ -114,6 +120,7 @@ class ShiprocketService
                 'discount'      => 0,
                 'tax'           => 0,
                 'hsn'           => 0,
+                'image'         => $imageUrl,
             ];
 
             // Prioritize Variant Weight
@@ -297,14 +304,25 @@ class ShiprocketService
     public function generateManifest($shipmentId): array
     {
         try {
-            $response = $this->request('post', '/manifests/generate', [
-                'shipment_id' => [$shipmentId],
-            ]);
+            $payload = ['shipment_id' => [$shipmentId]];
+            $response = $this->request('post', '/manifests/generate', $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
-                Log::info('Shiprocket Manifest Response:', $data);
+                Log::info('Shiprocket Generate Manifest Response:', $data);
+                
                 $manifestUrl = $data['manifest_url'] ?? null;
+                
+                if (!$manifestUrl) {
+                    // Fallback: If generate didn't return URL, try the print endpoint after a short sleep
+                    sleep(2);
+                    $printResponse = $this->request('post', '/manifests/print', $payload);
+                    Log::info('Shiprocket Print Manifest Fallback Response:', $printResponse->json());
+                    if ($printResponse->successful()) {
+                        $manifestUrl = $printResponse->json('manifest_url') ?? null;
+                    }
+                }
+                
                 return ['status' => true, 'manifest_url' => $manifestUrl, 'data' => $data];
             }
             return ['status' => false, 'message' => $response->json('message') ?? 'Failed to generate manifest'];
@@ -530,11 +548,18 @@ class ShiprocketService
             
             $totalWeight = 0;
             foreach ($order->items as $item) {
+                $itemPath = $item->product_image;
+                if (!$itemPath && $item->product) {
+                    $itemPath = $item->product->image_path;
+                }
+                $imageUrl = $itemPath ? asset('uploads/' . $itemPath) : null;
+
                 $payload['order_items'][] = [
                     'sku'           => $item->product ? $item->product->sku : 'N-' . time(),
                     'name'          => $item->product_name,
                     'units'         => $item->quantity,
                     'selling_price' => (float) $item->price,
+                    'image'         => $imageUrl,
                 ];
                 $itemWeight = (float) ($item->product->weight ?? 0.5);
                 $totalWeight += ($itemWeight > 0 ? $itemWeight : 0.5) * $item->quantity;

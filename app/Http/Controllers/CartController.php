@@ -688,11 +688,10 @@ class CartController extends Controller
             // (We'll do this once, after saving the order items)
 
             foreach ($items as $item) {
-                $product = Product::find($item['product_id']);
-                
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
+                    'variant_id' => $item['variant_id'],
                     'product_name' => $item['name'],
                     'product_image' => $item['image_path'] ?? null,
                     'size' => $item['size'] ?? null,
@@ -704,60 +703,11 @@ class CartController extends Controller
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
                 ]);
-
-                // Deduction of Stock with Movement Log [VARIANT AWARE FIX]
-                if ($product) {
-                    $variantId = $item['variant_id'] ?? null;
-                    $itemQty = (int) $item['quantity'];
-                    
-                    if ($variantId) {
-                        $variant = \App\Models\ProductVariant::find($variantId);
-                        if ($variant) {
-                            $oldVStock = (int) $variant->stock_quantity;
-                            $newVStock = max(0, $oldVStock - $itemQty);
-                            $variant->update(['stock_quantity' => $newVStock]);
-                            
-                            StockMovement::create([
-                                'product_id' => $product->id,
-                                'type' => 'sale',
-                                'quantity' => $itemQty,
-                                'balance_after' => $newVStock,
-                                'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $order->order_number,
-                            ]);
-                        }
-                    } else {
-                        // Regular product (no variants)
-                        $oldStock = (int) $product->stock_quantity;
-                        $newStock = max(0, $oldStock - $itemQty);
-                        $product->update(['stock_quantity' => $newStock]);
-                        
-                        StockMovement::create([
-                            'product_id' => $product->id,
-                            'type' => 'sale',
-                            'quantity' => $itemQty,
-                            'balance_after' => $newStock,
-                            'reason' => 'Sold in Order #' . $order->order_number,
-                        ]);
-                    }
-
-                    // Always sync parent product stock as the sum of its variants if it has any
-                    if ($product->product_variants->count() > 0) {
-                        $totalVariantStock = $product->product_variants->sum('stock_quantity');
-                        $product->update([
-                            'stock_quantity' => $totalVariantStock,
-                            'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
-                        ]);
-                    } else {
-                        // For simple products without variants
-                        if ($product->stock_quantity <= 0) {
-                            $product->update(['stock_status' => 'outofstock']);
-                        }
-                    }
-                }
             }
 
-            if ($coupon) {
-                $coupon->increment('times_used');
+            // Reduce stock immediately if COD, otherwise it happens in verifyRazorpay
+            if ($paymentMethod === 'cod') {
+                $order->reduceStock();
             }
 
             DB::commit();
@@ -954,6 +904,9 @@ class CartController extends Controller
 
         if ($signatureStatus && $order) {
             $order->update(['payment_status' => 'paid', 'order_status' => 'order_placed']);
+            
+            // Reduce Stock now that payment is confirmed
+            $order->reduceStock();
 
             if (Auth::check()) {
                 \App\Models\CartItem::where('user_id', Auth::id())->delete();
