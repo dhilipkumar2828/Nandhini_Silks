@@ -36,10 +36,17 @@ class TaxClassController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:tax_classes,name',
             'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'status' => 'required',
         ]);
 
-        TaxClass::create($request->all());
+        $data = $request->all();
+        $data['name'] = trim($data['name']);
+
+        if (TaxClass::where('name', $data['name'])->exists()) {
+            return redirect()->back()->withErrors(['name' => 'This Tax Class name already exists.'])->withInput();
+        }
+
+        TaxClass::create($data);
 
         return redirect()->route('admin.tax-classes.index')->with('success', 'Tax class created successfully.');
     }
@@ -54,10 +61,17 @@ class TaxClassController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:tax_classes,name,' . $taxClass->id,
             'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'status' => 'required',
         ]);
 
-        $taxClass->update($request->all());
+        $data = $request->all();
+        $data['name'] = trim($data['name']);
+
+        if (TaxClass::where('name', $data['name'])->where('id', '!=', $taxClass->id)->exists()) {
+            return redirect()->back()->withErrors(['name' => 'This Tax Class name already exists.'])->withInput();
+        }
+
+        $taxClass->update($data);
 
         return redirect()->route('admin.tax-classes.index')->with('success', 'Tax class updated successfully.');
     }
