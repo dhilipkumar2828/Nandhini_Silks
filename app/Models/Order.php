@@ -251,58 +251,83 @@ class Order extends Model
     {
         foreach ($this->items as $item) {
             $product = $item->product;
-            if ($product) {
-                $variantId = $item->variant_id;
-                $itemQty = (int) $item->quantity;
+            if (!$product) continue;
 
-                if ($variantId) {
-                    $variant = \App\Models\ProductVariant::find($variantId);
-                    if ($variant) {
-                        $oldVStock = (int) $variant->stock_quantity;
-                        $newVStock = max(0, $oldVStock - $itemQty);
-                        $variant->update(['stock_quantity' => $newVStock]);
+            $variantId = $item->variant_id;
+            $itemQty = (int) $item->quantity;
 
-                        \App\Models\StockMovement::create([
-                            'product_id' => $product->id,
-                            'type' => 'sale',
-                            'quantity' => $itemQty,
-                            'balance_after' => $newVStock,
-                            'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $this->order_number,
-                        ]);
-                    }
-                } else {
-                    $oldStock = (int) $product->stock_quantity;
-                    $newStock = max(0, $oldStock - $itemQty);
-                    $product->update(['stock_quantity' => $newStock]);
-
-                    \App\Models\StockMovement::create([
-                        'product_id' => $product->id,
-                        'type' => 'sale',
-                        'quantity' => $itemQty,
-                        'balance_after' => $newStock,
-                        'reason' => 'Sold in Order #' . $this->order_number,
-                    ]);
+            if ($variantId) {
+                // LOCK THE VARIANT ROW - Prevent concurrent access
+                $variant = \App\Models\ProductVariant::where('id', $variantId)->lockForUpdate()->first();
+                if (!$variant) {
+                    throw new \Exception("Product variant no longer available.");
                 }
 
-                // Sync parent product stock
-                if ($product->product_variants->count() > 0) {
-                    $totalVariantStock = $product->product_variants->sum('stock_quantity');
-                    $product->update([
-                        'stock_quantity' => $totalVariantStock,
-                        'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
-                    ]);
-                } else {
-                    if ($product->stock_quantity <= 0) {
-                        $product->update(['stock_status' => 'outofstock']);
-                    }
+                if ($variant->stock_quantity < $itemQty) {
+                    throw new \Exception("Sorry, only {$variant->stock_quantity} items left for " . $variant->sku . ". Someone else might have just purchased the remaining stock.");
                 }
+
+                $newVStock = $variant->stock_quantity - $itemQty;
+                $variant->update(['stock_quantity' => $newVStock]);
+
+                \App\Models\StockMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'sale',
+                    'quantity' => $itemQty,
+                    'balance_after' => $newVStock,
+                    'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $this->order_number,
+                ]);
+            } else {
+                // LOCK THE PRODUCT ROW - Prevent concurrent access
+                $lockedProduct = \App\Models\Product::where('id', $product->id)->lockForUpdate()->first();
+                if (!$lockedProduct) {
+                    throw new \Exception("Product no longer available.");
+                }
+
+                if ($lockedProduct->stock_quantity < $itemQty) {
+                    throw new \Exception("Sorry, only {$lockedProduct->stock_quantity} items left for " . $lockedProduct->name . ".");
+                }
+
+                $newStock = $lockedProduct->stock_quantity - $itemQty;
+                $lockedProduct->update(['stock_quantity' => $newStock]);
+
+                \App\Models\StockMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'sale',
+                    'quantity' => $itemQty,
+                    'balance_after' => $newStock,
+                    'reason' => 'Sold in Order #' . $this->order_number,
+                ]);
             }
+
+            // Sync parent product stock status
+            $this->syncProductStockStatus($product);
         }
 
         if ($this->coupon_id) {
             $coupon = \App\Models\Coupon::find($this->coupon_id);
             if ($coupon) {
                 $coupon->increment('times_used');
+            }
+        }
+    }
+
+    private function syncProductStockStatus($product)
+    {
+        // Re-read fresh data after reduction
+        $product = $product->fresh(['product_variants']);
+        
+        if ($product->product_variants->count() > 0) {
+            $totalVariantStock = $product->product_variants->sum('stock_quantity');
+            $product->update([
+                'stock_quantity' => $totalVariantStock,
+                'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+            ]);
+        } else {
+            if ($product->stock_quantity <= 0) {
+                $product->update(['stock_status' => 'outofstock']);
+            } else {
+                $product->update(['stock_status' => 'instock']);
             }
         }
     }

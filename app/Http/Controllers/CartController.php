@@ -903,20 +903,29 @@ class CartController extends Controller
         }
 
         if ($signatureStatus && $order) {
-            $order->update(['payment_status' => 'paid', 'order_status' => 'order_placed']);
-            
-            // Reduce Stock now that payment is confirmed
-            $order->reduceStock();
+            DB::beginTransaction();
+            try {
+                $order->update(['payment_status' => 'paid', 'order_status' => 'order placed']);
+                
+                // Reduce Stock now that payment is confirmed
+                // This call now uses lockForUpdate() internally
+                $order->reduceStock();
 
-            if (Auth::check()) {
-                \App\Models\CartItem::where('user_id', Auth::id())->delete();
+                if (Auth::check()) {
+                    \App\Models\CartItem::where('user_id', Auth::id())->delete();
+                }
+                
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Stock Reduction Failed after successful Razorpay payment: ' . $e->getMessage());
+                // The payment was successful but stock was gone - this is a critical edge case
+                // We should still confirm the order but mark it for admin review or refund
+                return redirect()->route('checkout')->with('error', 'Payment was successful, but we encountered an issue: ' . $e->getMessage());
             }
+
             session()->forget(['cart', 'coupon_id', 'checked_pincode', 'checked_pincode_edd']);
-
             $this->sendOrderEmails($order);
-
-            // Shiprocket push is now manual from Admin side.
-            // $shiprocket = new \App\Services\ShiprocketService(); ...
             return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
         }
 
