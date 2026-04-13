@@ -18,8 +18,11 @@
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Class Name <span class="text-rose-500">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required
-                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800 {{ $errors->has('name') ? 'border-rose-500' : '' }}"
                         placeholder="e.g. Standard GST, Reduced Rate">
+                    @error('name')
+                        <span class="text-rose-500 text-[10px] font-bold">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="space-y-1.5">

@@ -34,7 +34,7 @@ class TaxClassController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:tax_classes,name',
             'description' => 'nullable|string',
             'status' => 'required|boolean',
         ]);
@@ -52,7 +52,7 @@ class TaxClassController extends Controller
     public function update(Request $request, TaxClass $taxClass)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:tax_classes,name,' . $taxClass->id,
             'description' => 'nullable|string',
             'status' => 'required|boolean',
         ]);
