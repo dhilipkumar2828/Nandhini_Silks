@@ -623,89 +623,104 @@
                 font-size: 13px;
             }
         }
+
+        @media (max-width: 678px) {
+            .order-detail-header {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+        }
     </style>
 @endpush
 
 @section('content')
-<main class="account-page">
-    <div class="page-shell">
-        <div class="breadcrumb">
-            <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
-            <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp;
-            <a href="{{ url('my-orders') }}">My Orders</a> &nbsp; / &nbsp;
-            <span>Order Details</span>
-        </div>
-
-        <div class="order-detail-header">
-            <div>
-                <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
-                <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot; {{ $order->created_at->format('h:i A') }}</p>
-                @if($order->edd)
-                <p style="color: #27ae60; font-weight: 600; margin-top: 5px;"><i class="fas fa-truck"></i> Expected Delivery: {{ $order->edd }}</p>
-                @endif
+    <main class="account-page">
+        <div class="page-shell">
+            <div class="breadcrumb">
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
+                <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp;
+                <a href="{{ url('my-orders') }}">My Orders</a> &nbsp; / &nbsp;
+                <span>Order Details</span>
             </div>
-            <div class="order-actions-top">
-                <button onclick="handleDownload({{ json_encode([
-                    'orderNumber' => 'NS' . $order->id,
-                    'date' => $order->created_at->format('M d, Y'),
-                    'customer' => [
-                        'name' => $order->billing_name ?: $order->customer_name,
-                        'address' => str_replace(["\r", "\n"], ', ', $order->delivery_address),
-                        'phone' => $order->billing_phone ?: $order->customer_phone
-                    ],
-                    'items' => $order->items->map(function($item) {
-                        return [
-                            'name' => $item->product_name,
-                            'image' => $item->getImageUrl(),
-                            'variant' => !empty($item->attributes) ? implode(' | ', array_map(function($a) { return $a['name'] . ': ' . $a['value']; }, (array)$item->attributes)) : (($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : '')),
-                            'hsn' => "5007",
-                            'qty' => $item->quantity,
-                            'rate' => (float)$item->price,
-                            'taxRate' => 12
-                        ];
-                    })->toArray(),
-                    'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
-                    'subtotal' => (float)$order->sub_total,
-                    'taxAmount' => (float)$order->tax,
-                    'shipping' => (float)$order->shipping,
-                    'discount' => (float)$order->discount,
-                    'couponCode' => $order->coupon_code,
-                    'total' => (float)$order->grand_total
-                ]) }})" class="account-nav-link"
-                    style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Download Invoice
-                </button>
-                <a href="{{ route('shop') }}" class="account-nav-link"
-                    style="background: var(--pink); color: #fff; border: none; cursor: pointer; text-decoration: none; display: inline-block;">
-                    Buy More
-                </a>
 
-                @if($order->order_status === 'delivered')
-                    @if(!$order->return_status)
-                        <button onclick="openReturnModal()" class="account-nav-link"
-                            style="background: #fff; border: 1px solid #ff4d4f; color: #ff4d4f; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-undo"></i> Return items
-                        </button>
-                    @else
-                        @php $badge = $order->return_status_badge; @endphp
-                        <div class="status-badge {{ $badge['class'] }}" style="padding: 10px 20px; border-radius: 50px;">
-                            <i class="fas fa-shipping-fast mr-2"></i> {{ $badge['label'] }}
-                        </div>
-                        @if($order->reverse_awb)
-                            <div class="tracking-info" style="margin: 0; padding: 10px 15px;">
-                                <span style="font-size: 11px; color: #888; font-weight: 700;">REVERSE AWB:</span> 
-                                <span style="font-weight: 700; color: #333;">{{ $order->reverse_awb }}</span>
+            <div class="order-detail-header">
+                <div>
+                    <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
+                    <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot;
+                        {{ $order->created_at->format('h:i A') }}
+                    </p>
+                    @if($order->edd)
+                        <p style="color: #27ae60; font-weight: 600; margin-top: 5px;"><i class="fas fa-truck"></i> Expected
+                            Delivery: {{ $order->edd }}</p>
+                    @endif
+                </div>
+                <div class="order-actions-top">
+                    <button onclick="handleDownload({{ json_encode([
+        'orderNumber' => 'NS' . $order->id,
+        'date' => $order->created_at->format('M d, Y'),
+        'customer' => [
+            'name' => $order->billing_name ?: $order->customer_name,
+            'address' => str_replace(["\r", "\n"], ', ', $order->delivery_address),
+            'phone' => $order->billing_phone ?: $order->customer_phone
+        ],
+        'items' => $order->items->map(function ($item) {
+            return [
+                'name' => $item->product_name,
+                'image' => $item->getImageUrl(),
+                'variant' => !empty($item->attributes) ? implode(' | ', array_map(function ($a) {
+                    return $a['name'] . ': ' . $a['value']; }, (array) $item->attributes)) : (($item->color ? 'Color: ' . $item->color : '') . ($item->size ? ' | Size: ' . $item->size : '')),
+                'hsn' => "5007",
+                'qty' => $item->quantity,
+                'rate' => (float) $item->price,
+                'taxRate' => 12
+            ];
+        })->toArray(),
+        'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
+        'subtotal' => (float) $order->sub_total,
+        'taxAmount' => (float) $order->tax,
+        'shipping' => (float) $order->shipping,
+        'discount' => (float) $order->discount,
+        'couponCode' => $order->coupon_code,
+        'total' => (float) $order->grand_total
+    ]) }})" class="account-nav-link"
+                        style="background: #fff; border: 1px solid #ddd; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Invoice
+                    </button>
+                    <a href="{{ route('shop') }}" class="account-nav-link"
+                        style="background: var(--pink); color: #fff; border: none; cursor: pointer; text-decoration: none; display: inline-block;">
+                        Buy More
+                    </a>
+
+                    @if($order->order_status === 'delivered')
+                        @if(!$order->return_status)
+                            <button onclick="openReturnModal()" class="account-nav-link"
+                                style="background: #fff; border: 1px solid #ff4d4f; color: #ff4d4f; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-undo"></i> Return items
+                            </button>
+                        @else
+                            @php $badge = $order->return_status_badge; @endphp
+                            <div class="status-badge {{ $badge['class'] }}" style="padding: 10px 20px; border-radius: 50px;">
+                                <i class="fas fa-shipping-fast mr-2"></i> {{ $badge['label'] }}
                             </div>
+                            @if($order->reverse_awb)
+                                <div class="tracking-info" style="margin: 0; padding: 10px 15px;">
+                                    <span style="font-size: 11px; color: #888; font-weight: 700;">REVERSE AWB:</span>
+                                    <span style="font-weight: 700; color: #333;">{{ $order->reverse_awb }}</span>
+                                </div>
+                            @endif
                         @endif
                     @endif
-                @endif
+                </div>
             </div>
-        </div>
 
 
 
@@ -719,7 +734,8 @@
                             <span class="step-date">{{ $order->created_at->format('M d') }}</span>
                         </div>
                         <div class="timeline-step cancelled">
-                            <div class="step-icon" style="background-color: #ef4444; border-color: #fee2e2; color: white;">✕</div>
+                            <div class="step-icon" style="background-color: #ef4444; border-color: #fee2e2; color: white;">✕
+                            </div>
                             <span class="step-label" style="color: #ef4444;">Cancelled</span>
                             <span class="step-date">Order Cancelled</span>
                         </div>
@@ -824,12 +840,7 @@
                                         </td>
                                         <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}
                                         </td>
-                                        <td class="item-actions-cell" data-label="Actions" style="margin-top: 25px;">
-                                            <a href="javascript:void(0)" class="action-link"
-                                                onclick="openReviewModal('{{ $item->product_id }}', '{{ e($item->product_name) }}', '{{ $item->getImageUrl() }}')">Write
-                                                Review</a>
-                                            <a href="#" class="action-link" style="color: #999;">Need Help?</a>
-                                        </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -907,84 +918,94 @@
         </div>
 
         <!-- Review Modal -->
-<div id="reviewModal" class="modal-overlay">
-    <div class="modal-content" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-        <div class="modal-header">
-            <h3 class="modal-title">Write a Review</h3>
-            <button onclick="closeReviewModal()" class="text-slate-400"
-                style="background:none; border:none; cursor:pointer;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        <form id="reviewForm" method="POST">
-            @csrf
-            <div class="modal-body">
-                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
-                    <img id="modalProductImg" src="" class="modal-product-thumbnail">
-                    <div>
-                        <h4 id="modalProductName" class="modal-product-name">Product Name</h4>
-                        <p class="modal-subtitle">Share your experience</p>
+        <div id="reviewModal" class="modal-overlay">
+            <div class="modal-content" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div class="modal-header">
+                    <h3 class="modal-title">Write a Review</h3>
+                    <button onclick="closeReviewModal()" class="text-slate-400"
+                        style="background:none; border:none; cursor:pointer;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <form id="reviewForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                            <img id="modalProductImg" src="" class="modal-product-thumbnail">
+                            <div>
+                                <h4 id="modalProductName" class="modal-product-name">Product Name</h4>
+                                <p class="modal-subtitle">Share your experience</p>
+                            </div>
+                        </div>
+
+                        <div class="rating-stars">
+                            <input type="radio" id="star5" name="stars" value="5" required />
+                            <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star4" name="stars" value="4" />
+                            <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star3" name="stars" value="3" />
+                            <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star2" name="stars" value="2" />
+                            <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star1" name="stars" value="1" />
+                            <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <label class="stars-label">Your Feedback</label>
+                            <textarea name="review" class="review-textarea" rows="4"
+                                placeholder="How was the product quality and delivery? (Min. 10 characters)" required
+                                minlength="10"></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn" style="margin-top: 24px;">
+                            Submit Review
+                        </button>
                     </div>
-                </div>
-
-                <div class="rating-stars">
-                    <input type="radio" id="star5" name="stars" value="5" required />
-                    <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star4" name="stars" value="4" />
-                    <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star3" name="stars" value="3" />
-                    <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star2" name="stars" value="2" />
-                    <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
-                    <input type="radio" id="star1" name="stars" value="1" />
-                    <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
-                </div>
-
-                <div style="margin-top: 10px;">
-                    <label class="stars-label">Your Feedback</label>
-                    <textarea name="review" class="review-textarea" rows="4"
-                        placeholder="How was the product quality and delivery? (Min. 10 characters)" required
-                        minlength="10"></textarea>
-                </div>
-
-                <button type="submit" class="submit-btn" style="margin-top: 24px;">
-                    Submit Review
-                </button>
+                </form>
             </div>
-        </form>
-    </div>
-</div>
-
-<!-- Return Modal -->
-<div id="returnModal" class="modal-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background:#fff; width: 450px; border-radius: 20px; padding: 30px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-        <button onclick="closeReturnModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 20px;"><i class="fas fa-times"></i></button>
-        
-        <div style="margin-bottom: 24px; text-align: center;">
-            <div style="width: 60px; height: 60px; background: #fff1f0; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 15px;">
-                <i class="fas fa-undo" style="font-size: 24px; color: #ff4d4f;"></i>
-            </div>
-            <h2 class="modal-title">Request a Return</h2>
-            <p class="modal-subtitle" style="font-size: 13px !important; color: #64748b !important; text-transform: none !important; letter-spacing: normal !important; margin-top: 4px !important;">Tell us why you want to return this order</p>
         </div>
 
-        <form id="returnForm" action="{{ route('order.return.request', $order->id) }}" method="POST">
-            @csrf
-            <div style="margin-top: 10px;">
-                <label class="stars-label">Reason for Return</label>
-                <textarea name="reason" rows="4" placeholder="Example: Wrong size delivered, Damaged product, etc." required style="width: 100%; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 15px; font-size: 14px; resize: none; outline: none; transition: border-color 0.2s;"></textarea>
-            </div>
+        <!-- Return Modal -->
+        <div id="returnModal" class="modal-overlay"
+            style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+            <div class="modal-content"
+                style="background:#fff; width: 450px; border-radius: 20px; padding: 30px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <button onclick="closeReturnModal()"
+                    style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 20px;"><i
+                        class="fas fa-times"></i></button>
 
-            <button type="submit" class="submit-btn" style="margin-top: 24px; background: #ff4d4f; box-shadow: 0 4px 6px -1px rgba(255, 77, 79, 0.2);">
-                Submit Return Request
-            </button>
-        </form>
-    </div>
-</div>
-</main>
+                <div style="margin-bottom: 24px; text-align: center;">
+                    <div
+                        style="width: 60px; height: 60px; background: #fff1f0; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 15px;">
+                        <i class="fas fa-undo" style="font-size: 24px; color: #ff4d4f;"></i>
+                    </div>
+                    <h2 class="modal-title">Request a Return</h2>
+                    <p class="modal-subtitle"
+                        style="font-size: 13px !important; color: #64748b !important; text-transform: none !important; letter-spacing: normal !important; margin-top: 4px !important;">
+                        Tell us why you want to return this order</p>
+                </div>
+
+                <form id="returnForm" action="{{ route('order.return.request', $order->id) }}" method="POST">
+                    @csrf
+                    <div style="margin-top: 10px;">
+                        <label class="stars-label">Reason for Return</label>
+                        <textarea name="reason" rows="4" placeholder="Example: Wrong size delivered, Damaged product, etc."
+                            required
+                            style="width: 100%; border-radius: 12px; border: 1.5px solid #e2e8f0; padding: 15px; font-size: 14px; resize: none; outline: none; transition: border-color 0.2s;"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn"
+                        style="margin-top: 24px; background: #ff4d4f; box-shadow: 0 4px 6px -1px rgba(255, 77, 79, 0.2);">
+                        Submit Return Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
 @endsection
 
 @push('scripts')
@@ -1005,7 +1026,7 @@
             if (modal) {
                 document.getElementById('modalProductName').textContent = productName;
                 document.getElementById('modalProductImg').src = productImg;
-                
+
                 // Set form action dynamically
                 const form = document.getElementById('reviewForm');
                 if (form) {
@@ -1044,7 +1065,7 @@
         }
 
         // Close on outside click
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const reviewModal = document.getElementById('reviewModal');
             const returnModal = document.getElementById('returnModal');
             if (event.target == reviewModal) {

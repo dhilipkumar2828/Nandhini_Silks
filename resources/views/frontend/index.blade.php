@@ -1696,9 +1696,9 @@
                         <div class="swiper-wrapper">
                             @foreach ($featuredProducts as $product)
                                 <div class="swiper-slide">
-                                <article class="collection-card">
-                                    <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
-                                        <div class="featured-media">
+                                    <article class="collection-card">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="card-link-wrapper">
+                                            <div class="featured-media">
                                                 @php
                                                     $productImage = 'images/pro.png';
                                                     if ($product->images && is_array($product->images) && count($product->images) > 0) {
