@@ -59,7 +59,7 @@
                 box-shadow: 0 0 0 2px #fff, 0 0 0 4px #A91B43 !important;
                 transform: scale(0.8);
                 z-index: 2;
-            }
+            } 
 
             /* Unselected but out-of-stock items: Keep them clear (no blur) but with standard colors */
             .attribute-option.unavailable {
