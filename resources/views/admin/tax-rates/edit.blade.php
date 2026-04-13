@@ -81,7 +81,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div class="flex items-center space-x-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
                     <input type="hidden" name="is_compound" value="0">
                     <input type="checkbox" name="is_compound" value="1" {{ old('is_compound', $taxRate->is_compound) ? 'checked' : '' }} class="w-4 h-4 text-[#a91b43] border-slate-300 rounded focus:ring-[#a91b43]">
@@ -99,7 +99,7 @@
                         <span class="text-[10px] text-slate-400">Calculate tax on shipping costs as well</span>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
                 <a href="{{ route('admin.tax-rates.index') }}" class="px-6 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-all font-semibold">Cancel</a>

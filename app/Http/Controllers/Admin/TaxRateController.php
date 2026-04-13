@@ -32,8 +32,8 @@ class TaxRateController extends Controller
             'zip' => 'nullable|string|max:20',
             'rate' => 'required|numeric|min:0',
             'priority' => 'required|integer',
-            'is_compound' => 'required',
-            'applies_to_shipping' => 'required',
+            'is_compound' => 'nullable',
+            'applies_to_shipping' => 'nullable',
             'status' => 'required',
         ], [
             'tax_class_id.unique' => 'This Tax Class already has a tax rate assigned. Each class can only have one rate.'
@@ -72,8 +72,8 @@ class TaxRateController extends Controller
             'zip' => 'nullable|string|max:20',
             'rate' => 'required|numeric|min:0',
             'priority' => 'required|integer',
-            'is_compound' => 'required',
-            'applies_to_shipping' => 'required',
+            'is_compound' => 'nullable',
+            'applies_to_shipping' => 'nullable',
             'status' => 'required',
         ], [
             'tax_class_id.unique' => 'This Tax Class already has a tax rate assigned. Each class can only have one rate.'
