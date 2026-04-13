@@ -61,38 +61,27 @@
                 z-index: 2;
             }
 
-            .attribute-option.active.size-btn {
-                background: #A91B43 !important;
-                color: #fff !important;
-                border-color: #A91B43 !important;
-                box-shadow: 0 4px 12px rgba(169, 27, 67, 0.2);
-            }
-
-            /* Unavailable/Out of Stock Swatch Style - Strike-through & Dashed */
+            /* Unselected but out-of-stock items: Keep them clear (no blur) but with standard colors */
             .attribute-option.unavailable {
                 position: relative !important;
-                opacity: 0.4 !important;
-                background: #f8f9fa !important;
-                color: #adb5bd !important;
-                border: 1px dashed #dee2e6 !important;
-                overflow: hidden;
-                transition: all 0.3s ease;
                 cursor: pointer !important;
+                transition: all 0.3s ease;
             }
-
-
 
             .attribute-option.unavailable.size-btn {
-                background-color: #f1f3f5 !important;
+                background-color: #fff !important;
+                border-color: #e0e0e0 !important;
+                color: #333 !important;
             }
 
-            /* Better visibility for active + unavailable state */
-            .attribute-option.active.unavailable {
-                opacity: 1 !important;
+            /* ALWAYS show the active state clearly, even if unavailable */
+            .attribute-option.active.size-btn {
                 background: #fde2e9 !important;
                 color: #A91B43 !important;
-                border: 1.5px solid #A91B43 !important;
+                border-color: #A91B43 !important;
+                border-width: 1.5px !important;
                 box-shadow: 0 4px 12px rgba(169, 27, 67, 0.1);
+                opacity: 1 !important; /* No blur even if selected and out of stock */
             }
 
 
