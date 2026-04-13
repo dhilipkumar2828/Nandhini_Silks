@@ -1275,6 +1275,11 @@ class CartController extends Controller
             return 0.0;
         }
 
+        // Never show shipping on Cart page or cart-related AJAX updates
+        if (request()->routeIs('cart') || request()->routeIs('cart.update') || request()->routeIs('cart.remove') || request()->routeIs('cart.mini-cart')) {
+            return 0.0;
+        }
+
         // 1. Check if method is passed in request first (Checkout Page)
         $method = request('payment_method');
         if ($method === 'cod' && session()->has('shipping_rate_cod')) {
@@ -1283,15 +1288,12 @@ class CartController extends Controller
             return (float) session()->get('shipping_rate_prepaid');
         }
 
-        // 2. Fallback to existing session rate
+        // 2. Fallback to existing session rate (for checkout page refresh etc.)
         if (session()->has('shipping_rate')) {
             return (float) session()->get('shipping_rate');
         }
         
         return 0.0;
-
-        // Retrieve dynamic rate from Shiprocket serviceability check (stored in session)
-        return (float) session()->get('shipping_rate', 0.0);
     }
 
     private function invalidateCoupon(): array
