@@ -1005,7 +1005,7 @@
                                         <td data-label="Actions">
                                             <div class="item-actions-cell">
                                                 <button type="button"
-                                                    onclick="openReviewModal({{ $item->id }}, '{{ $item->product_name }}', '{{ $item->getImageUrl() }}')"
+                                                    onclick="openReviewModal({{ $item->product_id }}, '{{ $item->product_name }}', '{{ $item->getImageUrl() }}')"
                                                     class="write-review-btn">
                                                     <i class="fas fa-star"></i> Write Review
                                                 </button>
@@ -1100,7 +1100,7 @@
                         </svg>
                     </button>
                 </div>
-                <form id="reviewForm" method="POST">
+                <form id="reviewForm" method="POST" >
                     @csrf
                     <div class="modal-body">
                         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
@@ -1208,6 +1208,7 @@
                 document.body.style.overflow = 'hidden';
             }
         }
+
 
         function closeReviewModal() {
             const modal = document.getElementById('reviewModal');

@@ -21,7 +21,7 @@
                         <option value="">Select Attribute</option>
                         @foreach($attributes as $attr)
                             <option value="{{ $attr->id }}" {{ $selectedAttributeId == $attr->id ? 'selected' : '' }}>
-                                {{ $attr->group }} - {{ $attr->name }}
+                                {{ $attr->name }}
                             </option>
                         @endforeach
                     </select>
