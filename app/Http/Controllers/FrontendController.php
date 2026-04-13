@@ -681,7 +681,7 @@ class FrontendController extends Controller
 
         $existingReview = ProductReview::where('product_id', $product->id)->where('user_id', Auth::guard('web')->id())->exists();
 
-        if (!$hasPurchased && !$existingReview) {
+        if (!$hasPurchased) {
             return back()->with('error', 'You can only review products you have purchased.');
         }
 

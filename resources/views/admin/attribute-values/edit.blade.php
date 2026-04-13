@@ -20,7 +20,7 @@
                 <select name="attribute_id" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all appearance-none bg-white" required>
                     @foreach($attributes as $attr)
                         <option value="{{ $attr->id }}" {{ $attributeValue->attribute_id == $attr->id ? 'selected' : '' }}>
-                            {{ $attr->group }} - {{ $attr->name }}
+                            {{ $attr->name }}
                         </option>
                     @endforeach
                 </select>
