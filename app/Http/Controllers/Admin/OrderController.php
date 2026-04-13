@@ -155,6 +155,7 @@ class OrderController extends Controller
 
     public function downloadInvoice(Order $order)
     {
+        Log::info('Downloading Official Invoice for Order: ' . $order->order_number);
         $order->load('items.product');
         $filename = 'invoice-' . ($order->order_number ?? $order->id) . '.pdf';
 
