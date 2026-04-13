@@ -67,6 +67,24 @@ class Product extends Model
         'discount_percent' => 'decimal:2',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($product) {
+            $quantity = (int)($product->stock_quantity ?? 0);
+            $threshold = (int)($product->low_stock_threshold ?? 0);
+
+            if ($quantity <= 0) {
+                $product->stock_status = 'outofstock';
+            } elseif ($quantity <= $threshold) {
+                $product->stock_status = 'lowstock';
+            } else {
+                $product->stock_status = 'instock';
+            }
+        });
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
