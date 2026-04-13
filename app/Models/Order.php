@@ -264,7 +264,8 @@ class Order extends Model
                 }
 
                 if ($variant->stock_quantity < $itemQty) {
-                    throw new \Exception("Sorry, only {$variant->stock_quantity} items left for " . $variant->sku . ". Someone else might have just purchased the remaining stock.");
+                    $itemDetails = $item->product_name . (isset($item->attributes) ? ' (' . implode(', ', array_column($item->attributes, 'value')) . ')' : '');
+                    throw new \Exception("Sorry, only {$variant->stock_quantity} items left for " . $itemDetails . ". Someone else might have just purchased the remaining stock.");
                 }
 
                 $newVStock = $variant->stock_quantity - $itemQty;
