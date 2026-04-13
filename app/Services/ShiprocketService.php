@@ -218,6 +218,7 @@ class ShiprocketService
 
         try {
             $response = $this->request('post', '/courier/assign/awb', $payload);
+            Log::info('Shiprocket AWB Assignment Response:', $response->json() ?? ['body' => $response->body()]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -242,7 +243,7 @@ class ShiprocketService
                     return ['status' => true, 'awb' => $awb, 'courier' => $cname, 'data' => $data];
                 }
             }
-            return ['status' => false, 'message' => $response->json('message') ?? 'Failed to assign AWB'];
+            return ['status' => false, 'message' => $response->json('message') ?? $response->json('response.message') ?? 'Failed to assign AWB'];
         } catch (\Exception $e) {
             Log::error('Shiprocket AWB Exception: ' . $e->getMessage());
             return ['status' => false, 'message' => $e->getMessage()];
@@ -302,6 +303,7 @@ class ShiprocketService
 
             if ($response->successful()) {
                 $data = $response->json();
+                Log::info('Shiprocket Manifest Response:', $data);
                 $manifestUrl = $data['manifest_url'] ?? null;
                 return ['status' => true, 'manifest_url' => $manifestUrl, 'data' => $data];
             }
@@ -519,13 +521,14 @@ class ShiprocketService
                 'shipping_phone'         => '9994504410',
                 'order_items'            => [],
                 'payment_method'         => 'Prepaid',
-                'total_weight'           => 0.5,
+                'weight'                 => 0.5, // Total weight for the return shipment
                 'sub_total'              => (float) $order->sub_total,
                 'length'                 => 10,
                 'breadth'                => 10,
                 'height'                 => 10,
             ];
-
+            
+            $totalWeight = 0;
             foreach ($order->items as $item) {
                 $payload['order_items'][] = [
                     'sku'           => $item->product ? $item->product->sku : 'N-' . time(),
@@ -533,9 +536,14 @@ class ShiprocketService
                     'units'         => $item->quantity,
                     'selling_price' => (float) $item->price,
                 ];
+                $itemWeight = (float) ($item->product->weight ?? 0.5);
+                $totalWeight += ($itemWeight > 0 ? $itemWeight : 0.5) * $item->quantity;
             }
+            $payload['weight'] = $totalWeight;
 
+            Log::info('Shiprocket CreateReturn Payload:', $payload);
             $response = $this->request('post', '/orders/create/return', $payload);
+            Log::info('Shiprocket CreateReturn Response:', $response->json() ?? ['body' => $response->body()]);
 
             if ($response->successful()) {
                 return ['status' => true, 'data' => $response->json()];

@@ -176,10 +176,10 @@ class Order extends Model
             $updates['payment_status'] = 'paid';
         }
 
-        // Special Logic: Cancelled → restore stock + mark refunded if prepaid
-        if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+        // Special Logic: Cancelled/Returned → restore stock + mark refunded if prepaid
+        if (in_array($newStatus, ['cancelled', 'returned']) && !in_array($oldStatus, ['cancelled', 'returned'])) {
             $this->restoreStock();
-            if ($this->payment_status === 'paid') {
+            if ($this->payment_status === 'paid' && $newStatus === 'cancelled') {
                 $updates['payment_status'] = 'refunded';
             }
         }
@@ -217,7 +217,7 @@ class Order extends Model
                             'type' => 'restock',
                             'quantity' => $restoreQty,
                             'balance_after' => $variant->stock_quantity,
-                            'reason' => 'Restored: Order #' . $this->order_number . ' cancelled',
+                            'reason' => 'Restored: Order #' . $this->order_number . ' ' . $this->order_status,
                         ]);
                     }
                 } else {
@@ -227,7 +227,7 @@ class Order extends Model
                         'type' => 'restock',
                         'quantity' => $restoreQty,
                         'balance_after' => $product->stock_quantity,
-                        'reason' => 'Restored: Order #' . $this->order_number . ' cancelled',
+                        'reason' => 'Restored: Order #' . $this->order_number . ' ' . $this->order_status,
                     ]);
                 }
                 
