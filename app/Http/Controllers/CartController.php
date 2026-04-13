@@ -70,7 +70,21 @@ class CartController extends Controller
         if ($result['status'] && isset($result['data']['available_courier_companies']) && count($result['data']['available_courier_companies']) > 0) {
             // Get the first (often cheapest/recommended) courier
             $courier = $result['data']['available_courier_companies'][0];
-            $edd = $courier['etd'] ?? '3-5 days';
+            $raw_edd = $courier['etd'] ?? null;
+            
+            if ($raw_edd) {
+                try {
+                    // Shiprocket API returns the Estimated Transit Date. 
+                    // We add a 2-day buffer for order processing and packaging (Dispatch Time) 
+                    // to match the more realistic dates seen in automated notifications.
+                    $eddDate = \Carbon\Carbon::parse($raw_edd);
+                    $edd = $eddDate->addDays(2)->format('M d, Y');
+                } catch (\Exception $e) {
+                    $edd = $raw_edd;
+                }
+            } else {
+                $edd = '3-5 days';
+            }
             
             // CORRECT CALCULATION based on Shiprocket Dashboard:
             // 1. Prepaid = Base Freight + Other/Notify Charges
@@ -950,7 +964,6 @@ class CartController extends Controller
 
             // Shiprocket push is now manual from Admin side.
             // $shiprocket = new \App\Services\ShiprocketService(); ...
-
             return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
         }
 

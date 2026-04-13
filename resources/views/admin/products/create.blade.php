@@ -148,7 +148,6 @@
                                 <i class="fas fa-exclamation-triangle"></i> Mandatory: Use format 0.10 (100g) or 0.50 (500g)
                             </p>
                         </div>
-                        </div>
                     </div>
                 </div>
 
@@ -558,14 +557,15 @@ $(document).ready(function() {
     $('.select2-searchable').select2({ width: '100%', placeholder: "Select..." });
 
     $('#isVariantCheckbox').on('change', function() {
+        updateRequiredState();
         const isVar = $(this).is(':checked');
         if (isVar) {
             $('#variantConfigurationSection').removeClass('hidden').hide().fadeIn(500);
-            $('#pricingStockSection, #generalSkuField').fadeOut(300, () => $('#pricingStockSection, #generalSkuField').addClass('hidden'));
+            $('#pricingStockSection, #generalSkuField, #productImagesSection').fadeOut(300, () => $('#pricingStockSection, #generalSkuField, #productImagesSection').addClass('hidden'));
             $('#regular_price').removeAttr('required');
         } else {
             $('#variantConfigurationSection').fadeOut(300, () => $('#variantConfigurationSection').addClass('hidden'));
-            $('#pricingStockSection, #generalSkuField').removeClass('hidden').hide().fadeIn(500);
+            $('#pricingStockSection, #generalSkuField, #productImagesSection').removeClass('hidden').hide().fadeIn(500);
             $('#regular_price').attr('required', 'required');
         }
     });
@@ -800,12 +800,6 @@ $(document).ready(function() {
         $('#generalImagesInput').prop('required', !isVar);
     }
 
-    $('#isVariantCheckbox').on('change', function() {
-        updateRequiredState();
-        const isVar = $(this).is(':checked');
-        $('#pricingStockSection').toggleClass('hidden', isVar);
-        $('#generalSkuField').toggleClass('hidden', isVar);
-    });
     
     // Set initial state
     updateRequiredState();
