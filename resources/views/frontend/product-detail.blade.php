@@ -72,38 +72,30 @@
             .attribute-option.unavailable {
                 position: relative !important;
                 opacity: 0.4 !important;
-                cursor: not-allowed !important;
-                pointer-events: none !important;
                 background: #f8f9fa !important;
                 color: #adb5bd !important;
                 border: 1px dashed #dee2e6 !important;
                 overflow: hidden;
                 transition: all 0.3s ease;
+                cursor: pointer !important;
             }
 
-            .attribute-option.unavailable::after {
-                content: "";
-                position: absolute;
-                top: 50%;
-                left: 10%;
-                right: 10%;
-                height: 1px;
-                background: #adb5bd;
-                transform: translateY(-50%);
-                z-index: 10;
-            }
 
-            /* Diagonal line for color swatches instead of horizontal */
-            .attribute-option.unavailable.color-swatch::after {
-                left: 0;
-                right: 0;
-                top: 50%;
-                transform: translateY(-50%) rotate(45deg);
-            }
 
             .attribute-option.unavailable.size-btn {
                 background-color: #f1f3f5 !important;
             }
+
+            /* Better visibility for active + unavailable state */
+            .attribute-option.active.unavailable {
+                opacity: 1 !important;
+                background: #fde2e9 !important;
+                color: #A91B43 !important;
+                border: 1.5px solid #A91B43 !important;
+                box-shadow: 0 4px 12px rgba(169, 27, 67, 0.1);
+            }
+
+
 
             /* Override cache for thumbnails */
             .product-thumbnails {
@@ -3286,17 +3278,9 @@
                     });
 
                     if (isAvailable) {
-                        opt.style.opacity = '1';
-                        opt.style.pointerEvents = 'auto';
                         opt.classList.remove('unavailable');
                     } else {
-                        opt.style.opacity = '0.3';
-                        opt.style.pointerEvents = 'none'; // Optional: disable clicking
                         opt.classList.add('unavailable');
-                        // If it's the currently active one but now unavailable, mark it
-                        if (opt.classList.contains('active')) {
-                            // opt.classList.remove('active');
-                        }
                     }
                 });
             });
