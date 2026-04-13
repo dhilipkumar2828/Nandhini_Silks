@@ -160,7 +160,7 @@
             <!-- SHIPROCKET LOGO CARD -->
             <div class="bg-indigo-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
                 <div class="relative z-10">
-                    <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket-logo-white.svg" alt="Shiprocket" class="h-6 mb-4 filter drop-shadow-md">
+                    <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6 mb-4 filter brightness-0 invert shadow-md">
                     <p class="text-[11px] text-indigo-200 font-bold uppercase tracking-widest leading-relaxed">Official Logistics Integration Layer v2.0</p>
                 </div>
             </div>
@@ -201,12 +201,15 @@
                                 <i class="fas fa-truck-moving text-xl text-slate-400"></i>
                             </div>
                             <div class="text-right">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rate</p>
-                                <p class="text-3xl font-black text-slate-900">₹<span x-text="Math.round(courier.rate)"></span></p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Rate</p>
+                                <p class="text-3xl font-black text-slate-900">₹<span x-text="parseFloat(courier.final_rate).toFixed(2)"></span></p>
+                                <p class="text-[8px] text-emerald-500 font-bold uppercase tracking-tighter mt-1">
+                                    <i class="fas fa-check-circle"></i> Inc. WhatsApp & Fees
+                                </p>
                             </div>
                         </div>
                         <h4 class="text-lg font-black text-slate-900 mb-2 uppercase" x-text="courier.courier_name"></h4>
-                        <span class="text-[10px] font-black px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full uppercase" x-text="'EDD: ' + (courier.etd || '3-5 Days')"></span>
+                        <span class="text-[10px] font-black px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full uppercase" x-text="'Est. Delivery: ' + (courier.buffered_edd || '3-5 Days')"></span>
                     </div>
                 </template>
             </div>
