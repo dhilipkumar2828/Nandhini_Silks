@@ -28,10 +28,35 @@ class ShippingCalculatorController extends Controller
         );
 
         if ($result['status'] && isset($result['data']['available_courier_companies'])) {
+            $couriers = collect($result['data']['available_courier_companies'])->map(function($courier) use ($request) {
+                $baseFreight = (float) ($courier['freight_charge'] ?? 0);
+                $otherFees = (float) ($courier['other_charges'] ?? 0) 
+                           + (float) ($courier['whatsapp_charges'] ?? 0)
+                           + (float) ($courier['coverage_charges'] ?? 0)
+                           + (float) ($courier['entry_tax'] ?? 0);
+                
+                $finalRate = $baseFreight + $otherFees;
+                if ($request->cod) {
+                    $finalRate += (float) ($courier['cod_charges'] ?? 0);
+                }
+
+                // Add 2-day buffer to EDD for consistency with storefront
+                $edd = $courier['etd'] ?? '3-5 Days';
+                if ($courier['etd']) {
+                    try {
+                        $edd = \Carbon\Carbon::parse($courier['etd'])->addDays(2)->format('M d, Y');
+                    } catch (\Exception $e) {}
+                }
+
+                $courier['final_rate'] = $finalRate;
+                $courier['buffered_edd'] = $edd;
+                return $courier;
+            });
+
             return response()->json([
                 'success' => true,
-                'data' => $result['data']['available_courier_companies'],
-                'shiprocket_response' => $result // Full debug data
+                'data' => $couriers,
+                'shiprocket_response' => $result
             ]);
         }
 
