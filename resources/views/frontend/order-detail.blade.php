@@ -140,7 +140,7 @@
         .order-items-table th:first-child,
         .order-items-table td:first-child {
             text-align: left !important;
-            width: 35%;
+            /* width: 35%; */
         }
 
         .order-items-table th {
@@ -747,6 +747,7 @@
             .write-review-btn {
                 padding: 10px 14px;
                 font-size: 13px;
+                width: 50%;
             }
         }
 
@@ -768,6 +769,7 @@
             .order-items-table td:not(:first-child)::before {
                 font-size: 9px;
                 min-width: 70px;
+                text-align: left;
             }
 
             .order-items-table td:not(:first-child)>span,
