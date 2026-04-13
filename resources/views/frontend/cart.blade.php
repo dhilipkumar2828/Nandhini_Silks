@@ -574,6 +574,7 @@
                         @endif
                     </div>
 
+                    {{-- Delivery check removed as per customer request (Shipping process only in checkout) --}}
                     {{-- @if($hasItems)
                         <div class="summary-pincode-check">
                             <p><i class="fas fa-truck" style="color: #A91B43;"></i> Delivery Availability</p>
