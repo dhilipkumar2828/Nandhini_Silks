@@ -539,24 +539,24 @@
     text-align: left;
 }
 
-/* 🔥 Mobile */
-@media (max-width: 768px) {
-    .product-row .featured-name {
-        font-size: 13px;
-    }
+            /* 🔥 Mobile */
+            @media (max-width: 768px) {
+                .product-row .featured-name {
+                    font-size: 13px;
+                }
 
-    .featured-price {
-        font-size: 13px;
-    }
-    .product-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-                bottom: 10px;
-}
-}
+                .featured-price {
+                    font-size: 13px;
+                }
+                .product-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                position: relative;
+                            bottom: 10px;
+            }
+            }
         /* ── Fresh Promo Section Styled for Dynamic Backend Banners ── */
         .promo-section {
             width: 100%;
