@@ -158,7 +158,7 @@
     </div>
     
     <div class="mt-4">
-        {{ $orders->appends(request()->query())->links() }}
+        {{ $orders->appends(request()->query())->onEachSide(0)->links() }}
     </div>
     </div>
 </div>

@@ -427,7 +427,7 @@
     @endpush
     <main class="cart-page">
         <div class="page-shell">
-            <div style="margin-bottom: 15px;">
+            {{-- <div style="margin-bottom: 15px;">
                 <a href="{{ route('shop') }}" class="back-to-shop"
                     style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 18px;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -437,7 +437,7 @@
                     </svg>
                     Continue Shopping
                 </a>
-            </div>
+            </div> --}}
 
             <h1 class="auth-title"
                 style="text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
@@ -484,7 +484,8 @@
                                         &#8377;{{ number_format($item['price'], 0) }}</div>
                                     <div class="quantity-picker col-quantity">
                                         <div class="picker-container"
-                                            style="display: flex; align-items: center; background: #f8f9fa; border-radius: 10px; padding: 4px; border: 1px solid #eee; width: fit-content;">
+                                            style="display: flex; align-items: center; background: #f8f9fa; border-radius: 10px; padding: 4px; border: 1px solid #eee; width: fit-content;"
+                                            data-stock="{{ $item['stock_quantity'] ?? 0 }}">
                                             <button type="button" class="qty-btn"
                                                 onclick="updateCartQty('{{ $item['key'] }}', -1)">-</button>
                                             <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]"
@@ -613,23 +614,32 @@
 @push('scripts')
     <script>
         function updateCartQty(key, val) {
-            const input = document.querySelector(`input[name="quantities[${key}]\"]`);
+            const input = document.querySelector(`input[name="quantities[${key}]"]`);
             if (!input) return;
+            
+            const container = input.closest('.picker-container');
+            const stock = parseInt(container?.dataset.stock) || 0;
+            
             let current = parseInt(input.value) || 0;
-            current += val;
-            if (current < 1) return;
-            input.value = current;
+            let target = current + val;
+            
+            if (target < 1) return;
+            if (val > 0 && target > stock) {
+                toastr.error(`Only ${stock} items available in stock.`);
+                return;
+            }
+            
+            input.value = target;
 
             // Debounce AJAX call
             clearTimeout(window.cartUpdateTimer);
             window.cartUpdateTimer = setTimeout(() => {
-                ajaxUpdateCart(key, current);
-                // SHOW SMALL FEEDEBACK
+                ajaxUpdateCart(key, target, current); // Pass current to revert if failed
                 toastr.success('Updating quantity...', '', { timeOut: 1000, progressBar: false });
             }, 500);
         }
 
-        function ajaxUpdateCart(key, qty) {
+        function ajaxUpdateCart(key, qty, oldQty) {
             // Show loading state on summary spans
             ['subtotalDisp', 'taxDisp', 'totalDisp'].forEach(id => {
                 const el = document.getElementById(id);
@@ -661,7 +671,24 @@
                         });
                         throw new Error('CSRF token mismatch');
                     }
-                    return res.json();
+                    
+                    return res.json().then(data => {
+                        if (!res.ok) {
+                            // Handle Validation Errors (like stock limit)
+                            toastr.error(data.message || 'Failed to update cart');
+                            if (oldQty !== undefined) {
+                                const input = document.querySelector(`input[name="quantities[${key}]"]`);
+                                if (input) input.value = oldQty;
+                            }
+                            // Reset opacity
+                            ['subtotalDisp', 'taxDisp', 'totalDisp'].forEach(id => {
+                                const el = document.getElementById(id);
+                                if (el) { el.style.opacity = '1'; }
+                            });
+                            throw new Error(data.message || 'Server error');
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
                     if (!data) return;
