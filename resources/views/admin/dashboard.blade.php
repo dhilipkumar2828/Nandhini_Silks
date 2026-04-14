@@ -31,13 +31,13 @@
     </div>
 
     <!-- Analytics Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @php
             $stats = [
                 ['label' => 'Total Sales', 'value' => '₹' . number_format($totalSales, 0), 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
                 ['label' => 'Total Orders', 'value' => number_format($totalOrders), 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
                 ['label' => 'Registered Users', 'value' => number_format($totalUsers), 'icon' => 'fa-users', 'color' => 'indigo'],
-                ['label' => 'Shiprocket Wallet', 'value' => (is_numeric($srWallet) ? '₹' . number_format($srWallet, 2) : $srWallet), 'icon' => 'fa-wallet', 'color' => 'emerald'],
+                // ['label' => 'Shiprocket Wallet', 'value' => (is_numeric($srWallet) ? '₹' . number_format($srWallet, 2) : $srWallet), 'icon' => 'fa-wallet', 'color' => 'emerald'],
             ];
         @endphp
 
