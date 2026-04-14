@@ -322,10 +322,12 @@
             font-size: 0.75rem !important;
         }
 
-        /* Table body rows – cell text */
+        /* Table body rows – cell text & tightening */
         main tbody td,
         main tbody td div {
             font-size: 13.5px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
         }
         
         /* Consistent Status Badge Styling */
