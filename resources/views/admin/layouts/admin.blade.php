@@ -106,17 +106,44 @@
             color: #1e293b;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #a91b43;
-            border: none;
-            color: white;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background-color: #a91b43 !important;
+            border: none !important;
+            color: white !important;
+            border-radius: 6px !important;
+            padding: 3px 28px 3px 12px !important; /* Extra right padding for the X */
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            position: relative !important;
+            display: inline-block !important;
+            margin-top: 5px !important;
+            margin-right: 5px !important;
+            box-shadow: 0 2px 4px rgba(169, 27, 67, 0.2) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            color: white;
-            margin-right: 5px;
+            position: absolute !important;
+            right: 6px !important;
+            left: auto !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: white !important;
+            border: none !important;
+            background: rgba(255,255,255,0.15) !important;
+            width: 16px !important;
+            height: 16px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transition: all 0.2s !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            transform: translateY(-50%) scale(1.1) !important;
         }
         .select2-dropdown {
             border-color: #e2e8f0;
@@ -207,83 +234,73 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 20px 0 10px;
-            margin-top: 10px;
+            justify-content: flex-end;
+            gap: 20px;
+            padding: 25px 0 10px;
+            margin-top: 15px;
+            border-top: 1px solid #f1f5f9;
         }
-
         @media (min-width: 640px) {
-            .custom-pagination {
-                flex-direction: row;
+            .custom-pagination { 
+                flex-direction: row; 
+                justify-content: space-between; /* Results on left, links on right */
             }
         }
-
         .pagination-links {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-
         .pagination-item {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 36px;
-            height: 36px;
-            padding: 0 8px;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 14px;
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 700;
             color: #64748b;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             text-decoration: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            white-space: nowrap;
         }
-
         .pagination-item:hover:not(.disabled):not(.active) {
             border-color: #a91b43;
             color: #a91b43;
             background: #fffafa;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(169, 27, 67, 0.1);
         }
-
         .pagination-item.active {
             background: #a91b43;
             border-color: #a91b43;
             color: #ffffff;
-            box-shadow: 0 8px 15px rgba(169, 27, 67, 0.25);
+            box-shadow: 0 10px 20px rgba(169, 27, 67, 0.25);
+            transform: scale(1.05);
         }
-
         .pagination-item.disabled {
-            opacity: 0.4;
+            opacity: 0.5;
             cursor: not-allowed;
-            background: #f1f5f9;
-            border-color: #e2e8f0;
-        }
-
-        .pagination-item.dots {
-            border: none;
-            background: transparent;
-            cursor: default;
+            background: #f8fafc;
+            border-color: #f1f5f9;
             color: #cbd5e1;
-            box-shadow: none;
         }
-
         .pagination-results {
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             color: #94a3b8;
             letter-spacing: -0.01em;
             text-transform: uppercase;
         }
-
         .pagination-results span {
-            color: #1e293b;
+            color: #a91b43;
+            font-weight: 800;
             margin: 0 2px;
         }
 
@@ -297,47 +314,53 @@
         main h3               { font-size: 0.9rem !important; }
 
         /* Section/card sub-headings inside forms */
-        main .text-sm { font-size: 0.8125rem !important; }
+        main .text-sm { font-size: 0.875rem !important; }
 
         /* Table header row */
         main thead th,
         main thead tr {
-            font-size: 0.7rem !important;
+            font-size: 0.75rem !important;
         }
 
         /* Table body rows – cell text */
         main tbody td,
-        main tbody td div,
-        main tbody td span:not(.badge-override) {
-            font-size: 12.5px !important;
+        main tbody td div {
+            font-size: 13.5px !important;
+        }
+        
+        /* Consistent Status Badge Styling */
+        main tbody td span.uppercase {
+            font-size: 10.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.04em !important;
+            padding: 3px 10px !important;
+            border-radius: 9999px !important; /* Force pill shape */
         }
 
         /* Serial number column */
-        main tbody td.text-xs { font-size: 0.75rem !important; }
+        main tbody td.text-xs { font-size: 0.8rem !important; }
 
         /* Form labels */
-        main label { font-size: 0.8125rem !important; font-weight: 600; }
+        main label { font-size: 0.875rem !important; font-weight: 600; }
 
         /* Form inputs, selects, textareas */
         main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
         main select,
         main textarea {
-            font-size: 0.8125rem !important;
+            font-size: 0.875rem !important;
         }
 
         /* Select2 rendered value & dropdown */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            font-size: 0.8125rem !important;
-            line-height: 36px;
+            font-size: 0.875rem !important;
+            line-height: 38px;
         }
         .select2-container--default .select2-selection--single,
         .select2-container--default .select2-selection--multiple {
-            min-height: 36px !important;
+            min-height: 38px !important;
         }
-        .select2-results__option { font-size: 0.8rem !important; }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            font-size: 0.7rem !important;
-        }
+        .select2-results__option { font-size: 0.85rem !important; }
+
 
         /* Buttons (submit, cancel, Add New, action buttons) */
         main button[type="submit"],

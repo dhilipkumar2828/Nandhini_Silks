@@ -37,13 +37,13 @@
                 
                 <div class="mt-8 pt-8 border-t border-slate-50 space-y-4">
                     <div class="flex items-center justify-between text-left p-3 rounded-2xl bg-slate-50/50">
-                        <div class="flex items-center space-x-3 text-left w-full overflow-hidden">
+                        <div class="flex items-center space-x-5 text-left w-full overflow-hidden">
                             <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 flex-shrink-0">
                                 <i class="fas fa-envelope text-[10px]"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Email Address</p>
-                                <p class="text-xs font-black text-slate-700 truncate capitalize">{{ $admin->email }}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Email Address</p>
+                                <p class="text-xs font-black text-slate-700 truncate lowercase">{{ $admin->email }}</p>
                             </div>
                         </div>
                     </div>
@@ -60,17 +60,7 @@
                         </div>
                     </div>
                     @endif
-                    <div class="flex items-center justify-between text-left p-3 rounded-2xl bg-slate-50/50">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 flex-shrink-0">
-                                <i class="fas fa-calendar text-[10px]"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Joined Date</p>
-                                <p class="text-xs font-black text-slate-700 capitalize">{{ $admin->created_at->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -88,7 +78,7 @@
                         <i class="fas fa-user-edit text-xs"></i>
                     </div>
                 </div>
-                <form action="{{ route('admin.profile.update') }}" method="POST" class="p-8 space-y-6">
+                <form action="{{ route('admin.profile.update') }}" method="POST" class="px-8 py-4 space-y-6">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-1.5">
@@ -129,7 +119,7 @@
                         <i class="fas fa-lock text-xs"></i>
                     </div>
                 </div>
-                <form action="{{ route('admin.profile.password') }}" method="POST" class="p-8 space-y-6">
+                <form action="{{ route('admin.profile.password') }}" method="POST" class="px-8 py-4 space-y-6">
                     @csrf
                     <div class="space-y-6">
                         <div class="space-y-1.5">

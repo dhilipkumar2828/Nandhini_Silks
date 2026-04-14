@@ -3075,8 +3075,13 @@
             const maxQuantity = currentMaxQuantity;
             let current = parseInt(input.value);
             let next = current + val;
-            if (next < 1) next = 1;
-            if (next > maxQuantity) next = maxQuantity;
+            
+            if (next < 1) return;
+            
+            if (val > 0 && next > maxQuantity) {
+                toastr.warning(`Only ${maxQuantity} items available in stock.`);
+                return;
+            }
 
             if (next === current) return;
 
@@ -3086,10 +3091,6 @@
             // If we are in "GO TO CART" state, update the cart immediately
             const btn = document.getElementById('addToCartBtn');
             if (btn && btn.classList.contains('go-to-cart-state')) {
-                // Determine what to send to 'cart.add'
-                // Since 'cart.add' ADDS to current quantity, we send 'val' (1 or -1)
-                // BUT only if we can find the variant context.
-                // We'll call the existing AJAX handler but with the specific increment
                 syncCartQuantity(val);
             }
         }
@@ -3122,7 +3123,13 @@
                         });
                         throw new Error('CSRF token mismatch');
                     }
-                    return response.json();
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            toastr.error(data.message || 'Error updating cart.');
+                            throw new Error(data.message || 'Server error');
+                        }
+                        return data;
+                    });
                 })
                 .then(data => {
                     if (data.success) {
@@ -3132,13 +3139,13 @@
 
                         // Update local tracking
                         updateLocalCartQuantity(increment);
-                    } else {
-                        toastr.error(data.message || 'Error updating cart.', { timeOut: 15000 });
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('Something went wrong.');
+                    if (error.message !== 'CSRF token mismatch' && !error.message.includes('Server error')) {
+                        console.error('Error:', error);
+                        toastr.error('Something went wrong.');
+                    }
                 });
         }
 
@@ -3605,6 +3612,9 @@
             if (action === 'cart') {
                 e.preventDefault();
 
+                const btn = e.submitter || document.getElementById('addToCartBtn');
+                if (btn) btn.disabled = true;
+
                 const formData = new FormData(this);
                 formData.append('action', 'cart');
 
@@ -3630,7 +3640,13 @@
                             });
                             throw new Error('CSRF token mismatch');
                         }
-                        return response.json();
+                        return response.json().then(data => {
+                            if (!response.ok) {
+                                toastr.error(data.message || 'Error adding to cart.');
+                                throw new Error(data.message || 'Server error');
+                            }
+                            return data;
+                        });
                     })
                     .then(data => {
                         if (data.success) {
@@ -3664,14 +3680,24 @@
 
                             checkVariant();
                             if (window.notifyCartUpdate) window.notifyCartUpdate();
-                        } else {
-                            toastr.error(data.message || 'Error adding to cart.');
                         }
                     })
                     .catch(error => {
-                        if (error.message !== 'CSRF token mismatch') {
+                        if (error.message !== 'CSRF token mismatch' && !error.message.includes('Server error')) {
                             console.error('Error:', error);
                             toastr.error('Something went wrong.');
+                        }
+                    })
+                    .finally(() => {
+                        const btn = document.getElementById('addToCartBtn');
+                        if (btn && !btn.classList.contains('go-to-cart-state')) {
+                            // Only re-enable if it's not in GO TO CART state
+                            // checkVariant() might have changed the state to GO TO CART which should stay enabled but with different logic
+                            // Actually checkVariant() is called above, so the state might have changed.
+                            // If it's ADD TO CART, we re-enable it based on stock.
+                            checkVariant(); 
+                        } else if (btn) {
+                            btn.disabled = false;
                         }
                     });
             }

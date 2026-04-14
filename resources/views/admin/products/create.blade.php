@@ -199,7 +199,7 @@
                                             <option value="">+ Add Attribute...</option>
                                             @foreach($attributes as $attribute)
                                                 <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}">
-                                                    {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
+                                                    {{ $attribute->name }}
                                                 </option>
                                             @endforeach
                                         </select>

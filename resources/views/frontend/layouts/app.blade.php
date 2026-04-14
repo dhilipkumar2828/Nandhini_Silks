@@ -1167,8 +1167,14 @@
             "closeButton": true,
             "progressBar": true,
             "positionClass": "toast-top-right",
-            "timeOut": "15000",
-            "extendedTimeOut": "5000",
+            "showDuration": "300",
+            "hideDuration": "500",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut",
             "preventDuplicates": true,
             "newestOnTop": true
         };

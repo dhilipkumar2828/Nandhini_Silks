@@ -502,7 +502,61 @@
         .category-card {
             padding-bottom: 10px;
         }
+/* Container */
+.product-info {
+    width: 100%;
+}
 
+/* Row: name + icon */
+.product-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Name */
+.product-row .featured-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* Cart icon */
+.product-row .featured-cart-btn {
+    flex-shrink: 0;
+}
+
+/* Price BELOW */
+.featured-price {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #7a5a2f;
+    font-weight: 500;
+    text-align: left;
+}
+
+            /* 🔥 Mobile */
+            @media (max-width: 768px) {
+                .product-row .featured-name {
+                    font-size: 13px;
+                }
+
+                .featured-price {
+                    font-size: 13px;
+                }
+                .product-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                position: relative;
+                            bottom: 10px;
+            }
+            }
         /* ── Fresh Promo Section Styled for Dynamic Backend Banners ── */
         .promo-section {
             width: 100%;
@@ -1263,7 +1317,7 @@
 
             .featured-section .featured-footer,
             .offers-section .featured-footer {
-                margin-top: 12px !important;
+                margin-top: 0px !important;
             }
         }
 
@@ -1372,15 +1426,15 @@
 
             .featured-section .featured-name,
             .offers-section .featured-name {
-                text-align: center !important;
+                text-align: left !important;
                 width: 100% !important;
                 min-height: 2.2em !important;
                 display: block !important;
-                padding: 0 6px !important;
+                padding: 0  !important;
                 font-size: 17px !important;
                 line-height: 1.35 !important;
-                margin-top: 12px !important;
                 margin-bottom: 0 !important;
+                
             }
 
             .featured-section .featured-footer,
@@ -1714,34 +1768,44 @@
                                                 @endif
 
                                             </div>
-                                            <h3 class="featured-name">
+                                            <!-- <h3 class="featured-name">
                                                 {{ \Illuminate\Support\Str::limit($product->name, 55) }}
                                             </h3>
-                                            {{-- <span class="read-more-link">Read More...</span> --}}
+                                            {{-- <span class="read-more-link">Read More...</span> --}} -->
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                        <div class="featured-footer">
-                                            <div class="featured-price-wrap" style="justify-content: center;">
-                                                <span class="featured-price">&#8377;
+                                       <div class="featured-footer">
+
+                                            <div class="product-info">
+
+                                                <!-- Name + Icon -->
+                                                <div class="product-row">
+                                                    <h3 class="featured-name">
+                                                        {{ \Illuminate\Support\Str::limit($product->name, 55) }}
+                                                    </h3>
+
+                                                    <button class="featured-cart-btn add-to-cart-btn"
+                                                        type="button"
+                                                        data-product-id="{{ $product->id }}">
+                                                        <img src="{{ asset('images/local_mall.svg') }}" alt="">
+                                                    </button>
+                                                </div>
+
+        <!-- Price BELOW -->
+                                                    <div class="featured-price">
+                                                    <span class="featured-price">&#8377;
                                                     {{ number_format($product->price, 0) }}</span>
                                                 @if ($product->regular_price > $product->price)
                                                     <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
                                                 @endif
-                                            </div>
-                                            <div class="featured-actions" style="justify-content: center; gap: 16px;">
-                                                <button class="wishlist-btn home-rail-wishlist" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
-                                                    aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
-                                                    <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
-                                                </button>
-                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to cart">
-                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
-                                                </button>
-                                            </div>
-                                            <button class="collection-cta" style="margin: 0 auto; width: 100%; max-width: 140px;"
+                                                </div>
+
+                                                <!-- <button class="collection-cta" style="margin: 0 auto; width: 100%; max-width: 140px;"
                                                 onclick="window.location.href='{{ route('product.show', $product->slug) }}'">Shop
-                                                Now</button>
+                                                Now</button> -->
+
+                                            </div>
+
                                         </div>
                                     </article>
                                 </div>

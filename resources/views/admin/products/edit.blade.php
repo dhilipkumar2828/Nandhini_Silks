@@ -226,7 +226,7 @@
                                               @foreach($attributes as $attribute)
                                                 @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
                                                 <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
-                                                    {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
+                                                    {{ $attribute->name }}
                                                 </option>
                                             @endforeach
                                         </select>

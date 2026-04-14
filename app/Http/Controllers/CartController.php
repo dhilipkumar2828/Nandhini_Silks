@@ -160,6 +160,20 @@ class CartController extends Controller
         $items = [];
         foreach ($cart as $key => $item) {
             $item['key'] = $key;
+            
+            // Fetch fresh stock
+            $product = Product::find($item['product_id']);
+            $availableStock = 0;
+            if ($product) {
+                if (isset($item['variant_id']) && $item['variant_id']) {
+                    $variant = \App\Models\ProductVariant::find($item['variant_id']);
+                    $availableStock = $variant ? (int)$variant->stock_quantity : 0;
+                } else {
+                    $availableStock = (int)$product->stock_quantity;
+                }
+            }
+            $item['stock_quantity'] = $availableStock;
+            
             $items[] = $item;
         }
         $totals = $this->calculateTotals($items);
@@ -370,6 +384,35 @@ class CartController extends Controller
             if ($qty <= 0) {
                 unset($cart[$key]);
             } else {
+                // Fresh Stock Check
+                $item = $cart[$key];
+                $productId = $item['product_id'];
+                $variantId = $item['variant_id'] ?? null;
+
+                $product = Product::find($productId);
+                if (!$product) {
+                    unset($cart[$key]);
+                    continue;
+                }
+
+                $availableStock = 0;
+                if ($variantId) {
+                    $variant = \App\Models\ProductVariant::find($variantId);
+                    $availableStock = $variant ? (int)$variant->stock_quantity : 0;
+                } else {
+                    $availableStock = (int)$product->stock_quantity;
+                }
+
+                if ($qty > $availableStock) {
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Only ' . $availableStock . ' items available for ' . $product->name . '.',
+                        ], 422);
+                    }
+                    return redirect()->route('cart')->with('error', 'Only ' . $availableStock . ' items available for ' . $product->name . '.');
+                }
+
                 $cart[$key]['quantity'] = $qty;
             }
         }
