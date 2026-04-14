@@ -635,8 +635,12 @@
             clearTimeout(window.cartUpdateTimer);
             window.cartUpdateTimer = setTimeout(() => {
                 ajaxUpdateCart(key, target, current); // Pass current to revert if failed
-                toastr.success('Updating quantity...', '', { timeOut: 1000, progressBar: false });
-            }, 500);
+                if (val > 0) {
+                    toastr.success('Quantity Increased', '', { timeOut: 1500, progressBar: true });
+                } else {
+                    toastr.info('Quantity Decreased', '', { timeOut: 1500, progressBar: true });
+                }
+            }, 300);
         }
 
         function ajaxUpdateCart(key, qty, oldQty) {

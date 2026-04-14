@@ -281,8 +281,9 @@ class CartController extends Controller
             return $this->errorResponse('You already have ' . $existingQty . ' in cart. Total stock is ' . $availableStock . '.', $request);
         }
 
+        $isUpdate = isset($cart[$cartKey]);
         // 5. Build/Update Cart Item
-        if (isset($cart[$cartKey])) {
+        if ($isUpdate) {
             $cart[$cartKey]['quantity'] += $quantity;
         } else {
             // Get Readable Names Dynamically
@@ -334,7 +335,7 @@ class CartController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true, 
-                'message' => 'Successfully added to cart!', 
+                'message' => $isUpdate ? 'Quantity Increased' : 'Successfully added to cart!', 
                 'cartCount' => $totalItems
             ]);
         }
