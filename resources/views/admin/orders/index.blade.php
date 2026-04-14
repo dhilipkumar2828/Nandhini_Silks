@@ -81,30 +81,30 @@
                     <th class="pb-3 font-bold">Customer</th>
                     <th class="pb-3 font-bold">Total</th>
                     <th class="pb-3 font-bold">Payment</th>
-                    <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold text-right">Actions</th>
+                    <th class="pb-3 font-bold text-center">Status</th>
+                    <th class="pb-3 font-bold text-center">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @forelse($orders as $order)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                    <td class="py-2 px-2 text-xs font-bold text-slate-500">
                         {{ $orders->firstItem() + $loop->index }}
                     </td>
-                    <td class="py-3">
+                    <td class="py-2">
                         <span class="font-black text-[#a91b43] text-xs">#{{ $order->order_number }}</span>
                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{{ $order->created_at->format('d M Y, h:i A') }}</div>
                     </td>
-                    <td class="py-3">
+                    <td class="py-2">
                         <div class="font-bold text-slate-800">{{ $order->customer_name }}</div>
                         <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_email }}</div>
                         <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_phone }}</div>
                     </td>
-                    <td class="py-3">
+                    <td class="py-2">
                         <div class="font-black text-slate-800">₹{{ number_format($order->grand_total, 2) }}</div>
                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ $order->payment_method }}</div>
                     </td>
-                    <td class="py-3">
+                    <td class="py-2">
                         <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border 
                             @if($order->payment_status == 'paid') bg-emerald-50 text-emerald-600 border-emerald-100
                             @elseif($order->payment_status == 'failed') bg-rose-50 text-rose-600 border-rose-100
@@ -112,7 +112,7 @@
                             {{ $order->payment_status }}
                         </span>
                     </td>
-                    <td class="py-3">
+                    <td class="py-2 text-center">
                         <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
                             @if($order->order_status == 'delivered') bg-teal-100 text-teal-600 border-teal-200
                             @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-600 border-rose-200
@@ -124,8 +124,8 @@
                             {{ $order->order_status == 'dispatched' ? 'Shipped' : ucwords($order->order_status) }}
                         </span>
                     </td>
-                    <td class="py-4 text-right pr-4">
-                        <div class="flex justify-end items-center space-x-3">
+                    <td class="py-2 text-center">
+                        <div class="flex justify-center items-center space-x-2">
                             <a href="{{ route('admin.orders.show', $order->id) }}" 
                                class="group flex items-center justify-center w-10 h-10 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-2xl transition-all duration-500 shadow-sm border border-rose-100/50" 
                                title="Manage Workflow">
