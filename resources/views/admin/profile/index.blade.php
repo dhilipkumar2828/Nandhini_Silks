@@ -21,7 +21,6 @@
                 </div>
                 
                 <h2 class="text-lg font-black text-slate-900 capitalize">{{ $admin->name }}</h2>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{ $admin->role }}</p>
 
                 <!-- Change Photo Button -->
                 <div class="mt-4">
@@ -43,7 +42,7 @@
                             </div>
                             <div class="overflow-hidden">
                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Email Address</p>
-                                <p class="text-xs font-black text-slate-700 truncate lowercase">{{ $admin->email }}</p>
+                                <p class="text-xs font-black text-slate-700 truncate lowercase mt-2">{{ $admin->email }}</p>
                             </div>
                         </div>
                     </div>
