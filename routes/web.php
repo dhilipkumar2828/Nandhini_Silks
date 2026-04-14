@@ -46,6 +46,7 @@ Route::post('/contact', [FrontendController::class, 'contactSubmit'])->name('con
 Route::get('/track-order', [FrontendController::class, 'trackOrder'])->name('track-order');
 
 Route::get('/search', [FrontendController::class, 'search'])->name('search');
+Route::get('/search/suggestions', [FrontendController::class, 'searchSuggestions'])->name('search.suggestions');
 
 // Policy Pages
 Route::get('/privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy');
