@@ -51,21 +51,21 @@
             ];
         @endphp
 
-        <div class="flex flex-nowrap overflow-x-auto pb-4 mb-2 gap-2 scrollbar-none no-scrollbar">
+        <div class="flex flex-nowrap overflow-x-auto gap-2 mb-6 pb-2 scrollbar-none no-scrollbar">
             @foreach($statusConfigs as $key => $config)
                 @php
                     $isActive = $currentStatus == $key;
                     $colorClass = $isActive 
                         ? "bg-{$config['color']}-500 text-white shadow-lg shadow-{$config['color']}-500/20 border-{$config['color']}-500" 
-                        : "bg-white text-slate-500 border-slate-100 hover:bg-slate-50 hover:border-slate-200";
+                        : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300";
                     $countColorClass = $isActive 
                         ? "bg-white/20 text-white" 
                         : "bg-slate-100 text-slate-400";
                 @endphp
                 <a href="{{ route('admin.orders.index', ['status' => $key, 'search' => request('search')]) }}" 
-                   class="flex items-center whitespace-nowrap px-5 py-3 rounded-2xl border-2 font-bold text-sm transition-all duration-300 {{ $colorClass }}">
-                    <span>{{ $config['label'] }}</span>
-                    <span class="ml-2 px-2 py-0.5 rounded-lg text-[10px] font-black {{ $countColorClass }}">
+                   class="flex-none flex items-center px-3 py-1.5 rounded-xl border transition-all duration-300 group {{ $colorClass }}">
+                    <span class="text-xs font-bold">{{ $config['label'] }}</span>
+                    <span class="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-black {{ $countColorClass }}">
                         {{ $counts[$key] ?? 0 }}
                     </span>
                 </a>
