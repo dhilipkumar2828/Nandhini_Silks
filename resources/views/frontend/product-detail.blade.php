@@ -3133,7 +3133,13 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        toastr.success(data.message || 'Cart updated.');
+                        const msg = increment > 0 ? 'Quantity Increased' : 'Quantity Decreased';
+                        if (increment > 0) {
+                            toastr.success(msg);
+                        } else {
+                            toastr.info(msg);
+                        }
+                        
                         if (window.updateMiniCart) window.updateMiniCart();
                         if (window.notifyCartUpdate) window.notifyCartUpdate();
 
