@@ -646,6 +646,47 @@ class FrontendController extends Controller
         ], $filterData));
     }
 
+    public function searchSuggestions(Request $request)
+    {
+        $query = $request->get('q');
+        if (!$query || strlen($query) < 1) {
+            return response()->json(['products' => [], 'categories' => []]);
+        }
+
+        $products = Product::where('status', 1)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'like', "%$query%")
+                  ->orWhere('sku', 'like', "%$query%");
+            })
+            ->latest()
+            ->limit(6)
+            ->get()
+            ->map(function($p) {
+                return [
+                    'name' => $p->name,
+                    'price' => '₹' . number_format($p->price, 0),
+                    'image' => $p->primary_image ? asset('uploads/' . $p->primary_image) : asset('images/nandhini-logo.png'),
+                    'url' => route('product.show', $p->slug)
+                ];
+            });
+
+        $categories = Category::where('status', 1)
+            ->where('name', 'like', "%$query%")
+            ->limit(4)
+            ->get()
+            ->map(function($c) {
+                return [
+                    'name' => $c->name,
+                    'url' => route('category.show', $c->slug)
+                ];
+            });
+
+        return response()->json([
+            'products' => $products,
+            'categories' => $categories
+        ]);
+    }
+
     public function deleteReview($id)
     {
         $review = \App\Models\ProductReview::where('id', '=', $id)->where('user_id', '=', Auth::id())->firstOrFail();

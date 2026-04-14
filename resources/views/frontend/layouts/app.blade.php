@@ -247,7 +247,7 @@
         }
 
         .tracking-box {
-            width: 200px !important;
+            width: 100% !important;
             border-color: #666 !important;
         }
         
@@ -287,38 +287,70 @@
                 justify-content: flex-end !important;
                 margin: 0 !important;
             }
+        }
+        /* Standard Mobile/Tablet (Side-by-side but balanced) */
+        /* Standard Mobile/Tablet (Wide & Centered) */
+        @media (min-width: 481px) and (max-width: 991px) {
             .header-actions-group {
-                grid-column: 1 / span 2;
-                grid-row: 2;
                 width: 100% !important;
                 display: flex !important;
                 flex-direction: row !important;
-                gap: 10px !important;
-                justify-content: space-between !important;
+                gap: 15px !important;
+                justify-content: center !important;
+                padding: 15px 10px;
+                box-sizing: border-box;
+                grid-column: 1 / span 2;
+                margin-top: 10px;
             }
-            .search-wrap, .tracking-wrap {
+            .search-wrap {
+                flex: 1.5;
+                max-width: 600px;
+            }
+            .tracking-wrap {
                 flex: 1;
-                min-width: 0;
-            }
-            .search-box, .tracking-box {
-                width: 100% !important;
-                max-width: 100% !important;
-                height: 40px !important;
-            }
-            .search-box input, .tracking-box input {
-                font-size: 14px !important;
+                max-width: 350px;
             }
         }
 
-        @media (max-width: 580px) {
+        /* Small Mobile Stacking (320px to 480px) */
+        @media (max-width: 480px) {
             .header-actions-group {
-                flex-direction: column !important;
-                gap: 8px !important;
+                            width: 100% !important;
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 15px !important;
+            justify-content: center !important;
+            padding: 15px 10px;
+            box-sizing: border-box;
+            grid-column: 1 / span 2;
+            margin-top: 10px;
             }
             .search-wrap, .tracking-wrap {
-                width: 100%;
+               width: 40% !important;
+            /* max-width: 100% !important; */
+            margin: 0 !important;
+            }
+            /* Force exact same height and smaller font */
+            .search-box-container, .tracking-box {
+                height: 38px !important;
+                width: 100% !important;
+                display: flex !important;
+                border-radius: 35px !important;
+            }
+            .search-box-container input, .tracking-box input {
+                font-size: 13px !important;
+                height: 100% !important;
+            }
+            .search-box-container .search-icon, .tracking-box i {
+                font-size: 14px !important;
             }
         }
+          @media (max-width: 400px) {
+.search-box-container input, .tracking-box input {
+                font-size: 10px !important;
+                height: 100% !important;
+            }
+          }
     </style>
 
     <!-- Flatpickr -->
@@ -353,6 +385,378 @@
             fill: #fff !important;
         }
 
+        /* Search UI Styles */
+        #global-search-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 550px;
+        }
+
+        @media (max-width: 991px) {
+            #global-search-wrapper {
+                max-width: 100%;
+                margin: 10px 0;
+            }
+        }
+
+        .search-box-container {
+            position: relative;
+            background: #fff;
+            border: 1px solid #A91B43;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            height: 42px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+
+        .search-box-container:focus-within {
+            box-shadow: 0 4px 15px rgba(169, 27, 67, 0.15);
+            background: #fffcf0;
+        }
+
+        .search-box-container .search-icon {
+            color: #A91B43;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+
+        .search-box-container input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a1a;
+            background: transparent;
+        }
+
+        .search-box-container input::placeholder {
+            color: rgba(169, 27, 67, 0.5);
+        }
+
+        .clear-search {
+            background: #f0f0f0;
+            border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            font-size: 10px;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .clear-search:hover {
+            background: #e0e0e0;
+            color: #1a1a1a;
+        }
+
+        .clear-search.active {
+            display: flex;
+        }
+
+        /* Dropdown Panel */
+        .search-dropdown-panel {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            width: 100%;
+            min-width: 320px;
+            max-width: 480px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.18);
+            border: 1px solid #eee;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2005;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 991px) {
+            .search-dropdown-panel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100vw;
+                height: 100vh;
+                max-width: none;
+                max-height: none;
+                background: #fff;
+                z-index: 10000;
+                border-radius: 0;
+                transform: translateY(100%);
+                display: block;
+                visibility: hidden;
+            }
+            .search-dropdown-panel.show {
+                visibility: visible;
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-dropdown-panel.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 991px) {
+            .search-dropdown-panel.show {
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-search-hdr {
+            display: none;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-search-hdr {
+                display: flex;
+            }
+            .search-dropdown-panel.show ~ .search-box-container {
+                visibility: hidden;
+            }
+        }
+
+        .mobile-search-input-wrap {
+            flex: 1;
+            background: #f5f5f5;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            height: 40px;
+        }
+
+        .mobile-search-input-wrap input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            padding-left: 8px;
+        }
+
+        .dropdown-section {
+            padding: 15px 0;
+            border-bottom: 1px solid #f8f8f8;
+        }
+
+        .dropdown-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            padding: 0 20px 10px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .recent-list, .suggestion-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: #1a1a1a;
+        }
+
+        .list-item:hover, .list-item.selected {
+            background: #fdf2f5;
+        }
+
+        .list-item i {
+            color: #ccc;
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .list-item .item-text {
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .list-item .item-cat {
+            font-size: 11px;
+            color: #A91B43;
+            background: #fff0f3;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .highlight-match {
+            color: #A91B43;
+            font-weight: 700;
+        }
+
+        /* Categories Filter Grid */
+        .categories-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            padding: 0 20px;
+        }
+
+        .cat-card {
+            background: #fffcf4;
+            border: 1px solid #f9eed5;
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .cat-card:hover {
+            border-color: #A91B43;
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .cat-card i {
+            font-size: 18px;
+            color: #A91B43;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .cat-card span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Product Suggestion */
+        .search-product-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            transition: background 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .search-product-item:hover, .search-product-item.selected {
+            background: #fdf2f5;
+        }
+
+        .search-product-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #f5f5f5;
+            border: 1px solid #eee;
+        }
+
+        .search-product-info {
+            flex: 1;
+        }
+
+        .search-product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .search-product-price {
+            font-size: 13px;
+            color: #A91B43;
+            font-weight: 700;
+        }
+
+        /* Empty State */
+        .search-empty-state {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .search-empty-state i {
+            font-size: 32px;
+            color: #eee;
+            margin-bottom: 15px;
+        }
+
+        .search-empty-state p {
+            color: #999;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @media (max-width: 860px) {
+            #global-search-wrapper {
+                max-width: 100%;
+                width: 100%;
+            }
+            .search-dropdown-panel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                max-height: none;
+                border-radius: 0;
+                z-index: 2002;
+                padding-top: 70px;
+            }
+            .search-box-container {
+                z-index: 99;
+                width: 100%;
+            }
+        }
     </style>
 
 
@@ -370,12 +774,81 @@
 
             <div class="header-right">
                 <div class="header-actions-group">
-                    <div class="search-wrap">
-                        <form action="{{ route('search') }}" method="GET" class="search-box">
-                            <img src="{{ asset('images/search.svg') }}" alt="Search" />
-                            <input type="text" name="q" placeholder="Search" aria-label="Search" value="{{ request('q') }}" />
+                    <div class="search-wrap" id="global-search-wrapper">
+                        <form action="{{ route('search') }}" method="GET" class="search-box-container" id="global-search-form">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" name="q" id="global-search-input" placeholder="Search for Products" aria-label="Search" value="{{ request('q') }}" autocomplete="off" />
+                            <button type="button" class="clear-search" id="clear-search-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
                             <button type="submit" style="display: none;"></button>
                         </form>
+
+                        <div class="search-dropdown-panel" id="search-dropdown">
+                            <!-- Mobile Search Header (Unified Experience) -->
+                             <div class="mobile-search-hdr">
+                                <button type="button" class="close-mobile-search" style="background: none; border: none; font-size: 18px; color: #333; padding: 5px;">
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                                <div class="mobile-search-input-wrap">
+                                    <i class="fas fa-search" style="color: #A91B43; font-size: 14px;"></i>
+                                    <input type="text" id="mobile-global-search-input" placeholder="Search products..." autocomplete="off">
+                                </div>
+                                <button type="button" class="close-mobile-search" style="background: none; border: none; font-size: 18px; color: #999; padding: 5px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            <!-- Default Content (Recent & Categories) -->
+                            <div id="default-dropdown-content">
+                                <div class="dropdown-section" id="recent-searches-section" style="display: none;">
+                                    <div class="section-header">
+                                        <span>Recent Searches</span>
+                                        <button type="button" id="clear-all-recent" style="background: none; border: none; color: #A91B43; cursor: pointer; font-size: 11px; font-weight: 700;">Clear All</button>
+                                    </div>
+                                    <ul class="recent-list" id="recent-list-container">
+                                        <!-- Dynamic Items -->
+                                    </ul>
+                                </div>
+
+                                <div class="dropdown-section">
+                                    <div class="section-header">
+                                        <span>Popular Categories</span>
+                                    </div>
+                                    <div class="suggestion-list">
+                                        @foreach($headerCategories->take(10) as $cat)
+                                            <a href="{{ url('category/'.$cat->slug) }}" class="list-item">
+                                                <i class="fas fa-arrow-trend-up" style="color: #A91B43; opacity: 0.5;"></i>
+                                                <span class="item-text">{{ $cat->name }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search Results Content -->
+                            <div id="results-dropdown-content" style="display: none;">
+                                <div class="dropdown-section" id="suggestion-section">
+                                    <div class="section-header"><span>Suggestions</span></div>
+                                    <ul class="suggestion-list" id="suggestion-list-container">
+                                        <!-- Dynamic suggestion items -->
+                                    </ul>
+                                </div>
+                                
+                                <div class="dropdown-section" id="product-section">
+                                    <div class="section-header"><span>Products</span></div>
+                                    <div id="product-results-container">
+                                        <!-- Dynamic product items -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="search-empty-state" id="search-empty-state" style="display: none;">
+                                <i class="fas fa-search"></i>
+                                <p>No results found for "<span id="empty-query"></span>"</p>
+                            </div>
+                        </div>
                     </div>
 
                     @auth
@@ -1183,6 +1656,288 @@
         @if(session('error')) toastr.error("{{ session('error') }}"); @endif
         @if($errors->any()) @foreach($errors->all() as $error) toastr.error("{{ $error }}"); @endforeach @endif
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('global-search-input');
+            const searchDropdown = document.getElementById('search-dropdown');
+            const clearBtn = document.getElementById('clear-search-btn');
+            const searchForm = document.getElementById('global-search-form');
+            const defaultContent = document.getElementById('default-dropdown-content');
+            const resultsContent = document.getElementById('results-dropdown-content');
+            const emptyState = document.getElementById('search-empty-state');
+            const recentListContainer = document.getElementById('recent-list-container');
+            const recentSection = document.getElementById('recent-searches-section');
+            const suggestionContainer = document.getElementById('suggestion-list-container');
+            const productContainer = document.getElementById('product-results-container');
+            const clearAllRecentBtn = document.getElementById('clear-all-recent');
+
+            // Categories and Dummy Products Data
+            const searchData = {
+                categories: [
+                    @foreach($headerCategories as $cat)
+                        { 
+                            name: "{{ $cat->name }}", 
+                            url: "{{ url('category/'.$cat->slug) }}",
+                            image: "{{ $cat->image ? asset('uploads/'.$cat->image) : '' }}"
+                        },
+                        @foreach($cat->subCategories as $sub)
+                            { 
+                                name: "{{ $sub->name }}", 
+                                url: "{{ url('category/'.$cat->slug.'/'.$sub->slug) }}",
+                                image: "{{ $sub->image ? asset('uploads/'.$sub->image) : '' }}"
+                            },
+                        @endforeach
+                    @endforeach
+                ],
+                dummyProducts: [
+                    { name: "Pure Kanchipuram Silk Saree", price: "₹12,499", image: "{{ asset('images/nandhini-logo.png') }}", url: "/shop" },
+                    { name: "Bridal Banarasi Silk Saree", price: "₹8,999", image: "{{ asset('images/nandhini-logo.png') }}", url: "/shop" },
+                    { name: "Designer Soft Silk Saree", price: "₹4,500", image: "{{ asset('images/nandhini-logo.png') }}", url: "/shop" },
+                    { name: "Cotton Handloom Saree", price: "₹1,200", image: "{{ asset('images/nandhini-logo.png') }}", url: "/shop" }
+                ]
+            };
+
+            let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+            let selectedIndex = -1;
+
+            const updateRecentSearches = () => {
+                const stored = localStorage.getItem('recentSearches');
+                recentSearches = stored ? JSON.parse(stored) : [];
+                
+                const filteredRecent = recentSearches.slice(0, 5);
+                if (filteredRecent.length > 0) {
+                    recentSection.style.display = 'block';
+                    recentListContainer.innerHTML = filteredRecent.map(term => `
+                        <li class="list-item history-item" data-term="${term}">
+                            <i class="fas fa-history"></i>
+                            <span class="item-text">${term}</span>
+                            <i class="fas fa-times delete-history" style="font-size: 10px; color: #ccc;" data-term="${term}"></i>
+                        </li>
+                    `).join('');
+
+                    recentListContainer.querySelectorAll('.history-item').forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            if (e.target.classList.contains('delete-history')) {
+                                e.stopPropagation();
+                                const termToDelete = e.target.dataset.term;
+                                recentSearches = recentSearches.filter(t => t !== termToDelete);
+                                localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+                                updateRecentSearches();
+                                return;
+                            }
+                            searchInput.value = item.dataset.term;
+                            handleSearch(item.dataset.term);
+                            searchForm.submit();
+                        });
+                    });
+                } else {
+                    recentSection.style.display = 'none';
+                }
+            };
+
+            const saveSearch = (term) => {
+                if (!term || term.length < 2) return;
+                const stored = localStorage.getItem('recentSearches');
+                let searches = stored ? JSON.parse(stored) : [];
+                searches = [term, ...searches.filter(t => t !== term)].slice(0, 10);
+                localStorage.setItem('recentSearches', JSON.stringify(searches));
+            };
+
+            let debounceTimer;
+
+            const highlightText = (text, query) => {
+                if (!query) return text;
+                const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                return text.replace(regex, '<span class="highlight-match">$1</span>');
+            };
+
+            const handleSearch = (query) => {
+                query = query.trim();
+                selectedIndex = -1;
+
+                if (query.length === 0) {
+                    showDefault();
+                    return;
+                }
+
+                clearBtn.classList.add('active');
+                
+                // 1. Instant Local Category Search
+                const matchedCats = searchData.categories.filter(c => 
+                    c.name.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 8);
+
+                renderCategoryResults(matchedCats, query);
+
+                // 2. Debounced Product Search via AJAX
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetch(`{{ route('search.suggestions') }}?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            renderProductResults(data.products, query);
+                        })
+                        .catch(err => console.error('Product search error:', err));
+                }, 400);
+            };
+
+            const renderCategoryResults = (categories, query) => {
+                if (categories.length > 0) {
+                    suggestionContainer.innerHTML = categories.map(c => `
+                        <a href="${c.url}" class="list-item suggestion-row" onclick="saveSearch('${query}')">
+                            <div class="search-cat-img-wrapper" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; margin-right: 12px; background: #fdf2f4; display: flex; align-items: center; justify-content: center;">
+                                <img src="${c.image || '{{ asset('images/nandhini-logo.png') }}'}" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                     style="width: 100%; height: 100%; object-fit: cover; ${!c.image ? 'display:none;' : ''}">
+                                <i class="fas fa-search" style="font-size: 14px; color: #A91B43; ${c.image ? 'display:none;' : ''}"></i>
+                            </div>
+                            <span class="item-text">${highlightText(c.name, query)}</span>
+                            <span class="item-cat">Category</span>
+                        </a>
+                    `).join('');
+                    document.getElementById('suggestion-section').style.display = 'block';
+                    searchDropdown.classList.add('show');
+                } else {
+                    suggestionContainer.innerHTML = `
+                        <li class="list-item suggestion-row" onclick="saveSearch('${query}'); document.getElementById('global-search-form').submit()">
+                            <i class="fas fa-search" style="margin-right: 10px; color: #ccc;"></i>
+                            <span class="item-text">Search for "<span class="highlight-match">${query}</span>"</span>
+                        </li>
+                    `;
+                }
+                resultsContent.style.display = 'block';
+                defaultContent.style.display = 'none';
+                emptyState.style.display = 'none';
+            };
+
+            const renderProductResults = (products, query) => {
+                if (products.length > 0) {
+                    productContainer.innerHTML = products.map(p => `
+                        <a href="${p.url}" class="search-product-item suggestion-row" onclick="saveSearch('${query}')">
+                            <img src="${p.image}" class="search-product-img" onerror="this.src='{{ asset('images/nandhini-logo.png') }}'">
+                            <div class="search-product-info">
+                                <div class="search-product-name">${highlightText(p.name, query)}</div>
+                                <div class="search-product-price">${p.price}</div>
+                            </div>
+                        </a>
+                    `).join('') + `
+                        <div class="list-item suggestion-row" style="border-top: 1px solid #f8f8f8; margin-top: 10px;" onclick="document.getElementById('global-search-form').submit()">
+                            <span class="item-text" style="color: #A91B43; font-weight: 700; font-size: 13px;">View All Matching Products <i class="fas fa-arrow-right" style="font-size: 10px; margin-left: 5px;"></i></span>
+                        </div>
+                    `;
+                    document.getElementById('product-section').style.display = 'block';
+                } else {
+                    document.getElementById('product-section').style.display = 'none';
+                }
+            };
+
+            const mobileSearchInput = document.getElementById('mobile-global-search-input');
+
+            // Sync inputs for seamless experience
+            if (mobileSearchInput) {
+                mobileSearchInput.addEventListener('input', (e) => {
+                    searchInput.value = e.target.value;
+                    handleSearch(e.target.value);
+                });
+                
+                mobileSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        saveSearch(mobileSearchInput.value);
+                        searchForm.submit();
+                    }
+                });
+            }
+
+            const showDefault = () => {
+                searchDropdown.classList.remove('show');
+                clearBtn.classList.remove('active');
+                document.body.style.overflow = ''; // Restore scroll
+            };
+
+            // Attach listeners to close buttons (Fixes the onclick scope issue)
+            document.querySelectorAll('.close-mobile-search').forEach(btn => {
+                btn.addEventListener('click', showDefault);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (window.innerWidth < 991) {
+                    searchDropdown.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // Lock scroll
+                    setTimeout(() => mobileSearchInput.focus(), 100);
+                } else if (searchInput.value.trim().length > 0) {
+                    searchDropdown.classList.add('show');
+                }
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                handleSearch(e.target.value);
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                showDefault();
+                searchInput.focus();
+            });
+
+            clearAllRecentBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                recentSearches = [];
+                localStorage.removeItem('recentSearches');
+                updateRecentSearches();
+            });
+
+            searchForm.addEventListener('submit', (e) => {
+                const term = searchInput.value.trim();
+                if (term) saveSearch(term);
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#global-search-wrapper')) {
+                    searchDropdown.classList.remove('show');
+                }
+            });
+
+            // Keyboard Navigation
+            searchInput.addEventListener('keydown', (e) => {
+                const items = searchDropdown.querySelectorAll('.list-item, .cat-card, .search-product-item, .suggestion-row');
+                if (!searchDropdown.classList.contains('show') || items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    if (selectedIndex > -1) {
+                        e.preventDefault();
+                        items[selectedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    searchDropdown.classList.remove('show');
+                    searchInput.blur();
+                }
+            });
+
+            const updateSelection = (items) => {
+                items.forEach((item, idx) => {
+                    if (idx === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            };
+
+            updateRecentSearches();
+        });
+    </script>
+
     @stack('scripts')
 </body>
 
