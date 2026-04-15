@@ -59,7 +59,7 @@
                 box-shadow: 0 0 0 2px #fff, 0 0 0 4px #A91B43 !important;
                 transform: scale(0.8);
                 z-index: 2;
-            } 
+            }
 
             /* Unselected but out-of-stock items: Keep them clear (no blur) but with standard colors */
             .attribute-option.unavailable {
@@ -81,7 +81,8 @@
                 border-color: #A91B43 !important;
                 border-width: 1.5px !important;
                 box-shadow: 0 4px 12px rgba(169, 27, 67, 0.1);
-                opacity: 1 !important; /* No blur even if selected and out of stock */
+                opacity: 1 !important;
+                /* No blur even if selected and out of stock */
             }
 
 
@@ -1176,7 +1177,7 @@
             }
 
             /* Wishlist buttons in Related Products & Recently Viewed
-                                                                                                                       must match the shop page (42px, not the main PDP 52px) */
+                                                                                                                                                                                                               must match the shop page (42px, not the main PDP 52px) */
             .related-products .btn-wishlist-detail,
             .recently-viewed .btn-wishlist-detail {
                 width: 42px !important;
@@ -1624,7 +1625,7 @@
                     max-width: none !important;
                     margin: 0 auto !important;
                     aspect-ratio: 4 / 5 !important;
-                    max-height: 56vh !important;
+                    /* max-height: 56vh !important; */
                     overflow: hidden !important;
                     background: #faf7f3 !important;
                     display: flex !important;
@@ -1978,7 +1979,7 @@
                     width: 100% !important;
                     aspect-ratio: 4 / 5 !important;
                     min-height: 0 !important;
-                    max-height: min(74vw, 560px) !important;
+                    /* max-height: min(74vw, 560px) !important; */
                     margin: 0 !important;
                     padding: clamp(4px, 1.5vw, 10px) !important;
                     display: flex !important;
@@ -1993,9 +1994,9 @@
                 .product-detail-page .main-product-image img,
                 .product-detail-page #zoomContainer img,
                 .product-detail-page #mainImg {
-                    width: 120% !important;
-                    height: 120% !important;
-                    max-width: 120% !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    max-width: 100% !important;
                     object-fit: contain !important;
                     object-position: center center !important;
                     border-radius: calc(clamp(16px, 4vw, 26px) - 4px) !important;
@@ -2193,7 +2194,7 @@
                     align-items: center !important;
                     justify-content: flex-start !important;
                     width: 100% !important;
-                    margin: 0 !important;
+                    margin: 0px 0px 0px 2px !important;
                     padding-top: 2px !important;
                 }
 
@@ -2250,7 +2251,7 @@
                 .product-detail-page .btn-add-cart,
                 .product-detail-page .btn-buy-now {
                     width: 100% !important;
-                    min-height: clamp(46px, 12vw, 52px) !important;
+                    /* min-height: clamp(46px, 12vw, 52px) !important; */
                     height: auto !important;
                     padding: 0 16px !important;
                     border-radius: 12px !important;
@@ -2529,10 +2530,12 @@
                             @php
                                 $hasDiscount = $product->regular_price > $product->price;
                             @endphp
-                            <span class="old-price" id="displayRegularPrice" style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
+                            <span class="old-price" id="displayRegularPrice"
+                                style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
                                 ₹{{ number_format($product->regular_price ?? 0, 0) }}
                             </span>
-                            <span class="discount-badge" id="displayDiscount" style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
+                            <span class="discount-badge" id="displayDiscount"
+                                style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
                                 {{ $product->discount_percent }}% OFF
                             </span>
                         </div>
@@ -2712,12 +2715,15 @@
                     <div class="delivery-check">
                         <p class="delivery-title">Check Delivery Availability</p>
                         <div class="pincode-input-group">
-                            <input type="text" class="pincode-input" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)" placeholder="Enter Pincode" value="{{ session('checked_pincode') }}">
+                            <input type="text" class="pincode-input" maxlength="6"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                                placeholder="Enter Pincode" value="{{ session('checked_pincode') }}">
                             <button type="button" class="btn-pincode">Check</button>
                         </div>
                         <p class="delivery-note">
                             @if(session('checked_pincode') && session('checked_pincode_edd'))
-                                <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by {{ session('checked_pincode_edd') }}</span>
+                                <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated
+                                    delivery by {{ session('checked_pincode_edd') }}</span>
                             @else
                                 Free shipping on orders above ₹5,000.
                             @endif
@@ -3075,9 +3081,9 @@
             const maxQuantity = currentMaxQuantity;
             let current = parseInt(input.value);
             let next = current + val;
-            
+
             if (next < 1) return;
-            
+
             if (val > 0 && next > maxQuantity) {
                 toastr.warning(`Only ${maxQuantity} items available in stock.`);
                 return;
@@ -3139,7 +3145,7 @@
                         } else {
                             toastr.info(msg);
                         }
-                        
+
                         if (window.updateMiniCart) window.updateMiniCart();
                         if (window.notifyCartUpdate) window.notifyCartUpdate();
 
@@ -3611,150 +3617,150 @@
             initSwiper('.related-swiper', '.related-next', '.related-prev');
             initSwiper('.recently-swiper', '.recently-next', '.recently-prev');
 
-        // AJAX Add to Cart
-        document.getElementById('pdpForm')?.addEventListener('submit', function(e) {
-            const action = e.submitter ? e.submitter.value : 'cart';
+            // AJAX Add to Cart
+            document.getElementById('pdpForm')?.addEventListener('submit', function (e) {
+                const action = e.submitter ? e.submitter.value : 'cart';
 
-            if (action === 'cart') {
-                e.preventDefault();
+                if (action === 'cart') {
+                    e.preventDefault();
 
-                const btn = e.submitter || document.getElementById('addToCartBtn');
-                if (btn) btn.disabled = true;
+                    const btn = e.submitter || document.getElementById('addToCartBtn');
+                    if (btn) btn.disabled = true;
 
-                const formData = new FormData(this);
-                formData.append('action', 'cart');
+                    const formData = new FormData(this);
+                    formData.append('action', 'cart');
 
-                fetch(this.getAttribute('action'), {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                    .then(response => {
-                        if (response.status === 419) {
-                            Swal.fire({
-                                title: 'Session Expired',
-                                text: 'Your session has expired. Please refresh the page to continue.',
-                                icon: 'warning',
-                                confirmButtonText: 'Refresh Page',
-                                confirmButtonColor: '#A91B43'
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                            throw new Error('CSRF token mismatch');
+                    fetch(this.getAttribute('action'), {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
                         }
-                        return response.json().then(data => {
-                            if (!response.ok) {
-                                toastr.error(data.message || 'Error adding to cart.');
-                                throw new Error(data.message || 'Server error');
-                            }
-                            return data;
-                        });
                     })
-                    .then(data => {
-                        if (data.success) {
-                            toastr.success(data.message || 'Added to cart.');
-                            if (window.updateMiniCart) window.updateMiniCart();
-
-                            // Re-fetch or locally update cartVariantIds if needed, 
-                            // but for simplicity we can check the current matched variant
-                            let selectedAttrs = [];
-                            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
-                                if (input.value) selectedAttrs.push(parseInt(input.value));
-                            });
-                            let matched = productVariants.find(v => {
-                                if (!v.combination) return false;
-                                let vValues = Object.values(v.combination).flat().map(Number);
-                                return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
-                            });
-
-                            if (matched) {
-                                if (!cartVariantIds.includes(matched.id) && !cartVariantIds.includes(String(matched.id))) {
-                                    cartVariantIds.push(matched.id);
-                                }
-                                // Update quantity 
-                                const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
-                                cartVariantQuantities[matched.id] = (cartVariantQuantities[matched.id] || 0) + qtyEntered;
-                            } else {
-                                // Base product (no variant selected or none exist)
-                                const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
-                                cartVariantQuantities['base'] = (cartVariantQuantities['base'] || 0) + qtyEntered;
+                        .then(response => {
+                            if (response.status === 419) {
+                                Swal.fire({
+                                    title: 'Session Expired',
+                                    text: 'Your session has expired. Please refresh the page to continue.',
+                                    icon: 'warning',
+                                    confirmButtonText: 'Refresh Page',
+                                    confirmButtonColor: '#A91B43'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                                throw new Error('CSRF token mismatch');
                             }
+                            return response.json().then(data => {
+                                if (!response.ok) {
+                                    toastr.error(data.message || 'Error adding to cart.');
+                                    throw new Error(data.message || 'Server error');
+                                }
+                                return data;
+                            });
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message || 'Added to cart.');
+                                if (window.updateMiniCart) window.updateMiniCart();
 
-                            checkVariant();
-                            if (window.notifyCartUpdate) window.notifyCartUpdate();
+                                // Re-fetch or locally update cartVariantIds if needed, 
+                                // but for simplicity we can check the current matched variant
+                                let selectedAttrs = [];
+                                document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                                    if (input.value) selectedAttrs.push(parseInt(input.value));
+                                });
+                                let matched = productVariants.find(v => {
+                                    if (!v.combination) return false;
+                                    let vValues = Object.values(v.combination).flat().map(Number);
+                                    return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
+                                });
+
+                                if (matched) {
+                                    if (!cartVariantIds.includes(matched.id) && !cartVariantIds.includes(String(matched.id))) {
+                                        cartVariantIds.push(matched.id);
+                                    }
+                                    // Update quantity 
+                                    const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
+                                    cartVariantQuantities[matched.id] = (cartVariantQuantities[matched.id] || 0) + qtyEntered;
+                                } else {
+                                    // Base product (no variant selected or none exist)
+                                    const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
+                                    cartVariantQuantities['base'] = (cartVariantQuantities['base'] || 0) + qtyEntered;
+                                }
+
+                                checkVariant();
+                                if (window.notifyCartUpdate) window.notifyCartUpdate();
+                            }
+                        })
+                        .catch(error => {
+                            if (error.message !== 'CSRF token mismatch' && !error.message.includes('Server error')) {
+                                console.error('Error:', error);
+                                toastr.error('Something went wrong.');
+                            }
+                        })
+                        .finally(() => {
+                            const btn = document.getElementById('addToCartBtn');
+                            if (btn && !btn.classList.contains('go-to-cart-state')) {
+                                // Only re-enable if it's not in GO TO CART state
+                                // checkVariant() might have changed the state to GO TO CART which should stay enabled but with different logic
+                                // Actually checkVariant() is called above, so the state might have changed.
+                                // If it's ADD TO CART, we re-enable it based on stock.
+                                checkVariant();
+                            } else if (btn) {
+                                btn.disabled = false;
+                            }
+                        });
+                }
+            });
+
+            // Shiprocket Pincode Check Implementation
+            document.querySelector('.btn-pincode')?.addEventListener('click', function (e) {
+                e.preventDefault();
+                const btn = this;
+                const input = document.querySelector('.pincode-input');
+                const note = document.querySelector('.delivery-note');
+                const pincode = input.value.trim();
+
+                if (!pincode || pincode.length !== 6 || isNaN(pincode)) {
+                    toastr.warning('Please enter a valid 6-digit pincode.');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                note.innerHTML = '<span style="color: #666;">Checking availability...</span>';
+
+                fetch('{{ route("check-serviceability") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ pincode: pincode, product_id: "{{ $product->id }}" })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Check';
+
+                        if (data.success) {
+                            note.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
+                            toastr.success(data.message);
+                        } else {
+                            note.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                            toastr.error(data.message);
                         }
                     })
                     .catch(error => {
-                        if (error.message !== 'CSRF token mismatch' && !error.message.includes('Server error')) {
-                            console.error('Error:', error);
-                            toastr.error('Something went wrong.');
-                        }
-                    })
-                    .finally(() => {
-                        const btn = document.getElementById('addToCartBtn');
-                        if (btn && !btn.classList.contains('go-to-cart-state')) {
-                            // Only re-enable if it's not in GO TO CART state
-                            // checkVariant() might have changed the state to GO TO CART which should stay enabled but with different logic
-                            // Actually checkVariant() is called above, so the state might have changed.
-                            // If it's ADD TO CART, we re-enable it based on stock.
-                            checkVariant(); 
-                        } else if (btn) {
-                            btn.disabled = false;
-                        }
+                        btn.disabled = false;
+                        btn.innerHTML = 'Check';
+                        note.innerHTML = '<span style="color: #e74c3c;">Service unavailable. Try again later.</span>';
+                        console.error('Error:', error);
                     });
-            }
-        });
-
-        // Shiprocket Pincode Check Implementation
-        document.querySelector('.btn-pincode')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            const btn = this;
-            const input = document.querySelector('.pincode-input');
-            const note = document.querySelector('.delivery-note');
-            const pincode = input.value.trim();
-
-            if (!pincode || pincode.length !== 6 || isNaN(pincode)) {
-                toastr.warning('Please enter a valid 6-digit pincode.');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            note.innerHTML = '<span style="color: #666;">Checking availability...</span>';
-
-            fetch('{{ route("check-serviceability") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ pincode: pincode, product_id: "{{ $product->id }}" })
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerHTML = 'Check';
-                
-                if (data.success) {
-                    note.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
-                    toastr.success(data.message);
-                } else {
-                    note.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
-                    toastr.error(data.message);
-                }
-            })
-            .catch(error => {
-                btn.disabled = false;
-                btn.innerHTML = 'Check';
-                note.innerHTML = '<span style="color: #e74c3c;">Service unavailable. Try again later.</span>';
-                console.error('Error:', error);
             });
         });
-    });
-</script>
+    </script>
 @endpush
