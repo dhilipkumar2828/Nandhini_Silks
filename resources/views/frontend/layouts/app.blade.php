@@ -326,7 +326,7 @@
             margin-top: 10px;
             }
             .search-wrap, .tracking-wrap {
-               width: 40% !important;
+               width: 46% !important;
             /* max-width: 100% !important; */
             margin: 0 !important;
             }
@@ -344,10 +344,13 @@
             .search-box-container .search-icon, .tracking-box i {
                 font-size: 14px !important;
             }
+                .search-box-container{
+                    width: 100% !important;
+                }
         }
           @media (max-width: 400px) {
-.search-box-container input, .tracking-box input {
-                font-size: 10px !important;
+              .search-box-container input, .tracking-box input {
+                font-size: 13px !important;
                 height: 100% !important;
             }
           }
@@ -777,7 +780,7 @@
                     <div class="search-wrap" id="global-search-wrapper">
                         <form action="{{ route('search') }}" method="GET" class="search-box-container" id="global-search-form">
                             <i class="fas fa-search search-icon"></i>
-                            <input type="text" name="q" id="global-search-input" placeholder="Search for Products" aria-label="Search" value="{{ request('q') }}" autocomplete="off" />
+                            <input type="text" name="q" id="global-search-input" placeholder="Search..." aria-label="Search" value="{{ request('q') }}" autocomplete="off" />
                             <button type="button" class="clear-search" id="clear-search-btn">
                                 <i class="fas fa-times"></i>
                             </button>
