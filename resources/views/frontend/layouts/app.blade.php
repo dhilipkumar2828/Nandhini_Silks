@@ -516,6 +516,25 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+        .map-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 30px auto 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 220px; /* 🔥 reduced from 350 */
+    border: 0;
+}
+
+@media (max-width: 768px) {
+    .map-container iframe {
+        height: 180px;
+    }
+}
 
         @media (max-width: 991px) {
             .search-dropdown-panel.show {
@@ -1139,8 +1158,15 @@
               <div class="footer-extra-box">
                 <div class="footer-extra-glyph"><a href=""><img src="{{ asset('images/Vector4.svg') }}" alt=""></a></div>
               </div>
-              <div class="footer-extra-box-1"><a href=""><img src="{{ asset('images/Group.svg') }}" alt=""></a></div>
+              <div class="footer-extra-box-1"><a href="https://www.instagram.com/nandhinisilksarani?utm_source=qr&igsh=MXdyNW82Z3k1bWlqbA=="><img src="{{ asset('images/Group.svg') }}" alt=""></a></div>
             </div>
+           <div class="map-container">
+    <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3892.5978990348053!2d79.3176313!3d12.674349!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad2b927fa2a367%3A0x65ad7e60aa46ff8f!2sNandhini%20silks!5e0!3m2!1sen!2sin!4v1776321227938!5m2!1sen!2sin"
+        allowfullscreen=""
+        loading="lazy">
+    </iframe>
+</div>
           </div>
         </div>
 
