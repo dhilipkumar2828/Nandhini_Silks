@@ -15,7 +15,7 @@ class Setting extends Model
     {
         $settings = self::all()->pluck('value', 'key');
         $mode = $settings['mail_mode'] ?? 'local';
-        $fallback = $settings['order_notification_email'] ?? 'orders@nandhinisilks.com';
+        $fallback = $settings['order_notification_email'] ?? 'nandhinisilks.arni@gmail.com';
 
         if ($mode === 'live') {
             return $settings['live_notification_email'] ?? $fallback;

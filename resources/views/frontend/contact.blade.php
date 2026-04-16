@@ -45,7 +45,7 @@
                                     style="filter: brightness(0) invert(1);"></div>
                             <div class="info-text">
                                 <h3>Email Address</h3>
-                                <p>noreply@nandhinisilks.com</p>
+                                <p>nandhinisilks.arni@gmail.com</p>
                             </div>
                         </div>
                     </div>
