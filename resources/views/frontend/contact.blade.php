@@ -37,7 +37,7 @@
                                     style="filter: brightness(0) invert(1);"></div>
                             <div class="info-text">
                                 <h3>Contact Number</h3>
-                                <p>+91 96295 52822<br>+91 99945 04410</p>
+                                <p>+91 96295 52822<br>+91 93631 52822</p>
                             </div>
                         </div>
                         <div class="info-item">

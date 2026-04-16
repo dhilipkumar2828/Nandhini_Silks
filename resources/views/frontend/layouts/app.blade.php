@@ -1144,7 +1144,7 @@
             </div>
             <div class="footer-contact-item">
               <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/telephone.svg') }}" alt=""></span>
-              <p class="footer-contact-text">+91 99945 04410</p>
+              <p class="footer-contact-text">+91 93631 52822</p>
             </div>
             <div class="footer-contact-item">
               <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/email.svg') }}" alt=""></span>
