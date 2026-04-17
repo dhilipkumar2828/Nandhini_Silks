@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div class="mt-6">
+            <!-- <div class="mt-6">
                 <h3 class="text-sm font-bold text-slate-800 mb-3">Addresses</h3>
                 @if($user->addresses->count())
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -94,7 +94,7 @@
                 @else
                     <div class="text-xs text-slate-400 italic">No addresses saved.</div>
                 @endif
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
