@@ -124,13 +124,6 @@ class OrderController extends Controller
         $oldTracking = $order->tracking_number;
         $newStatus = $request->order_status;
 
-        // If manually cancelling, tell Shiprocket to cancel too
-        if ($newStatus == 'cancelled' && $oldStatus != 'cancelled') {
-            if ($order->shiprocket_order_id) {
-                $shiprocket->cancelOrder($order->shiprocket_order_id);
-            }
-        }
-
         $order->syncStatus(
             $newStatus,
             null, // Not a shiprocket-triggered sync
@@ -227,13 +220,32 @@ class OrderController extends Controller
         // Save pickup scheduled date in DB
         $order->update(['pickup_scheduled_at' => $pickupDate]);
 
+        // Re-calculate EDD based on the newly scheduled pickup date
+        // Since surface takes time, but user requested "one or two days", we set it to +2 days from pickup
+        $pickupRef = \Carbon\Carbon::parse($pickupDate);
+        $currentEdd = $order->edd ? \Carbon\Carbon::parse($order->edd) : null;
+
+        if (!$currentEdd || $currentEdd->lte($pickupRef)) {
+            $order->update(['edd' => $pickupRef->copy()->addDays(2)->format('Y-m-d')]);
+        }
+
         // Update order status + send emails
         $order->syncStatus('ready to ship');
-
+        
         if (!$pickupResult['status']) {
+            $msg = $pickupResult['message'] ?? 'Unknown Error';
+            
+            // If it's already in queue, treat as success for the user UX
+            if (str_contains(strtolower($msg), 'already in pickup queue') || str_contains(strtolower($msg), 'already scheduled')) {
+                return back()->with('success',
+                    "✅ Order pushed to Shiprocket! AWB: {$awbResult['awb']} via {$awbResult['courier']}. " .
+                    "Note: Pickup was already scheduled."
+                );
+            }
+
             return back()->with('warning',
                 "✓ Pushed & AWB ({$awbResult['awb']}) assigned via {$awbResult['courier']}. " .
-                "⚠ Pickup scheduling failed: " . ($pickupResult['message'] ?? 'Try manually.')
+                "⚠ Pickup scheduling failed: " . $msg
             );
         }
 
@@ -417,31 +429,54 @@ class OrderController extends Controller
 
     public function syncShiprocketStatus(Order $order, ShiprocketService $shiprocket)
     {
-        if (!$order->shiprocket_shipment_id) {
-            return back()->with('error', 'No Shipment ID found for this order.');
+        if (!$order->shiprocket_shipment_id && !$order->shiprocket_order_id) {
+            return back()->with('error', 'No Shiprocket IDs found for this order.');
         }
 
-        $trackingData = $shiprocket->trackOrder($order->shiprocket_shipment_id);
-        
-        Log::info('Order sync manually triggered', ['order_id' => $order->id, 'shipment_id' => $order->shiprocket_shipment_id]);
+        $synced = false;
+        $statusMsg = "Tracking data not available yet.";
 
-        if (isset($trackingData['tracking_data']) && $trackingData['tracking_data']['track_status'] == 1) {
-            $shipmentTrack = $trackingData['tracking_data']['shipment_track'][0] ?? null;
-            if ($shipmentTrack) {
-                // Mocking a webhook payload to use the existing status mapping logic in service
-                $mockPayload = [
-                    'shipment_id'    => $order->shiprocket_shipment_id,
-                    'current_status' => $shipmentTrack['current_status'],
-                    'awb'            => $shipmentTrack['awb_code'] ?? $order->shiprocket_awb,
-                ];
-
-                $shiprocket->processWebhook($mockPayload);
-                
-                $statusCode = $shipmentTrack['status_code'] ?? ($shipmentTrack['current_status_id'] ?? 'N/A');
-                return back()->with('success', "Status synced from Shiprocket: {$shipmentTrack['current_status']} (Code: {$statusCode})");
+        // Attempt 1: Track via shipment ID
+        if ($order->shiprocket_shipment_id) {
+            $trackingData = $shiprocket->trackOrder($order->shiprocket_shipment_id);
+            if (isset($trackingData['tracking_data']) && $trackingData['tracking_data']['track_status'] == 1) {
+                $shipmentTrack = $trackingData['tracking_data']['shipment_track'][0] ?? null;
+                if ($shipmentTrack) {
+                    $mockPayload = [
+                        'shipment_id'    => $order->shiprocket_shipment_id,
+                        'current_status' => $shipmentTrack['current_status'],
+                        'awb'            => $shipmentTrack['awb_code'] ?? $order->shiprocket_awb,
+                        'edd'            => $shipmentTrack['edd'] ?? $shipmentTrack['expected_delivery_date'] ?? ($shipmentTrack['etd'] ?? null),
+                    ];
+                    $shiprocket->processWebhook($mockPayload);
+                    $synced = true;
+                    $statusMsg = "Status synced from Shiprocket: " . $shipmentTrack['current_status'];
+                }
             }
         }
 
-        return back()->with('error', 'Shiprocket tracking data not available yet.');
+        // Attempt 2: Fallback to Order Details (Crucial for Cancelled orders where tracking might be disabled)
+        if (!$synced && $order->shiprocket_order_id) {
+            $orderData = $shiprocket->getOrderDetails($order->shiprocket_order_id);
+            if ($orderData && isset($orderData['data'])) {
+                $shiprocketStatus = $orderData['data']['status'] ?? null;
+                if ($shiprocketStatus) {
+                    $mockPayload = [
+                        'order_id'       => $order->shiprocket_order_id,
+                        'current_status' => $shiprocketStatus,
+                        'edd'            => $orderData['data']['etd'] ?? null,
+                    ];
+                    $shiprocket->processWebhook($mockPayload);
+                    $synced = true;
+                    $statusMsg = "Status synced from Shiprocket Order Info: " . $shiprocketStatus;
+                }
+            }
+        }
+
+        if ($synced) {
+            return back()->with('success', $statusMsg);
+        }
+
+        return back()->with('error', $statusMsg);
     }
 }

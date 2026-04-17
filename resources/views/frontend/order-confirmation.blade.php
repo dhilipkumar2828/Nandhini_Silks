@@ -360,7 +360,7 @@
                         <tr class="tax-row">
                             <td colspan="3" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Shipping</td>
                             <td style="text-align: right; border: none; font-weight: 700; color: {{ $order->shipping > 0 ? '#333' : '#2e7d32' }}; padding-right: 0;">
-                                {{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 0) : 'FREE' }}
+                                {{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}
                             </td>
                         </tr>
                         <tr class="tax-row">

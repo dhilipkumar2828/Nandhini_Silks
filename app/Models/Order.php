@@ -126,8 +126,9 @@ class Order extends Model
             default     => ['label' => 'No Return',        'class' => 'bg-slate-50 text-slate-600'],
         };
     }
-    public function syncStatus($newStatus, $shiprocketStatus = null, $trackingNumber = null)
+    public function syncStatus($statusInput, $shiprocketStatus = null, $trackingNumber = null)
     {
+        $newStatus = strtolower(trim($statusInput));
         $oldStatus = $this->order_status;
 
         // Prevent overwriting a final state with an earlier one
@@ -147,19 +148,47 @@ class Order extends Model
         $oldPriority = $statusPriority[$oldStatus] ?? 0;
         $newPriority = $statusPriority[$newStatus] ?? 0;
 
-        // Only allow backwards movement for 'cancelled' and 'returned' explicitly
-        if ($newPriority < $oldPriority && !in_array($newStatus, ['cancelled', 'returned'])) {
+        // Only allow backwards movement for 'cancelled', 'returned', and 'processing' (reset) explicitly
+        if ($newPriority < $oldPriority && !in_array($newStatus, ['cancelled', 'returned', 'processing'])) {
             \Illuminate\Support\Facades\Log::warning("Skipping status downgrade for Order #{$this->order_number}: {$oldStatus} → {$newStatus}");
             return false;
         }
 
+        // If transitioning TO Cancelled or Processing, try to cancel the order in Shiprocket if it exists
+        if (in_array($newStatus, ['cancelled', 'processing']) && $this->shiprocket_order_id) {
+            try {
+                $shiprocket = new \App\Services\ShiprocketService();
+                $shiprocket->cancelOrder($this->shiprocket_order_id);
+                \Illuminate\Support\Facades\Log::info("Cancelled Shiprocket Order #{$this->shiprocket_order_id} via syncStatus ({$newStatus})");
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to auto-cancel Shiprocket order during status change: " . $e->getMessage());
+            }
+        }
+
         $updates = ['order_status' => $newStatus];
 
-        if ($shiprocketStatus) {
+        // If resetting to Processing or Cancelled, clear Shiprocket logistics info
+        if (in_array($newStatus, ['processing', 'cancelled'])) {
+            $updates['shiprocket_order_id']    = null;
+            $updates['shiprocket_shipment_id'] = null;
+            $updates['shiprocket_awb']         = null;
+            $updates['shiprocket_status']      = null;
+            $updates['shiprocket_courier_id']  = null;
+            $updates['shiprocket_courier_name']= null;
+            $updates['shiprocket_label_url']   = null;
+            $updates['shiprocket_manifest_url']= null;
+            $updates['shiprocket_invoice_url'] = null;
+            $updates['pickup_scheduled_at']    = null;
+            $updates['tracking_number']        = null;
+            $updates['courier_name']           = null;
+            $updates['edd']                    = null;
+        }
+
+        if ($shiprocketStatus && !in_array($newStatus, ['processing', 'cancelled'])) {
             $updates['shiprocket_status'] = $shiprocketStatus;
         }
 
-        if ($trackingNumber) {
+        if ($trackingNumber && !in_array($newStatus, ['processing', 'cancelled'])) {
             $updates['tracking_number'] = $trackingNumber;
             // Also update AWB if not already set
             if (!$this->shiprocket_awb) {

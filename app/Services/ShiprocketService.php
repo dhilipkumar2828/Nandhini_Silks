@@ -52,13 +52,35 @@ class ShiprocketService
     private function request(string $method, string $endpoint, array $data = []): \Illuminate\Http\Client\Response
     {
         $token = $this->getToken();
-        $response = Http::withToken($token)->{$method}("{$this->baseUrl}{$endpoint}", $data);
+        
+        $request = Http::withToken($token)
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'NandhiniSilks/1.0',
+            ]);
+
+        if (strtolower($method) === 'get') {
+            $response = $request->get("{$this->baseUrl}{$endpoint}", $data);
+        } else {
+            $response = $request->post("{$this->baseUrl}{$endpoint}", $data);
+        }
 
         // Auto-refresh on 401 Unauthorized
         if ($response->status() === 401) {
             Log::warning('Shiprocket 401 — refreshing token and retrying…');
             $token = $this->getToken(true);
-            $response = Http::withToken($token)->{$method}("{$this->baseUrl}{$endpoint}", $data);
+            
+            $request = Http::withToken($token)
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'NandhiniSilks/1.0',
+                ]);
+
+            if (strtolower($method) === 'get') {
+                $response = $request->get("{$this->baseUrl}{$endpoint}", $data);
+            } else {
+                $response = $request->post("{$this->baseUrl}{$endpoint}", $data);
+            }
         }
 
         if (!$response->successful()) {
@@ -66,7 +88,7 @@ class ShiprocketService
                 'endpoint' => $endpoint,
                 'status'   => $response->status(),
                 'payload'  => $data,
-                'response' => $response->json(),
+                'response' => $response->json() ?? ['body' => substr($response->body(), 0, 500)],
             ]);
         }
 
@@ -111,6 +133,11 @@ class ShiprocketService
                 $itemPath = $item->product->image_path;
             }
             $imageUrl = $itemPath ? asset('uploads/' . $itemPath) : null;
+            
+            // Shiprocket API blocks localhost/127.0.0.1 URLs in payloads (SSRF protection)
+            if ($imageUrl && (str_contains($imageUrl, '127.0.0.1') || str_contains($imageUrl, 'localhost'))) {
+                $imageUrl = null;
+            }
 
             $items[] = [
                 'name'          => $item->product_name,
@@ -132,8 +159,12 @@ class ShiprocketService
         $firstName = $nameParts[0];
         $lastName  = $nameParts[1] ?? '.';
 
+        // Generate a unique ID for Shiprocket to allow retries if a previous shipment was cancelled/stuck
+        // Format: ORD-NUMBER-XX (where XX is a short unique suffix)
+        $shiprocketOrderId = $order->order_number . '-' . strtoupper(\Illuminate\Support\Str::random(3));
+
         $payload = [
-            'order_id'                => $order->order_number,
+            'order_id'                => $shiprocketOrderId,
             'order_date'              => $order->created_at->format('Y-m-d H:i'),
             'pickup_location'         => config('services.shiprocket.pickup_location', 'Primary'),
             'channel_id'              => '',
@@ -159,8 +190,13 @@ class ShiprocketService
             'length'                  => 10,
             'breadth'                 => 10,
             'height'                  => 10,
-            'weight'                  => (float) ($totalWeight > 0 ? $totalWeight : 0.5),
+            'weight'                  => (float) ($totalWeight >= 0.01 ? $totalWeight : 0.5),
         ];
+
+        // Ensure weight is at least 0.01 but recommended 0.5 for most couriers
+        if ($payload['weight'] < 0.1) {
+            $payload['weight'] = 0.5;
+        }
 
         try {
             Log::info('Shiprocket CreateOrder Payload:', $payload);
@@ -204,10 +240,18 @@ class ShiprocketService
 
                 // Filter out "Air" couriers as requested (e.g., Xpressbees Air, Blue Dart Air)
                 if (isset($data['available_courier_companies']) && is_array($data['available_courier_companies'])) {
+                    // Log the couriers found before filtering to help debugging
+                    $allNames = array_column($data['available_courier_companies'], 'courier_name');
+                    Log::info('All Available Couriers for Pincode ' . $deliveryPincode . ':', $allNames);
+
                     $data['available_courier_companies'] = array_values(array_filter($data['available_courier_companies'], function($courier) {
                         $name = strtolower($courier['courier_name'] ?? '');
+                        // Check for 'air' or 'express' (which often implies air) if they want pure surface
                         return !str_contains($name, 'air');
                     }));
+                    
+                    $filteredNames = array_column($data['available_courier_companies'], 'courier_name');
+                    Log::info('Filtered (Surface-Only) Couriers for Pincode ' . $deliveryPincode . ':', $filteredNames);
                 }
 
                 return ['status' => true, 'data' => $data];
@@ -228,11 +272,51 @@ class ShiprocketService
             return ['status' => false, 'message' => 'No shipment ID. Push order to Shiprocket first.'];
         }
 
+        // If no courier is specified, find the cheapest SURFACE courier manually
+        if (!$courierId) {
+            $totalWeight = 0;
+            foreach ($order->items as $item) {
+                $itemWeight = ($item->variant && ($item->variant->weight > 0)) ? (float)$item->variant->weight : (float)($item->product->weight ?? 0.5);
+                $totalWeight += ($itemWeight > 0 ? $itemWeight : 0.5) * $item->quantity;
+            }
+            if ($totalWeight < 0.1) $totalWeight = 0.5;
+
+            $isCod = (strtoupper($order->payment_method) === 'COD');
+            $pincode = $order->shipping_pincode;
+
+            Log::info("Auto-assigning courier: Checking serviceability for {$pincode}, weight {$totalWeight}, COD=" . ($isCod?'Y':'N'));
+            
+            $service = $this->checkServiceability($pincode, $totalWeight, $isCod);
+
+            if ($service['status'] && !empty($service['data']['available_courier_companies'])) {
+                $couriers = $service['data']['available_courier_companies'];
+                
+                // Sort by rate (cheapest first)
+                usort($couriers, function($a, $b) {
+                    $rateA = (float)($a['rate'] ?? 0);
+                    $rateB = (float)($b['rate'] ?? 0);
+                    return $rateA <=> $rateB;
+                });
+
+                $bestCourier = $couriers[0];
+                $courierId = $bestCourier['courier_company_id'];
+                $tempEtd = $bestCourier['etd'] ?? $bestCourier['edd'] ?? null;
+                Log::info("Auto-assignment: Selected {$bestCourier['courier_name']} (ID: {$courierId}) for Order #{$order->order_number}, ETD: {$tempEtd}");
+            } else {
+                Log::error("Auto-assignment FAILED for Order #{$order->order_number}: No surface couriers found. Blocking assignment to prevent Air fallback.");
+                return [
+                    'status' => false, 
+                    'message' => 'No surface couriers available for this location. Shiprocket auto-assignment blocked to prevent Air delivery.'
+                ];
+            }
+        }
+        
         $payload = ['shipment_id' => $order->shiprocket_shipment_id];
         if ($courierId) {
             $payload['courier_id'] = $courierId;
         }
-
+        
+        Log::info('Shiprocket Assign AWB Payload:', $payload);
         try {
             $response = $this->request('post', '/courier/assign/awb', $payload);
             Log::info('Shiprocket AWB Assignment Response:', $response->json() ?? ['body' => $response->body()]);
@@ -250,12 +334,32 @@ class ShiprocketService
                     ?? 'Shiprocket';
 
                 if ($awb) {
+                    // Logic to ensure EDD is realistic and after pickup
+                    $rawEdd = $data['response']['data']['expected_delivery_date'] 
+                              ?? ($data['response']['data']['etd'] 
+                              ?? ($data['response']['data']['edd'] ?? ($tempEtd ?? null)));
+                    
+                    $finalEdd = $rawEdd;
+                    try {
+                        $pickupRef = $order->pickup_scheduled_at ? \Carbon\Carbon::parse($order->pickup_scheduled_at) : \Carbon\Carbon::now();
+                        $eddObj = $rawEdd ? \Carbon\Carbon::parse($rawEdd) : $pickupRef->copy()->addDays(5);
+                        
+                        // If EDD is before or too close to pickup, move it to 5 days after pickup (realistic for surface)
+                        if ($eddObj->lte($pickupRef->copy()->addDays(1))) {
+                            $eddObj = $pickupRef->copy()->addDays(5);
+                        }
+                        $finalEdd = $eddObj->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        Log::warning("EDD Parsing failed for Order #{$order->order_number}: " . $e->getMessage());
+                    }
+
                     $order->update([
                         'shiprocket_awb'          => $awb,
                         'shiprocket_courier_id'   => $cid,
                         'shiprocket_courier_name' => $cname,
                         'tracking_number'         => $awb,
                         'courier_name'            => $cname,
+                        'edd'                     => $finalEdd,
                     ]);
                     return ['status' => true, 'awb' => $awb, 'courier' => $cname, 'data' => $data];
                 }
@@ -367,6 +471,19 @@ class ShiprocketService
     // ─────────────────────────────────────────────────────────────────────────
     public function requestPickup($shipmentId, ?string $pickupDate = null): array
     {
+        // Security Check: Avoid Air delivery only surface delivery need to accept
+        $order = Order::where('shiprocket_shipment_id', $shipmentId)->first();
+        if ($order && $order->shiprocket_courier_name) {
+            $name = strtolower($order->shiprocket_courier_name);
+            if (str_contains($name, 'air')) {
+                Log::warning("Pickup Blocked: Attempted pickup for AIR shipment #{$shipmentId} (Courier: {$order->shiprocket_courier_name})");
+                return [
+                    'status' => false, 
+                    'message' => 'Air delivery is blocked. Please re-assign a Surface courier company in the Shiprocket panel or re-sync.'
+                ];
+            }
+        }
+
         try {
             $payload = ['shipment_id' => [$shipmentId]];
             if ($pickupDate) {
@@ -409,6 +526,17 @@ class ShiprocketService
         }
     }
 
+    public function getOrderDetails($orderId): ?array
+    {
+        try {
+            $response = $this->request('get', "/orders/show/{$orderId}");
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('Shiprocket Show Order Exception: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 10 — Handle Webhook (called from controller)
     // ─────────────────────────────────────────────────────────────────────────
@@ -419,9 +547,10 @@ class ShiprocketService
             $status      = $payload['current_status'] ?? $payload['status'] ?? null;
             $shipmentId  = $payload['shipment_id'] ?? null;
             $orderId     = $payload['order_id']    ?? null;
+            $edd         = $payload['edd']         ?? $payload['etd'] ?? $payload['expected_delivery_date'] ?? null;
 
             Log::info('Shiprocket Webhook Received:', [
-                'awb' => $awb, 'status' => $status, 'shipment_id' => $shipmentId,
+                'awb' => $awb, 'status' => $status, 'shipment_id' => $shipmentId, 'edd' => $edd
             ]);
 
             if (!$awb && !$shipmentId && !$orderId) {
@@ -479,8 +608,8 @@ class ShiprocketService
                 'RTO'                => 'returned',
                 'RTO INITIATED'      => 'returned',
                 'UNDELIVERED'        => 'cancelled',
-                'CANCELED'           => 'cancelled',
-                'CANCELLED'          => 'cancelled',
+                'CANCELED'           => 'processing',
+                'CANCELLED'          => 'processing',
             ];
 
             $normalizedStatus = strtoupper(trim($status ?? ''));
@@ -500,6 +629,11 @@ class ShiprocketService
                 Log::info("Shiprocket Return Update - Order #{$order->order_number}: return_status={$newMappedStatus}");
             } else {
                 // ── Forward Shipment Logic ────────────────────────────────────────
+                // Update EDD if present in payload
+                if ($edd) {
+                    $order->update(['edd' => $edd]);
+                }
+
                 if ($newMappedStatus) {
                     $result = $order->syncStatus(
                         $newMappedStatus,
@@ -627,14 +761,18 @@ class ShiprocketService
     public function cancelOrder($shiprocketOrderId): array
     {
         try {
+            Log::info("Shiprocket Cancel Request for Order ID: {$shiprocketOrderId}");
             $response = $this->request('post', '/orders/cancel', [
                 'ids' => [$shiprocketOrderId],
             ]);
 
+            $responseData = $response->json();
+            Log::info("Shiprocket Cancel Response for Order ID {$shiprocketOrderId}:", $responseData ?? ['body' => $response->body()]);
+
             if ($response->successful()) {
                 return ['status' => true, 'message' => 'Order cancelled in Shiprocket'];
             }
-            return ['status' => false, 'message' => $response->json('message') ?? 'Failed to cancel'];
+            return ['status' => false, 'message' => $responseData['message'] ?? 'Failed to cancel'];
         } catch (\Exception $e) {
             Log::error('Shiprocket Cancel Exception: ' . $e->getMessage());
             return ['status' => false, 'message' => $e->getMessage()];
