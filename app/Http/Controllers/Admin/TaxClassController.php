@@ -11,7 +11,18 @@ class TaxClassController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $taxClasses = TaxClass::withCount('rates')->latest()->paginate($perPage)->withQueryString();
+        $query = TaxClass::withCount('rates');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $taxClasses = $query->latest()->paginate($perPage)->withQueryString();
         return view('admin.tax-classes.index', compact('taxClasses'));
     }
 
@@ -23,12 +34,19 @@ class TaxClassController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:tax_classes,name',
             'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'status' => 'required',
         ]);
 
-        TaxClass::create($request->all());
+        $data = $request->all();
+        $data['name'] = trim($data['name']);
+
+        if (TaxClass::where('name', $data['name'])->exists()) {
+            return redirect()->back()->withErrors(['name' => 'This Tax Class name already exists.'])->withInput();
+        }
+
+        TaxClass::create($data);
 
         return redirect()->route('admin.tax-classes.index')->with('success', 'Tax class created successfully.');
     }
@@ -41,12 +59,19 @@ class TaxClassController extends Controller
     public function update(Request $request, TaxClass $taxClass)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:tax_classes,name,' . $taxClass->id,
             'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'status' => 'required',
         ]);
 
-        $taxClass->update($request->all());
+        $data = $request->all();
+        $data['name'] = trim($data['name']);
+
+        if (TaxClass::where('name', $data['name'])->where('id', '!=', $taxClass->id)->exists()) {
+            return redirect()->back()->withErrors(['name' => 'This Tax Class name already exists.'])->withInput();
+        }
+
+        $taxClass->update($data);
 
         return redirect()->route('admin.tax-classes.index')->with('success', 'Tax class updated successfully.');
     }

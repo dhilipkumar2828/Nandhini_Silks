@@ -17,19 +17,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Tax Class <span class="text-rose-500">*</span></label>
-                    <select name="tax_class_id" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800 font-bold">
+                    <select name="tax_class_id" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800 font-bold {{ $errors->has('tax_class_id') ? 'border-rose-500' : '' }}">
                         <option value="">Select a Class</option>
                         @foreach($taxClasses as $class)
                             <option value="{{ $class->id }}" {{ old('tax_class_id') == $class->id ? 'selected' : '' }}>{{ $class->name }}</option>
                         @endforeach
                     </select>
+                    @error('tax_class_id')
+                        <span class="text-rose-500 text-[10px] font-bold">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Rate Name <span class="text-rose-500">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required
-                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800 {{ $errors->has('name') ? 'border-rose-500' : '' }}"
                         placeholder="e.g. TN GST 12%">
+                    @error('name')
+                        <span class="text-rose-500 text-[10px] font-bold">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="space-y-1.5">
@@ -74,7 +80,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div class="flex items-center space-x-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
                     <input type="hidden" name="is_compound" value="0">
                     <input type="checkbox" name="is_compound" value="1" {{ old('is_compound') ? 'checked' : '' }} class="w-4 h-4 text-[#a91b43] border-slate-300 rounded focus:ring-[#a91b43]">
@@ -92,7 +98,7 @@
                         <span class="text-[10px] text-slate-400">Calculate tax on shipping costs as well</span>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
                 <a href="{{ route('admin.tax-rates.index') }}" class="px-6 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-all font-semibold">Cancel</a>

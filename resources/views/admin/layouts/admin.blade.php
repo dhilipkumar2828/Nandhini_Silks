@@ -4,15 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') | Nandhini Silks Admin</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/nandhini-logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -83,34 +87,399 @@
         textarea.error {
             border-color: #ef4444 !important;
         }
+
+        /* Select2 Custom Styles to match your theme */
+        .select2-container--default .select2-selection--single, 
+        .select2-container--default .select2-selection--multiple {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            min-height: 38px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #a91b43 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+            font-size: 0.875rem;
+            color: #1e293b;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #a91b43 !important;
+            border: none !important;
+            color: white !important;
+            border-radius: 6px !important;
+            padding: 3px 28px 3px 12px !important; /* Extra right padding for the X */
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            position: relative !important;
+            display: inline-block !important;
+            margin-top: 5px !important;
+            margin-right: 5px !important;
+            box-shadow: 0 2px 4px rgba(169, 27, 67, 0.2) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: absolute !important;
+            right: 6px !important;
+            left: auto !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            color: white !important;
+            border: none !important;
+            background: rgba(255,255,255,0.15) !important;
+            width: 16px !important;
+            height: 16px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            font-size: 11px !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transition: all 0.2s !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            transform: translateY(-50%) scale(1.1) !important;
+        }
+        .select2-dropdown {
+            border-color: #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .select2-results__option--highlighted[aria-selected] {
+            background-color: #a91b43 !important;
+        }
+
+        /* Custom Toastr Styles - Premium & Dynamic */
+        #toast-container > .toast {
+            opacity: 1 !important;
+            border-radius: 12px !important;
+            padding: 18px 20px 18px 50px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            background-image: none !important;
+        }
+        #toast-container > .toast:before {
+            position: absolute !important;
+            left: 18px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 20px !important;
+            color: white !important;
+        }
+        #toast-container > .toast-success { 
+            background-color: #10b981 !important; /* Emerald Green */
+        }
+        #toast-container > .toast-success:before { 
+            content: "\f058" !important; /* fa-circle-check */
+        }
+        #toast-container > .toast-error { 
+            background-color: #e11d48 !important; /* Rose Red */
+        }
+        #toast-container > .toast-error:before { 
+            content: "\f06a" !important; /* fa-circle-exclamation */
+        }
+        #toast-container > .toast-info { 
+            background-color: #3b82f6 !important; /* Sky Blue */
+        }
+        #toast-container > .toast-info:before { 
+            content: "\f05a" !important; /* fa-circle-info */
+        }
+        #toast-container > .toast-warning { 
+            background-color: #f59e0b !important; /* Amber */
+        }
+        #toast-container > .toast-warning:before { 
+            content: "\f071" !important; /* fa-triangle-exclamation */
+        }
+
+        /* Mandatory Field marker */
+        .required-label::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        input.error-border, select.error-border, textarea.error-border {
+            border-color: #ef4444 !important;
+        }
+        input[type="file"]::file-selector-button {
+            background-color: #a91b43;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            margin-right: 1rem;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: #940437;
+        }
+
+        /* Custom Pagination Styling - Premium Look */
+        .custom-pagination {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 20px;
+            padding: 25px 0 10px;
+            margin-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+        @media (min-width: 640px) {
+            .custom-pagination { 
+                flex-direction: row; 
+                justify-content: space-between; /* Results on left, links on right */
+            }
+        }
+        .pagination-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pagination-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            white-space: nowrap;
+        }
+        .pagination-item:hover:not(.disabled):not(.active) {
+            border-color: #a91b43;
+            color: #a91b43;
+            background: #fffafa;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(169, 27, 67, 0.1);
+        }
+        .pagination-item.active {
+            background: #a91b43;
+            border-color: #a91b43;
+            color: #ffffff;
+            box-shadow: 0 10px 20px rgba(169, 27, 67, 0.25);
+            transform: scale(1.05);
+        }
+        .pagination-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8fafc;
+            border-color: #f1f5f9;
+            color: #cbd5e1;
+        }
+        .pagination-results {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+        .pagination-results span {
+            color: #a91b43;
+            font-weight: 800;
+            margin: 0 2px;
+        }
+
+        /* ============================================
+           CONTENT AREA – GLOBAL FONT SIZE SCALE-UP
+           Applies to all Create / Edit / List / View pages
+           ============================================ */
+
+        /* Page / Card section headings (e.g. "Category List") */
+        main h2, main .text-lg { font-size: 1.05rem !important; }
+        main h3               { font-size: 0.9rem !important; }
+
+        /* Section/card sub-headings inside forms */
+        main .text-sm { font-size: 0.875rem !important; }
+
+        /* Table header row */
+        main thead th,
+        main thead tr {
+            font-size: 0.75rem !important;
+        }
+
+        /* Table body rows – cell text & tightening */
+        main tbody td,
+        main tbody td div {
+            font-size: 13.5px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+        }
+        
+        /* Consistent Status Badge Styling */
+        main tbody td span.uppercase {
+            font-size: 10.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.04em !important;
+            padding: 3px 10px !important;
+            border-radius: 9999px !important; /* Force pill shape */
+        }
+
+        /* Serial number column */
+        main tbody td.text-xs { font-size: 0.8rem !important; }
+
+        /* Form labels */
+        main label { font-size: 0.875rem !important; font-weight: 600; }
+
+        /* Form inputs, selects, textareas */
+        main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+        main select,
+        main textarea {
+            font-size: 0.875rem !important;
+        }
+
+        /* Select2 rendered value & dropdown */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            font-size: 0.875rem !important;
+            line-height: 38px;
+        }
+        .select2-container--default .select2-selection--single,
+        .select2-container--default .select2-selection--multiple {
+            min-height: 38px !important;
+        }
+        .select2-results__option { font-size: 0.85rem !important; }
+
+
+        /* Buttons (submit, cancel, Add New, action buttons) */
+        main button[type="submit"],
+        main a.bg-\[\#a91b43\],
+        main a[class*="bg-[#a91b43]"],
+        main .btn-primary { font-size: 0.8125rem !important; }
+
+        /* Status / badge pills */
+        main span[class*="bg-emerald"],
+        main span[class*="bg-rose"],
+        main span[class*="bg-indigo"],
+        main span[class*="bg-slate"],
+        main span[class*="bg-amber"],
+        main span[class*="bg-orange"] {
+            font-size: 0.68rem !important;
+            padding: 1.5px 7px !important;
+        }
+
+        /* Search input & per-row dropdown */
+        main input[type="text"][name="search"],
+        main select[name="per_page"],
+        main select[onchange*="form.submit"] {
+            font-size: 0.8rem !important;
+        }
+
+        /* Pagination result count */
+        .pagination-results { font-size: 0.7rem !important; }
+        .pagination-item     { font-size: 0.7rem !important; }
+
+        /* File upload button */
+        input[type="file"]::file-selector-button { font-size: 0.8rem !important; }
+
+        /* Small helper / slug text below name in table */
+        main .text-\[10px\] { font-size: 10px !important; }
+        main .text-\[9px\]  { font-size: 9px !important; }
+
+        /* Rows selector tiny label */
+        main select[name="per_page"] { font-size: 0.7rem !important; }
+
+        /* Card glass section title (e.g. "General Information", "SEO Optimization") */
+        main .card-glass h2,
+        main .rounded-2xl h2,
+        main .rounded-xl h2 { font-size: 0.95rem !important; }
+
+        /* Action icon buttons – keep icons, bump tooltip clarity */
+        main a[class*="p-1"] i,
+        main button[class*="p-1"] i { font-size: 0.8rem !important; }
+
+    </style>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+    <style>
+
+        /* Flatpickr Custom Styles */
+        .flatpickr-calendar {
+            width: 307.875px !important;
+        }
+        .dayContainer {
+            min-width: 307.875px !important;
+            max-width: 307.875px !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #a91b43 !important;
+            border-color: #a91b43 !important;
+        }
+        .flatpickr-months .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #a91b43 !important;
+        }
+        .flatpickr-weekdays {
+            background: #a91b43 !important;
+        }
+        span.flatpickr-weekday {
+            background: #a91b43 !important;
+            color: white !important;
+        }
+        .flatpickr-months .flatpickr-prev-month svg, 
+        .flatpickr-months .flatpickr-next-month svg {
+            width: 14px !important;
+            height: 14px !important;
+            fill: #fff !important;
+        }
     </style>
 </head>
 
 <body class="min-h-screen flex">
-    <!-- Sidebar -->
-    <aside class="sidebar-glass w-60 fixed h-full flex flex-col z-50 text-slate-600">
-        <div class="px-6 py-6 border-b border-slate-50 flex flex-col items-center">
-            <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks"
-                class="h-10 w-auto mix-blend-multiply mb-1">
-            <span class="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">Management Suite</span>
+    <!-- Admin Loader Overlay -->
+    <div id="adminLoader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white/70 backdrop-blur-[2px]" style="display: none;">
+        <div class="flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-[#a91b43]/20 border-t-[#a91b43] rounded-full animate-spin"></div>
+            <p class="mt-4 text-[#a91b43] font-black tracking-widest text-[10px] uppercase">Please Wait...</p>
         </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar-glass w-64 fixed h-full flex flex-col z-50 text-slate-600">
+        <a href="{{ route('admin.dashboard') }}">
+            <div class="px-6 py-8 border-b border-slate-50 flex flex-col items-center">
+                <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks"
+                    class="" style="width: 120px; height: auto;">
+            </div>
+        </a>
         <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-            <div class="px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</div>
+            <div class="px-4 py-3 text-[12px] font-bold text-slate-400 uppercase tracking-widest">Main Menu</div>
 
             <a href="{{ route('admin.dashboard') }}"
-                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-home text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Analytics</span>
+                <span class="font-bold ml-2 text-[15.5px]">Dashboard</span>
             </a>
 
             <!-- Catalog Dropdown -->
-            <div
-                x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
-                <button @click="open = !open"
-                    class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
-                    :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.offer-collections.*', 'admin.products.*') ? 'true' : 'false' }} }">
+                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-3 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
-                    <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
+                    <span class="font-bold ml-2 text-[15.5px] text-left flex-1">Catalog</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
                         :class="open ? 'rotate-180' : ''"></i>
                 </button>
@@ -118,111 +487,207 @@
                 <div x-show="open" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
-                    <a href="{{ route('admin.categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Categories</span>
-                    </a>
+                        <a href="{{ route('admin.categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.sub-categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.sub-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-indent text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Sub Categories</span>
-                    </a>
+                        <a href="{{ route('admin.sub-categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.sub-categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-indent text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Sub Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.child-categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.child-categories.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-outdent text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Child Categories</span>
-                    </a>
+                        <a href="{{ route('admin.child-categories.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.child-categories.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-outdent text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Child Categories</span>
+                        </a>
 
-                    <a href="{{ route('admin.products.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-box text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Products</span>
-                    </a>
+                        {{-- <div x-data="{ openAttr: {{ request()->routeIs('admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }"> --}}
+                            {{-- <button @click="openAttr = !openAttr"
+                                class="w-full nav-link flex items-center px-3 py-2 rounded-xl transition-all"
+                                :class="openAttr ? 'bg-slate-50 text-[#a91b43]' : ''">
+                                <div class="w-4 flex justify-center"><i class="fas fa-tags text-xs"></i></div>
+                                <span class="font-bold ml-2 text-[13.5px] text-left flex-1">Attributes</span>
+                                <i class="fas fa-chevron-down text-[8px] transition-transform duration-300"
+                                    :class="openAttr ? 'rotate-180' : ''"></i>
+                            </button> --}}
+
+                            {{-- <div x-show="openAttr" x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1"> --}}
+                                <a href="{{ route('admin.attributes.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                    <div class="w-4 flex justify-center"><i class="fas fa-tags text-xs"></i></div>
+                                    <span class="font-bold ml-2 text-[14px]">Attribute Group</span>
+                                </a>
+                                {{-- <a href="{{ route('admin.attribute-values.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                                    <span class="font-bold ml-2 text-[12.5px]">Attribute Values</span>
+                                </a> --}}
+                            {{-- </div> --}}
+                        {{-- </div> --}}
+
+                        <a href="{{ route('admin.offer-collections.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.offer-collections.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-gifts text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Offer Collections</span>
+                        </a>
+
+                        <a href="{{ route('admin.products.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }} flex items-center px-3 py-2 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-box text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Products</span>
+                        </a>
+
+                        
                 </div>
             </div>
 
 
 
+            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-shopping-cart text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Orders</span>
+            </a>
+
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-users text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Users</span>
+            </a>
+
+           
 
 
-            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
+            <div class="px-4 py-3 text-[12px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
             </div>
 
             <a href="{{ route('admin.banners.index') }}"
-                class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-image text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Banners</span>
+                <span class="font-bold ml-2 text-[15.5px]">Banners</span>
             </a>
 
             <a href="{{ route('admin.ads.index') }}"
-                class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.ads.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-ad text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Advertisements</span>
+                <span class="font-bold ml-2 text-[15.5px]">Advertisements</span>
+            </a>
+
+            <a href="{{ route('admin.reviews.index') }}"
+                class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-star text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Product Reviews</span>
+                @php $pendingReviews = \App\Models\ProductReview::where('status', 0)->count(); @endphp
+                @if($pendingReviews > 0)
+                <span class="ml-auto bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-sm">{{ $pendingReviews }}</span>
+                @endif
             </a>
 
             <a href="{{ route('admin.testimonials.index') }}"
-                class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                class="nav-link {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-comment-dots text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Testimonials</span>
+                <span class="font-bold ml-2 text-[15.5px]">Testimonials</span>
             </a>
 
-            <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
+            <a href="{{ route('admin.inquiries.index') }}"
+                class="nav-link {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-question-circle text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Inquiries</span>
+                @php $pendingInquiries = \App\Models\Inquiry::where('status', 'pending')->count(); @endphp
+                @if($pendingInquiries > 0)
+                <span class="ml-auto bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-sm">{{ $pendingInquiries }}</span>
+                @endif
+            </a>
 
-            <!-- Tax Settings Dropdown -->
+            <div class="px-4 py-3 text-[12px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
+
+            <!-- Tax Settings (Shipping handled by Shiprocket) -->
             <div
                 x-data="{ open: {{ request()->routeIs('admin.tax-classes.*', 'admin.tax-rates.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
-                    class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
+                    class="w-full nav-link flex items-center px-4 py-3 rounded-xl transition-all"
                     :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
                     <div class="w-6 flex justify-center"><i class="fas fa-percent text-base"></i></div>
-                    <span class="font-bold ml-2 text-xs text-left flex-1">Tax Settings</span>
+                    <span class="font-bold ml-2 text-[15.5px] text-left flex-1">Tax Settings</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
                         :class="open ? 'rotate-180' : ''"></i>
                 </button>
-
                 <div x-show="open" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
-                    <a href="{{ route('admin.tax-settings.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-settings.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-cog text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">General Settings</span>
-                    </a>
 
-                    <a href="{{ route('admin.tax-classes.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Tax Classes</span>
-                    </a>
+                        <a href="{{ route('admin.tax-classes.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-layer-group text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Tax Classes</span>
+                        </a>
 
-                    <a href="{{ route('admin.tax-rates.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">Tax Rates</span>
-                    </a>
+                        <a href="{{ route('admin.tax-rates.index') }}"
+                            class="nav-link {{ request()->routeIs('admin.tax-rates.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                            <div class="w-4 flex justify-center"><i class="fas fa-chart-line text-xs"></i></div>
+                            <span class="font-bold ml-2 text-[14px]">Tax Rates</span>
+                        </a>
                 </div>
             </div>
 
-            <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-sliders text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Preferences</span>
+
+
+            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-ticket text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Coupons</span>
             </a>
+
+            <a href="{{ route('admin.stock.index') }}" class="nav-link {{ request()->routeIs('admin.stock.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-boxes-stacked text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Stock Maintenance</span>
+            </a>
+
+            <a href="{{ route('admin.shipping.calculator') }}" class="nav-link {{ request()->routeIs('admin.shipping.calculator') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-truck-fast text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">Delivery Pincode</span>
+            </a>
+
+            <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-cog text-base"></i></div>
+                <span class="font-bold ml-2 text-[15.5px]">System Settings</span>
+            </a>
+
+            <!-- Sidebar Profile -->
+            <div class="mt-auto border-t border-slate-50 p-4">
+                <a href="{{ route('admin.profile.index') }}" class="nav-link flex items-center p-2 rounded-xl {{ request()->routeIs('admin.profile.*') ? 'bg-slate-50 text-[#a91b43]' : '' }}">
+                    <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
+                        @php $admin = Auth::guard('admin')->user(); @endphp
+                        @if($admin->profile_photo)
+                            <img src="{{ asset($admin->profile_photo) }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full gradient-bg flex items-center justify-center font-black text-xs text-white">
+                                {{ substr($admin->name, 0, 1) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="ml-3 overflow-hidden">
+                        <p class="text-[14px] font-black text-slate-700 truncate capitalize">{{ $admin->name }}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">View Profile</p>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-[11px] text-slate-300"></i>
+                </a>
+            </div>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-60 p-6 bg-[#f9fafc]">
+    <main class="flex-1 ml-64 p-6 bg-[#f9fafc]">
         <header class="flex justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">@yield('title', 'Dashboard')</h1>
-                <div class="flex items-center space-x-2 mt-1">
+                {{-- <div class="flex items-center space-x-2 mt-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Nandhini Silks Console •
                         Live</p>
-                </div>
+                </div> --}}
             </div>
 
             <div class="flex items-center space-x-4">
@@ -235,32 +700,75 @@
                 <div class="h-6 w-[1px] bg-slate-200 hidden sm:block"></div>
 
                 <!-- Notifications -->
-                <button
+                {{-- <button
                     class="w-9 h-9 flex items-center justify-center card-glass rounded-lg hover:bg-[#a91b43] hover:text-white transition-all group relative">
                     <i class="fas fa-bell text-sm"></i>
                     <span
                         class="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full border-2 border-white"></span>
-                </button>
+                </button> --}}
 
-                <!-- Profile and Logout -->
-                <div class="flex items-center space-x-3 bg-white p-1 pr-3 rounded-xl border border-slate-100 shadow-sm">
-                    <div
-                        class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center font-black text-sm text-white shadow-md">
-                        {{ substr(Auth::guard('admin')->user()->name, 0, 1) }}
+                <!-- Profile Dropdown -->
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" class="flex items-center space-x-3 bg-white p-1 pr-3 rounded-xl border border-slate-100 shadow-sm hover:border-[#a91b43]/20 transition-all">
+                        <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-md">
+                            @php $admin = Auth::guard('admin')->user(); @endphp
+                            @if($admin->profile_photo)
+                                <img src="{{ asset($admin->profile_photo) }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full gradient-bg flex items-center justify-center font-black text-sm text-white">
+                                    {{ substr($admin->name, 0, 1) }}
+                                </div>
+                            @endif
+                        </div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs font-black text-slate-800 leading-none mb-0.5 capitalize">{{ $admin->name }}</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{{ $admin->role }}</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-300 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                         class="absolute right-0 mt-2 w-56 card-glass rounded-2xl py-2 z-[60] overflow-hidden" 
+                         style="display: none;">
+                        
+                        <div class="px-4 py-3 border-b border-slate-50 mb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quick Access</p>
+                            <p class="text-xs font-black text-slate-900 truncate capitalize">{{ Auth::guard('admin')->user()->name }}</p>
+                        </div>
+
+                        <a href="{{ route('admin.profile.index') }}" class="flex items-center space-x-3 px-4 py-2 text-slate-600 hover:bg-[#a91b43]/5 hover:text-[#a91b43] transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-[#a91b43]/10 transition-colors">
+                                <i class="fas fa-user-circle text-sm"></i>
+                            </div>
+                            <span class="text-xs font-bold">My Profile</span>
+                        </a>
+
+                        <a href="{{ route('admin.manage-admins.index') }}" class="flex items-center space-x-3 px-4 py-2 text-slate-600 hover:bg-[#a91b43]/5 hover:text-[#a91b43] transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-[#a91b43]/10 transition-colors">
+                                <i class="fas fa-user-plus text-sm"></i>
+                            </div>
+                            <span class="text-xs font-bold">Add Admin</span>
+                        </a>
+
+                        <div class="h-[1px] bg-slate-50 my-1 mx-2"></div>
+
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-all group">
+                                <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                    <i class="fas fa-power-off text-sm"></i>
+                                </div>
+                                <span class="text-xs font-bold">Sign Out</span>
+                            </button>
+                        </form>
                     </div>
-                    <div class="flex flex-col">
-                        <span
-                            class="text-xs font-black text-slate-800 leading-none mb-0.5">{{ Auth::guard('admin')->user()->name }}</span>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Admin</span>
-                    </div>
-                    <div class="w-[1px] h-5 bg-slate-100 mx-1"></div>
-                    <form action="{{ route('admin.logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all rounded-lg shadow-sm group">
-                            <i class="fas fa-power-off text-[10px]"></i>
-                        </button>
-                    </form>
                 </div>
             </div>
         </header>
@@ -269,6 +777,102 @@
     </main>
 
     <script>
+        window.UPLOAD_URL = "{{ asset('uploads') }}";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Flatpickr for dates
+            $('input[type="date"]').flatpickr({
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+            });
+            $('input[type="datetime-local"]').flatpickr({
+                enableTime: true,
+                altInput: true,
+                altFormat: "F j, Y H:i",
+                dateFormat: "Y-m-d H:i",
+            });
+        });
+
+        $(document).ready(function() {
+            // Auto-add <span>*</span> to required labels
+            $('input[required], select[required], textarea[required], input[data-rule-required="true"]').each(function() {
+                var label = $(this).closest('.form-group, .mb-4, .mb-3, .space-y-1\\.5, .mb-1').find('label').first();
+                if (label.length) {
+                    // Only add if no star already exists
+                    if (!label.find('.text-rose-500').length && !label.find('.text-red-500').length && label.text().indexOf('*') === -1) {
+                        label.append('<span class="text-rose-500 ml-1">*</span>');
+                    }
+                }
+            });
+
+            // Initialize validation on all admin forms
+            $('form:not(.no-validate)').each(function() {
+                $(this).validate({
+                    errorElement: 'span',
+                    errorClass: 'error-text',
+                    highlight: function(element) {
+                        $(element).addClass('error-border');
+                    },
+                    unhighlight: function(element) {
+                        $(element).removeClass('error-border');
+                    },
+                    errorPlacement: function(error, element) {
+                        if (element.hasClass('select2-hidden-accessible')) {
+                            error.insertAfter(element.next('.select2-container'));
+                        } else if (element.parent('.input-group').length) {
+                            error.insertAfter(element.parent());
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    }
+                });
+            });
+
+            // Re-validate select2 on change
+            $('.select2-hidden-accessible').on('change', function() {
+                $(this).valid();
+            });
+
+            // Prevent negative values in all number inputs
+            $(document).on('keydown', 'input[type="number"]', function(e) {
+                if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                }
+            });
+
+            $(document).on('input', 'input[type="number"]', function() {
+                if (parseFloat(this.value) < 0) {
+                    this.value = 0;
+                }
+            });
+
+            $(document).on('paste', 'input[type="number"]', function(e) {
+                let pastedData = e.originalEvent.clipboardData.getData('text');
+                if (parseFloat(pastedData) < 0) {
+                    e.preventDefault();
+                    this.value = 0;
+                }
+            });
+
+            // Global Form Loader Logic
+            $(document).on('submit', 'form:not(.no-loader)', function(e) {
+                const form = $(this);
+                // Check if validation is active and form is valid
+                const isValidatorActive = form.data('validator');
+                if (isValidatorActive) {
+                    if (form.valid()) {
+                        $('#adminLoader').show();
+                    }
+                } else {
+                    $('#adminLoader').show();
+                }
+            });
+        });
+
         // Toastr Configuration
         toastr.options = {
             "closeButton": true,
@@ -285,11 +889,24 @@
             toastr.error("{{ Session::get('error') }}");
         @endif
 
+        @if(Session::has('warning'))
+            toastr.warning("{{ Session::get('warning') }}");
+        @endif
+
         @if($errors->any())
             @foreach($errors->all() as $error)
                 toastr.error("{{ $error }}");
             @endforeach
         @endif
+        // Global Slugify Function
+        function slugify(text) {
+            return text.toString().toLowerCase().trim()
+                .replace(/\s+/g, '-')           // Replace spaces with -
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                .replace(/^-+/, '')             // Trim - from start of text
+                .replace(/-+$/, '');            // Trim - from end of text
+        }
     </script>
     @stack('scripts')
 </body>

@@ -20,7 +20,7 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Customer Name</label>
                     <input type="text" name="name" value="{{ $testimonial->name }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm" required>
                 </div>
-                <div>
+                {{-- <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Photo</label>
                     <div class="flex items-center space-x-3 mb-2">
                         @if($testimonial->photo)
@@ -28,15 +28,8 @@
                         @endif
                         <input type="file" name="photo" class="flex-1 px-4 py-2 rounded-xl border border-slate-100 text-sm">
                     </div>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Review Content</label>
-                <textarea name="review" rows="4" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm" required>{{ $testimonial->review }}</textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div> --}}
+           
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Rating (1-5)</label>
                     <select name="rating" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm appearance-none bg-white">
@@ -45,13 +38,12 @@
                         @endfor
                     </select>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Submitted At</label>
                     <input type="date" name="submitted_at" value="{{ $testimonial->submitted_at ? $testimonial->submitted_at->format('Y-m-d') : '' }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm">
                 </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
+            
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Display on Homepage?</label>
                     <select name="display_homepage" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm appearance-none bg-white">
@@ -66,6 +58,11 @@
                         <option value="0" {{ !$testimonial->status ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
+            </div>
+
+             <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Review Content</label>
+                <textarea name="review" rows="4" class="w-full px-4 py-2 rounded-xl border border-slate-100 text-sm" required>{{ $testimonial->review }}</textarea>
             </div>
 
             <div class="pt-4">

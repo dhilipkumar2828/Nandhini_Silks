@@ -23,6 +23,15 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'profile_picture',
+        'dob',
+        'gender',
+        'account_status',
+        'role',
+        'last_login_at',
+        'otp',
+        'otp_expires_at',
+        'is_verified',
     ];
 
     /**
@@ -45,6 +54,47 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'dob' => 'date',
+            'last_login_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(UserAddress::class)->where('is_default', true);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        \Illuminate\Support\Facades\Log::info('Password reset notification TRIGGERED for user: ' . $this->email . ' with token: ' . $token);
+        
+        try {
+            $this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+            \Illuminate\Support\Facades\Log::info('Password reset notification SENT/DISPATCHED for user: ' . $this->email);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Password reset notification FAILURE for user: ' . $this->email . ' -> ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

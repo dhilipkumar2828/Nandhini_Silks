@@ -13,14 +13,32 @@ class AttributeValueController extends Controller
     public function index(Request $request)
     {
         $attributeId = $request->query('attribute_id');
+        $perPage = $request->get('per_page', 10);
         $attribute = null;
         
+        $query = AttributeValue::query();
+
         if ($attributeId) {
             $attribute = Attribute::findOrFail($attributeId);
-            $attributeValues = AttributeValue::where('attribute_id', $attributeId)->orderBy('display_order', 'asc')->get();
+            $query->where('attribute_id', $attributeId);
         } else {
-            $attributeValues = AttributeValue::with('attribute')->orderBy('attribute_id')->orderBy('display_order', 'asc')->get();
+            $query->with('attribute');
         }
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        if (!$attributeId) {
+            $query->orderBy('attribute_id');
+        }
+
+        $attributeValues = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
 
         return view('admin.attribute-values.index', compact('attributeValues', 'attribute'));
     }
@@ -38,17 +56,43 @@ class AttributeValueController extends Controller
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
             'swatch_value' => 'nullable|string|max:255',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ]);
 
-        $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
+        $names = array_map('trim', explode(',', $request->name));
+        $attributeId = $request->attribute_id;
+        $count = 0;
+        
+        $swatchValue = $request->input('swatch_value');
+        if ($request->hasFile('swatch_image')) {
+            $swatchValue = $this->storeSwatchImage($request->file('swatch_image'));
+        }
 
-        AttributeValue::create($data);
+        foreach ($names as $index => $name) {
+            if (empty($name)) continue;
 
-        return redirect()->route('admin.attribute-values.index', ['attribute_id' => $request->attribute_id])
-            ->with('success', 'Attribute value created successfully.');
+            $slug = Str::slug($name);
+            $originalSlug = $slug;
+            $i = 1;
+            while (AttributeValue::where('slug', '=', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $i++;
+            }
+
+            AttributeValue::create([
+                'attribute_id' => $attributeId,
+                'name' => $name,
+                'slug' => $slug,
+                'swatch_value' => $swatchValue,
+                'display_order' => (int)$request->display_order + $index,
+                'status' => $request->status,
+            ]);
+            $count++;
+        }
+
+        return redirect()->route('admin.attribute-values.index', ['attribute_id' => $attributeId])
+            ->with('success', $count . ' Attribute value(s) created successfully.');
     }
 
     public function edit(AttributeValue $attributeValue)
@@ -62,13 +106,27 @@ class AttributeValueController extends Controller
         $request->validate([
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:attribute_values,slug,' . $attributeValue->id,
             'swatch_value' => 'nullable|string|max:255',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
+        ], [
+            'slug.unique' => 'This Attribute Value Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
+        $data['swatch_value'] = $request->input('swatch_value');
+
+        if ($request->hasFile('swatch_image')) {
+            if ($attributeValue->swatch_value && !$this->isHexColor($attributeValue->swatch_value)) {
+                $oldPath = public_path('uploads/' . $attributeValue->swatch_value);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            $data['swatch_value'] = $this->storeSwatchImage($request->file('swatch_image'));
+        }
 
         $attributeValue->update($data);
 
@@ -79,8 +137,35 @@ class AttributeValueController extends Controller
     public function destroy(AttributeValue $attributeValue)
     {
         $attributeId = $attributeValue->attribute_id;
+        if ($attributeValue->swatch_value && !$this->isHexColor($attributeValue->swatch_value)) {
+            $oldPath = public_path('uploads/' . $attributeValue->swatch_value);
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
         $attributeValue->delete();
         return redirect()->route('admin.attribute-values.index', ['attribute_id' => $attributeId])
             ->with('success', 'Attribute value deleted successfully.');
+    }
+
+    private function storeSwatchImage($image): string
+    {
+        $imageName = time() . '_' . Str::random(8) . '.' . $image->extension();
+        $uploadPath = public_path('uploads/attribute-values');
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+        $image->move($uploadPath, $imageName);
+
+        return 'attribute-values/' . $imageName;
+    }
+
+    private function isHexColor(?string $value): bool
+    {
+        if (!$value) {
+            return false;
+        }
+
+        return (bool) preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value);
     }
 }

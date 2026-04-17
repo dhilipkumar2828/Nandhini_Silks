@@ -137,17 +137,17 @@
     <main class="account-page">
         <div class="page-shell">
             <div class="breadcrumb">
-                <a href="{{ url('/') }}">Home</a> &nbsp; / &nbsp; <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp; <span>My Reviews</span>
+                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <a href="{{ url('my-account') }}">My Account</a> &nbsp; / &nbsp; <span>My Reviews</span>
             </div>
 
             <div class="account-layout">
                 <aside class="account-sidebar">
                     <div class="account-user-info">
                         <div class="account-avatar">
-                            <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
+                            <img src="{{ Auth::user()->profile_picture ? asset('uploads/'.Auth::user()->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
+                        <p class="account-user-email">{{ Auth::user()->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -157,7 +157,8 @@
                         <li class="account-nav-item"><a href="{{ url('my-addresses') }}" class="account-nav-link"><span>Addresses</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('my-reviews') }}" class="account-nav-link active"><span>My Reviews</span></a></li>
                         <li class="account-nav-item"><a href="{{ url('wishlist') }}" class="account-nav-link"><span>Wishlist</span></a></li>
-                        <li class="account-nav-item"><a href="{{ url('login') }}" class="account-nav-link logout"><span>Logout</span></a></li>
+                        <form action="{{ route('logout') }}" method="POST" id="logout-form">@csrf</form>
+                        <li class="account-nav-item"><a href="javascript:void(0)" onclick="document.getElementById('logout-form').submit()" class="account-nav-link logout"><span>Logout</span></a></li>
                     </ul>
                 </aside>
 
@@ -167,60 +168,129 @@
                     </div>
 
                     <div class="review-tabs">
-                        <div class="review-tab active">Published Reviews (2)</div>
-                        <div class="review-tab">Pending Reviews (1)</div>
+                        <div class="review-tab active" data-tab="published">Published Reviews ({{ $publishedReviews->total() }})</div>
+                        <div class="review-tab" data-tab="pending">Pending Reviews ({{ $pendingReviews->total() }})</div>
                     </div>
 
                     <div id="publishedReviews">
-                        <div class="review-item-card">
-                            <img src="{{ asset('images/pro1.png') }}" alt="" class="review-product-img">
-                            <div class="review-content-side">
-                                <h3 class="review-product-name">Royal Gold Handloom Silk Saree</h3>
-                                <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-                                <p class="review-text">The quality of the silk is amazing. Drapes so beautifully and the gold jari work is very intricate. Perfect for my cousin's wedding!</p>
-                                <div class="review-footer">
-                                    <span>Reviewed on Oct 20, 2023</span>
-                                    <div class="review-actions">
-                                        <button class="review-action-btn">Edit</button>
-                                        <button class="review-action-btn" style="color: #999;">Delete</button>
+                        @forelse($publishedReviews as $review)
+                            <div class="review-item-card">
+                                @php
+                                    $productImage = 'images/pro.png';
+                                    if ($review->product->images && is_array($review->product->images) && count($review->product->images) > 0) {
+                                        $productImage = 'uploads/' . $review->product->images[0];
+                                    } elseif ($review->product->image_path) {
+                                        $productImage = 'images/' . $review->product->image_path;
+                                    }
+                                @endphp
+                                <img src="{{ asset($productImage) }}" alt="{{ $review->product->name }}" class="review-product-img">
+                                <div class="review-content-side">
+                                    <h3 class="review-product-name">{{ $review->product->name }}</h3>
+                                    <div class="review-stars">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            {!! $i <= $review->stars ? '&#9733;' : '&#9734;' !!}
+                                        @endfor
+                                    </div>
+                                    <p class="review-text">{{ $review->review }}</p>
+                                    <div class="review-footer">
+                                        <span>Reviewed on {{ $review->created_at->format('M d, Y') }}</span>
+                                        <div class="review-actions">
+                                            <button class="review-action-btn" onclick="openEditModal({{ json_encode($review) }})">Edit</button>
+                                            <button type="button" class="review-action-btn" style="color: #999;" onclick="confirmDelete({{ $review->id }})">Delete</button>
+                                            <form id="delete-form-{{ $review->id }}" action="{{ route('profile.review.delete', $review->id) }}" method="POST" style="display: none;">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @empty
+                            <div style="text-align: center; padding: 40px; color: #999;">You haven't published any reviews yet.</div>
+                        @endforelse
 
-                        <div class="review-item-card">
-                            <img src="{{ asset('images/pro2.png') }}" alt="" class="review-product-img">
-                            <div class="review-content-side">
-                                <h3 class="review-product-name">Classic Red Kanchipuram Saree</h3>
-                                <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
-                                <p class="review-text">Vibrant red color as shown in pictures. The material is slightly heavier than expected but looks very royal.</p>
-                                <div class="review-footer">
-                                    <span>Reviewed on Sep 30, 2023</span>
-                                    <div class="review-actions">
-                                        <button class="review-action-btn">Edit</button>
-                                        <button class="review-action-btn" style="color: #999;">Delete</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mt-4">
+                            {{ $publishedReviews->appends(['pending_page' => $pendingReviews->currentPage(), 'tab' => 'published'])->links() }}
                         </div>
                     </div>
 
                     <div id="pendingReviews" style="display: none;">
-                        <div class="pending-review-card">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <img src="{{ asset('images/kids_pattu_pavadai_pink_gold_1773214272993.png') }}" alt="" style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover;">
-                                <div>
-                                    <h4 style="margin-bottom: 4px;">Traditional Pink Pattu Pavadai</h4>
-                                    <p style="font-size: 12px; color: #777;">Purchased on Oct 10, 2023</p>
+                        @forelse($pendingReviews as $review)
+                            <div class="pending-review-card">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    @php
+                                        $productImage = 'images/pro.png';
+                                        if ($review->product->images && is_array($review->product->images) && count($review->product->images) > 0) {
+                                            $productImage = 'uploads/' . $review->product->images[0];
+                                        } elseif ($review->product->image_path) {
+                                            $productImage = 'images/' . $review->product->image_path;
+                                        }
+                                    @endphp
+                                    <img src="{{ asset($productImage) }}" alt="" style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover;">
+                                    <div>
+                                        <h4 style="margin-bottom: 4px;">{{ $review->product->name }}</h4>
+                                        <p style="font-size: 12px; color: #777;">Added on {{ $review->created_at->format('M d, Y') }}</p>
+                                    </div>
                                 </div>
+                                <button class="btn-review-now">Under Review</button>
                             </div>
-                            <button class="btn-review-now">Write a Review</button>
+                        @empty
+                            <div style="text-align: center; padding: 40px; color: #999;">No pending reviews.</div>
+                        @endforelse
+
+                        <div class="mt-4">
+                            {{ $pendingReviews->appends(['published_page' => $publishedReviews->currentPage(), 'tab' => 'pending'])->links() }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Edit Review Modal (Premium Design) -->
+    <div id="editReviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; transition: all 0.3s ease;">
+        <div style="background: #fff; padding: 40px; border-radius: 24px; width: 500px; max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: translateY(0); transition: 0.3s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1a;">Edit Your Review</h3>
+                <button onclick="closeEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            
+            <form id="editReviewForm" class="validate-form" method="POST" novalidate>
+                @csrf
+                @method('PUT')
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Your Rating</label>
+                    <div style="display: flex; flex-direction: column; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
+                        <select name="stars" id="editStars" required 
+                            style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;"
+                            data-msg-required="Please select a rating.">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                            <option value="3">⭐⭐⭐ (3/5)</option>
+                            <option value="2">⭐⭐ (2/5)</option>
+                            <option value="1">⭐ (1/5)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Detailed Review</label>
+                    <textarea name="review" id="editReviewText" rows="6" required minlength="10"
+                        data-msg-required="Please enter your review."
+                        data-msg-minlength="Review must be at least 10 characters."
+                        style="width: 100%; border: 1px solid #eee; border-radius: 12px; padding: 15px; font-size: 14px; color: #333; outline: none; transition: 0.3s; resize: none;"
+                        onfocus="this.style.borderColor='var(--pink)'"
+                        onblur="this.style.borderColor='#eee'"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn-save" style="flex: 1.5; height: 50px; border-radius: 12px; font-weight: 700; transition: 0.3s; box-shadow: 0 4px 15px rgba(234, 4, 126, 0.2);">Save Changes</button>
+                    <button type="button" onclick="closeEditModal()" style="flex: 1; height: 50px; background: #f8f8f8; border: 1px solid #eee; border-radius: 12px; color: #666; font-weight: 700; cursor: pointer; transition: 0.3s;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -229,6 +299,17 @@
         const tabs = document.querySelectorAll('.review-tab');
         const published = document.getElementById('publishedReviews');
         const pending = document.getElementById('pendingReviews');
+
+        // Initial tab based on URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        
+        if (activeTab === 'pending' || (urlParams.has('pending_page') && !urlParams.has('published_page'))) {
+            tabs.forEach(item => item.classList.remove('active'));
+            tabs[1].classList.add('active');
+            published.style.display = 'none';
+            pending.style.display = 'block';
+        }
 
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {
@@ -239,5 +320,52 @@
             });
         });
     });
+
+    function openEditModal(review) {
+        const modal = document.getElementById('editReviewModal');
+        const form = document.getElementById('editReviewForm');
+        clearReviewValidation();
+        
+        document.getElementById('editStars').value = review.stars;
+        document.getElementById('editReviewText').value = review.review;
+        
+        let url = "{{ route('profile.review.update', ':id') }}";
+        form.action = url.replace(':id', review.id);
+        
+        modal.style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        clearReviewValidation();
+        document.getElementById('editReviewModal').style.display = 'none';
+    }
+
+    function clearReviewValidation() {
+        if (!window.jQuery) return;
+        const $form = $('#editReviewForm');
+        $form.find('.error-text').remove();
+        $form.find('.error-border').removeClass('error-border');
+        if ($form.data('validator')) {
+            $form.validate().resetForm();
+        }
+    }
+
+    function confirmDelete(reviewId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--pink)',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            borderRadius: '15px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + reviewId).submit();
+            }
+        })
+    }
 </script>
 @endpush

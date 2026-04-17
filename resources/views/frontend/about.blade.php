@@ -58,7 +58,7 @@
                 <h2>Step Into Elegance</h2>
                 <p>Discover the finest collection of premium silk sarees designed exclusively for your grandest occasions.
                     Let us be a part of your celebrations.</p>
-                <a href="{{ url('/') }}" class="legacy-btn">View Collections</a>
+                <a href="{{ route('shop') }}" class="legacy-btn">View Collections</a>
             </div>
         </section>
     </main>

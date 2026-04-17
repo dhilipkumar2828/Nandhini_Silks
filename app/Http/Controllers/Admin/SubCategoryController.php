@@ -14,13 +14,24 @@ class SubCategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $subCategories = SubCategory::with('category')->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = SubCategory::with('category');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $subCategories = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.sub_categories.index', compact('subCategories'));
     }
 
     public function create()
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', '=', 1)->get();
         return view('admin.sub_categories.create', compact('categories'));
     }
 
@@ -28,19 +39,26 @@ class SubCategoryController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
-            'display_order' => 'required|integer',
+            'name' => 'required|string|max:255|unique:sub_categories,name',
+            'slug' => 'required|string|max:255|unique:sub_categories,slug',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
+            'display_order' => 'required|integer|min:0',
+        ], [
+            'name.unique' => 'This Sub Category Name is already in use.',
+            'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/subcategories'), $imageName);
-            $data['image'] = 'subcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/sub-categories'), $imageName);
+            $data['image'] = 'sub-categories/'.$imageName;
         }
 
         SubCategory::create($data);
@@ -50,7 +68,7 @@ class SubCategoryController extends Controller
 
     public function edit(SubCategory $subCategory)
     {
-        $categories = Category::where('status', '=', 1, 'and')->get();
+        $categories = Category::where('status', '=', 1)->get();
         return view('admin.sub_categories.edit', compact('subCategory', 'categories'));
     }
 
@@ -58,22 +76,29 @@ class SubCategoryController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
-            'display_order' => 'required|integer',
+            'name' => 'required|string|max:255|unique:sub_categories,name,' . $subCategory->id,
+            'slug' => 'required|string|max:255|unique:sub_categories,slug,' . $subCategory->id,
+            'image' => ($subCategory->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
+            'display_order' => 'required|integer|min:0',
+        ], [
+            'name.unique' => 'This Sub Category Name is already in use.',
+            'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             if ($subCategory->image && file_exists(public_path('uploads/' . $subCategory->image))) {
                 unlink(public_path('uploads/' . $subCategory->image));
             }
-            $imageName = time().'.'.$request->image->extension();
-            $request->image->move(public_path('uploads/subcategories'), $imageName);
-            $data['image'] = 'subcategories/'.$imageName;
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
+            $request->image->move(public_path('uploads/sub-categories'), $imageName);
+            $data['image'] = 'sub-categories/'.$imageName;
         }
 
         $subCategory->update($data);
@@ -90,4 +115,38 @@ class SubCategoryController extends Controller
 
         return redirect()->route('admin.sub-categories.index')->with('success', 'Sub Category deleted successfully.');
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = SubCategory::where('slug', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = SubCategory::where('name', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
 }
+

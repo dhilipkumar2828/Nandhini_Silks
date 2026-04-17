@@ -14,7 +14,18 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $categories = Category::orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
+        $query = Category::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = $request->status == 'active' ? 1 : 0;
+            $query->where('status', '=', $status);
+        }
+
+        $categories = $query->orderBy('display_order', 'asc')->paginate($perPage)->withQueryString();
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -26,21 +37,30 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
-            'display_order' => 'required|integer',
+            'name' => 'required|string|max:255|unique:categories,name',
+            'slug' => 'required|string|max:255|unique:categories,slug',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
+            'display_order' => 'required|integer|min:0',
+            'show_in_menu' => 'nullable',
+        ], [
+            'name.unique' => 'This Category Name is already in use.',
+            'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/categories'), $imageName);
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         Category::create($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
@@ -54,24 +74,33 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status' => 'required|boolean',
-            'display_order' => 'required|integer',
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
+            'image' => ($category->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'description' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'status' => 'required',
+            'display_order' => 'required|integer|min:0',
+            'show_in_menu' => 'nullable',
+        ], [
+            'name.unique' => 'This Category Name is already in use.',
+            'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             if ($category->image && file_exists(public_path('uploads/' . $category->image))) {
                 unlink(public_path('uploads/' . $category->image));
             }
-            $imageName = time().'.'.$request->image->extension();
+            $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
             $request->image->move(public_path('uploads/categories'), $imageName);
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         $category->update($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
@@ -86,4 +115,38 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = Category::where('slug', '=', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = Category::where('name', '=', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
 }
+

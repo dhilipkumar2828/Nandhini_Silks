@@ -16,7 +16,7 @@
             @csrf
             @method('PUT')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-1.5 md:col-span-2">
+                <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest">Banner Image (1920x800)</label>
                     <div class="mb-3">
                          <img src="{{ asset('uploads/'.$banner->image) }}" class="h-32 w-full object-cover rounded-xl border border-slate-100 shadow-sm">

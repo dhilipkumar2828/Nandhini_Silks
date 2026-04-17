@@ -16,8 +16,8 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-slate-700">Ad Title <span class="text-rose-500">*</span></label>
-                    <input type="text" name="title" value="{{ old('title') }}" required
+                    <label class="block text-xs font-bold text-slate-700">Ad Title</label>
+                    <input type="text" name="title" value="{{ old('title') }}"
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800"
                         placeholder="e.g. Sidebar Promo">
                 </div>
@@ -69,7 +69,7 @@
     $(document).ready(function() {
         $("#adForm").validate({
             rules: {
-                title: "required",
+                title: false,
                 image: "required",
                 status: "required"
             },

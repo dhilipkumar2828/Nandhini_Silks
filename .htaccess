@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Forward the root request to the public directory
+    RewriteRule ^$ public/index.php [L]
+    
+    # Ensure index.php is the default document
+    DirectoryIndex index.php index.html
+
+    # Prevent loop if already inside public
+    RewriteRule ^public/ - [L]
+    
+    # Forward all requests to the public directory if the file doesn't exist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>

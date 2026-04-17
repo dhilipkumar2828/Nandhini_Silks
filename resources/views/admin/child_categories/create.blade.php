@@ -27,29 +27,48 @@
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Child Category Name <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
+                    <input type="text" name="name" id="childCategoryName" value="{{ old('name') }}" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
                         placeholder="Enter child category name">
                 </div>
 
                 <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Child Category Slug (auto-generated) <span class="text-rose-500">*</span></label>
+                    <input type="text" name="slug" id="childCategorySlug" value="{{ old('slug') }}" required
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                        placeholder="child-category-slug">
+                    @error('slug') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Display Order <span class="text-rose-500">*</span></label>
-                    <input type="number" name="display_order" value="{{ old('display_order', 0) }}" required
+                    <input type="number" name="display_order" value="{{ old('display_order', 0) }}" required min="0"
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-slate-700">Child Category Image</label>
-                    <input type="file" name="image" 
+                    <label class="block text-xs font-bold text-slate-700">Child Category Image <span class="text-rose-500">*</span></label>
+                    <input type="file" name="image" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('image') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Status <span class="text-rose-500">*</span></label>
-                    <select name="status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                        <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
-                        <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
-                    </select>
+                    <div class="flex bg-slate-100 p-1 rounded-xl w-fit">
+                        <label class="relative flex-1">
+                            <input type="radio" name="status" value="1" class="sr-only peer" {{ old('status', '1') == '1' ? 'checked' : '' }}>
+                            <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                                Active
+                            </div>
+                        </label>
+                        <label class="relative flex-1">
+                            <input type="radio" name="status" value="0" class="sr-only peer" {{ old('status') == '0' ? 'checked' : '' }}>
+                            <div class="px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-500 hover:text-slate-700">
+                                Inactive
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -76,6 +95,12 @@
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
                         placeholder="Meta description">{{ old('meta_description') }}</textarea>
                 </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Meta Keywords</label>
+                    <input type="text" name="meta_keywords" value="{{ old('meta_keywords') }}"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
+                        placeholder="Keyword1, Keyword2">
+                </div>
             </div>
 
             <div class="flex justify-end space-x-3 pt-4">
@@ -92,11 +117,78 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        const nameInput = document.getElementById('childCategoryName');
+        const slugInput = document.getElementById('childCategorySlug');
+        let timer;
+
+        nameInput.addEventListener('input', function() {
+            slugInput.value = slugify(this.value);
+            checkSlug(slugInput.value);
+            checkName(this.value);
+        });
+
+        slugInput.addEventListener('input', function() {
+            this.value = slugify(this.value);
+            checkSlug(this.value);
+        });
+
+        function checkName(name) {
+            clearTimeout(timer);
+            if (!name) return;
+            
+            timer = setTimeout(() => {
+                $.get('{{ route("admin.child-categories.check-name") }}', { name: name }, function(data) {
+                    const errorId = 'name-error';
+                    let errorMsg = document.getElementById(errorId);
+                    
+                    if (data.exists) {
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.id = errorId;
+                            errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                            nameInput.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'This child category name is already taken!';
+                        nameInput.classList.add('border-rose-500');
+                    } else {
+                        if (errorMsg) errorMsg.remove();
+                        nameInput.classList.remove('border-rose-500');
+                    }
+                });
+            }, 500);
+        }
+
+        function checkSlug(slug) {
+            clearTimeout(timer);
+            if (!slug) return;
+            
+            timer = setTimeout(() => {
+                $.get('{{ route("admin.child-categories.check-slug") }}', { slug: slug }, function(data) {
+                    const errorId = 'slug-error';
+                    let errorMsg = document.getElementById(errorId);
+                    
+                    if (data.exists) {
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.id = errorId;
+                            errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                            slugInput.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'This slug is already taken!';
+                        slugInput.classList.add('border-rose-500');
+                    } else {
+                        if (errorMsg) errorMsg.remove();
+                        slugInput.classList.remove('border-rose-500');
+                    }
+                });
+            }, 500);
+        }
+
         $('#category_id').on('change', function() {
             var category_id = $(this).val();
             if(category_id) {
                 $.ajax({
-                    url: '/admin/get-sub-categories/' + category_id,
+                    url: "{{ url('admin/get-sub-categories') }}/" + category_id,
                     type: "GET",
                     dataType: "json",
                     success: function(data) {
