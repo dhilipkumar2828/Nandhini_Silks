@@ -289,9 +289,15 @@
                     </div>
                     <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Push & Schedule Pickup</p>
                     {{-- Trigger Modal --}}
-                    <button type="button" onclick="document.getElementById('pickupModal').classList.remove('hidden')"
-                        class="w-full bg-[#a91b43] text-white py-3 rounded-xl text-xs font-black shadow-lg shadow-rose-100 hover:bg-[#940437] transition-all active:scale-[0.98] uppercase tracking-widest">
-                        <i class="fas fa-bolt mr-2 text-xs"></i> Push to Shiprocket
+                    <button type="button" 
+                        @if($order->order_status === 'cancelled') 
+                            disabled 
+                        @else
+                            onclick="document.getElementById('pickupModal').classList.remove('hidden')"
+                        @endif
+                        class="w-full {{ $order->order_status === 'cancelled' ? 'bg-slate-300 cursor-not-allowed opacity-60' : 'bg-[#a91b43] shadow-lg shadow-rose-100 hover:bg-[#940437] active:scale-[0.98]' }} text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
+                        <i class="fas fa-bolt mr-2 text-xs"></i> 
+                        {{ $order->order_status === 'cancelled' ? 'Shipment Blocked (Cancelled)' : 'Push to Shiprocket' }}
                     </button>
                 </div>
 

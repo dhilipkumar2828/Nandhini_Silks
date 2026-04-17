@@ -668,7 +668,7 @@
 
                             {{-- TERMS & CONDITIONS --}}
                             <div class="terms-container" style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;">
-                                <input type="checkbox" id="termsCheckbox" onchange="toggleCondition()" style="width: 18px; height: 18px; cursor: pointer; margin-top: 2px; accent-color: #A91B43;">
+                                <input type="checkbox" id="termsCheckbox" onchange="toggleCondition()" checked style="width: 18px; height: 18px; cursor: pointer; margin-top: 2px; accent-color: #A91B43;">
                                 <label for="termsCheckbox" style="font-size: 13px; color: #555; cursor: pointer; line-height: 1.4;">
                                     I agree to the <a href="{{ route('terms') }}" target="_blank" style="color: #A91B43; text-decoration: underline;">Terms & Conditions</a> and <a href="{{ route('privacy-policy') }}" target="_blank" style="color: #A91B43; text-decoration: underline;">Privacy Policy</a>.
                                 </label>

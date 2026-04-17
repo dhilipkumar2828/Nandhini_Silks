@@ -68,15 +68,36 @@ class CartController extends Controller
         Log::info('checkServiceability - productId: ' . ($productId ?? 'NULL') . ' pincode: ' . $pincode);
 
         if ($result['status'] && isset($result['data']['available_courier_companies']) && count($result['data']['available_courier_companies']) > 0) {
-            // Get the first (often cheapest/recommended) courier
-            $courier = $result['data']['available_courier_companies'][0];
-            $raw_edd = $courier['etd'] ?? null;
+            $couriers = $result['data']['available_courier_companies'];
+            
+            $bestCourier = null;
+            $minCodCharge = PHP_FLOAT_MAX;
+
+            foreach ($couriers as $courier) {
+                // Find courier with lowest COD charges
+                $codCharge = (float) ($courier['cod_charges'] ?? 0);
+                
+                if ($codCharge < $minCodCharge) {
+                    $minCodCharge = $codCharge;
+                    $bestCourier = $courier;
+                } elseif ($codCharge == $minCodCharge) {
+                    // Tie-breaker: lowest total rate if COD charges are equal
+                    $currentRate = (float) ($courier['rate'] ?? 0);
+                    $bestRate = ($bestCourier) ? (float) ($bestCourier['rate'] ?? 0) : PHP_FLOAT_MAX;
+                    if ($currentRate < $bestRate) {
+                        $bestCourier = $courier;
+                    }
+                }
+            }
+
+            if (!$bestCourier) {
+                $bestCourier = $couriers[0];
+            }
+
+            $raw_edd = $bestCourier['etd'] ?? null;
             
             if ($raw_edd) {
                 try {
-                    // Shiprocket API returns the Estimated Transit Date. 
-                    // We add a 2-day buffer for order processing and packaging (Dispatch Time) 
-                    // to match the more realistic dates seen in automated notifications.
                     $eddDate = \Carbon\Carbon::parse($raw_edd);
                     $edd = $eddDate->addDays(2)->format('M d, Y');
                 } catch (\Exception $e) {
@@ -86,18 +107,15 @@ class CartController extends Controller
                 $edd = '3-5 days';
             }
             
-            // CORRECT CALCULATION based on Shiprocket Dashboard:
-            // 1. Prepaid = Base Freight + Other/Notify Charges
-            $baseFreight = (float) ($courier['freight_charge'] ?? 0);
-            $otherFees = (float) ($courier['other_charges'] ?? 0) 
-                       + (float) ($courier['whatsapp_charges'] ?? 0)
-                       + (float) ($courier['coverage_charges'] ?? 0)
-                       + (float) ($courier['entry_tax'] ?? 0);
+            // Recalculate rates for the best courier found
+            $baseFreight = (float) ($bestCourier['freight_charge'] ?? 0);
+            $otherFees = (float) ($bestCourier['other_charges'] ?? 0) 
+                       + (float) ($bestCourier['whatsapp_charges'] ?? 0)
+                       + (float) ($bestCourier['coverage_charges'] ?? 0)
+                       + (float) ($bestCourier['entry_tax'] ?? 0);
             $prepaidRate = $baseFreight + $otherFees;
             
-            // 2. COD = Prepaid Rate + COD Charges
-            // Note: Shiprocket's 'rate' field for COD sometimes misses the notify/whatsapp charges
-            $codFee = (float) ($courier['cod_charges'] ?? 0);
+            $codFee = (float) ($bestCourier['cod_charges'] ?? 0);
             $codRate = $prepaidRate + $codFee;
             
             // Save to session for stickiness ONLY if it's a cart-level check (no productId)
