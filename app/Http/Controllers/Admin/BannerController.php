@@ -37,8 +37,8 @@ class BannerController extends Controller
     {
         $request->validate([
             'banners' => 'required|array',
-            'banners.*.image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'banners.*.image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'banners.*.image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'banners.*.image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'banners.*.title' => 'nullable|string|max:255',
             'banners.*.link' => 'nullable|string|max:255',
             'banners.*.display_order' => 'required|integer',
@@ -81,8 +81,8 @@ class BannerController extends Controller
     public function update(Request $request, Banner $banner)
     {
         $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'title' => 'nullable|string|max:255',
             'link' => 'nullable|string|max:255',
             'display_order' => 'required|integer',

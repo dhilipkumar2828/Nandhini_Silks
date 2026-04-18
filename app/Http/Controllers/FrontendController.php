@@ -533,7 +533,7 @@ class FrontendController extends Controller
     public function updateProfilePhoto(Request $request)
     {
         $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $user = Auth::guard('web')->user();

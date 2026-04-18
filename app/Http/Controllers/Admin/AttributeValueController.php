@@ -56,7 +56,7 @@ class AttributeValueController extends Controller
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
             'swatch_value' => 'nullable|string|max:255',
-            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ]);
@@ -108,7 +108,7 @@ class AttributeValueController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:attribute_values,slug,' . $attributeValue->id,
             'swatch_value' => 'nullable|string|max:255',
-            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ], [

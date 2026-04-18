@@ -106,7 +106,7 @@ class ShiprocketService
         foreach ($order->items as $item) {
             $product = $item->product;
             $variant = $item->variant;
-            $unitPriceWithTax = (float) $item->price + (float) (($item->tax_amount ?? 0) / ($item->quantity ?: 1));
+            $unitPriceWithTax = (float) $item->price;
             
             // Prioritize Variant SKU, then Product SKU
             $sku = ($variant && $variant->sku) ? $variant->sku : ($product->sku ?? 'SKU-' . ($product->id ?? time()));
