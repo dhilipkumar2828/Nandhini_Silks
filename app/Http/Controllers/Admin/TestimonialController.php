@@ -24,7 +24,7 @@ class TestimonialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'review' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
             'display_homepage' => 'required|boolean',
@@ -55,7 +55,7 @@ class TestimonialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'review' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
             'display_homepage' => 'required|boolean',

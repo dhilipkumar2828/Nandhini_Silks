@@ -48,7 +48,8 @@ class Product extends Model
         'status',
         'display_order',
         'show_offer_on_homepage',
-        'is_featured'
+        'is_featured',
+        'is_free_delivery'
     ];
 
     protected $casts = [
@@ -60,6 +61,7 @@ class Product extends Model
         'tags'             => 'array',
         'status'           => 'string',
         'is_featured'      => 'boolean',
+        'is_free_delivery' => 'boolean',
         'restock_date'     => 'date',
         'regular_price'    => 'decimal:2',
         'sale_price'       => 'decimal:2',

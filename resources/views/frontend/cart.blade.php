@@ -42,15 +42,7 @@
                     align-items: center;
                 }
 
-                .col-tax {
-                    width: 140px;
-                    flex-shrink: 0;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    font-weight: 700;
-                    color: #444;
-                }
+
 
                 .col-remove {
                     width: 80px;
@@ -300,13 +292,7 @@
                     right: 0px;
                 }
 
-                .col-tax {
-                    grid-area: tax;
-                    justify-self: start !important;
-                    margin: 0 !important;
-                    font-size: 14px;
-                    position: relative;
-                }
+
 
                 .quantity-picker {
                     grid-area: qty;
@@ -458,7 +444,7 @@
                                 <span class="col-details">Details</span>
                                 <span class="col-price">Unit Price</span>
                                 <span class="col-quantity">Quantity</span>
-                                <span class="col-tax">Tax</span>
+
                                 <span class="col-remove">Action</span>
                             </div>
 
@@ -494,12 +480,7 @@
                                                 onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
                                         </div>
                                     </div>
-                                    <div class="col-tax">
-                                        <div class="tax-info" style="display: flex; flex-direction: column; align-items: center;">
-                                            <span style="font-size: 15px; color: #444; font-weight: 800;">&#8377;<span id="taxAmt-{{ $item['key'] }}">{{ number_format($item['tax_amount'] ?? 0, 2) }}</span></span>
-                                            <span style="font-size: 11px; color: #888; font-weight: 600;">(<span id="taxRate-{{ $item['key'] }}">{{ $item['tax_rate'] ?? 0 }}</span>%)</span>
-                                        </div>
-                                    </div>
+
                                     <div class="col-remove">
                                         <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')"
                                             aria-label="Remove item">&times;</button>
@@ -530,10 +511,7 @@
                             @endif
                         </span>
                     </div> --}}
-                    <div class="summary-row" id="taxRow" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
-                        <span>Estimated Tax (GST)</span>
-                        <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 2) }}</span>
-                    </div>
+
                     
 
                     @if($discount > 0)
@@ -720,16 +698,7 @@
                             discEl.style.opacity = '1';
                         }
 
-                        // Update item-wise tax values
-                        if (data.items) {
-                            Object.keys(data.items).forEach(key => {
-                                const item = data.items[key];
-                                const amtEl = document.getElementById(`taxAmt-${key}`);
-                                const rateEl = document.getElementById(`taxRate-${key}`);
-                                if (amtEl) amtEl.textContent = fmt(item.tax_amount || 0);
-                                if (rateEl) rateEl.textContent = item.tax_rate || 0;
-                            });
-                        }
+
 
                         // BROADCAST to other tabs (but skip same-tab reload)
                         if (window.notifyCartUpdate) {

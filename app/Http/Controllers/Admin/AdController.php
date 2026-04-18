@@ -35,7 +35,7 @@ class AdController extends Controller
     {
         $request->validate([
             'title' => 'nullable|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'open_new_tab' => 'required|boolean',
             'status' => 'required|boolean',
@@ -63,7 +63,7 @@ class AdController extends Controller
     {
         $request->validate([
             'title' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'open_new_tab' => 'required|boolean',
             'status' => 'required|boolean',

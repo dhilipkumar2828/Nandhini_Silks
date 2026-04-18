@@ -590,10 +590,7 @@
                                                         · {{ $attr['name'] }}: {{ $attr['value'] }}
                                                     @endforeach
                                                 @endif
-                                                <span style="display: block; color: #555; font-weight: 600; margin-top: 2px;">
-                                                    Tax: &#8377;<span id="itemTaxAmt-{{ $item['key'] }}">{{ number_format($item['tax_amount'] ?? 0, 2) }}</span>
-                                                    ({{ $item['tax_rate'] ?? 0 }}%)
-                                                </span>
+
                                             </div>
                                         </div>
                                         <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">
@@ -621,10 +618,6 @@
                                             (Enter Pincode)
                                         @endif
                                     </span>
-                                </div>
-                                <div class="summary-row-v4" id="tax_row_container" style="display: {{ $tax > 0 ? 'flex' : 'none' }};">
-                                    <span>Tax (GST)</span>
-                                    <span id="tax_cost_display">&#8377;{{ number_format($tax, 2) }}</span>
                                 </div>
                                 @if($discount > 0)
                                     <div class="summary-row-v4" style="color: #2ecc71; font-weight: 600;">
@@ -674,8 +667,17 @@
                                 </label>
                             </div>
 
+@php
+    $hasFreeDeliveryItem = false;
+    foreach($items as $item) {
+        if(!empty($item['is_free_delivery'])) {
+            $hasFreeDeliveryItem = true;
+            break;
+        }
+    }
+@endphp
                             <button type="submit" id="placeOrderBtn" class="btn-review-v4"
-                                 style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px; {{ $shipping > 0 ? '' : 'opacity: 0.6; cursor: not-allowed;' }}" {{ $shipping > 0 ? '' : 'disabled' }}>
+                                 style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px; {{ ($shipping > 0 || $hasFreeDeliveryItem || session('checked_pincode_edd')) ? '' : 'opacity: 0.6; cursor: not-allowed;' }}" {{ ($shipping > 0 || $hasFreeDeliveryItem || session('checked_pincode_edd')) ? '' : 'disabled' }}>
                                  Place Order
                             </button>
 
@@ -831,7 +833,6 @@
                 const shippingDiv = document.getElementById('shipping_cost_display');
                 if (shippingDiv) shippingDiv.textContent = response.shippingFormatted;
                 
-                document.getElementById('tax_cost_display').textContent = response.taxFormatted;
                 document.getElementById('grand_total_display').textContent = response.grandTotalFormatted;
 
                 const weightDiv = document.getElementById('total_weight_display');
@@ -843,19 +844,9 @@
                     if (weightRow) weightRow.style.display = 'none';
                 }
 
-                const taxRow = document.getElementById('tax_row_container');
-                if (taxRow) {
-                    taxRow.style.display = (response.tax > 0) ? 'flex' : 'none';
-                }
 
-                // Update item-wise taxes if available in response
-                if (response.items) {
-                    Object.keys(response.items).forEach(key => {
-                        const item = response.items[key];
-                        const amtEl = document.getElementById(`itemTaxAmt-${key}`);
-                        if (amtEl) amtEl.textContent = Number(item.tax_amount).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
-                    });
-                }
+
+
 
                 const shippingEl = document.getElementById('shipping_cost_display');
                 if (shippingEl) {

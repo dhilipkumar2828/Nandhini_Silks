@@ -29,10 +29,12 @@ class CartController extends Controller
         }
 
         // 1. If product_id is provided (Product Detail Page)
-        if ($productId) {
+        $isFreeDelivery = false;
+        if ($productId && $productId != "null") {
             $prod = Product::find($productId);
             if ($prod) {
                 $weight = $prod->weight > 0 ? (float)$prod->weight : 0.5;
+                if ($prod->is_free_delivery) $isFreeDelivery = true;
             }
         } 
         // 2. Otherwise use Cart Weight (Checkout / Cart Page)
@@ -40,6 +42,8 @@ class CartController extends Controller
             $cartItems = $this->getCart(); 
             $totalWeight = 0;
             foreach ($cartItems as $item) {
+                if (!empty($item['is_free_delivery'])) $isFreeDelivery = true;
+                
                 $w = 0;
                 // Check Variant Weight first
                 if (isset($item['variant_id']) && $item['variant_id'] > 0) {
@@ -117,6 +121,11 @@ class CartController extends Controller
             
             $codFee = (float) ($bestCourier['cod_charges'] ?? 0);
             $codRate = $prepaidRate + $codFee;
+            
+            if ($isFreeDelivery) {
+                $prepaidRate = 0;
+                $codRate = 0;
+            }
             
             // Save to session for stickiness ONLY if it's a cart-level check (no productId)
             if (!$productId || $productId == "null" || $productId == "undefined") {
@@ -344,6 +353,7 @@ class CartController extends Controller
                 'color' => $color,
                 'length' => $length,
                 'age' => $age,
+                'is_free_delivery' => (bool)$product->is_free_delivery,
             ];
         }
 
@@ -1079,6 +1089,7 @@ class CartController extends Controller
                     'color' => $color,
                     'length' => $length,
                     'age' => $age,
+                    'is_free_delivery' => (bool)$product->is_free_delivery,
                 ];
             }
             return $cart;
@@ -1131,8 +1142,34 @@ class CartController extends Controller
     {
         $subTotal = 0;
         $itemCount = 0;
+        $firstRate = 0;
 
-        foreach ($items as $item) {
+        foreach ($items as &$item) {
+            $product = Product::with('taxClass.rates')->find($item['product_id']);
+            $rate = 0;
+            if ($product) {
+                $rate = $this->getTaxRate($product);
+                if ($rate > 0 && $firstRate === 0) {
+                    $firstRate = $rate * 100;
+                }
+                
+                // Price in DB is already inclusive of tax (e.g. 950)
+                $totalItemPriceInclusive = $item['price'] * $item['quantity'];
+                
+                // Calculate tax component for internal records
+                // Base = Inclusive / (1 + Rate)
+                // Tax = Inclusive - Base
+                $basePrice = $totalItemPriceInclusive / (1 + $rate);
+                $inclusiveTax = $totalItemPriceInclusive - $basePrice;
+                
+                $item['tax_rate'] = $rate * 100;
+                $item['tax_amount'] = round($inclusiveTax, 2);
+            } else {
+                $item['tax_rate'] = 0;
+                $item['tax_amount'] = 0;
+            }
+
+            // Subtotal is sum of inclusive prices
             $subTotal += $item['price'] * $item['quantity'];
             $itemCount += $item['quantity'];
         }
@@ -1147,32 +1184,8 @@ class CartController extends Controller
         $coupon = $couponResult['coupon'];
         $taxableAmount = max(0, $subTotal - $discount);
         
-        // DYNAMIC TAX CALCULATION [FIXED 0% LOGIC]
-        $tax = 0;
-        $firstRate = 0;
-        foreach ($items as &$item) {
-            $product = Product::with('taxClass.rates')->find($item['product_id']);
-            $rate = 0;
-            if ($product) {
-                $rate = $this->getTaxRate($product);
-                // Fix: Only set firstRate if we find a non-zero rate, to avoid showing 0% if first item is 0%
-                if ($rate > 0 && $firstRate === 0) {
-                    $firstRate = $rate * 100;
-                }
-                
-                $itemTax = ($item['price'] * $item['quantity']) * $rate;
-                $tax += $itemTax;
-                
-                // Add tax info to item for display in table
-                $item['tax_rate'] = $rate * 100;
-                $item['tax_amount'] = $itemTax;
-            } else {
-                $item['tax_rate'] = 0;
-                $item['tax_amount'] = 0;
-            }
-        }
-
-        $tax = round($tax, 2);
+        // Return 0 for tax display because it is already inclusive in subTotal
+        $tax = 0; 
         $taxPercentage = $firstRate ?: 0; 
         $grandTotal = round($taxableAmount + $tax + $shipping, 2);
 
@@ -1340,6 +1353,13 @@ class CartController extends Controller
         // Never show shipping on Cart page or cart-related AJAX updates
         if (request()->routeIs('cart') || request()->routeIs('cart.update') || request()->routeIs('cart.remove') || request()->routeIs('cart.mini-cart')) {
             return 0.0;
+        }
+
+        // Check for Free Delivery products in cart
+        foreach ($items as $item) {
+            if (!empty($item['is_free_delivery'])) {
+                return 0.0;
+            }
         }
 
         // 1. Check if method is passed in request first (Checkout Page)

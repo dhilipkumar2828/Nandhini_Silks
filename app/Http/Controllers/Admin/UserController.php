@@ -63,7 +63,7 @@ class UserController extends Controller
             'account_status' => 'required|in:Active,Inactive',
             'role' => 'required|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
-            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ], [
             'name.regex' => 'The Full Name field should only contain alphabets and spaces.',
             'phone.regex' => 'The Phone number must be exactly 10 digits.',
