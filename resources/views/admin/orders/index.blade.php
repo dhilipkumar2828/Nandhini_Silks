@@ -92,17 +92,17 @@
                         {{ $orders->firstItem() + $loop->index }}
                     </td>
                     <td class="py-2">
-                        <span class="font-black text-[#a91b43] text-xs">#{{ $order->order_number }}</span>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{{ $order->created_at->format('d M Y, h:i A') }}</div>
+                        <span class="font-black text-[#a91b43] text-sm">#{{ $order->order_number }}</span>
+                        <div class="text-[11px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{{ $order->created_at->format('d M Y, h:i A') }}</div>
                     </td>
                     <td class="py-2">
                         <div class="font-bold text-slate-800">{{ $order->customer_name }}</div>
-                        <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_email }}</div>
-                        <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_phone }}</div>
+                        <div class="text-[11px] text-slate-400 font-medium">{{ $order->customer_email }}</div>
+                        <div class="text-[11px] text-slate-400 font-medium">{{ $order->customer_phone }}</div>
                     </td>
                     <td class="py-2">
                         <div class="font-black text-slate-800">₹{{ number_format($order->grand_total, 2) }}</div>
-                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ $order->payment_method }}</div>
+                        <div class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">{{ $order->payment_method }}</div>
                     </td>
                     <td class="py-2">
                         <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border 
