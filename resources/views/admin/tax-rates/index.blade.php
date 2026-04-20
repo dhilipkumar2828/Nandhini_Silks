@@ -31,7 +31,7 @@
                     <th class="pb-3 px-2 font-bold">S.No</th>
                     <th class="pb-3 px-2">Rate Name</th>
                     <th class="pb-3">Class</th>
-                    <th class="pb-3">Location (C/S/Z)</th>
+                    <!-- <th class="pb-3">Location (C/S/Z)</th> -->
                     <th class="pb-3">Rate (%)</th>
                     <th class="pb-3">Priority</th>
                     {{-- <th class="pb-3">Options</th> --}}
@@ -49,9 +49,9 @@
                     <td class="py-3">
                         <span class="text-[10px] font-bold text-slate-500 uppercase">{{ $rate->taxClass->name }}</span>
                     </td>
-                    <td class="py-3 text-xs text-slate-400">
+                    <!-- <td class="py-3 text-xs text-slate-400">
                         {{ $rate->country ?? '*' }} / {{ $rate->state ?? '*' }} / {{ $rate->zip ?? '*' }}
-                    </td>
+                    </td> -->
                     <td class="py-3 font-black text-slate-800">{{ number_format($rate->rate, 2) }}%</td>
                     <td class="py-3 text-center">
                         <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ $rate->priority }}</span>

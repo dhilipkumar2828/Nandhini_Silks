@@ -35,7 +35,7 @@
                     </td>
                     <td class="py-2.5">
                         <div class="font-bold text-slate-800 text-sm">{{ $collection->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight">{{ $collection->slug }}</div>
+                        <div class="text-[10.5px] text-slate-400 tracking-tight">{{ $collection->slug }}</div>
                     </td>
                     <td class="py-2.5">
                         <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $collection->status == 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">

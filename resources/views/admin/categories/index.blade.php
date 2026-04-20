@@ -98,7 +98,7 @@
                     </td>
                     <td class="py-2.5 text-center w-16">
                         <div class="font-bold text-slate-800 text-sm">{{ $category->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight">{{ $category->slug }}</div>
+                        <div class="text-[11px] text-slate-400 tracking-tight">{{ $category->slug }}</div>
                     </td>
                     <td class="py-2.5 text-xs text-slate-500 font-bold text-center">{{ $category->display_order }}</td>
                     <td class="py-2.5 text-center">

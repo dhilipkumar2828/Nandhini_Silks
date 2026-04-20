@@ -86,7 +86,7 @@
                     </td>
                     <td class="py-2.5 text-left">
                         <div class="font-bold text-slate-800 text-sm">{{ $attribute->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase">Slug: {{ $attribute->slug }}</div>
+                        <div class="text-[11px] text-slate-400 tracking-tight font-semibold uppercase">Slug: {{ $attribute->slug }}</div>
                     </td>
                     <td class="py-2.5">
                         <a href="{{ route('admin.attribute-values.index', ['attribute_id' => $attribute->id]) }}" class="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-tighter border border-indigo-100 hover:bg-indigo-500 hover:text-white transition-all">
