@@ -60,7 +60,9 @@ class CartController extends Controller
                     $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
                 }
                 
-                $totalWeight += $w * (int)($item['quantity'] ?? 1);
+                if (empty($item['is_free_delivery'])) {
+                    $totalWeight += $w * (int)($item['quantity'] ?? 1);
+                }
             }
             $weight = $totalWeight > 0 ? $totalWeight : 0.5;
         }
@@ -602,7 +604,9 @@ class CartController extends Controller
                 $p = Product::find($item['product_id'] ?? 0);
                 $w = ($p && $p->weight > 0) ? (float)$p->weight : 0.5;
             }
-            $totalWeight += $w * (int)($item['quantity'] ?? 1);
+            if (empty($item['is_free_delivery'])) {
+                $totalWeight += $w * (int)($item['quantity'] ?? 1);
+            }
         }
 
         return response()->json([
