@@ -126,13 +126,17 @@ class Order extends Model
             default     => ['label' => 'No Return',        'class' => 'bg-slate-50 text-slate-600'],
         };
     }
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
+
     public function syncStatus($statusInput, $shiprocketStatus = null, $trackingNumber = null)
     {
         $newStatus = strtolower(trim($statusInput));
         $oldStatus = $this->order_status;
 
         // Prevent overwriting a final state with an earlier one
-        // (e.g., don't revert 'delivered' back to 'shipped' via cron glitch)
         $statusPriority = [
             'order placed'     => 1,
             'processing'       => 2,
@@ -149,10 +153,19 @@ class Order extends Model
         $newPriority = $statusPriority[$newStatus] ?? 0;
 
         // Only allow backwards movement for 'cancelled', 'returned', and 'processing' (reset) explicitly
-        if ($newPriority < $oldPriority && !in_array($newStatus, ['cancelled', 'returned', 'processing'])) {
+        // NOTE: Allowing all manual overrides as requested by admin for temporary purpose
+        if ($newPriority < $oldPriority && !in_array($newStatus, ['cancelled', 'returned', 'processing', 'ready to ship', 'shipped', 'out for delivery', 'delivered'])) {
             \Illuminate\Support\Facades\Log::warning("Skipping status downgrade for Order #{$this->order_number}: {$oldStatus} → {$newStatus}");
             return false;
         }
+
+        // Always ensure the current (even if initial) status is in history
+        OrderStatusHistory::firstOrCreate([
+            'order_id' => $this->id,
+            'status'   => $newStatus,
+        ], [
+            'notes'    => $shiprocketStatus
+        ]);
 
         // If transitioning TO Cancelled or Processing, try to cancel the order in Shiprocket if it exists
         if (in_array($newStatus, ['cancelled', 'processing']) && $this->shiprocket_order_id) {

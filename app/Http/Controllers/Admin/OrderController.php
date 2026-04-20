@@ -95,6 +95,7 @@ class OrderController extends Controller
         }
 
         $order = Order::create($data);
+        $order->syncStatus($order->order_status ?? 'order placed');
 
         return redirect()->route('admin.orders.index')->with('success', 'Order created successfully.');
     }
