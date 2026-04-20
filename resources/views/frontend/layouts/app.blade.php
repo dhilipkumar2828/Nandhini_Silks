@@ -918,9 +918,9 @@
                 <span class="hamburger-bar"></span>
             </button>
             <div class="nav-links" id="navLinks">
-                <a href="{{ route('home') }}" class="nav-item">Home</a>
+                <a href="{{ route('home') }}" class="nav-item">HOME</a>
 
-                <a href="{{ route('shop') }}" class="nav-item">Shop</a>
+                <a href="{{ route('shop') }}" class="nav-item">SHOP</a>
                 
                     {{-- <div class="mobile-menu-header">
                         <a href="{{ route('home') }}">
@@ -952,8 +952,8 @@
                 @endforeach
 
 
-                <a href="{{ url('about') }}" class="nav-item">About</a>
-                <a href="{{ url('contact') }}" class="nav-item">Contact us</a>
+                <a href="{{ url('about') }}" class="nav-item">ABOUT</a>
+                <a href="{{ url('contact') }}" class="nav-item">CONTACT US</a>
                 </div>
             </div>
     </nav>

@@ -40,9 +40,10 @@ class CartController extends Controller
         // 2. Otherwise use Cart Weight (Checkout / Cart Page)
         else {
             $cartItems = $this->getCart(); 
+            $isFreeDelivery = count($cartItems) > 0;
             $totalWeight = 0;
             foreach ($cartItems as $item) {
-                if (!empty($item['is_free_delivery'])) $isFreeDelivery = true;
+                if (empty($item['is_free_delivery'])) $isFreeDelivery = false;
                 
                 $w = 0;
                 // Check Variant Weight first
@@ -1355,11 +1356,16 @@ class CartController extends Controller
             return 0.0;
         }
 
-        // Check for Free Delivery products in cart
+        // Only free if ALL items in cart have free delivery
+        $allFree = true;
         foreach ($items as $item) {
-            if (!empty($item['is_free_delivery'])) {
-                return 0.0;
+            if (empty($item['is_free_delivery'])) {
+                $allFree = false;
+                break;
             }
+        }
+        if ($allFree) {
+            return 0.0;
         }
 
         // 1. Check if method is passed in request first (Checkout Page)

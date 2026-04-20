@@ -668,16 +668,16 @@
                             </div>
 
 @php
-    $hasFreeDeliveryItem = false;
+    $allFreeItems = count($items) > 0;
     foreach($items as $item) {
-        if(!empty($item['is_free_delivery'])) {
-            $hasFreeDeliveryItem = true;
+        if(empty($item['is_free_delivery'])) {
+            $allFreeItems = false;
             break;
         }
     }
 @endphp
                             <button type="submit" id="placeOrderBtn" class="btn-review-v4"
-                                 style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px; {{ ($shipping > 0 || $hasFreeDeliveryItem || session('checked_pincode_edd')) ? '' : 'opacity: 0.6; cursor: not-allowed;' }}" {{ ($shipping > 0 || $hasFreeDeliveryItem || session('checked_pincode_edd')) ? '' : 'disabled' }}>
+                                 style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px; {{ ($shipping > 0 || $allFreeItems || session('checked_pincode_edd')) ? '' : 'opacity: 0.6; cursor: not-allowed;' }}" {{ ($shipping > 0 || $allFreeItems || session('checked_pincode_edd')) ? '' : 'disabled' }}>
                                  Place Order
                             </button>
 
