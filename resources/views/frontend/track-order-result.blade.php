@@ -154,144 +154,136 @@
                     $activities = $trackingData['tracking_data']['shipment_track_activities'] ?? null;
                 }
                 
-                // Fallback to stored activities if real-time fails
                 if (!$activities && $order->shipment_track_activities) {
                     $activities = $order->shipment_track_activities;
                 }
+
+                $timeline = collect();
+                
+                // Add Internal Status History
+                foreach($order->statusHistories as $history) {
+                    $labelMap = [
+                        'order placed'     => 'Order Confirmed',
+                        'processing'       => 'Processing',
+                        'ready to ship'    => 'Packed & Ready to Ship',
+                        'shipped'          => 'Shipped',
+                        'out for delivery' => 'Out for Delivery',
+                        'delivered'        => 'Delivered',
+                        'cancelled'        => 'Cancelled',
+                        'returned'         => 'Returned',
+                        'refunded'         => 'Refunded',
+                    ];
+                    
+                    $timeline->push([
+                        'date' => $history->created_at,
+                        'title' => $labelMap[$history->status] ?? ucwords($history->status),
+                        'description' => $history->status === 'order placed' ? 'Your order has been placed.' : ($history->status === 'processing' ? 'Seller has processed your order.' : ''),
+                        'type' => 'internal'
+                    ]);
+                }
+
+                // Add Shiprocket Activities
+                if($activities) {
+                    foreach($activities as $activity) {
+                        if ($activity['activity'] === 'ReadyForReceive') continue;
+
+                        $actTitle = str_replace('Manifested - ', '', $activity['activity']);
+                        $friendlyMap = [
+                            'Manifest uploaded' => 'Order packed & label generated',
+                            'Pickup scheduled' => 'Courier pickup scheduled',
+                            'Out for Pickup' => 'Courier partner assigned',
+                            'Shipped' => 'In Transit',
+                            'Delivered' => 'Delivered Successfully'
+                        ];
+                        
+                        $timeline->push([
+                            'date' => \Carbon\Carbon::parse($activity['date']),
+                            'title' => $friendlyMap[$actTitle] ?? $actTitle,
+                            'description' => $activity['location'],
+                            'type' => 'logistics'
+                        ]);
+                    }
+                }
+
+                // Unique by title and date (approx) to avoid near-duplicates if webhook and internal update same time
+                $timeline = $timeline->sortBy(function($event) {
+                    $priority = [
+                        'Order Confirmed' => 10,
+                        'Processing' => 20,
+                        'Packed & Ready to Ship' => 30,
+                        'Order packed & label generated' => 35,
+                        'Courier pickup scheduled' => 40,
+                        'Courier partner assigned' => 45,
+                        'Shipped' => 50,
+                        'In Transit' => 55,
+                        'Out for Delivery' => 60,
+                        'Delivered' => 70,
+                        'Delivered Successfully' => 75,
+                        'Cancelled' => 80,
+                        'Returned' => 90,
+                        'Refunded' => 100,
+                    ];
+                    
+                    // Use a combination of priority and date
+                    // Priority is the primary sort key (10, 20, 30...)
+                    // Date is secondary (as a timestamp)
+                    $pVal = $priority[$event['title']] ?? 500;
+                    return sprintf('%04d-%s', $pVal, $event['date']->format('YmdHis'));
+                })->values();
             @endphp
 
-            @if($activities)
+            @if($timeline->isNotEmpty())
                 @php
-                    $isCancelled = str_contains(strtolower($track ? $track['current_status'] : $order->order_status), 'cancel');
-                    $isReturned = str_contains(strtolower($track ? $track['current_status'] : $order->order_status), 'return');
-                    $statusColor = $isCancelled ? '#dc3545' : ($isReturned ? '#6f42c1' : '#28a745');
-                    
-                    $currentStatusRaw = $track ? str_replace('Manifested - ', '', $track['current_status']) : ucwords($order->shiprocket_status ?? $order->order_status);
-                    
-                    // Same friendly map for consistency
-                    $friendlyMap = [
-                        'Manifest uploaded' => 'Order packed & shipping label generated',
-                        'Pickup scheduled' => 'Courier pickup scheduled',
-                        'Out for Pickup' => 'Courier partner assigned for pickup',
-                        'Seller cancelled the order' => 'Order cancelled by seller',
-                        'Canceled' => 'Order Cancelled',
-                        'Shipped' => 'Order Shipped & In Transit',
-                        'Delivered' => 'Order Delivered Successfully'
-                    ];
-                    $currentStatusDisplay = $friendlyMap[$currentStatusRaw] ?? $currentStatusRaw;
+                    $latest = $timeline->last();
+                    $isFinal = in_array(strtolower($order->order_status), ['delivered', 'cancelled', 'returned']);
+                    $statusColor = $isFinal && strtolower($order->order_status) !== 'delivered' ? '#dc3545' : '#28a745';
                 @endphp
+                
                 <div class="shiprocket-status" style="border-left-color: {{ $statusColor }};">
-                    <h5>Current Logistics Status</h5>
+                    <h5>Current Status</h5>
                     <div class="current-label" style="color: {{ $statusColor === '#28a745' ? '#1a1a1a' : $statusColor }};">
-                        {{ $currentStatusDisplay }}
+                        {{ $latest['title'] }}
                     </div>
                     <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                        <strong>Courier:</strong> {{ $track ? $track['courier_name'] : ($order->courier_name ?? 'Delivery Partner') }} | 
-                        <strong>AWB:</strong> {{ $track ? ($track['awb_code'] ?? 'N/A') : ($order->shiprocket_awb ?? 'N/A') }}
+                        @if($order->order_status === 'cancelled')
+                            This order has been cancelled.
+                        @elseif($order->order_status === 'delivered')
+                            Your order has been delivered successfully.
+                        @else
+                            {{ $latest['description'] ?: 'Your order is in progress.' }}
+                        @endif
                     </p>
                 </div>
 
                 <div class="status-timeline">
-                    @foreach($activities as $activity)
+                    @foreach($timeline as $event)
                         @php
-                            $actTitle = str_replace('Manifested - ', '', $activity['activity']);
-                            
-                            // Customer-friendly Status Mapping
-                            $friendlyMap = [
-                                'Manifest uploaded' => 'Order packed & shipping label generated',
-                                'Pickup scheduled' => 'Courier pickup scheduled',
-                                'Out for Pickup' => 'Courier partner assigned for pickup',
-                                'Seller cancelled the order' => 'Order cancelled by seller',
-                                'Packed' => 'Order packed successfully',
-                                'Pickup Error' => 'Pickup attempt delayed',
-                                'Pickup Rescheduled' => 'Pickup rescheduled by courier',
-                                'Shipped' => 'Order Shipped & In Transit',
-                                'Delivered' => 'Order Delivered Successfully'
-                            ];
-                            
-                            $actTitle = $friendlyMap[$actTitle] ?? $actTitle;
-
-                            $isActCancelled = str_contains(strtolower($actTitle), 'cancel');
-                            $isActReturned = str_contains(strtolower($actTitle), 'return');
-                            $actColor = $isActCancelled ? '#dc3545' : ($isActReturned ? '#6f42c1' : '#28a745');
+                            $isError = str_contains(strtolower($event['title']), 'error') || str_contains(strtolower($event['title']), 'fail');
+                            $isCancel = str_contains(strtolower($event['title']), 'cancel');
+                            $evColor = ($isError || $isCancel) ? '#dc3545' : '#28a745';
                         @endphp
-                        <div class="status-step completed" style="--timeline-color: {{ $actColor }};">
+                        <div class="status-step completed" style="--timeline-color: {{ $evColor }};">
                             <style>
-                                .status-step[style*="--timeline-color: {{ $actColor }}"] .status-icon { background: {{ $actColor }}; }
-                                .status-step[style*="--timeline-color: {{ $actColor }}"]::after { background: {{ $actColor }}; }
+                                .status-step[style*="--timeline-color: {{ $evColor }}"] .status-icon { background: {{ $evColor }}; }
+                                .status-step[style*="--timeline-color: {{ $evColor }}"]::after { background: {{ $evColor }}; }
                             </style>
-                            <div class="status-icon"><i class="fas {{ $isActCancelled ? 'fa-times' : ($isActReturned ? 'fa-undo' : 'fa-circle') }}" style="font-size: {{ $isActCancelled || $isActReturned ? '10px' : '8px' }};"></i></div>
+                            <div class="status-icon">
+                                <i class="fas {{ $isCancel ? 'fa-times' : 'fa-circle' }}" style="font-size: {{ $isCancel ? '10px' : '8px' }};"></i>
+                            </div>
                             <div class="status-info">
                                 <div class="flex items-center justify-between">
-                                    <h4 style="color: {{ $isActCancelled || $isActReturned ? $actColor : '#222' }};">{{ $actTitle }}</h4>
-                                    <div class="status-date" style="margin-bottom: 0;">{{ \Carbon\Carbon::parse($activity['date'])->format('D, jS M \'y') }}</div>
+                                    <h4 style="color: {{ $isCancel ? $evColor : '#222' }};">{{ $event['title'] }}</h4>
+                                    <div class="status-date">{{ $event['date']->format('D, jS M \'y') }}</div>
                                 </div>
-                                <p>{{ $activity['location'] }}</p>
-                                <div class="status-date" style="font-size: 11px; color: #999;">{{ \Carbon\Carbon::parse($activity['date'])->format('g:i a') }}</div>
+                                <p>{{ $event['description'] }}</p>
+                                <div class="status-date" style="font-size: 11px; color: #999;">{{ $event['date']->format('g:i a') }}</div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                {{-- Same fallback as before for orders not yet in Shiprocket --}}
-                <div class="shiprocket-status" style="border-left-color: {{ in_array($order->order_status, ['cancelled', 'returned']) ? '#dc3545' : '#28a745' }};">
-                    <h5>Order Status</h5>
-                    <div class="current-label" style="color: {{ $order->order_status === 'cancelled' ? '#dc3545' : '#1a1a1a' }};">{{ ucwords($order->order_status) }}</div>
-                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                        @if($order->order_status === 'cancelled')
-                            This order has been cancelled. If this was a mistake, please contact our support team.
-                        @elseif($order->order_status === 'returned')
-                            This order has been returned.
-                        @elseif($order->order_status === 'delivered')
-                            Your order has been delivered successfully. Thank you for shopping with us!
-                        @else
-                            Your order is currently being processed. Once it is shipped, you will receive real-time updates here.
-                        @endif
-                    </p>
-                </div>
-                
-                <div class="status-timeline">
-                    <div class="status-step completed">
-                        <div class="status-icon"><i class="fas fa-circle" style="font-size: 8px;"></i></div>
-                        <div class="status-info">
-                            <div class="flex items-center justify-between">
-                                <h4>Order Confirmed</h4>
-                                <div class="status-date">{{ $order->created_at->format('D, jS M \'y') }}</div>
-                            </div>
-                            <p>Your order has been placed.</p>
-                            <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->created_at->format('g:i a') }}</div>
-                        </div>
-                    </div>
-
-                    @if($order->order_status === 'cancelled')
-                        <div class="status-step completed" style="margin-top: 10px;">
-                            <div class="status-icon" style="background: #dc3545;"><i class="fas fa-times" style="font-size: 10px;"></i></div>
-                            <div class="status-info">
-                                <h4 style="color: #dc3545;">Order Cancelled</h4>
-                                <p>This order was cancelled on {{ $order->updated_at->format('D, jS M \'y') }}.</p>
-                                <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->updated_at->format('g:i a') }}</div>
-                            </div>
-                        </div>
-                    @elseif($order->order_status === 'returned')
-                         <div class="status-step completed" style="margin-top: 10px;">
-                            <div class="status-icon" style="background: #6f42c1;"><i class="fas fa-undo" style="font-size: 10px;"></i></div>
-                            <div class="status-info">
-                                <h4 style="color: #6f42c1;">Order Returned</h4>
-                                <p>The items have been returned.</p>
-                                <div class="status-date" style="font-size: 11px; color: #999;">{{ $order->updated_at->format('g:i a') }}</div>
-                            </div>
-                        </div>
-                    @endif
-                    
-                    @if(in_array($order->order_status, ['processing', 'ready to ship', 'shipped', 'delivered']))
-                        <div class="status-step completed">
-                            <div class="status-icon"><i class="fas fa-circle" style="font-size: 8px;"></i></div>
-                            <div class="status-info">
-                                <h4>Processing</h4>
-                                <p>Seller has processed your order.</p>
-                            </div>
-                        </div>
-                    @endif
+                <div class="no-tracking">
+                    <p>No tracking information available yet. Please check back later.</p>
                 </div>
             @endif
 

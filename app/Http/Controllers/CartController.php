@@ -744,6 +744,8 @@ class CartController extends Controller
                 'edd' => session('checked_pincode_edd'),
             ]);
 
+            $order->syncStatus('order placed'); 
+
             // Save Address if requested
             if (Auth::check() && $request->has('save_address')) {
                 UserAddress::firstOrCreate([

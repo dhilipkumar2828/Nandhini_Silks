@@ -35,7 +35,7 @@ class FrontendController extends Controller
         }
 
         // Find the order by number or shipment id
-        $order = Order::where('order_number', $orderId)
+        $order = Order::with('statusHistories')->where('order_number', $orderId)
             ->orWhere('shiprocket_shipment_id', $orderId)
             ->orWhere('tracking_number', $orderId)
             ->first();
