@@ -839,12 +839,12 @@
                 'hsn' => "5007",
                 'qty' => $item->quantity,
                 'rate' => (float) $item->price,
-                'taxRate' => 12
+                'taxRate' => 0
             ];
         })->toArray(),
         'paymentMethod' => str_replace('_', ' ', strtoupper($order->payment_method)),
         'subtotal' => (float) $order->sub_total,
-        'taxAmount' => (float) $order->tax,
+        'taxAmount' => 0,
         'shipping' => (float) $order->shipping,
         'discount' => (float) $order->discount,
         'couponCode' => $order->coupon_code,
@@ -961,7 +961,6 @@
                                     <th>Product</th>
                                     <th>Price</th>
                                     <th>Qty</th>
-                                    <th>Tax</th>
                                     <th>Subtotal</th>
                                     <th>Actions</th>
                                 </tr>
@@ -995,12 +994,8 @@
                                         </td>
                                         <td data-label="Price"><span>&#8377;{{ number_format($item->price, 0) }}</span></td>
                                         <td data-label="Qty"><span>{{ $item->quantity }}</span></td>
-                                        <td data-label="Tax">
-                                            <span class="text-bottom">&#8377;{{ number_format($item->tax_amount ?? 0, 2) }}<br>
-                                                <small>({{ $item->tax_rate ?? 0 }}%)</small></span>
-                                        </td>
                                         <td class="top-head" data-label="Subtotal">
-                                            <span>&#8377;{{ number_format($item->price * $item->quantity, 0) }}</span>
+                                            <span>&#8377;{{ number_format($item->total, 0) }}</span>
                                         </td>
                                         <td data-label="Actions">
                                             <div class="item-actions-cell">
@@ -1030,10 +1025,6 @@
                                 <span>Shipping</span>
                                 <span
                                     style="color: #52c41a;">{{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}</span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Tax (GST)</span>
-                                <span>&#8377;{{ number_format($order->tax, 2) }}</span>
                             </div>
                             @if($order->discount > 0)
                                 <div class="summary-row">

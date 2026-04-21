@@ -678,13 +678,6 @@
                     // Update totals if returned
                     if (data.subTotal !== undefined) {
                         setAmt('subtotalDisp', data.subTotal);
-                        if (data.tax !== undefined) {
-                            setAmt('taxDisp', data.tax);
-                            const taxRow = document.getElementById('taxRow');
-                            if (taxRow) {
-                                taxRow.style.display = (data.tax > 0) ? 'flex' : 'none';
-                            }
-                        }
                         setAmt('totalDisp', data.grandTotal);
 
                         const shipEl = document.getElementById('shippingDisp');

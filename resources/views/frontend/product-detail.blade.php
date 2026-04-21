@@ -2526,13 +2526,13 @@
                             </div>
                         @endif
                         <div class="product-price-section">
-                            <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
+                            <span class="current-price" id="displayPrice">₹{{ number_format($product->inclusive_price, 0) }}</span>
                             @php
-                                $hasDiscount = $product->regular_price > $product->price;
+                                $hasDiscount = $product->inclusive_regular_price > $product->inclusive_price;
                             @endphp
                             <span class="old-price" id="displayRegularPrice"
                                 style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
-                                ₹{{ number_format($product->regular_price ?? 0, 0) }}
+                                ₹{{ number_format($product->inclusive_regular_price ?? 0, 0) }}
                             </span>
                             <span class="discount-badge" id="displayDiscount"
                                 style="display: {{ $hasDiscount ? 'inline' : 'none' }}">
@@ -2950,14 +2950,14 @@
                                                         style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
                                                         @if($related->sale_price > 0)
                                                             <span
-                                                                class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
+                                                                class="price-current">₹{{ number_format($related->inclusive_sale_price, 0) }}</span>
                                                             <span class="product-price-old"
-                                                                style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                                style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->inclusive_regular_price ?: $related->inclusive_price, 0) }}</span>
                                                         @else
-                                                            <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
+                                                            <span class="price-current">₹{{ number_format($related->inclusive_price, 0) }}</span>
                                                             @if(isset($related->regular_price) && $related->regular_price > $related->price)
                                                                 <span class="product-price-old"
-                                                                    style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                                    style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->inclusive_regular_price, 0) }}</span>
                                                             @endif
                                                         @endif
                                                     </div>
@@ -3180,9 +3180,14 @@
             }
         }
 
-        const productVariants = {!! json_encode($product->product_variants) !!};
-        const basePrice = {{ $product->price }};
-        const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
+        const productVariants = {!! json_encode($product->product_variants) !!}.map(v => {
+            const tr = {{ $product->tax_rate_value }};
+            if (v.price) v.price = parseFloat(v.price) * (1 + tr);
+            if (v.sale_price) v.sale_price = parseFloat(v.sale_price) * (1 + tr);
+            return v;
+        });
+        const basePrice = {{ $product->inclusive_price }};
+        const baseRegularPrice = {{ $product->inclusive_regular_price ?: $product->inclusive_price }};
         const baseSku = "{{ $product->sku }}";
         let cartVariantIds = {!! json_encode($cartVariantIds ?? []) !!};
         let cartVariantQuantities = {!! json_encode($cartVariantQuantities ?? []) !!};
