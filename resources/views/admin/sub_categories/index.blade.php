@@ -96,11 +96,11 @@
                         @endif
                     </td>
                     <td class="py-2.5 text-center w-16">
-                        <div class="font-bold text-slate-800 text-sm">{{ $subCategory->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase tracking-widest">Slug: {{ $subCategory->slug }}</div>
+                        <div class="font-bold text-slate-800 text-md">{{ $subCategory->name }}</div>
+                        <div class="text-[11px] text-slate-400 tracking-tight font-semibold uppercase tracking-widest">Slug: {{ $subCategory->slug }}</div>
                     </td>
                     <td class="py-2.5 text-center">
-                        <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 mt-1 inline-block">
+                        <span class="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 mt-1 inline-block">
                             {{ $subCategory->category->name ?? 'N/A' }}
                         </span>
                     </td>

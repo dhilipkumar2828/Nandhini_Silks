@@ -211,6 +211,7 @@ class CartController extends Controller
         return view('frontend.cart', [
             'items' => $items,
             'subTotal' => $totals['subTotal'],
+            'baseSubtotal' => $totals['baseSubtotal'],
             'discount' => $totals['discount'],
             'tax' => $totals['tax'],
             'taxPercentage' => $totals['taxPercentage'],
@@ -254,8 +255,9 @@ class CartController extends Controller
                 }
                 if ($match) {
                     $matchedVariant = $v;
-                    if ($v->price > 0) $price = $v->price;
-                    if ($v->sale_price > 0) $price = $v->sale_price;
+                    $rate = $this->getTaxRate($product);
+                    if ($v->price > 0) $price = round($v->price * (1 + $rate), 2);
+                    if ($v->sale_price > 0) $price = round($v->sale_price * (1 + $rate), 2);
                     if ($v->image) $imagePath = $v->image;
                     break;
                 }
@@ -398,6 +400,7 @@ class CartController extends Controller
         return response()->json([
             'items' => $items,
             'subTotal' => $totals['subTotal'],
+            'baseSubtotal' => $totals['baseSubtotal'],
             'totalItems' => $totalItems
         ]);
     }
@@ -462,6 +465,7 @@ class CartController extends Controller
             return response()->json([
                 'success'    => true,
                 'subTotal'   => $totals['subTotal'],
+                'baseSubtotal' => $totals['baseSubtotal'],
                 'tax'        => $totals['tax'],
                 'taxPercentage' => $totals['taxPercentage'],
                 'shipping'   => $totals['shipping'],
@@ -553,6 +557,7 @@ class CartController extends Controller
         return view('frontend.checkout', [
             'items' => $items,
             'subTotal' => $totals['subTotal'],
+            'baseSubtotal' => $totals['baseSubtotal'],
             'discount' => $totals['discount'],
             'tax' => $totals['tax'],
             'taxPercentage' => $totals['taxPercentage'],
@@ -778,7 +783,7 @@ class CartController extends Controller
                     'attributes' => $item['display_attributes'] ?? [],
                     'price' => $item['price'],
                     'tax_rate' => $item['tax_rate'] ?? 0,
-                    'tax_amount' => $item['tax_amount'] ?? 0,
+                    'tax_amount' => 0, // Tax is already included in price
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
                 ]);
@@ -1150,11 +1155,27 @@ class CartController extends Controller
         $subTotal = 0;
         $itemCount = 0;
         $firstRate = 0;
+        $tax = 0;
 
         foreach ($items as &$item) {
             $product = Product::with('taxClass.rates')->find($item['product_id']);
             $rate = 0;
             if ($product) {
+                // Force sync price to inclusive if it's currently base
+                $inclusivePrice = $this->productPrice($product);
+                if ($item['variant_id']) {
+                    $v = \App\Models\ProductVariant::find($item['variant_id']);
+                    if ($v) {
+                        $rate = $this->getTaxRate($product);
+                        $vBase = $v->sale_price > 0 ? $v->sale_price : $v->price;
+                        $inclusivePrice = round($vBase * (1 + $rate), 2);
+                    }
+                }
+                
+                if ($item['price'] < $inclusivePrice) {
+                    $item['price'] = $inclusivePrice;
+                }
+
                 $rate = $this->getTaxRate($product);
                 if ($rate > 0 && $firstRate === 0) {
                     $firstRate = $rate * 100;
@@ -1178,6 +1199,7 @@ class CartController extends Controller
 
             // Subtotal is sum of inclusive prices
             $subTotal += $item['price'] * $item['quantity'];
+            $tax += ($item['tax_amount'] ?? 0);
             $itemCount += $item['quantity'];
         }
 
@@ -1191,27 +1213,27 @@ class CartController extends Controller
         $coupon = $couponResult['coupon'];
         $taxableAmount = max(0, $subTotal - $discount);
         
-        // Return 0 for tax display because it is already inclusive in subTotal
-        $tax = 0; 
+        // Passing the extracted tax for display purposes
         $taxPercentage = $firstRate ?: 0; 
-        $grandTotal = round($taxableAmount + $tax + $shipping, 2);
+        $baseSubtotal = round($subTotal - $tax, 2);
+        $grandTotal = round($taxableAmount + $shipping, 2);
 
-        return compact('subTotal', 'discount', 'tax', 'taxPercentage', 'shipping', 'grandTotal', 'itemCount', 'coupon');
+        return compact('subTotal', 'baseSubtotal', 'discount', 'tax', 'taxPercentage', 'shipping', 'grandTotal', 'itemCount', 'coupon');
     }
 
     private function productPrice(Product $product): float
     {
+        $price = 0;
         if (!is_null($product->sale_price) && $product->sale_price > 0) {
-            return (float) $product->sale_price;
-        }
-        if (!is_null($product->regular_price) && $product->regular_price > 0) {
-            return (float) $product->regular_price;
-        }
-        if (!is_null($product->price)) {
-            return (float) $product->price;
+            $price = (float) $product->sale_price;
+        } elseif (!is_null($product->regular_price) && $product->regular_price > 0) {
+            $price = (float) $product->regular_price;
+        } elseif (!is_null($product->price)) {
+            $price = (float) $product->price;
         }
 
-        return 0.0;
+        $rate = $this->getTaxRate($product);
+        return (float) round($price * (1 + $rate), 2);
     }
 
     private function productImagePath(Product $product): ?string

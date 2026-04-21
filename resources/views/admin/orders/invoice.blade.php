@@ -199,10 +199,9 @@
                 <tr>
                     <th style="width: 5%">SNo</th>
                     <th style="width: 10%">Preview</th>
-                    <th class="text-left" style="width: 45%">Item Description</th>
-                    <th style="width: 8%">Qty</th>
+                    <th class="text-left" style="width: 53%">Item Description</th>
+                    <th style="width: 10%">Qty</th>
                     <th class="text-right" style="width: 12%">Rate</th>
-                    <th class="text-right" style="width: 10%">Tax</th>
                     <th class="text-right" style="width: 10%">Amount</th>
                 </tr>
             </thead>
@@ -241,10 +240,6 @@
                     </td>
                     <td class="text-center" style="font-weight: 700;">{{ $item->quantity }}</td>
                     <td class="text-right">₹{{ number_format($item->price, 2) }}</td>
-                    <td class="text-right">
-                        ₹{{ number_format($item->tax_amount ?? 0, 2) }}
-                        <div style="font-size: 10px; color: #999;">({{ $item->tax_rate ?? 0 }}%)</div>
-                    </td>
                     <td class="text-right" style="font-weight: 800; color: #1a1a1a;">₹{{ number_format($item->total, 2) }}</td>
                 </tr>
                 @endforeach
@@ -259,10 +254,6 @@
                     <tr>
                         <td>Subtotal</td>
                         <td class="val">₹{{ number_format($order->sub_total, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tax (GST)</td>
-                        <td class="val">₹{{ number_format($order->tax, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Shipping Fees</td>

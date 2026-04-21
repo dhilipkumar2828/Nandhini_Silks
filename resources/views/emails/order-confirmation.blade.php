@@ -142,12 +142,6 @@
                                 <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Subtotal:</td>
                                 <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->sub_total, 2) }}</td>
                             </tr>
-                            @if($order->tax > 0)
-                            <tr>
-                                <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Tax:</td>
-                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 2) }}</td>
-                            </tr>
-                            @endif
                             <tr>
                                 <td style="padding-bottom: 8px; color: #666; font-size: 14px; text-transform: uppercase;">Shipping:</td>
                                 <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 2) }}</td>

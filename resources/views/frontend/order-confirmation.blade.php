@@ -308,8 +308,7 @@
                     <tr>
                         <th style="padding-left: 0;">Product</th>
                         <th style="text-align: right;">Qty</th>
-                        <th style="text-align: right;">Tax</th>
-                        <th style="text-align: right; padding-right: 0;">Price</th>
+                        <th style="text-align: right; padding-right: 0;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -342,33 +341,25 @@
                                 </div>
                             </td>
                             <td style="text-align: right; font-weight: 600;">{{ $item->quantity }}</td>
-                            <td style="text-align: right;">
-                                <div style="font-weight: 700; color: #444;">&#8377;{{ number_format($item->tax_amount ?? 0, 2) }}</div>
-                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">({{ $item->tax_rate ?? 0 }}%)</div>
-                            </td>
                             <td style="text-align: right; font-weight: 800; color: #1a1a1a; padding-right: 0;">&#8377;{{ number_format($item->total, 0) }}</td>
                         </tr>
                         @endforeach
                         <tr>
-                            <td colspan="3" style="text-align: right; border: none; padding-top: 20px; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Subtotal</td>
+                            <td colspan="2" style="text-align: right; border: none; padding-top: 20px; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Subtotal</td>
                             <td style="text-align: right; border: none; padding-top: 20px; font-weight: 700; color: #333; padding-right: 0;">&#8377;{{ number_format($order->sub_total, 0) }}</td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="3" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tax (GST)</td>
-                            <td style="text-align: right; border: none; font-weight: 700; color: #333; padding-right: 0;">&#8377;{{ number_format($order->tax, 2) }}</td>
-                        </tr>
-                        <tr class="tax-row">
-                            <td colspan="3" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Shipping</td>
+                            <td colspan="2" style="text-align: right; border: none; color: #888; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Shipping</td>
                             <td style="text-align: right; border: none; font-weight: 700; color: {{ $order->shipping > 0 ? '#333' : '#2e7d32' }}; padding-right: 0;">
                                 {{ $order->shipping > 0 ? '₹' . number_format($order->shipping, 2) : 'FREE' }}
                             </td>
                         </tr>
                         <tr class="tax-row">
-                            <td colspan="3" style="text-align: right; border: none; color: #2e7d32; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Discount</td>
+                            <td colspan="2" style="text-align: right; border: none; color: #2e7d32; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Discount</td>
                             <td style="text-align: right; border: none; font-weight: 700; color: #2e7d32; padding-right: 0;">-&#8377;{{ number_format($order->discount, 0) }}</td>
                         </tr>
                         <tr class="total-row">
-                            <td colspan="3" style="text-align: right; border: none; color: #333; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Total Paid</td>
+                            <td colspan="2" style="text-align: right; border: none; color: #333; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Total Paid</td>
                             <td style="text-align: right; border: none; color: #A91B43; font-size: 24px; padding-right: 0;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
                         </tr>
                     @endif
@@ -462,18 +453,19 @@
                         variant: "{!! !empty($item->attributes) ? implode(' | ', array_map(function($a) { return $a['name'] . ': ' . $a['value']; }, (array)$item->attributes)) : ((($item->color ? 'Color: '.$item->color : '') . ($item->size ? ' | Size: '.$item->size : '')) ?: '-') !!}",
                         hsn: "5007",
                         qty: {{ $item->quantity }},
-                        rate: {{ $item->price }},
-                        taxRate: {{ $item->tax_rate ?? 0 }},
-                        taxAmount: {{ $item->tax_amount ?? 0 }}
+                        rate: {{ (float) $item->price }},
+                        total: {{ (float) $item->total }},
+                        taxAmount: 0,
+                        taxRate: 0
                     },
                     @endforeach
                 @endif
             ],
             paymentMethod: "{{ $order ? ($order->payment_method == 'razorpay' ? 'Online (Razorpay)' : 'Cash on Delivery') : '' }}",
-            subtotal: {{ $order ? $order->sub_total : 0 }},
-            taxAmount: {{ $order ? $order->tax : 0 }},
-            shipping: {{ $order ? $order->shipping : 0 }},
-            discount: {{ $order ? $order->discount : 0 }},
+            subtotal: {{ (float) $order->sub_total }},
+            taxAmount: 0,
+            shipping: {{ (float) $order->shipping }},
+            discount: {{ (float) $order->discount }},
             couponCode: "{{ $order ? $order->coupon_code : '' }}",
             total: {{ $order ? $order->grand_total : 0 }}
         };

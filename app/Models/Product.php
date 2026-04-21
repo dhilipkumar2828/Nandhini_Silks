@@ -157,5 +157,29 @@ class Product extends Model
     {
         return $this->belongsToMany(OfferCollection::class);
     }
+
+    public function getTaxRateValueAttribute()
+    {
+        if ($this->taxClass && $this->taxClass->rates->isNotEmpty()) {
+            $activeRate = $this->taxClass->rates->where('status', 1)->first();
+            return $activeRate ? ($activeRate->rate / 100) : 0;
+        }
+        return 0;
+    }
+
+    public function getInclusivePriceAttribute()
+    {
+        return round($this->price * (1 + $this->tax_rate_value), 2);
+    }
+
+    public function getInclusiveRegularPriceAttribute()
+    {
+        return round($this->regular_price * (1 + $this->tax_rate_value), 2);
+    }
+
+    public function getInclusiveSalePriceAttribute()
+    {
+        return round($this->sale_price * (1 + $this->tax_rate_value), 2);
+    }
 }
 

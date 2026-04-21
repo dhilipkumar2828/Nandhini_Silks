@@ -1794,9 +1794,9 @@
         <!-- Price BELOW -->
                                                     <div class="featured-price">
                                                     <span class="featured-price">&#8377;
-                                                    {{ number_format($product->price, 0) }}</span>
-                                                @if ($product->regular_price > $product->price)
-                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                                    {{ number_format($product->inclusive_price, 0) }}</span>
+                                                @if ($product->inclusive_regular_price > $product->inclusive_price)
+                                                    <span class="old-price">₹{{ number_format($product->inclusive_regular_price, 0) }}</span>
                                                 @endif
                                                 </div>
 
@@ -1868,9 +1868,9 @@
                                 @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                 <div class="featured-footer">
                                     <div class="featured-price-wrap">
-                                        <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
-                                        @if ($product->regular_price > $product->price)
-                                        <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                        <span class="featured-price">&#8377; {{ number_format($product->inclusive_price, 0) }}</span>
+                                        @if ($product->inclusive_regular_price > $product->inclusive_price)
+                                        <span class="old-price">₹{{ number_format($product->inclusive_regular_price, 0) }}</span>
                                         @endif
                                     </div>
                                     <div class="featured-actions">
