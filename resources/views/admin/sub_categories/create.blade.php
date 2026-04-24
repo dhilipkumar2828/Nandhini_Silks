@@ -65,18 +65,16 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Description</label>
-                    <textarea name="description" rows="3"
-                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
-                        placeholder="Enter description">{{ old('description') }}</textarea>
+                    <div id="description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:150px;"></div>
+                    <textarea name="description" id="description" class="hidden">{{ old('description') }}</textarea>
                 </div>
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Specification</label>
-                    <textarea name="specification" rows="3"
-                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
-                        placeholder="Enter specification">{{ old('specification') }}</textarea>
+                    <div id="specification_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:150px;"></div>
+                    <textarea name="specification" id="specification" class="hidden">{{ old('specification') }}</textarea>
                 </div>
             </div>
 
@@ -116,8 +114,44 @@
 @endsection
 
 @push('scripts')
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<style>
+.ql-toolbar.ql-snow { border-radius: 8px 8px 0 0 !important; border-color: #e2e8f0 !important; background: #fff; padding: 6px 8px !important; }
+.ql-container.ql-snow { border-radius: 0 0 8px 8px !important; border-color: #e2e8f0 !important; background: #f8fafc; font-size: 13px; }
+.ql-editor { font-family: inherit; line-height: 1.6; }
+.ql-toolbar .ql-stroke { stroke: #64748b; }
+.ql-toolbar .ql-fill { fill: #64748b; }
+.ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: #a91b43 !important; }
+.ql-toolbar button:hover .ql-fill, .ql-toolbar button.ql-active .ql-fill { fill: #a91b43 !important; }
+</style>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
     $(document).ready(function() {
+        // --- Quill ---
+        const quillToolbar = [
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['clean']
+        ];
+
+        const quillDesc = new Quill('#description_editor', {
+            theme: 'snow',
+            placeholder: 'Enter description...',
+            modules: { toolbar: quillToolbar }
+        });
+
+        const quillSpec = new Quill('#specification_editor', {
+            theme: 'snow',
+            placeholder: 'Enter specification...',
+            modules: { toolbar: quillToolbar }
+        });
+
+        // Sync on submit
+        $('#subCategoryForm').on('submit', function() {
+            $('#description').val(quillDesc.root.innerHTML);
+            $('#specification').val(quillSpec.root.innerHTML);
+        });
+
         const nameInput = document.getElementById('subCategoryName');
         const slugInput = document.getElementById('subCategorySlug');
         let timer;
