@@ -24,6 +24,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('styles')
     <style>
+        .dropdown-arrow-mobile { display: none; }
+        @media (max-width: 920px) {
+            .dropdown-arrow-mobile { display: inline-block !important; }
+        }
         /* Cart Drawer Styles */
         .cart-drawer-overlay {
             position: fixed;
@@ -247,7 +251,7 @@
         }
 
         .tracking-box {
-            width: 100% !important;
+            width: 90% !important;
             border-color: #666 !important;
         }
         
@@ -404,8 +408,8 @@
 
         .search-box-container {
             position: relative;
-            background: #fff;
-            border: 1px solid #A91B43;
+            background: var(--gold-light);
+            border: 1px solid #666;
             border-radius: 35px;
             display: flex;
             align-items: center;
@@ -416,12 +420,12 @@
         }
 
         .search-box-container:focus-within {
-            box-shadow: 0 4px 15px rgba(169, 27, 67, 0.15);
-            background: #fffcf0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-color: #333;
         }
 
         .search-box-container .search-icon {
-            color: #A91B43;
+            color: #666;
             font-size: 16px;
             margin-right: 12px;
         }
@@ -437,7 +441,7 @@
         }
 
         .search-box-container input::placeholder {
-            color: rgba(169, 27, 67, 0.5);
+            color: #940437;
         }
 
         .clear-search {
@@ -817,7 +821,7 @@
                                     <i class="fas fa-arrow-left"></i>
                                 </button>
                                 <div class="mobile-search-input-wrap">
-                                    <i class="fas fa-search" style="color: #A91B43; font-size: 14px;"></i>
+                                    <i class="fas fa-search" style="color: #666; font-size: 14px;"></i>
                                     <input type="text" id="mobile-global-search-input" placeholder="Search products..." autocomplete="off">
                                 </div>
                                 <button type="button" class="close-mobile-search" style="background: none; border: none; font-size: 18px; color: #999; padding: 5px;">
@@ -972,7 +976,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.getElementById('menuToggle');
             const navLinks = document.getElementById('navLinks');
-            const mobileBreakpoint = 768;
+            const mobileBreakpoint = 920;
 
             if (!menuToggle || !navLinks) {
                 return;
@@ -1078,7 +1082,7 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const mobileBreakpoint = 768;
+            const mobileBreakpoint = 920;
             const accountSidebars = document.querySelectorAll('.account-page .account-sidebar');
 
             if (!accountSidebars.length) {
