@@ -12,6 +12,7 @@ class SubCategory extends Model
         'slug',
         'image',
         'description',
+        'specification',
         'meta_title',
         'meta_description',
         'meta_keywords',

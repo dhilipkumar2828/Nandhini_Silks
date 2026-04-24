@@ -70,13 +70,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Description</label>
-                        <div id="short_description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:150px;"></div>
-                        <textarea name="short_description" id="short_description" class="hidden">{{ old('short_description') }}</textarea>
+                        <div id="full_description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:220px;"></div>
+                        <textarea name="full_description" id="full_description" class="hidden">{{ old('full_description') }}</textarea>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Specification</label>
-                        <div id="full_description_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:220px;"></div>
-                        <textarea name="full_description" id="full_description" class="hidden">{{ old('full_description') }}</textarea>
+                        <div id="specification_editor" class="bg-slate-50 border border-slate-200 rounded-lg text-sm" style="height:220px;"></div>
+                        <textarea name="specification" id="specification" class="hidden">{{ old('specification') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -404,7 +404,7 @@
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <style>
 .ql-toolbar.ql-snow { border-radius: 8px 8px 0 0 !important; border-color: #e2e8f0 !important; background: #fff; padding: 6px 8px !important; }
-.ql-container.ql-snow { border-radius: 0 0 8px 8px !important; border-color: #e2e8f0 !important; background: #f8fafc; font-size: 13px; }
+.ql-container.ql-snow { border-radius: 8px !important; border-color: #e2e8f0 !important; background: #f1f5f9; font-size: 13px; }
 .ql-editor { font-family: inherit; line-height: 1.6; }
 .ql-editor.ql-blank::before { color: #94a3b8; font-style: normal; }
 .ql-toolbar .ql-stroke { stroke: #64748b; }
@@ -423,21 +423,23 @@ $(document).ready(function() {
         ['link', 'clean']
     ];
 
-    const quillDesc = new Quill('#short_description_editor', {
+    const quillFull = new Quill('#full_description_editor', {
         theme: 'snow',
-        placeholder: 'Enter product description...',
-        modules: { toolbar: quillToolbar }
+        placeholder: 'Select a sub-category to populate description...',
+        readOnly: true,
+        modules: { toolbar: false }
     });
-    const descContent = $('#short_description').val();
-    if (descContent) quillDesc.clipboard.dangerouslyPasteHTML(descContent);
+    const fullContent = $('#full_description').val();
+    if (fullContent) quillFull.clipboard.dangerouslyPasteHTML(fullContent);
 
-    const quillSpec = new Quill('#full_description_editor', {
+    const quillExtra = new Quill('#specification_editor', {
         theme: 'snow',
-        placeholder: 'Enter product specification...',
-        modules: { toolbar: quillToolbar }
+        placeholder: 'Select a sub-category to populate specification...',
+        readOnly: true,
+        modules: { toolbar: false }
     });
-    const specContent = $('#full_description').val();
-    if (specContent) quillSpec.clipboard.dangerouslyPasteHTML(specContent);
+    const extraContent = $('#specification').val();
+    if (extraContent) quillExtra.clipboard.dangerouslyPasteHTML(extraContent);
 
     // --- Consolidated Form Submission Validation ---
     $('#productForm').on('submit', function(e) {
@@ -528,8 +530,8 @@ $(document).ready(function() {
         }
 
         // Populate hidden fields from Quill
-        $('#short_description').val(quillDesc.root.innerHTML);
-        $('#full_description').val(quillSpec.root.innerHTML);
+        $('#full_description').val(quillFull.root.innerHTML);
+        $('#specification').val(quillExtra.root.innerHTML);
     });
     // --- End Consolidated Submission ---
     // --- End Quill ---
@@ -975,9 +977,43 @@ $(document).ready(function() {
     $('#sub_category_id').on('change', function () {
         var id = $(this).val();
         $('#child_category_id').html('<option value="">--- Select Child Category ---</option>');
-        if (id) $.getJSON("{{ url('admin/get-child-categories') }}/" + id, function (d) {
-            $.each(d, function (k, v) { $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
-        });
+        if (id) {
+            $.getJSON("{{ url('admin/get-child-categories') }}/" + id, function (d) {
+                $.each(d, function (k, v) { $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
+            });
+
+            // Auto-fill logic
+            $.getJSON("{{ url('admin/sub-categories') }}/" + id + "/details", function (v) {
+                if(v) {
+                    // Fill rich text editors
+                    if(v.description) {
+                        quillFull.clipboard.dangerouslyPasteHTML(v.description);
+                    } else {
+                        quillFull.setText('');
+                    }
+                    if(v.specification) {
+                        quillExtra.clipboard.dangerouslyPasteHTML(v.specification);
+                    } else {
+                        quillExtra.setText('');
+                    }
+                    
+                    // Fill textareas (just in case)
+                    $('#full_description').val(v.description);
+                    $('#specification').val(v.specification);
+                    
+                    // Fill SEO fields
+                    if(v.meta_title) $('input[name="meta_title"]').val(v.meta_title);
+                    if(v.meta_description) $('textarea[name="meta_description"]').val(v.meta_description);
+                    if(v.meta_keywords) $('input[name="meta_keywords"]').val(v.meta_keywords);
+                    
+                    // Tags (names are usually used as tags)
+                    if(v.name) {
+                        let currentTags = $('input[name="tags"]').val();
+                        if(!currentTags) $('input[name="tags"]').val(v.name.toLowerCase());
+                    }
+                }
+            });
+        }
     });
 });
 </script>

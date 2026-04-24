@@ -17,6 +17,7 @@ class Product extends Model
         'brand',
         'short_description',
         'full_description',
+        'specification',
         'isbn',
         'image',
         'images',

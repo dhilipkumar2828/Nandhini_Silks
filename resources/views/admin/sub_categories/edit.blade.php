@@ -69,10 +69,17 @@
                 </div>
             </div>
 
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-slate-700">Description</label>
-                <textarea name="description" rows="3"
-                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">{{ old('description', $subCategory->description) }}</textarea>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Description</label>
+                    <textarea name="description" rows="3"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">{{ old('description', $subCategory->description) }}</textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Specification</label>
+                    <textarea name="specification" rows="3"
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">{{ old('specification', $subCategory->specification) }}</textarea>
+                </div>
             </div>
 
             <hr class="border-slate-100 my-6">

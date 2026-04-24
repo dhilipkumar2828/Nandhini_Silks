@@ -60,6 +60,8 @@ class ProductController extends Controller
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
+            'full_description' => 'nullable|string',
+            'specification' => 'nullable|string',
             'offer_collection' => 'nullable|string|max:255',
             'slug' => 'required|string|max:255|unique:products,slug',
             'sku' => 'nullable|string|unique:products,sku',
@@ -261,6 +263,8 @@ class ProductController extends Controller
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
+            'full_description' => 'nullable|string',
+            'specification' => 'nullable|string',
             'offer_collection' => 'nullable|string|max:255',
             'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
@@ -525,6 +529,12 @@ class ProductController extends Controller
     {
         $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
+    }
+
+    public function getSubCategoryDetails($id)
+    {
+        $subCategory = SubCategory::find($id);
+        return response()->json($subCategory);
     }
 
     public function getChildCategories($sub_category_id)
