@@ -882,7 +882,7 @@
                             <div class="tracking-wrap">
                                 <form action="{{ route('track-order') }}" method="GET" class="search-box tracking-box">
                                     <i class="fas fa-truck" style="margin-left: 5px; color: #666; font-size: 14px;"></i>
-                                    <input type="text" name="id" placeholder="Track Order ID" aria-label="Track Order" value="{{ request()->routeIs('track-order') ? request('id') : '' }}" required />
+                                    <input type="text" name="id" placeholder="Track Order" aria-label="Track Order" value="{{ request()->routeIs('track-order') ? request('id') : '' }}" required />
                                 </form>
                             </div>
                         @endif
