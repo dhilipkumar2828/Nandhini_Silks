@@ -19,7 +19,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   :root {
     --page-margin: 20px;
     --section-margin: 40px;
@@ -124,7 +124,7 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   .brand-text {
     align-items: flex-start;
     gap: 0;
@@ -1505,7 +1505,7 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   *::-webkit-scrollbar {
