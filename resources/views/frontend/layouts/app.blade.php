@@ -275,7 +275,7 @@
                 grid-row: 1;
             }
             .brand {
-                width: 140px !important;
+                width: 65px !important;
             }
             .header-right {
                 display: contents !important;
@@ -906,8 +906,9 @@
                                  alt="Profile" width="22" height="22" style="border-radius: 50%; object-fit: cover;">
                         </button>
                     @else
-                        <button class="login-btn" type="button" onclick="window.location.href='{{ route('login') }}'">Sign in /
-                            Login</button>
+                        <button class="login-btn" type="button" onclick="window.location.href='{{ route('login') }}'">
+                            <span class="d-mobile-none">Sign in / </span>Login
+                        </button>
                     @endauth
                 </div>
             </div>

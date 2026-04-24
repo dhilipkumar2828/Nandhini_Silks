@@ -25,6 +25,11 @@
     --section-margin: 40px;
   }
 
+  .brand-text {
+    margin-left: -50px;
+    gap: 4px;
+  }
+
   .brand-link {
     gap: 8px;
   }
@@ -110,6 +115,82 @@ body {
   color: var(--pink);
   font-weight: 400;
   line-height: 1;
+}
+
+@media (max-width: 991px) {
+
+  .brand-text .nandhini,
+  .brand-text .silks {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-text {
+    margin-left: -12px;
+    gap: 4px;
+  }
+
+  .brand-text .nandhini,
+  .brand-text .silks {
+    font-size: 28px;
+  }
+
+  .header-row {
+    gap: 10px;
+    padding: 8px 10px;
+  }
+
+  .brand {
+    width: 140px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .login-btn {
+    padding: 0 12px;
+    font-size: 14px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+
+  .brand-text .nandhini,
+  .brand-text .silks {
+    font-size: 18px !important;
+  }
+
+  .header-row {
+    padding: 5px 8px !important;
+    gap: 5px !important;
+  }
+
+  .brand-link {
+    gap: 4px !important;
+  }
+
+  .actions {
+    gap: 4px !important;
+  }
+
+  /* On very small mobile, shorten the login text */
+  .login-btn {
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    height: 32px !important;
+  }
+
+  .d-mobile-none {
+    display: none !important;
+  }
 }
 
 .brand {
