@@ -934,7 +934,12 @@
                     </div> --}}
                 @foreach($headerCategories as $category)
                     <div class="nav-item-wrapper">
-                        <a href="{{ url('category/'.$category->slug) }}" class="nav-item @if($category->subCategories->count() > 0) nav-dropdown-toggle @endif">{{ $category->name }}</a>
+                        <a href="{{ url('category/'.$category->slug) }}" class="nav-item @if($category->subCategories->count() > 0) nav-dropdown-toggle @endif">
+                            {{ $category->name }}
+                            @if($category->subCategories->count() > 0)
+                                <i class="fas fa-chevron-down dropdown-arrow-mobile"></i>
+                            @endif
+                        </a>
                         @if($category->subCategories->count() > 0)
                             <div class="dropdown-content">
                                 @foreach($category->subCategories as $subCategory)
@@ -1001,31 +1006,49 @@
                 }
             });
 
-//             const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
-//             dropdownToggles.forEach(toggle => {
-//                 toggle.addEventListener('click', (e) => {
-//                     if (window.innerWidth <= mobileBreakpoint) {
-//                         const parent = toggle.parentElement;
-//                         // Only prevent default if it has a dropdown
-//                         if (parent.querySelector('.dropdown-content')) {
-//                             e.preventDefault();
-//                             parent.classList.toggle('mobile-open');
-//                         }
-//                     }
-//                 });
-//             });
+            const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    if (window.innerWidth <= mobileBreakpoint) {
+                        const parent = this.closest('.nav-item-wrapper');
+                        const dropdown = parent.querySelector('.dropdown-content');
+                        
+                        if (dropdown) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const isOpen = parent.classList.contains('mobile-open');
+                            
+                            // Close other open siblings if desired (optional)
+                            // document.querySelectorAll('.nav-item-wrapper.mobile-open').forEach(el => el.classList.remove('mobile-open'));
+                            
+                            parent.classList.toggle('mobile-open');
+                            
+                            // Rotate arrow
+                            const arrow = this.querySelector('.dropdown-arrow-mobile');
+                            if (arrow) {
+                                arrow.style.transform = !isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                            }
+                        }
+                    }
+                });
+            });
 
-//             // Mobile Child Dropdown Toggles
-//             const hasChildrenLinks = document.querySelectorAll('.has-children > a');
-//             hasChildrenLinks.forEach(link => {
-//                 link.addEventListener('click', (e) => {
-//                     if (window.innerWidth <= mobileBreakpoint) {
-//                         e.preventDefault();
-//                         const parent = link.parentElement;
-//                         parent.classList.toggle('mobile-open');
-//                     }
-//                 });
-//             });
+            const hasChildrenLinks = document.querySelectorAll('.has-children > a');
+            hasChildrenLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth <= mobileBreakpoint) {
+                        const parent = this.closest('.has-children');
+                        const subDropdown = parent.querySelector('.child-dropdown');
+                        
+                        if (subDropdown) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            parent.classList.toggle('mobile-open');
+                        }
+                    }
+                });
+            });
 
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= mobileBreakpoint &&
@@ -1153,7 +1176,7 @@
             </div>
             <div class="footer-contact-item">
               <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/email.svg') }}" alt=""></span>
-              <p class="footer-contact-text">noreply@nandhinisilks.com</p>
+              <p class="footer-contact-text">nandhinisilks.arni@gmail.com</p>
             </div>
           </div>
 

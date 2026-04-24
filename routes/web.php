@@ -134,6 +134,7 @@ Route::group(['prefix' => 'admin'], function () {
         
         Route::get('/sub-categories/check-slug', [SubCategoryController::class, 'checkSlug'])->name('admin.sub-categories.check-slug');
         Route::get('/sub-categories/check-name', [SubCategoryController::class, 'checkName'])->name('admin.sub-categories.check-name');
+        Route::get('/sub-categories/{id}/details', [ProductController::class, 'getSubCategoryDetails'])->name('admin.sub-categories.details');
         
         Route::get('/child-categories/check-slug', [ChildCategoryController::class, 'checkSlug'])->name('admin.child-categories.check-slug');
         Route::get('/child-categories/check-name', [ChildCategoryController::class, 'checkName'])->name('admin.child-categories.check-name');
