@@ -2478,7 +2478,9 @@
                         $mainImage = $allImages[0]['url'];
                     @endphp
                     <div class="main-product-image" id="zoomContainer" style="position: relative;">
-                        <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg">
+                        <a href="{{ $mainImage }}" data-fancybox="gallery" id="mainImgLink">
+                            <img src="{{ $mainImage }}" alt="{{ $product->name }}" id="mainImg" data-zoom="{{ $mainImage }}">
+                        </a>
                         <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn"
                             aria-label="Add to Wishlist" data-product-id="{{ $product->id }}"
                             style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
@@ -2491,14 +2493,15 @@
                             <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" data-color-id="{{ $imgData['color_id'] }}"
                                 data-variant-id="{{ $imgData['variant_id'] ?? '' }}"
                                 onclick="changeImg('{{ $imgData['url'] }}', this)">
-                                <img src="{{ $imgData['url'] }}" alt="View {{ $i + 1 }}">
+                                <img src="{{ $imgData['url'] }}" alt="View {{ $i + 1 }}" data-zoom="{{ $imgData['url'] }}">
                             </div>
                         @endforeach
                     </div>
                 </div>
 
                 <!-- Info Section -->
-                <div class="product-info-details">
+                <div class="product-info-details" style="position: relative;">
+                    <div id="zoomPane" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; pointer-events: none; overflow: hidden; background: #fff; border: 1px solid #ddd; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none;"></div>
                     <div class="product-meta">
                         <p class="product-brand">{{ $product->category->name ?? 'Nandhini Silks Exclusive' }}</p>
                         <p class="product-meta-item">SKU: <span
@@ -3069,7 +3072,13 @@
         let currentMaxQuantity = {{ $product->stock_quantity }};
 
         function changeImg(src, thumb) {
-            document.getElementById('mainImg').src = src;
+            const mainImg = document.getElementById('mainImg');
+            const mainImgLink = document.getElementById('mainImgLink');
+            
+            mainImg.src = src;
+            mainImg.setAttribute('data-zoom', src);
+            if (mainImgLink) mainImgLink.href = src;
+            
             const thumbs = document.querySelectorAll('.thumbnail');
             thumbs.forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
@@ -3765,6 +3774,52 @@
                         note.innerHTML = '<span style="color: #e74c3c;">Service unavailable. Try again later.</span>';
                         console.error('Error:', error);
                     });
+            });
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/drift-zoom/1.5.0/drift-basic.min.css">
+    <style>
+        .drift-zoom-pane {
+            border-radius: 0;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            z-index: 9999;
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+        .drift-bounding-box {
+            background-color: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
+            cursor: zoom-in;
+            z-index: 9;
+        }
+        @media (max-width: 1100px) {
+            #zoomPane {
+                display: none !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/drift-zoom/1.5.0/Drift.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Drift Zoom
+            const mainImg = document.getElementById('mainImg');
+            const zoomPane = document.getElementById('zoomPane');
+            if (mainImg && zoomPane) {
+                new Drift(mainImg, {
+                    paneContainer: zoomPane,
+                    inlinePane: false,
+                    hoverBoundingBox: true,
+                    zoomFactor: 3,
+                    onShow: () => { zoomPane.style.display = 'block'; },
+                    onHide: () => { zoomPane.style.display = 'none'; }
+                });
+            }
+
+            // Initialize Fancybox
+            Fancybox.bind("[data-fancybox]", {
+                // Fancybox options
             });
         });
     </script>

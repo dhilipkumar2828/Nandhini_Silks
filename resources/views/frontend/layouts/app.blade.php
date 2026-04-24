@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Italianno&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <!-- Swiper CSS -->
@@ -792,6 +792,10 @@
         <div class="page-shell header-row">
             <a href="{{ route('home') }}" class="brand-link">
                 <img class="brand" src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" />
+                <span class="brand-text">
+                    <span class="nandhini">Nandhini</span>
+                    <span class="silks">Silks</span>
+                </span>
             </a>
 
             <div class="header-right">
