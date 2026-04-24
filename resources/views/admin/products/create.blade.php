@@ -254,9 +254,8 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Status</label>
                         <select name="status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            <option value="1">Published / Active</option>
-                            <option value="0">Draft</option>
-                            <option value="archived">Archived</option>
+                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
                     <div>

@@ -426,7 +426,6 @@ body {
 .dropdown-content a:hover,
 .child-dropdown a:hover {
   color: var(--pink);
-  background-color: #fcfcfc;
   padding-left: 26px;
 }
 
@@ -1682,7 +1681,7 @@ body {
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.2) !important;
   }
 
   .dropdown-content a {
@@ -6294,7 +6293,7 @@ body.menu-open {
 
   .dropdown-content,
   .child-dropdown {
-    display: none !important;
+    transition: max-height 0.3s ease;
   }
 
   /* Removed mobile-open dropdown logic */
