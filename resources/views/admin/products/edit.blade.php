@@ -292,15 +292,15 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Featured</label>
                         <select name="is_featured" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
                             <option value="1" {{ old('is_featured', $product->is_featured) == '1' ? 'selected' : '' }}>Yes — Homepage</option>
+                            <option value="0" {{ old('is_featured', $product->is_featured) == '0' ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Free Delivery</label>
                         <select name="is_free_delivery" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all">
-                            <option value="0" {{ old('is_free_delivery', $product->is_free_delivery) == '0' ? 'selected' : '' }}>No</option>
                             <option value="1" {{ old('is_free_delivery', $product->is_free_delivery) == '1' ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ old('is_free_delivery', $product->is_free_delivery) == '0' ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
                     <div>
