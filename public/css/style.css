@@ -145,7 +145,7 @@ body {
   }
 
   .brand {
-    width: 140px;
+    width: 160px;
   }
 
   .actions {
@@ -162,8 +162,8 @@ body {
 
 @media (max-width: 480px) {
   .brand {
-    width: 42px !important;
-    height: 42px !important;
+    width: 140px !important;
+    height: auto !important;
   }
 
   .brand-text {
@@ -1539,8 +1539,8 @@ body {
 
   .brand {
     margin: 0;
-    width: 130px;
-    height: auto;
+    width: 170px;
+    height: 150px;
   }
 
   .actions {
@@ -2050,6 +2050,11 @@ body {
     line-height: 1;
   }
 
+  /* Fix for Lightbox overlapping with sticky header */
+  .fancybox__container {
+    z-index: 10000 !important;
+  }
+
   @keyframes scroll-collections-mobile {
 
     0%,
@@ -2184,7 +2189,7 @@ body {
   }
 
   .brand {
-    width: 75px;
+    width: 140px;
   }
 
   .actions {
@@ -6096,7 +6101,7 @@ input:checked+.toggle-switch .toggle-dot {
   }
 
   .brand {
-    width: 150px;
+    width: 170px;
   }
 
   .actions {
@@ -6882,7 +6887,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 95px !important;
+    width: 140px !important;
   }
 
   .header-row {
@@ -6925,7 +6930,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 110px !important;
+    width: 140px !important;
   }
 
   .header-row {
@@ -6961,7 +6966,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 125px !important;
+    width: 140px !important;
   }
 
   .header-row {
@@ -6991,7 +6996,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 130px !important;
+    width: 140px !important;
   }
 
   .header-row {
@@ -7286,7 +7291,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 108px !important;
+    width: 140px !important;
   }
 
   .header-right {
@@ -7337,7 +7342,7 @@ body.menu-open {
   }
 
   .brand {
-    width: 92px !important;
+    width: 140px !important;
   }
 
   .header-right {

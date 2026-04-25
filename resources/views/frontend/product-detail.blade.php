@@ -2747,7 +2747,7 @@
                                 <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated
                                     delivery by {{ session('checked_pincode_edd') }}</span>
                             @else
-                                Free shipping on orders above ₹5,000.
+                                <!-- Free shipping on orders above ₹5,000. -->
                             @endif
                         </p>
                     </div>
