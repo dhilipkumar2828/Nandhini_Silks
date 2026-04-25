@@ -2028,12 +2028,12 @@ body {
 
   /* Hamburger Menu Cancel Icon */
   .menu-toggle.active {
-    background: transparent;
-    border-color: transparent;
-    backdrop-filter: none;
+    background: #ffffff !important;
+    border: none !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   }
 
   .menu-toggle.active .hamburger-bar {
@@ -2043,10 +2043,11 @@ body {
   .menu-toggle.active::after {
     content: '\2715';
     /* Clean Unicode Multiplication X */
-    font-family: sans-serif;
-    font-weight: 500;
+    font-family: Arial, sans-serif;
+    font-weight: 800;
     font-size: 24px;
-    color: var(--pink);
+    color: var(--pink) !important;
+    line-height: 1;
   }
 
   @keyframes scroll-collections-mobile {

@@ -251,12 +251,11 @@
         }
 
         .tracking-box {
-            width: 90% !important;
-            border-color: #666 !important;
+            width: 100% !important;
         }
         
         .tracking-box input {
-            color: #555 !important;
+            color: #1a1a1a !important;
         }
 
         @media (max-width: 991px) {
@@ -406,42 +405,48 @@
             }
         }
 
-        .search-box-container {
+        .search-box-container,
+        .tracking-box {
             position: relative;
             background: var(--gold-light);
-            border: 1px solid #666;
-            border-radius: 35px;
+            border: 1px solid #666 !important;
+            border-radius: 35px !important;
             display: flex;
             align-items: center;
             padding: 0 15px;
-            height: 42px;
+            height: 40px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1001;
         }
 
-        .search-box-container:focus-within {
+        .search-box-container:focus-within,
+        .tracking-box:focus-within {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border-color: #333;
+            border-color: #333 !important;
         }
 
-        .search-box-container .search-icon {
+        .search-box-container .search-icon,
+        .tracking-box i {
             color: #666;
-            font-size: 16px;
-            margin-right: 12px;
+            font-size: 14px;
+            margin-right: 8px;
         }
 
-        .search-box-container input {
+        .search-box-container input,
+        .tracking-box input {
             border: none;
             outline: none;
             width: 100%;
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             color: #1a1a1a;
             background: transparent;
         }
 
-        .search-box-container input::placeholder {
+        .search-box-container input::placeholder,
+        .tracking-box input::placeholder {
             color: #940437;
+            opacity: 0.8;
         }
 
         .clear-search {

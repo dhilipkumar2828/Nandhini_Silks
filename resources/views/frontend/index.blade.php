@@ -540,7 +540,7 @@
 }
 
             /* 🔥 Mobile */
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
                 .product-row .featured-name {
                     font-size: 13px;
                 }
@@ -771,7 +771,7 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .hero {
                 margin-bottom: 20px;
             }
@@ -1389,7 +1389,7 @@
             }
         }
 
-        @media (min-width: 501px) and (max-width: 768px) {
+        @media (min-width: 501px) and (max-width: 1024px) {
             .featured-inner {
                 padding-left: 12px !important;
                 padding-right: 12px !important;
@@ -1444,8 +1444,8 @@
         }
 
         /* Final mobile nav alignment override */
-        @media (max-width: 768px) {
-
+        @media (max-width: 1024px) {
+            
             .featured-prev,
             .featured-next,
             .offers-prev,
@@ -1468,7 +1468,7 @@
         }
 
         /* Final Category Section Mobile Alignment Fix */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .category-section {
                 padding-left: 12px !important;
                 padding-right: 12px !important;
@@ -1626,7 +1626,7 @@
             justify-content: center;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
 
             .testimonial-swiper-wrap .testimonial-prev,
             .testimonial-swiper-wrap .testimonial-next {
@@ -1645,7 +1645,7 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
 
             .hero,
             .hero-swiper,
@@ -2039,16 +2039,16 @@
                     },
                     breakpoints: {
                         641: {
-                            slidesPerView: 2
+                            slidesPerView: 2,
+                            spaceBetween: 20
                         },
-                        768: {
-                            slidesPerView: 3
-                        },
-                        1024: {
-                            slidesPerView: 4
+                        991: {
+                            slidesPerView: 3,
+                            spaceBetween: 24
                         },
                         1280: {
-                            slidesPerView: 4
+                            slidesPerView: 4,
+                            spaceBetween: 30
                         },
                     }
                 });
@@ -2107,7 +2107,7 @@
                         prevEl: '.testimonial-prev',
                     },
                     breakpoints: {
-                        768: {
+                        991: {
                             slidesPerView: 2,
                             spaceBetween: 24
                         },
@@ -2145,7 +2145,7 @@
                                 spaceBetween: 12,
                                 centeredSlides: false,
                             },
-                            768: {
+                            991: {
                                 slidesPerView: promoSlideCount >= 2 ? 2 : 1,
                                 spaceBetween: 24,
                             },
