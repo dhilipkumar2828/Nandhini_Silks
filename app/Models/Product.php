@@ -168,6 +168,31 @@ class Product extends Model
         return 0;
     }
 
+    public function getFullDescriptionAttribute($value)
+    {
+        return $value ?: ($this->subCategory ? $this->subCategory->description : null);
+    }
+
+    public function getSpecificationAttribute($value)
+    {
+        return $value ?: ($this->subCategory ? $this->subCategory->specification : null);
+    }
+
+    public function getMetaTitleAttribute($value)
+    {
+        return $value ?: ($this->subCategory ? $this->subCategory->meta_title : null);
+    }
+
+    public function getMetaDescriptionAttribute($value)
+    {
+        return $value ?: ($this->subCategory ? $this->subCategory->meta_description : null);
+    }
+
+    public function getMetaKeywordsAttribute($value)
+    {
+        return $value ?: ($this->subCategory ? $this->subCategory->meta_keywords : null);
+    }
+
     public function getInclusivePriceAttribute()
     {
         return round($this->price * (1 + $this->tax_rate_value), 2);
