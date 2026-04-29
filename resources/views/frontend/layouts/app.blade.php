@@ -278,7 +278,22 @@
                 grid-row: 1;
             }
             .brand {
-                width: 65px !important;
+                width: 120px !important;
+                max-height: 120px !important;
+            }
+            .brand-text {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .brand-text .nandhini {
+                font-size: 25px !important;
+                font-weight: 600 !important;
+                text-shadow: none !important;
+            }
+            .brand-text .silks {
+                font-size: 25px !important;
+                font-weight: 600 !important;
+                text-shadow: none !important;
             }
             .header-right {
                 display: contents !important;
@@ -289,6 +304,8 @@
                 width: auto !important;
                 justify-content: flex-end !important;
                 margin: 0 !important;
+                margin-right: 5px !important;
+                gap: 8px !important;
             }
         }
         /* Standard Mobile/Tablet (Side-by-side but balanced) */
@@ -300,10 +317,10 @@
                 flex-direction: row !important;
                 gap: 15px !important;
                 justify-content: center !important;
-                padding: 15px 10px;
+                padding: 5px 10px 15px;
                 box-sizing: border-box;
                 grid-column: 1 / span 2;
-                margin-top: 10px;
+                margin-top: 0px;
             }
             .search-wrap {
                 flex: 1.5;
@@ -312,6 +329,10 @@
             .tracking-wrap {
                 flex: 1;
                 max-width: 350px;
+            }
+            .brand {
+                width: 190px !important;
+                max-height: 160px !important;
             }
         }
 
@@ -323,10 +344,10 @@
             flex-direction: row !important;
             gap: 15px !important;
             justify-content: center !important;
-            padding: 15px 10px;
+            padding: 5px 10px 15px;
             box-sizing: border-box;
             grid-column: 1 / span 2;
-            margin-top: 10px;
+            margin-top: 0px;
             }
             .search-wrap, .tracking-wrap {
                width: 46% !important;

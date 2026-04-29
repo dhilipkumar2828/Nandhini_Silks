@@ -1114,7 +1114,9 @@
 
             .promo-card-media {
                 width: 100% !important;
-                aspect-ratio: 16 / 10;
+                aspect-ratio: auto;
+                height: auto;
+                object-fit: contain;
             }
 
             .promo-prev {
@@ -1162,7 +1164,7 @@
 
             .collection-swiper-wrap {
                 overflow: hidden;
-                padding: 0 34px;
+                padding: 0 10px;
             }
 
             .collection-swiper .swiper-slide {
@@ -1651,7 +1653,8 @@
             .hero-swiper,
             .hero-swiper .swiper-slide {
                 width: 100%;
-                height: 200px !important;
+                height: auto !important;
+                min-height: 150px;
             }
 
             .hero {
@@ -1664,8 +1667,8 @@
 
             .hero-swiper .swiper-slide img {
                 width: 100% !important;
-                height: 100% !important;
-                object-fit: cover !important;
+                height: auto !important;
+                object-fit: contain !important;
                 object-position: center;
                 display: block;
             }
@@ -2009,6 +2012,7 @@
                 new Swiper('.hero-swiper', {
                     slidesPerView: 1,
                     loop: true,
+                    autoHeight: true,
                     autoplay: {
                         delay: 5000,
                         disableOnInteraction: false,
