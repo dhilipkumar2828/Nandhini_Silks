@@ -102,7 +102,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['items.product', 'user', 'coupon']);
+        $order->load(['items.product', 'items.variant', 'user', 'coupon']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -150,7 +150,7 @@ class OrderController extends Controller
     public function downloadInvoice(Order $order)
     {
         Log::info('Downloading Official Invoice for Order: ' . $order->order_number);
-        $order->load('items.product');
+        $order->load(['items.product', 'items.variant']);
         $filename = 'invoice-' . ($order->order_number ?? $order->id) . '.pdf';
 
         $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))

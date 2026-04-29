@@ -1024,7 +1024,7 @@ class CartController extends Controller
     public function orderConfirmation(Order $order = null)
     {
         if ($order) {
-            $order->load('items.product');
+            $order->load(['items.product', 'items.variant']);
         }
 
         return view('frontend.order-confirmation', [

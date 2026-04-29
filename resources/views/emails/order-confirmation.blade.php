@@ -112,6 +112,7 @@
                     <tr>
                         <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">
                             <span style="font-weight: 700; color: #111; font-size: 15px;">{{ $item->product_name }}</span>
+                            <br><span style="color: #94a3b8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">SKU: {{ $item->variant->sku ?? ($item->product->sku ?? 'N/A') }}</span>
                             @if(!empty($item->attributes) && is_array($item->attributes))
                                 @foreach($item->attributes as $attr)
                                     <br><span style="color: #666; font-size: 11px; font-weight: 700;">{{ $attr['name'] }}: {{ $attr['value'] }}</span>

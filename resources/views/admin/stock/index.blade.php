@@ -178,22 +178,12 @@
             </div>
             
             @if($products->hasPages())
-            <div class="px-8 py-5 bg-slate-50/50 border-t border-slate-100">
-                <div class="flex items-center justify-between">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page {{ $products->currentPage() }} of {{ $products->lastPage() }}</p>
-                    <div class="custom-pagination">
-                        {{ $products->appends(request()->query())->links() }}
-                    </div>
-                </div>
+            <div class="px-8 bg-slate-50/50 border-t border-slate-100">
+                {{ $products->appends(request()->query())->links() }}
             </div>
             @endif
         </div>
     </form>
 </div>
 
-<style>
-    .custom-pagination nav svg { height: 1.25rem; width: 1.25rem; }
-    .custom-pagination nav span[aria-current="page"] span { background: #a91b43 !important; border-color: #a91b43 !important; color: white !important; border-radius: 8px; font-weight: 900; }
-    .custom-pagination nav a, .custom-pagination nav span { border-radius: 8px; margin: 0 1px; font-weight: 700; border: 1px solid #f1f5f9; }
-</style>
 @endsection

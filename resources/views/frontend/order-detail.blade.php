@@ -973,6 +973,7 @@
                                                 <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
                                                 <div style="flex: 1; min-width: 100%;">
                                                     <div class="item-name">{{ $item->product_name }}</div>
+                                                    <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: -2px; margin-bottom: 4px;">SKU: {{ $item->variant->sku ?? ($item->product->sku ?? 'N/A') }}</div>
                                                     <div class="item-meta">
                                                         @if(!empty($item->attributes))
                                                             @foreach($item->attributes as $attr)
