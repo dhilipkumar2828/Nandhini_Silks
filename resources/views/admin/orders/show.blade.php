@@ -32,6 +32,7 @@
                                     <img src="{{ $item->getImageUrl() }}" class="w-12 h-12 rounded-lg object-cover border border-slate-100 shadow-sm" alt="">
                                     <div>
                                         <div class="font-bold text-slate-800">{{ $item->product_name }}</div>
+                                        <div class="text-[15px] text-slate-600 font-bold uppercase tracking-tight">SKU: {{ $item->variant->sku ?? ($item->product->sku ?? 'N/A') }}</div>
                                         @if($item->size || $item->color)
                                         <div class="flex flex-wrap gap-2 mt-2">
                                             @if(!empty($item->attributes) && is_array($item->attributes))

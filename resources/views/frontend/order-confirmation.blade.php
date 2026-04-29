@@ -321,6 +321,7 @@
                                          width="45" height="55" style="object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid #eee;">
                                     <div>
                                         <div style="font-weight: 700; font-size: 14px; color: #1a1a1a;">{{ $item->product_name }}</div>
+                                        <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">SKU: {{ $item->variant->sku ?? ($item->product->sku ?? 'N/A') }}</div>
                                         @if($item->size || $item->color)
                                             <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
                                             @if(!empty($item->attributes) && is_array($item->attributes))

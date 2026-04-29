@@ -436,7 +436,7 @@ class FrontendController extends Controller
     }
     public function orderDetail(Request $request)
     {
-        $order = Order::with(['items', 'coupon'])
+        $order = Order::with(['items.product', 'items.variant', 'coupon'])
             ->where('id', $request->query('id'))
             ->where('user_id', Auth::guard('web')->id())
             ->first();
