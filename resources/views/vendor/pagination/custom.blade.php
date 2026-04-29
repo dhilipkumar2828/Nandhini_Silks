@@ -26,7 +26,7 @@
 
     .results-text span {
         font-weight: 600;
-        color: #940437;
+        color: #a91b43;
     }
 
     .pagination-links {
@@ -70,17 +70,17 @@
 
     .pagination-item:not(.disabled):not(.active):hover {
         background-color: #fef2f4;
-        border-color: #940437;
-        color: #940437;
+        border-color: #a91b43;
+        color: #a91b43;
         transform: translateY(-1px);
     }
 
     .pagination-item.active {
-        background-color: #940437;
-        border-color: #940437;
+        background-color: #a91b43;
+        border-color: #a91b43;
         color: white;
         cursor: default;
-        box-shadow: 0 2px 4px rgba(148, 4, 55, 0.2);
+        box-shadow: 0 2px 4px rgba(169, 27, 67, 0.2);
     }
 
     .pagination-item.disabled {
