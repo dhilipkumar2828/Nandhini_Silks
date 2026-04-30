@@ -3387,13 +3387,17 @@
                         setGoToCartState(btn);
                         // Sync Quantity Picker
                         const qtyDisp = document.getElementById('qtyDisp');
+                        const qtyInput = document.getElementById('qtyInput');
                         const cartQty = cartVariantQuantities[matched.id] || cartVariantQuantities[matched.id.toString()] || 1;
                         if (qtyDisp) qtyDisp.value = cartQty;
+                        if (qtyInput) qtyInput.value = cartQty;
                     } else {
                         resetAddToCartState(btn, isInStock);
                         // Default to 1 for new selection
                         const qtyDisp = document.getElementById('qtyDisp');
+                        const qtyInput = document.getElementById('qtyInput');
                         if (qtyDisp) qtyDisp.value = 1;
+                        if (qtyInput) qtyInput.value = 1;
                     }
                 }
             } else {
@@ -3408,11 +3412,15 @@
                     if (cartVariantQuantities['base'] || (initialProductInCart && cartVariantIds.length === 0)) {
                         setGoToCartState(btn);
                         const qtyDisp = document.getElementById('qtyDisp');
+                        const qtyInput = document.getElementById('qtyInput');
                         if (qtyDisp) qtyDisp.value = cartVariantQuantities['base'] || 1;
+                        if (qtyInput) qtyInput.value = cartVariantQuantities['base'] || 1;
                     } else {
                         resetAddToCartState(btn, {{ $product->stock_quantity > 0 ? 'true' : 'false' }});
                         const qtyDisp = document.getElementById('qtyDisp');
+                        const qtyInput = document.getElementById('qtyInput');
                         if (qtyDisp) qtyDisp.value = 1;
+                        if (qtyInput) qtyInput.value = 1;
                     }
                 }
             }

@@ -907,6 +907,80 @@
                 .replace(/^-+/, '')             // Trim - from start of text
                 .replace(/-+$/, '');            // Trim - from end of text
         }
+
+        $(document).ready(function() {
+            // True AJAX Live Search for Admin Panels
+            const searchInputs = $('input[name="search"]');
+            
+            if (searchInputs.length > 0) {
+                searchInputs.each(function() {
+                    const input = $(this);
+                    // Remove inline oninput to prevent full page reloads
+                    input.removeAttr('oninput');
+                    
+                    const form = input.closest('form');
+                    if (form.length) {
+                        // Prevent default form submission via Enter key
+                        form.on('submit', function(e) {
+                            e.preventDefault();
+                            input.trigger('input');
+                        });
+                        // Stop global loader from showing
+                        form.addClass('no-loader');
+                    }
+                });
+
+                searchInputs.on('input', function() {
+                    clearTimeout(this.timer);
+                    const input = $(this);
+                    const form = input.closest('form');
+                    
+                    this.timer = setTimeout(() => {
+                        const url = new URL(form.attr('action') || window.location.href);
+                        const formData = new FormData(form[0]);
+                        for (let [key, value] of formData.entries()) {
+                            url.searchParams.set(key, value);
+                        }
+                        
+                        const searchIcon = input.siblings('.fa-search');
+                        searchIcon.removeClass('fa-search').addClass('fa-spinner fa-spin');
+                        
+                        window.history.pushState({}, '', url);
+
+                        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                            .then(res => res.text())
+                            .then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                
+                                // Replace main list container (Table wrapper)
+                                const currentList = document.querySelector('.overflow-x-auto');
+                                const newList = doc.querySelector('.overflow-x-auto');
+                                if (currentList && newList) {
+                                    currentList.innerHTML = newList.innerHTML;
+                                }
+                                
+                                // Replace Pagination
+                                const newNav = doc.querySelector('nav[role="navigation"]');
+                                const currentNav = document.querySelector('nav[role="navigation"]');
+                                
+                                if (currentNav && newNav) {
+                                    currentNav.parentNode.replaceChild(newNav, currentNav);
+                                } else if (newNav && !currentNav && currentList) {
+                                    $(currentList).after('<div class="mt-6">' + newNav.outerHTML + '</div>');
+                                } else if (!newNav && currentNav) {
+                                    currentNav.parentNode.removeChild(currentNav);
+                                }
+                                
+                                searchIcon.removeClass('fa-spinner fa-spin').addClass('fa-search');
+                            })
+                            .catch(err => {
+                                searchIcon.removeClass('fa-spinner fa-spin').addClass('fa-search');
+                            });
+                    }, 300); // Quick 300ms delay for seamless live search
+                });
+            }
+        });
     </script>
     @stack('scripts')
 </body>

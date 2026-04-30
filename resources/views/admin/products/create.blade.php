@@ -711,11 +711,11 @@ $(document).ready(function() {
                     <td class="px-4 py-4">
                         <div class="flex flex-col gap-2 min-w-[130px]">
                             <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Price (₹) <span class="text-rose-500">*</span></label>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Regular Price (₹) <span class="text-rose-500">*</span></label>
                                 <input type="number" min="0" name="v_price[${comboIds}]" value="${ui ? ui.price : ($('#regular_price').val() || '')}" required class="v-price-input w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-black text-[#a91b43] focus:border-[#a91b43] outline-none transition-all" placeholder="0.00">
                             </div>
                             <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Offer Price</label>
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Sale Price (₹)</label>
                                 <input type="number" min="0" name="v_sale_price[${comboIds}]" value="${ui ? ui.sale_price : ''}" class="v-sale-price-input w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-500 focus:border-[#a91b43] outline-none transition-all" placeholder="0.00">
                             </div>
                         </div>
