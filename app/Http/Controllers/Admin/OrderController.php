@@ -501,10 +501,10 @@ class OrderController extends Controller
             ]);
 
             $order->update([
-                'package_length'  => $request->length,
-                'package_breadth' => $request->breadth,
-                'package_height'  => $request->height,
-                'package_weight'  => $request->weight,
+                'package_length'  => (float) $request->length,
+                'package_breadth' => (float) $request->breadth,
+                'package_height'  => (float) $request->height,
+                'package_weight'  => (float) $request->weight,
             ]);
 
             return response()->json([
