@@ -473,8 +473,8 @@
                             const h = heightInp.value;
                             const w = weightInp.value;
 
-                            if (!l || !b || !h) {
-                                toastr.error('Please enter all dimensions.');
+                            if (!l || !b || !h || !w) {
+                                alert('Please enter all dimensions and weight.');
                                 return;
                             }
 
@@ -503,10 +503,12 @@
                             })
                             .then(data => {
                                 saveBtn.disabled = false;
-                                saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
+                                saveBtn.innerHTML = '<i class="fas fa-check text-[9px]"></i> Dimensions Saved';
+                                setTimeout(() => {
+                                    saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
+                                }, 2000);
 
                                 if (data.status) {
-                                    toastr.success(data.message);
                                     pushButton.disabled = false;
                                     // Sync to modal hidden fields
                                     modalLength.value = l;
@@ -514,14 +516,14 @@
                                     modalHeight.value = h;
                                     modalWeight.value = w;
                                 } else {
-                                    toastr.error('Error: ' + data.message);
+                                    alert('Error: ' + data.message);
                                 }
                             })
                             .catch(error => {
                                 console.error('Save Dimensions Error:', error);
                                 saveBtn.disabled = false;
                                 saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
-                                toastr.error('Failed to save dimensions: ' + error.message);
+                                alert('Failed to save dimensions: ' + error.message);
                             });
                         });
                     });
