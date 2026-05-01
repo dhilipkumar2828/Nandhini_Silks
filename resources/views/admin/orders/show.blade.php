@@ -474,7 +474,7 @@
                             const w = weightInp.value;
 
                             if (!l || !b || !h || !w) {
-                                alert('Please enter all dimensions and weight.');
+                                toastr.error('Please enter all dimensions.');
                                 return;
                             }
 
@@ -509,6 +509,7 @@
                                 }, 2000);
 
                                 if (data.status) {
+                                     toastr.success(data.message);
                                     pushButton.disabled = false;
                                     // Sync to modal hidden fields
                                     modalLength.value = l;
@@ -516,14 +517,13 @@
                                     modalHeight.value = h;
                                     modalWeight.value = w;
                                 } else {
-                                    alert('Error: ' + data.message);
-                                }
+                                    toastr.error('Error: ' + data.message);                                }
                             })
                             .catch(error => {
                                 console.error('Save Dimensions Error:', error);
                                 saveBtn.disabled = false;
                                 saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
-                                alert('Failed to save dimensions: ' + error.message);
+                                 toastr.error('Failed to save dimensions: ' + error.message);
                             });
                         });
                     });
