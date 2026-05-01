@@ -12,6 +12,16 @@
             </div>
             
             <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-center">
+
+             <form id="bulkSyncForm" action="{{ route('admin.orders.sync-all-payments') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="order_ids" id="selectedOrderIds">
+                    <button type="submit" class="flex items-center justify-center w-11 h-11 bg-white border-2 border-slate-100 rounded-2xl text-[#a91b43] hover:bg-[#a91b43] hover:text-white transition-all shadow-sm border-white/40" title="Sync Selected or All Pending Payments">
+                        <i class="fas fa-sync-alt text-sm"></i>
+                    </button>
+                </form>
+
+
                 <form action="{{ route('admin.orders.index') }}" method="GET" class="relative w-full sm:w-80 group">
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
@@ -25,7 +35,8 @@
                         </a>
                     @endif
                 </form>
-
+                
+               
                 <form method="GET" action="{{ route('admin.orders.index') }}" class="hidden sm:block">
                     <select name="per_page" onchange="this.form.submit()" class="bg-white border-2 border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 cursor-pointer shadow-sm">
                         <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 / page</option>
@@ -76,6 +87,9 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+                    <th class="pb-3 px-2">
+                        <input type="checkbox" id="selectAllOrders" class="rounded border-slate-300 text-[#a91b43] focus:ring-[#a91b43]">
+                    </th>
                     <th class="pb-3 px-2 font-bold">S.No</th>
                     <th class="pb-3 font-bold">Order ID</th>
                     <th class="pb-3 font-bold">Customer</th>
@@ -88,6 +102,11 @@
             <tbody class="text-sm">
                 @forelse($orders as $order)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
+                    <td class="py-2 px-2">
+                        @if($order->payment_method === 'razorpay' && $order->payment_status !== 'paid' && $order->payment_id)
+                            <input type="checkbox" name="selected_orders[]" value="{{ $order->id }}" class="order-checkbox rounded border-slate-300 text-[#a91b43] focus:ring-[#a91b43]">
+                        @endif
+                    </td>
                     <td class="py-2 px-2 text-xs font-bold text-slate-500">
                         {{ $orders->firstItem() + $loop->index }}
                     </td>
@@ -181,5 +200,21 @@
             }
         })
     }
+
+    $(document).ready(function() {
+        // Select All Checkboxes
+        $('#selectAllOrders').on('change', function() {
+            $('.order-checkbox').prop('checked', this.checked);
+        });
+
+        // Capture Selected IDs on Bulk Sync Form Submission
+        $('#bulkSyncForm').on('submit', function() {
+            let selectedIds = [];
+            $('.order-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+            $('#selectedOrderIds').val(selectedIds.join(','));
+        });
+    });
 </script>
 @endpush
