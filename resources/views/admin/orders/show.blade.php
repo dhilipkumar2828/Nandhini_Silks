@@ -151,6 +151,62 @@
             </div>
         </div>
 
+        {{-- Packer Interface (Dimensions) --}}
+        @if(!$order->shiprocket_order_id)
+        <div class="card-glass p-0 rounded-2xl overflow-hidden shadow-xl border-slate-100/50 border-2 border-[#a91b43]/5">
+            <div class="px-4 py-3 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">Packer Interface</h2>
+                <i class="fas fa-box-open text-[#a91b43] text-[10px]"></i>
+            </div>
+            
+            <div class="p-4">
+                @php
+                    $calculatedWeight = 0;
+                    foreach ($order->items as $item) {
+                        $w = ($item->variant && $item->variant->weight > 0) ? $item->variant->weight : ($item->product->weight ?? 0.5);
+                        $calculatedWeight += ($w > 0 ? $w : 0.5) * $item->quantity;
+                    }
+                    if ($calculatedWeight < 0.1) $calculatedWeight = 0.5;
+
+                    $pL = $order->package_length;
+                    $pB = $order->package_breadth;
+                    $pH = $order->package_height;
+                    $pW = $order->package_weight ?? $calculatedWeight;
+                @endphp
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-4 gap-2">
+                        <div>
+                            <label class="text-[8px] font-black text-slate-400 uppercase block mb-1">L (cm)</label>
+                            <input type="number" id="packer_length" value="{{ $pL }}" placeholder="L" step="0.1" min="0.5" 
+                                   class="packer-input w-full bg-slate-50 border border-slate-100 rounded-lg px-1 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-rose-400 transition-all text-center">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-black text-slate-400 uppercase block mb-1">B (cm)</label>
+                            <input type="number" id="packer_breadth" value="{{ $pB }}" placeholder="B" step="0.1" min="0.5" 
+                                   class="packer-input w-full bg-slate-50 border border-slate-100 rounded-lg px-1 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-rose-400 transition-all text-center">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-black text-slate-400 uppercase block mb-1">H (cm)</label>
+                            <input type="number" id="packer_height" value="{{ $pH }}" placeholder="H" step="0.1" min="0.5" 
+                                   class="packer-input w-full bg-slate-50 border border-slate-100 rounded-lg px-1 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-rose-400 transition-all text-center">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-black text-rose-400 uppercase block mb-1">Kg</label>
+                            <input type="number" id="packer_weight" value="{{ $pW }}" step="0.01" min="0.01" readonly
+                                   class="packer-input w-full bg-rose-50/50 border border-rose-100 rounded-lg px-1 py-1.5 text-[11px] font-black text-rose-600 outline-none cursor-not-allowed text-center">
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="savePackerBtn" 
+                        class="w-full bg-slate-800 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-save text-[9px]"></i> Save Dimensions
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="card-glass p-6 rounded-2xl">
             <div class="flex justify-between items-center mb-4">
                 <div>
@@ -281,13 +337,16 @@
                     </div>
                     <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Push & Schedule Pickup</p>
                     {{-- Trigger Modal --}}
-                    <button type="button" 
+                    <button type="button" id="mainPushButton"
                         @if($order->order_status === 'cancelled') 
                             disabled 
                         @else
                             onclick="document.getElementById('pickupModal').classList.remove('hidden')"
+                            @if(!$order->package_length || !$order->package_breadth || !$order->package_height)
+                                disabled
+                            @endif
                         @endif
-                        class="w-full {{ $order->order_status === 'cancelled' ? 'bg-slate-300 cursor-not-allowed opacity-60' : 'bg-[#a91b43] shadow-lg shadow-rose-100 hover:bg-[#940437] active:scale-[0.98]' }} text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
+                        class="w-full disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed {{ $order->order_status === 'cancelled' ? 'bg-slate-300' : 'bg-[#a91b43] shadow-lg shadow-rose-100 hover:bg-[#940437] active:scale-[0.98]' }} text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
                         <i class="fas fa-bolt mr-2 text-xs"></i> 
                         {{ $order->order_status === 'cancelled' ? 'Shipment Blocked (Cancelled)' : 'Push to Shiprocket' }}
                     </button>
@@ -316,25 +375,27 @@
                         {{-- Body --}}
                         <form action="{{ route('admin.orders.shiprocket.push-with-pickup', $order->id) }}" method="POST" class="p-6 space-y-5 no-loader">
                             @csrf
+                            
+                            {{-- Hidden Dimensions --}}
+                            <input type="hidden" name="length" id="modal_length" value="{{ $order->package_length }}">
+                            <input type="hidden" name="breadth" id="modal_breadth" value="{{ $order->package_breadth }}">
+                            <input type="hidden" name="height" id="modal_height" value="{{ $order->package_height }}">
+                            <input type="hidden" name="weight" id="modal_weight" value="{{ $order->package_weight }}">
 
                             {{-- What will happen info --}}
                             <div class="bg-slate-50 rounded-2xl p-4 space-y-2.5">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">What happens when you submit:</p>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Confirmation Summary:</p>
                                 <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
-                                    <span class="w-6 h-6 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">1</span>
-                                    Order will be created in Shiprocket
+                                    <i class="fas fa-check-circle text-emerald-500"></i>
+                                    Dimensions & Weight Locked
                                 </div>
                                 <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
-                                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">2</span>
-                                    AWB will be auto-assigned (best courier selected)
+                                    <i class="fas fa-check-circle text-emerald-500"></i>
+                                    Auto-AWB Assignment Active
                                 </div>
                                 <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
-                                    <span class="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">3</span>
-                                    Pickup will be scheduled on your chosen date
-                                </div>
-                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-600">
-                                    <span class="w-6 h-6 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0">4</span>
-                                    Email notification sent to Customer &amp; Admin
+                                    <i class="fas fa-check-circle text-emerald-500"></i>
+                                    Pickup will be scheduled
                                 </div>
                             </div>
 
@@ -366,10 +427,109 @@
                     </div>
                 </div>
 
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const packerInputs = document.querySelectorAll('.packer-input');
+                        const pushButton = document.getElementById('mainPushButton');
+                        
+                        const lengthInp = document.getElementById('packer_length');
+                        const breadthInp = document.getElementById('packer_breadth');
+                        const heightInp = document.getElementById('packer_height');
+                        const weightInp = document.getElementById('packer_weight');
+                        
+                        const modalLength = document.getElementById('modal_length');
+                        const modalBreadth = document.getElementById('modal_breadth');
+                        const modalHeight = document.getElementById('modal_height');
+                        const modalWeight = document.getElementById('modal_weight');
+
+                        function validatePacker() {
+                            const l = parseFloat(lengthInp.value);
+                            const b = parseFloat(breadthInp.value);
+                            const h = parseFloat(heightInp.value);
+                            const w = parseFloat(weightInp.value);
+
+                            if (l > 0 && b > 0 && h > 0 && w > 0) {
+                                pushButton.disabled = false;
+                                // Sync to modal hidden fields
+                                modalLength.value = l;
+                                modalBreadth.value = b;
+                                modalHeight.value = h;
+                                modalWeight.value = w;
+                            } else {
+                                pushButton.disabled = true;
+                            }
+                        }
+
+                        packerInputs.forEach(input => {
+                            input.addEventListener('input', function() {
+                                pushButton.disabled = true; // Force re-save if changed
+                            });
+                        });
+
+                        const saveBtn = document.getElementById('savePackerBtn');
+                        saveBtn.addEventListener('click', function() {
+                            const l = lengthInp.value;
+                            const b = breadthInp.value;
+                            const h = heightInp.value;
+                            const w = weightInp.value;
+
+                            if (!l || !b || !h) {
+                                toastr.error('Please enter all dimensions.');
+                                return;
+                            }
+
+                            saveBtn.disabled = true;
+                            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-[9px]"></i> Saving...';
+
+                            fetch("{{ route('admin.orders.save-dimensions', $order->id) }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    length: l,
+                                    breadth: b,
+                                    height: h,
+                                    weight: w
+                                })
+                            })
+                            .then(async response => {
+                                const data = await response.json();
+                                if (!response.ok) {
+                                    throw new Error(data.message || 'Server error');
+                                }
+                                return data;
+                            })
+                            .then(data => {
+                                saveBtn.disabled = false;
+                                saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
+
+                                if (data.status) {
+                                    toastr.success(data.message);
+                                    pushButton.disabled = false;
+                                    // Sync to modal hidden fields
+                                    modalLength.value = l;
+                                    modalBreadth.value = b;
+                                    modalHeight.value = h;
+                                    modalWeight.value = w;
+                                } else {
+                                    toastr.error('Error: ' + data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Save Dimensions Error:', error);
+                                saveBtn.disabled = false;
+                                saveBtn.innerHTML = '<i class="fas fa-save text-[9px]"></i> Save Dimensions';
+                                toastr.error('Failed to save dimensions: ' + error.message);
+                            });
+                        });
+                    });
+                </script>
             @endif
         </div>
 
-        <div class="card-glass p-6 rounded-2xl">
+        <div class="card-glass p-6 rounded-2xl mt-6">
             <h2 class="text-lg font-bold text-slate-800 mb-4">Tracking Info</h2>
             @if($order->tracking_number)
                 <div class="mb-4">
@@ -385,7 +545,7 @@
             @endif
         </div>
 
-        <div class="card-glass p-6 rounded-2xl">
+        <div class="card-glass p-6 rounded-2xl mt-6">
             <h2 class="text-lg font-bold text-slate-800 mb-4">Admin Notes</h2>
             <div class="text-sm text-slate-600 bg-amber-50/50 p-3 rounded-lg border border-amber-100 min-h-[60px]">
                 {{ $order->admin_notes ?? 'No internal notes added.' }}
