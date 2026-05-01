@@ -16,6 +16,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -518,5 +519,169 @@ class OrderController extends Controller
                 'message' => $e->getMessage(),
             ], 422);
         }
+    }
+
+    public function syncPaymentStatus(Order $order)
+    {
+        if ($order->payment_method !== 'razorpay') {
+            return back()->with('error', 'Only Razorpay orders can be synced.');
+        }
+
+        if ($order->payment_status === 'paid') {
+            return back()->with('info', 'Order is already marked as paid.');
+        }
+
+        if (!$order->payment_id) {
+            return back()->with('error', 'No Razorpay Order ID found for this order.');
+        }
+
+        $creds = $this->getRazorpayCredentials();
+        if (!$creds['key'] || !$creds['secret']) {
+             return back()->with('error', 'Razorpay credentials not found.');
+        }
+
+        try {
+            $api = new \Razorpay\Api\Api($creds['key'], $creds['secret']);
+            $payments = $api->order->fetch($order->payment_id)->payments();
+
+            $isPaid = false;
+            $hasFailed = false;
+            foreach ($payments['items'] as $payment) {
+                if ($payment['status'] === 'captured') {
+                    $isPaid = true;
+                    break;
+                }
+                if ($payment['status'] === 'failed') {
+                    $hasFailed = true;
+                }
+            }
+
+            if ($isPaid) {
+                DB::beginTransaction();
+                try {
+                    $order->update(['payment_status' => 'paid', 'order_status' => 'order placed']);
+                    $order->reduceStock();
+                    DB::commit();
+                    return back()->with('success', 'Payment verified successfully! Order updated.');
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return back()->with('error', 'Payment found but failed to update order: ' . $e->getMessage());
+                }
+            } elseif ($hasFailed) {
+                $order->update(['payment_status' => 'failed']);
+                return back()->with('warning', 'Payment for this order has failed at Razorpay.');
+            } else {
+                return back()->with('warning', 'No captured or failed payment found for this Razorpay order yet.');
+            }
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Razorpay Sync Failed: ' . $e->getMessage());
+        }
+    }
+
+    public function syncAllOnlinePayments(Request $request)
+    {
+        $selectedIds = $request->input('order_ids');
+        
+        $query = Order::where('payment_method', 'razorpay')
+            ->where('payment_status', 'pending')
+            ->whereNotNull('payment_id');
+
+        if (!empty($selectedIds)) {
+            $idsArray = explode(',', $selectedIds);
+            $query->whereIn('id', $idsArray);
+        }
+
+        $orders = $query->get();
+
+        if ($orders->isEmpty()) {
+            return back()->with('info', 'No pending Razorpay orders found to sync.');
+        }
+
+        $creds = $this->getRazorpayCredentials();
+        if (!$creds['key'] || !$creds['secret']) {
+            return back()->with('error', 'Razorpay credentials not found.');
+        }
+
+        $updatedCount = 0;
+        $failedStatusCount = 0;
+        $errorCount = 0;
+
+        try {
+            $api = new \Razorpay\Api\Api($creds['key'], $creds['secret']);
+            
+            foreach ($orders as $order) {
+                try {
+                    $payments = $api->order->fetch($order->payment_id)->payments();
+                    $isPaid = false;
+                    $hasFailed = false;
+                    foreach ($payments['items'] as $payment) {
+                        if ($payment['status'] === 'captured') {
+                            $isPaid = true;
+                            break;
+                        }
+                        if ($payment['status'] === 'failed') {
+                            $hasFailed = true;
+                        }
+                    }
+
+                    if ($isPaid) {
+                        DB::beginTransaction();
+                        try {
+                            $order->update(['payment_status' => 'paid', 'order_status' => 'order placed']);
+                            $order->reduceStock();
+                            DB::commit();
+                            $updatedCount++;
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            $errorCount++;
+                        }
+                    } elseif ($hasFailed) {
+                        $order->update(['payment_status' => 'failed']);
+                        $failedStatusCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errorCount++;
+                }
+            }
+
+            $msg = [];
+            if ($updatedCount > 0) $msg[] = "{$updatedCount} orders marked as Paid";
+            if ($failedStatusCount > 0) $msg[] = "{$failedStatusCount} orders marked as Failed";
+
+            if (!empty($msg)) {
+                return back()->with('success', "Sync complete: " . implode(', ', $msg) . ".");
+            } else {
+                return back()->with('info', 'Checked all pending orders, but no status changes were found.');
+            }
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Razorpay Bulk Sync Failed: ' . $e->getMessage());
+        }
+    }
+
+    private function getRazorpayCredentials(): array
+    {
+        $envPath = base_path('.env');
+        $parsed  = [];
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || str_starts_with($line, '#')) continue;
+                if (str_contains($line, '=')) {
+                    [$k, $v] = explode('=', $line, 2);
+                    $key = trim($k);
+                    $val = trim($v);
+                    if (str_contains($val, ' #')) $val = trim(explode(' #', $val)[0]);
+                    if (str_starts_with($val, '"') && str_ends_with($val, '"')) $val = trim($val, '"');
+                    elseif (str_starts_with($val, "'") && str_ends_with($val, "'")) $val = trim($val, "'");
+                    $parsed[$key] = $val;
+                }
+            }
+        }
+        $key = $parsed['RAZORPAY_KEY'] ?? config('services.razorpay.key') ?? env('RAZORPAY_KEY');
+        $secret = $parsed['RAZORPAY_SECRET'] ?? config('services.razorpay.secret') ?? env('RAZORPAY_SECRET');
+        return ['key' => $key, 'secret' => $secret];
     }
 }

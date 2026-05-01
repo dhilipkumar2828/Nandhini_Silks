@@ -161,6 +161,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('orders/{order}/shiprocket/sync', [OrderController::class, 'syncShiprocketStatus'])->name('admin.orders.shiprocket.sync');
         Route::post('orders/{order}/return-status', [OrderController::class, 'updateReturnStatus'])->name('admin.orders.return.status');
         Route::post('orders/{order}/save-dimensions', [OrderController::class, 'saveDimensions'])->name('admin.orders.save-dimensions');
+        Route::post('orders/{order}/sync-payment', [OrderController::class, 'syncPaymentStatus'])->name('admin.orders.sync-payment');
+        Route::post('orders/sync-all-payments', [OrderController::class, 'syncAllOnlinePayments'])->name('admin.orders.sync-all-payments');
 
         // Shipping Intelligence / Pincode Checker
         Route::get('shipping-calculator', [\App\Http\Controllers\Admin\ShippingCalculatorController::class, 'index'])->name('admin.shipping.calculator');
