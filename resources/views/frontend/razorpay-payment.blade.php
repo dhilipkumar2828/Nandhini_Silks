@@ -185,7 +185,62 @@
         .rzp-header { padding: 3rem 2.5rem 2.5rem; }
         .rzp-body { padding: 2.5rem; }
     }
+
+    /* Full-screen Loader Overlay */
+    .payment-processing-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        display: none; /* Hidden by default */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999; /* Ensure it is above everything, including Razorpay modal if it persists */
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .loader-container {
+        text-align: center;
+    }
+
+    .custom-loader {
+        width: 60px;
+        height: 60px;
+        border: 5px solid var(--brand-light);
+        border-top: 5px solid var(--brand);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 0 15px rgba(169, 27, 67, 0.1);
+    }
+
+    .processing-text {
+        color: var(--brand);
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .processing-subtext {
+        color: #666;
+        font-size: 0.95rem;
+    }
 </style>
+
+<div class="payment-processing-overlay" id="payment-overlay">
+    <div class="loader-container">
+        <div class="custom-loader"></div>
+        <div class="processing-text">Processing Your Payment</div>
+        <div class="processing-subtext">Please do not close or refresh this page.</div>
+    </div>
+</div>
 
 <div class="rzp-wrapper">
     <div class="rzp-card">
@@ -229,6 +284,14 @@
                 <span>Pay Securely ₹{{ number_format($order->grand_total, 2) }}</span>
                 <div class="spinner" id="btn-spinner"></div>
             </button>
+
+            {{-- Manual Verification Fallback (Hidden by default) --}}
+            <div id="manual-verify-box" style="display: none; margin-top: 1.5rem; text-align: center; animation: fadeIn 0.5s ease;">
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">Payment already done but stuck?</p>
+                <button type="button" onclick="location.reload()" class="rzp-pay-btn" style="background: #666; box-shadow: none; padding: 0.75rem; font-size: 0.9rem;">
+                    <i class="fas fa-sync-alt"></i> Refresh Page
+                </button>
+            </div>
         </div>
 
         {{-- Footer Trust Badges --}}
@@ -257,54 +320,112 @@
     <input type="hidden" name="razorpay_signature"  id="razorpay_signature">
 </form>
 
+@push('scripts')
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    var options = {
-        "key"         : "{{ config('services.razorpay.key') }}",
-        "amount"      : "{{ $razorOrder['amount'] }}",
-        "currency"    : "INR",
-        "name"        : "Nandhini Silks",
-        "description" : "Order #{{ $order->order_number }}",
-        "order_id"    : "{{ $razorOrder['id'] }}",
-        "handler"     : function (response) {
-            // Show spinner
-            var btn = document.getElementById('rzp-button1');
-            btn.disabled = true;
-            btn.querySelector('span').textContent = 'Verifying…';
-            document.getElementById('btn-spinner').style.display = 'block';
+    (function() {
+        console.log("Razorpay Script Initialized");
+        
+        var options = {
+            "key"         : "{{ config('services.razorpay.key') }}",
+            "amount"      : "{{ $razorOrder['amount'] }}",
+            "currency"    : "INR",
+            "name"        : "Nandhini Silks",
+            "description" : "Order #{{ $order->order_number }}",
+            "order_id"    : "{{ $razorOrder['id'] }}",
+            "handler"     : function (response) {
+                console.log("Razorpay Success Handler Triggered", response);
+                
+                // Show Full Screen Overlay
+                var overlay = document.getElementById('payment-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
 
-            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-            document.getElementById('razorpay_order_id').value   = response.razorpay_order_id;
-            document.getElementById('razorpay_signature').value  = response.razorpay_signature;
-            document.getElementById('razorpay-form').submit();
-        },
-        "prefill": {
-            "name"    : "{{ $order->customer_name }}",
-            "email"   : "{{ $order->customer_email }}",
-            "contact" : "{{ $order->customer_phone }}"
-        },
-        "notes": {
-            "order_number": "{{ $order->order_number }}"
-        },
-        "theme": {
-            "color": "#A91B43"
-        },
-        "modal": {
-            "ondismiss": function() {
-                console.log('Payment modal dismissed by user.');
+                // Show spinner on button as well
+                var btn = document.getElementById('rzp-button1');
+                if (btn) {
+                    btn.disabled = true;
+                    var btnSpan = btn.querySelector('span');
+                    if (btnSpan) btnSpan.textContent = 'Verifying Payment…';
+                    var btnSpinner = document.getElementById('btn-spinner');
+                    if (btnSpinner) btnSpinner.style.display = 'block';
+                }
+
+                console.log("Populating verification form...");
+                var payIdInput = document.getElementById('razorpay_payment_id');
+                var ordIdInput = document.getElementById('razorpay_order_id');
+                var sigInput = document.getElementById('razorpay_signature');
+                var verifyForm = document.getElementById('razorpay-form');
+
+                if (payIdInput && ordIdInput && sigInput && verifyForm) {
+                    payIdInput.value = response.razorpay_payment_id;
+                    ordIdInput.value = response.razorpay_order_id || "{{ $razorOrder['id'] }}";
+                    sigInput.value  = response.razorpay_signature;
+                    
+                    console.log("Submitting verification form to: " + verifyForm.action);
+                    
+                    // Small delay to ensure UI updates are rendered
+                    setTimeout(function() {
+                        verifyForm.submit();
+                    }, 500);
+                } else {
+                    console.error("Critical Error: Verification form or inputs not found in DOM!");
+                    alert("Something went wrong with the payment verification. Please do not close this page and contact support.");
+                }
+            },
+            "prefill": {
+                "name"    : "{{ $order->customer_name }}",
+                "email"   : "{{ $order->customer_email }}",
+                "contact" : "{{ $order->customer_phone }}"
+            },
+            "notes": {
+                "order_number": "{{ $order->order_number }}"
+            },
+            "theme": {
+                "color": "#A91B43"
+            },
+            "modal": {
+                "ondismiss": function() {
+                    console.log('Payment modal dismissed by user.');
+                    // Reset button state
+                    var btn = document.getElementById('rzp-button1');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.querySelector('span').textContent = 'Pay Securely ₹{{ number_format($order->grand_total, 2) }}';
+                        document.getElementById('btn-spinner').style.display = 'none';
+                    }
+                    // Show manual refresh option
+                    document.getElementById('manual-verify-box').style.display = 'block';
+                }
             }
-        }
-    };
+        };
 
-    var rzp1 = new Razorpay(options);
+        var rzp1 = new Razorpay(options);
 
-    function openRazorpay(btn) {
-        rzp1.open();
-    }
+        window.openRazorpay = function(btn) {
+            console.log("Opening Razorpay Modal...");
+            // Show loading state on button
+            btn.disabled = true;
+            var span = btn.querySelector('span');
+            if (span) span.textContent = 'Opening Secure Gateway…';
+            var spinner = document.getElementById('btn-spinner');
+            if (spinner) spinner.style.display = 'block';
+            
+            rzp1.open();
+        };
 
-    // Auto-open payment modal on page load
-    window.addEventListener('load', function () {
-        setTimeout(function() { rzp1.open(); }, 600);
-    });
+        // Auto-open payment modal on page load
+        window.addEventListener('load', function () {
+            var btn = document.getElementById('rzp-button1');
+            if (btn) {
+                setTimeout(function() { 
+                    console.log("Auto-opening Razorpay...");
+                    window.openRazorpay(btn); 
+                }, 800);
+            }
+        });
+    })();
 </script>
+@endpush
 @endsection
