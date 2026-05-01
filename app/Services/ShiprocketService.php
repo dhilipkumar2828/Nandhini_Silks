@@ -98,7 +98,7 @@ class ShiprocketService
     // ─────────────────────────────────────────────────────────────────────────
     // STEP 2 — Create Order
     // ─────────────────────────────────────────────────────────────────────────
-    public function createOrder(Order $order): array
+    public function createOrder(Order $order, array $customData = []): array
     {
         $items       = [];
         $totalWeight = 0;
@@ -187,10 +187,10 @@ class ShiprocketService
             'transaction_parameters'  => ['is_gift' => false, 'gift_message' => ''],
             'total_discount'          => (float) $order->discount,
             'sub_total'               => (float) ($order->grand_total - $order->shipping),
-            'length'                  => 10,
-            'breadth'                 => 10,
-            'height'                  => 10,
-            'weight'                  => (float) ($totalWeight >= 0.01 ? $totalWeight : 0.5),
+            'length'                  => (float) ($customData['length'] ?? 10),
+            'breadth'                 => (float) ($customData['breadth'] ?? 10),
+            'height'                  => (float) ($customData['height'] ?? 10),
+            'weight'                  => (float) ($customData['weight'] ?? ($totalWeight >= 0.01 ? $totalWeight : 0.5)),
         ];
 
         // Ensure weight is at least 0.01 but recommended 0.5 for most couriers

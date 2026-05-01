@@ -164,13 +164,15 @@ class OrderController extends Controller
         return $pdf->download($filename);
     }
 
-    public function pushToShiprocket(Order $order, ShiprocketService $shiprocket)
+    public function pushToShiprocket(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         if ($order->shiprocket_order_id) {
             return back()->with('error', 'Order already pushed to Shiprocket.');
         }
 
-        $result = $shiprocket->createOrder($order);
+        $dimensions = $request->only(['length', 'breadth', 'height', 'weight']);
+
+        $result = $shiprocket->createOrder($order, $dimensions);
 
         if ($result['status']) {
             $order->syncStatus('ready to ship');
@@ -188,6 +190,10 @@ class OrderController extends Controller
     {
         $request->validate([
             'pickup_date' => 'required|date|after_or_equal:today',
+            'length'      => 'required|numeric|min:0.5',
+            'breadth'     => 'required|numeric|min:0.5',
+            'height'      => 'required|numeric|min:0.5',
+            'weight'      => 'required|numeric|min:0.01',
         ]);
 
         if ($order->shiprocket_order_id) {
@@ -195,7 +201,8 @@ class OrderController extends Controller
         }
 
         // ── STEP 1: Create order in Shiprocket ─────────────────────────────
-        $createResult = $shiprocket->createOrder($order);
+        $dimensions = $request->only(['length', 'breadth', 'height', 'weight']);
+        $createResult = $shiprocket->createOrder($order, $dimensions);
         if (!$createResult['status']) {
             return back()->with('error', 'Shiprocket Push Failed: ' . ($createResult['message'] ?? 'Unknown Error'));
         }
@@ -479,5 +486,37 @@ class OrderController extends Controller
         }
 
         return back()->with('error', $statusMsg);
+    }
+
+    public function saveDimensions(Request $request, Order $order)
+    {
+        Log::info('Saving dimensions for Order #' . $order->id, $request->all());
+        
+        try {
+            $request->validate([
+                'length'  => 'required|numeric|min:0.5',
+                'breadth' => 'required|numeric|min:0.5',
+                'height'  => 'required|numeric|min:0.5',
+                'weight'  => 'required|numeric|min:0.01',
+            ]);
+
+            $order->update([
+                'package_length'  => $request->length,
+                'package_breadth' => $request->breadth,
+                'package_height'  => $request->height,
+                'package_weight'  => $request->weight,
+            ]);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Package dimensions saved successfully.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to save dimensions: ' . $e->getMessage());
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }

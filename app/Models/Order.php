@@ -56,6 +56,10 @@ class Order extends Model
         'shiprocket_return_order_id',
         'shiprocket_return_shipment_id',
         'shipment_track_activities',
+        'package_length',
+        'package_breadth',
+        'package_height',
+        'package_weight',
     ];
 
     protected $casts = [
@@ -66,6 +70,10 @@ class Order extends Model
         'grand_total'               => 'decimal:2',
         'different_billing_address' => 'boolean',
         'shipment_track_activities' => 'array',
+        'package_length'            => 'decimal:2',
+        'package_breadth'           => 'decimal:2',
+        'package_height'            => 'decimal:2',
+        'package_weight'            => 'decimal:2',
     ];
 
     public function items()
