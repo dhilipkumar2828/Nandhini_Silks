@@ -165,7 +165,27 @@ class ProductController extends Controller
             foreach ($combs as $index => $idsString) {
                 if(empty($idsString)) continue;
                 
-                // ... logic for variantData ...
+                $idsArray = explode(',', $idsString);
+                $combJson = [];
+                $attrValuesJson = [];
+                foreach ($idsArray as $valId) {
+                    $val = \App\Models\AttributeValue::with('attribute')->find($valId);
+                    if ($val) {
+                        $combJson[$val->attribute_id] = [$val->id];
+                        $attrValuesJson[Str::slug($val->attribute->name)] = $val->name;
+                    }
+                }
+
+                // Auto-deduplicate SKU
+                $baseSku = !empty($skus[$idsString]) ? $skus[$idsString] : (!empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index));
+                $variantSku = $baseSku;
+                $skuCounter = 1;
+                while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
+                    $variantSku = $baseSku . '-' . $skuCounter;
+                    $skuCounter++;
+                }
+                $usedSkus[] = $variantSku;
+
                 $vStockValue = $stocks[$idsString] ?? ($stocks[$index] ?? 0);
                 $totalStockSum += (int)$vStockValue;
 
@@ -174,7 +194,7 @@ class ProductController extends Controller
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
                     'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
-                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'sale_price' => (floatval($request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price))) > 0 ? ($request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price)) : null,
                     'stock_quantity' => $vStockValue,
                     'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
                     'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
@@ -196,7 +216,7 @@ class ProductController extends Controller
                     $variantData['image'] = $vUploadedImages[0] ?? null; 
                 }
 
-                $newVariant = \App\Models\ProductVariant::create($variantData);
+                $newVariant = $product->product_variants()->create($variantData);
 
                 // Collect first variant's data for master product sync (except stock which we sum)
                 if (!$variantFound) {
@@ -383,7 +403,6 @@ class ProductController extends Controller
             foreach ($combinations as $index => $idsString) {
                 if(empty($idsString)) continue;
                 
-                // ... logic for variantData ...
                 $vStockValue = $stocks[$idsString] ?? ($stocks[$index] ?? 0);
                 $totalStockSum += (int)$vStockValue;
 
