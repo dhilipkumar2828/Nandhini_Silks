@@ -218,14 +218,7 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-2">
-                    @if($order->shiprocket_shipment_id)
-                        <form action="{{ route('admin.orders.shiprocket.sync', $order->id) }}" method="POST" class="no-loader">
-                            @csrf
-                            <button type="submit" class="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all shadow-sm" title="Sync Live Status">
-                                <i class="fas fa-sync-alt text-xs"></i>
-                            </button>
-                        </form>
-                    @endif
+                    
                     <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6">
                 </div>
             </div>
