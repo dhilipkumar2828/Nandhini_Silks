@@ -110,6 +110,7 @@ class Order extends Model
     {
         return match($this->order_status) {
             'order placed'     => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
+            'new'              => ['label' => 'New (Shiprocket)', 'class' => 'bg-indigo-50 text-indigo-600'],
             'processing'       => ['label' => 'Processing',       'class' => 'bg-amber-50 text-amber-600'],
             'ready to ship'    => ['label' => 'Ready to Ship',    'class' => 'bg-indigo-50 text-indigo-600'],
             'shipped'          => ['label' => 'Shipped',          'class' => 'bg-blue-50 text-blue-600'],
@@ -142,20 +143,35 @@ class Order extends Model
     public function syncStatus($statusInput, $shiprocketStatus = null, $trackingNumber = null)
     {
         $newStatus = strtolower(trim($statusInput));
+        error_log("NEW STATUS: " . $newStatus);
         $oldStatus = $this->order_status;
 
         // Prevent overwriting a final state with an earlier one
         $statusPriority = [
             'order placed'     => 1,
-            'processing'       => 2,
-            'ready to ship'    => 3,
-            'shipped'          => 4,
-            'out for delivery' => 5,
-            'delivered'        => 6,
-            'returned'         => 7,
-            'refunded'         => 8,
-            'cancelled'        => 9,
+            'new'              => 2,
+            'processing'       => 3,
+            'ready to ship'    => 4,
+            'shipped'          => 5,
+            'out for delivery' => 6,
+            'delivered'        => 7,
+            'returned'         => 8,
+            'refunded'         => 9,
+            'cancelled'        => 3,
         ];
+
+        // ── AWB-BASED STATUS PROMOTION ──────────────────────────────────────
+        // If an AWB exists or is being assigned, ensure the status is at least 'ready to ship'
+        // BUT only if the order is not cancelled in Shiprocket
+        $effectiveAWB = $trackingNumber ?: $this->shiprocket_awb;
+        $isShiprocketCancelled = in_array(strtoupper($shiprocketStatus ?? $this->shiprocket_status ?? ''), ['CANCELED', 'CANCELLED']);
+        if ($effectiveAWB && !$isShiprocketCancelled && !in_array($newStatus, ['cancelled', 'returned'])) {
+            $currentPriority = $statusPriority[$newStatus] ?? 0;
+            $readyToShipPriority = $statusPriority['ready to ship'] ?? 4;
+            if ($currentPriority < $readyToShipPriority) {
+                $newStatus = 'ready to ship';
+            }
+        }
 
         $oldPriority = $statusPriority[$oldStatus] ?? 0;
         $newPriority = $statusPriority[$newStatus] ?? 0;
@@ -175,8 +191,8 @@ class Order extends Model
             'notes'    => $shiprocketStatus
         ]);
 
-        // If transitioning TO Cancelled or Processing, try to cancel the order in Shiprocket if it exists
-        if (in_array($newStatus, ['cancelled', 'processing']) && $this->shiprocket_order_id) {
+        // If transitioning TO Cancelled, try to cancel the order in Shiprocket if it exists
+        if ($newStatus === 'cancelled' && $this->shiprocket_order_id) {
             try {
                 $shiprocket = new \App\Services\ShiprocketService();
                 $shiprocket->cancelOrder($this->shiprocket_order_id);
@@ -188,8 +204,8 @@ class Order extends Model
 
         $updates = ['order_status' => $newStatus];
 
-        // If resetting to Processing or Cancelled, clear Shiprocket logistics info
-        if (in_array($newStatus, ['processing', 'cancelled'])) {
+        // If resetting to Order Placed or Cancelled, clear Shiprocket logistics info
+        if (in_array($newStatus, ['order placed', 'cancelled'])) {
             $updates['shiprocket_order_id']    = null;
             $updates['shiprocket_shipment_id'] = null;
             $updates['shiprocket_awb']         = null;
@@ -205,20 +221,30 @@ class Order extends Model
             $updates['edd']                    = null;
         }
 
-        if ($shiprocketStatus && !in_array($newStatus, ['processing', 'cancelled'])) {
+        if ($shiprocketStatus) {
             $updates['shiprocket_status'] = $shiprocketStatus;
+            
+            // If Shiprocket says it's cancelled, clear the AWB and tracking number
+            if (in_array(strtoupper($shiprocketStatus), ['CANCELED', 'CANCELLED'])) {
+                $updates['shiprocket_awb'] = null;
+                $updates['tracking_number'] = null;
+                $updates['shiprocket_label_url'] = null;
+                $updates['shiprocket_manifest_url'] = null;
+                $updates['shiprocket_invoice_url'] = null;
+            }
         }
 
-        if ($trackingNumber && !in_array($newStatus, ['processing', 'cancelled'])) {
+        // Logistical Data Capture
+        if ($trackingNumber) {
             $updates['tracking_number'] = $trackingNumber;
-            // Also update AWB if not already set
             if (!$this->shiprocket_awb) {
                 $updates['shiprocket_awb'] = $trackingNumber;
             }
-            // Update courier_name if shiprocket_courier_name is available
-            if ($this->shiprocket_courier_name && !$this->courier_name) {
-                $updates['courier_name'] = $this->shiprocket_courier_name;
-            }
+        }
+
+        // Update courier_name if shiprocket_courier_name is available
+        if ($this->shiprocket_courier_name && !$this->courier_name) {
+            $updates['courier_name'] = $this->shiprocket_courier_name;
         }
 
         // Special Logic: Delivered → mark payment as Paid (for COD)

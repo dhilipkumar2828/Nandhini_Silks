@@ -53,6 +53,7 @@
             $statusConfigs = [
                 'all' => ['label' => 'All Orders', 'color' => 'rose'],
                 'order placed' => ['label' => 'New Order', 'color' => 'amber'],
+                'new' => ['label' => 'New (Shiprocket)', 'color' => 'indigo'],
                 'processing' => ['label' => 'Processing', 'color' => 'orange'],
                 'ready to ship' => ['label' => 'Ready to Ship', 'color' => 'indigo'],
                 'shipped' => ['label' => 'Shipped', 'color' => 'blue'],
@@ -136,7 +137,7 @@
                             @if($order->order_status == 'delivered') bg-teal-100 text-teal-600 border-teal-200
                             @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-600 border-rose-200
                             @elseif($order->order_status == 'shipped') bg-blue-100 text-blue-600 border-blue-200
-                            @elseif($order->order_status == 'ready to ship') bg-indigo-100 text-indigo-600 border-indigo-200
+                            @elseif($order->order_status == 'ready to ship' || $order->order_status == 'new') bg-indigo-100 text-indigo-600 border-indigo-200
                             @elseif($order->order_status == 'processing') bg-orange-100 text-orange-600 border-orange-200
                             @elseif($order->order_status == 'out for delivery') bg-emerald-100 text-emerald-600 border-emerald-200
                             @else bg-amber-100 text-amber-600 border-amber-200 @endif">

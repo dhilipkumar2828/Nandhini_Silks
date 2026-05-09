@@ -217,13 +217,22 @@
                         </span>
                     @endif
                 </div>
-                <div class="flex items-center gap-2">
-                    
+                <div class="flex items-center gap-3">
+                    <form action="{{ route('admin.orders.shiprocket.sync', $order->id) }}" method="POST" class="inline no-loader">
+                        @csrf
+                        <button type="submit" class="group w-9 h-9 flex items-center justify-center bg-white text-slate-400 rounded-xl hover:text-[#a91b43] transition-all border-2 border-slate-50 hover:border-rose-100 shadow-sm" title="Sync Live Status">
+                            <i class="fas fa-sync-alt text-xs group-hover:rotate-180 transition-transform duration-500"></i>
+                        </button>
+                    </form>
                     <img src="https://www.shiprocket.in/wp-content/uploads/2023/01/shiprocket_logo.svg" alt="Shiprocket" class="h-6">
                 </div>
             </div>
             
-            @if($order->shiprocket_order_id)
+            @php
+                $isCancelledInShiprocket = in_array(strtoupper($order->shiprocket_status ?? ''), ['CANCELED', 'CANCELLED']);
+            @endphp
+
+            @if($order->shiprocket_order_id && !$isCancelledInShiprocket)
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -253,7 +262,7 @@
                         </div>
                         @endif
                     </div>
-                    
+                     @if($order->shiprocket_awb)
                     <div>
                         <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">AWB Tracking Number</label>
                         @if($order->shiprocket_awb)
@@ -262,14 +271,9 @@
                                 <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black uppercase rounded">Assigned</span>
                             </div>
                         @else
-                            <form action="{{ route('admin.orders.shiprocket.awb', $order->id) }}" method="POST" class="no-loader">
-                                @csrf
-                                <button type="submit" class="flex items-center gap-1.5 text-[11px] bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-100 hover:text-blue-700 transition-all border border-blue-100 uppercase tracking-wider">
-                                    <i class="fas fa-plus-circle"></i> Generate AWB Now
-                                </button>
-                            </form>
                         @endif
                     </div>
+                    @endif
 
                     @if($order->shiprocket_awb)
                     <div class="pt-4 grid grid-cols-2 gap-3">
@@ -323,26 +327,57 @@
                         </div>
                     @endif
                 </div>
+            @elseif($isCancelledInShiprocket)
+                <div class="text-center py-6 px-4 bg-rose-50/50 rounded-2xl border border-dashed border-rose-200">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
+                        <i class="fas fa-ban text-rose-300 text-lg"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-rose-500 mb-5 leading-relaxed tracking-widest uppercase italic">Shipment Cancelled in Shiprocket</p>
+                    
+                    <form action="{{ route('admin.orders.shiprocket.push', $order->id) }}" method="POST" class="no-loader">
+                        @csrf
+                        <button type="submit" 
+                            @if($order->order_status === 'cancelled' || !$order->package_length || !$order->package_breadth || !$order->package_height) 
+                                disabled 
+                            @endif
+                            class="shiprocket-push-btn w-full bg-rose-600 shadow-lg shadow-rose-100 hover:bg-rose-700 active:scale-[0.98] text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
+                            <i class="fas fa-rocket mr-2 text-xs"></i> 
+                            Push Again as New Order
+                        </button>
+                    </form>
+                </div>
             @else
                 <div class="text-center py-6 px-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                     <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
                         <i class="fas fa-cloud-arrow-up text-slate-300 text-lg"></i>
                     </div>
-                    <p class="text-xs font-bold text-slate-500 mb-5 leading-relaxed tracking-wide uppercase">Push & Schedule Pickup</p>
-                    {{-- Trigger Modal --}}
-                    <button type="button" id="mainPushButton"
-                        @if($order->order_status === 'cancelled') 
-                            disabled 
-                        @else
-                            onclick="document.getElementById('pickupModal').classList.remove('hidden')"
-                            @if(!$order->package_length || !$order->package_breadth || !$order->package_height)
-                                disabled
+                    <p class="text-[10px] font-black text-slate-400 mb-5 leading-relaxed tracking-widest uppercase italic">Initiate Fulfillment Lifecycle</p>
+                    
+                    <div class="space-y-3">
+                        {{-- Step 1: Push Only (New Order status) --}}
+                        <form action="{{ route('admin.orders.shiprocket.push', $order->id) }}" method="POST" class="no-loader">
+                            @csrf
+                            <button type="submit" 
+                                @if($order->order_status === 'cancelled' || !$order->package_length || !$order->package_breadth || !$order->package_height) 
+                                    disabled 
+                                @endif
+                                class="shiprocket-push-btn w-full disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed {{ $order->order_status === 'cancelled' ? 'bg-slate-300' : 'bg-[#a91b43] shadow-lg shadow-rose-100 hover:bg-[#940437] active:scale-[0.98]' }} text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
+                                <i class="fas fa-rocket mr-2 text-xs"></i> 
+                                {{ $order->order_status === 'cancelled' ? 'Shipment Blocked' : 'Push as New Order' }}
+                            </button>
+                        </form>
+
+                        <!-- {{-- Step 1+2+3: Push & Schedule (Ready to Ship status) --}}
+                        <button type="button" 
+                            @if($order->order_status === 'cancelled' || !$order->package_length || !$order->package_breadth || !$order->package_height) 
+                                disabled 
+                            @else
+                                onclick="document.getElementById('pickupModal').classList.remove('hidden')"
                             @endif
-                        @endif
-                        class="w-full disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed {{ $order->order_status === 'cancelled' ? 'bg-slate-300' : 'bg-[#a91b43] shadow-lg shadow-rose-100 hover:bg-[#940437] active:scale-[0.98]' }} text-white py-3 rounded-xl text-xs font-black transition-all uppercase tracking-widest">
-                        <i class="fas fa-bolt mr-2 text-xs"></i> 
-                        {{ $order->order_status === 'cancelled' ? 'Shipment Blocked (Cancelled)' : 'Push to Shiprocket' }}
-                    </button>
+                            class="shiprocket-push-btn w-full flex items-center justify-center gap-2 py-2.5 border-2 border-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                            <i class="fas fa-calendar-alt text-[10px] text-rose-500"></i> Push & Schedule Pickup
+                        </button> -->
+                    </div>
                 </div>
 
                 {{-- ── Pickup Date Modal ────────────────────────────────────────── --}}
@@ -423,7 +458,7 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const packerInputs = document.querySelectorAll('.packer-input');
-                        const pushButton = document.getElementById('mainPushButton');
+                        const pushButtons = document.querySelectorAll('.shiprocket-push-btn');
                         
                         const lengthInp = document.getElementById('packer_length');
                         const breadthInp = document.getElementById('packer_breadth');
@@ -455,7 +490,7 @@
 
                         packerInputs.forEach(input => {
                             input.addEventListener('input', function() {
-                                pushButton.disabled = true; // Force re-save if changed
+                                pushButtons.forEach(btn => btn.disabled = true); // Force re-save if changed
                             });
                         });
 
@@ -503,7 +538,7 @@
 
                                 if (data.status) {
                                      toastr.success(data.message);
-                                    pushButton.disabled = false;
+                                    pushButtons.forEach(btn => btn.disabled = false);
                                     // Sync to modal hidden fields
                                     modalLength.value = l;
                                     modalBreadth.value = b;
@@ -630,4 +665,15 @@
         @endif
     </div>
 </div>
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("=== NANDHINI SILKS DEBUG ===");
+            console.log("Order Processing State: {{ $order->order_status }}");
+            console.log("Shiprocket Live Status: {{ $order->shiprocket_status }}");
+            console.log("AWB Tracking Number: {{ $order->shiprocket_awb ?? 'None' }}");
+            console.log("===========================");
+        });
+    </script>
+    @endpush
 @endsection
