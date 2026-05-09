@@ -164,6 +164,7 @@ class ShiprocketService
         $shiprocketOrderId = $order->order_number . '-' . strtoupper(\Illuminate\Support\Str::random(3));
 
         $payload = [
+            'status'                  => 'NEW',
             'order_id'                => $shiprocketOrderId,
             'order_date'              => $order->created_at->format('Y-m-d H:i'),
             'pickup_location'         => config('services.shiprocket.pickup_location', 'Primary'),
@@ -209,6 +210,13 @@ class ShiprocketService
                     'shiprocket_order_id'    => $data['order_id'],
                     'shiprocket_shipment_id' => $data['shipment_id'],
                     'shiprocket_status'      => 'NEW',
+                    'shiprocket_awb'         => null,
+                    'tracking_number'        => null,
+                    'shiprocket_label_url'   => null,
+                    'shiprocket_manifest_url'=> null,
+                    'shiprocket_invoice_url' => null,
+                    'pickup_scheduled_at'    => null,
+                    'edd'                    => null,
                 ]);
                 return ['status' => true, 'data' => $data];
             }
@@ -592,11 +600,16 @@ class ShiprocketService
 
             // ── Status Map: Shiprocket raw status → our internal status ──────────
             $statusMap = [
-                'READY TO SHIP'      => 'processing',
-                'PICKUP SCHEDULED'   => 'processing',
-                'PICKUP GENERATED'   => 'processing',
-                'PICKUP RESCHEDULED' => 'processing',
-                'PICKUP EXCEPTION'   => 'processing',
+                'NEW'                => 'new',
+                'AWB ASSIGNED'       => 'ready to ship',
+                'LABEL GENERATED'    => 'ready to ship',
+                'MANIFEST GENERATED' => 'ready to ship',
+                'READY TO SHIP'      => 'ready to ship',
+                'PICKUP SCHEDULED'   => 'ready to ship',
+                'PICKUP BOOKED'      => 'ready to ship',
+                'PICKUP GENERATED'   => 'ready to ship',
+                'PICKUP RESCHEDULED' => 'ready to ship',
+                'PICKUP EXCEPTION'   => 'ready to ship',
                 'PICKED UP'          => 'shipped',
                 'IN TRANSIT'         => 'shipped',
                 'DISPATCHED'         => 'shipped',
@@ -643,8 +656,14 @@ class ShiprocketService
                     Log::info("Shiprocket Forward Update - Order #{$order->order_number}: {$order->order_status} → {$newMappedStatus} (result=" . ($result ? 'updated' : 'skipped') . ")");
                 } else {
                     // Unknown Shiprocket status — just log it, don't touch order_status
-                    $order->update(['shiprocket_status' => $status]);
-                    Log::info("Shiprocket Unmapped Status - Order #{$order->order_number}: raw='{$status}'");
+                    $updates = ['shiprocket_status' => $status];
+                    if ($awb && !$order->shiprocket_awb) {
+                        $updates['shiprocket_awb'] = $awb;
+                        $updates['tracking_number'] = $awb;
+                        $updates['order_status'] = 'ready to ship';
+                    }
+                    $order->update($updates);
+                    Log::info("Shiprocket Unmapped Status - Order #{$order->order_number}: raw='{$status}'" . ($awb ? " (AWB captured: {$awb})" : ""));
                 }
             }
 

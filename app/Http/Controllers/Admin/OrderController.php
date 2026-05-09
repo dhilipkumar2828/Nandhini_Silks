@@ -55,6 +55,7 @@ class OrderController extends Controller
         $counts = [
             'all' => Order::count(),
             'order placed' => Order::where('order_status', 'order placed')->count(),
+            'new' => Order::where('order_status', 'new')->count(),
             'processing' => Order::where('order_status', 'processing')->count(),
             'ready to ship' => Order::where('order_status', 'ready to ship')->count(),
             'shipped' => Order::where('order_status', 'shipped')->count(),
@@ -101,9 +102,19 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.index')->with('success', 'Order created successfully.');
     }
 
-    public function show(Order $order)
+    public function show(Order $order, ShiprocketService $shiprocket)
     {
         $order->load(['items.product', 'items.variant', 'user', 'coupon']);
+
+        // Auto-sync with Shiprocket on page load if order is pushed but not delivered/cancelled
+        if ($order->shiprocket_order_id && !in_array($order->order_status, ['delivered', 'cancelled'])) {
+            try {
+                $this->syncShiprocketStatusInternal($order, $shiprocket);
+            } catch (\Exception $e) {
+                Log::error("Auto-sync failed for Order #{$order->order_number}: " . $e->getMessage());
+            }
+        }
+
         return view('admin.orders.show', compact('order'));
     }
 
@@ -115,7 +126,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order, ShiprocketService $shiprocket)
     {
         $request->validate([
-            'order_status' => 'required|in:pending,order placed,processing,ready to ship,shipped,out for delivery,delivered,cancelled,returned,refunded',
+            'order_status' => 'required|in:pending,order placed,new,processing,ready to ship,shipped,out for delivery,delivered,cancelled,returned,refunded',
             'payment_status' => 'required|in:pending,paid,failed,refunded,partial',
             'tracking_number' => 'nullable|string|max:255',
             'courier_name' => 'nullable|string|max:255',
@@ -167,17 +178,22 @@ class OrderController extends Controller
 
     public function pushToShiprocket(Request $request, Order $order, ShiprocketService $shiprocket)
     {
-        if ($order->shiprocket_order_id) {
+        $isCancelled = in_array(strtoupper($order->shiprocket_status ?? ''), ['CANCELED', 'CANCELLED']);
+        if ($order->shiprocket_order_id && !$isCancelled) {
             return back()->with('error', 'Order already pushed to Shiprocket.');
         }
-
-        $dimensions = $request->only(['length', 'breadth', 'height', 'weight']);
+        $dimensions = [
+            'length'  => $request->length ?? $order->package_length,
+            'breadth' => $request->breadth ?? $order->package_breadth,
+            'height'  => $request->height ?? $order->package_height,
+            'weight'  => $request->weight ?? $order->package_weight,
+        ];
 
         $result = $shiprocket->createOrder($order, $dimensions);
 
         if ($result['status']) {
-            $order->syncStatus('ready to ship');
-            return back()->with('success', 'Order pushed to Shiprocket successfully and status updated to Ready to Ship.');
+            $order->syncStatus('new');
+            return back()->with('success', 'Order pushed to Shiprocket successfully and status updated to New.');
         }
 
         return back()->with('error', 'Shiprocket Error: ' . ($result['message'] ?? 'Unknown Error'));
@@ -197,7 +213,8 @@ class OrderController extends Controller
             'weight'      => 'required|numeric|min:0.01',
         ]);
 
-        if ($order->shiprocket_order_id) {
+        $isCancelled = in_array(strtoupper($order->shiprocket_status ?? ''), ['CANCELED', 'CANCELLED']);
+        if ($order->shiprocket_order_id && !$isCancelled) {
             return back()->with('error', 'Order already pushed to Shiprocket.');
         }
 
@@ -214,8 +231,8 @@ class OrderController extends Controller
         // ── STEP 2: Auto-assign AWB ─────────────────────────────────────────
         $awbResult = $shiprocket->assignCourierAndAWB($order);
         if (!$awbResult['status']) {
-            // Pushed successfully but AWB failed — still mark ready to ship
-            $order->syncStatus('ready to ship');
+            // Pushed successfully but AWB failed — still mark as new
+            $order->syncStatus('new');
             return back()->with('warning', 'Order pushed to Shiprocket ✓ but AWB assignment failed: ' . ($awbResult['message'] ?? 'Try assigning AWB manually.'));
         }
 
@@ -239,7 +256,7 @@ class OrderController extends Controller
         }
 
         // Update order status + send emails
-        $order->syncStatus('ready to ship');
+        $order->syncStatus('new');
         
         if (!$pickupResult['status']) {
             $msg = $pickupResult['message'] ?? 'Unknown Error';
@@ -438,8 +455,19 @@ class OrderController extends Controller
 
     public function syncShiprocketStatus(Order $order, ShiprocketService $shiprocket)
     {
+        $result = $this->syncShiprocketStatusInternal($order, $shiprocket);
+
+        if ($result['synced']) {
+            return back()->with('success', $result['message']);
+        }
+
+        return back()->with('info', $result['message']);
+    }
+
+    private function syncShiprocketStatusInternal(Order $order, ShiprocketService $shiprocket): array
+    {
         if (!$order->shiprocket_shipment_id && !$order->shiprocket_order_id) {
-            return back()->with('error', 'No Shiprocket IDs found for this order.');
+            return ['synced' => false, 'message' => 'No Shiprocket IDs found for this order.'];
         }
 
         $synced = false;
@@ -448,18 +476,48 @@ class OrderController extends Controller
         // Attempt 1: Track via shipment ID
         if ($order->shiprocket_shipment_id) {
             $trackingData = $shiprocket->trackOrder($order->shiprocket_shipment_id);
-            if (isset($trackingData['tracking_data']) && $trackingData['tracking_data']['track_status'] == 1) {
-                $shipmentTrack = $trackingData['tracking_data']['shipment_track'][0] ?? null;
-                if ($shipmentTrack) {
+            Log::info("Manual Sync Tracking Data for Order #{$order->order_number}:", $trackingData ?? []);
+
+            $trackObj = $trackingData['tracking_data'] ?? null;
+            if ($trackObj && ($trackObj['track_status'] ?? 0) == 1) {
+                // Try to find the current status in various possible fields
+                $shipmentTrack = $trackObj['shipment_track'][0] ?? null;
+                $rawStatus = $shipmentTrack['current_status'] ?? $trackObj['shipment_status'] ?? null;
+                $awb = $shipmentTrack['awb_code'] ?? $trackObj['awb'] ?? $order->shiprocket_awb;
+                $edd = $shipmentTrack['edd'] ?? $shipmentTrack['expected_delivery_date'] ?? ($shipmentTrack['etd'] ?? null);
+
+                if ($rawStatus || $awb) {
+                    $upd = [];
+                    if ($rawStatus) $upd['shiprocket_status'] = $rawStatus;
+                    if ($awb) {
+                        $upd['shiprocket_awb'] = $awb;
+                        $upd['tracking_number'] = $awb;
+                    }
+                    if ($edd) $upd['edd'] = $edd;
+                    
+                    if (!empty($upd)) {
+                        $order->update($upd);
+                    }
+
                     $mockPayload = [
                         'shipment_id'    => $order->shiprocket_shipment_id,
-                        'current_status' => $shipmentTrack['current_status'],
-                        'awb'            => $shipmentTrack['awb_code'] ?? $order->shiprocket_awb,
-                        'edd'            => $shipmentTrack['edd'] ?? $shipmentTrack['expected_delivery_date'] ?? ($shipmentTrack['etd'] ?? null),
+                        'current_status' => $rawStatus ?? $order->shiprocket_status,
+                        'awb'            => $awb ?? $order->shiprocket_awb,
+                        'edd'            => $edd ?? $order->edd,
                     ];
+                    
+                    // Force 'ready to ship' if status is pickup related or AWB exists (AND NOT CANCELLED)
+                    $normStatus = strtoupper($rawStatus ?? '');
+                    $isCancelled = str_contains($normStatus, 'CANCEL');
+                    
+                    if (!$isCancelled && (str_contains($normStatus, 'PICK') || str_contains($normStatus, 'AWB') || $awb)) {
+                        $order->update(['order_status' => 'ready to ship']);
+                    }
+
                     $shiprocket->processWebhook($mockPayload);
                     $synced = true;
-                    $statusMsg = "Status synced from Shiprocket: " . $shipmentTrack['current_status'];
+                    $statusMsg = "Status synced from Shiprocket: " . ($rawStatus ?? 'AWB Captured');
+                    error_log("SYNC ATTEMPT 1 SUCCESS - Status: " . ($rawStatus ?? 'NULL') . " AWB: " . ($awb ?? 'NULL'));
                 }
             }
         }
@@ -467,26 +525,47 @@ class OrderController extends Controller
         // Attempt 2: Fallback to Order Details (Crucial for Cancelled orders where tracking might be disabled)
         if (!$synced && $order->shiprocket_order_id) {
             $orderData = $shiprocket->getOrderDetails($order->shiprocket_order_id);
+            Log::info("Manual Sync Order Data Fallback for Order #{$order->order_number}:", $orderData ?? []);
+            
             if ($orderData && isset($orderData['data'])) {
-                $shiprocketStatus = $orderData['data']['status'] ?? null;
-                if ($shiprocketStatus) {
-                    $mockPayload = [
-                        'order_id'       => $order->shiprocket_order_id,
-                        'current_status' => $shiprocketStatus,
-                        'edd'            => $orderData['data']['etd'] ?? null,
-                    ];
-                    $shiprocket->processWebhook($mockPayload);
-                    $synced = true;
-                    $statusMsg = "Status synced from Shiprocket Order Info: " . $shiprocketStatus;
+                $d = $orderData['data'];
+                $awb = $d['shipments'][0]['awb'] ?? null;
+                $rawStatus = $d['status'] ?? null;
+                
+                $upd = [];
+                if ($rawStatus) $upd['shiprocket_status'] = $rawStatus;
+                if ($awb) {
+                    $upd['shiprocket_awb'] = $awb;
+                    $upd['tracking_number'] = $awb;
                 }
+                
+                if (!empty($upd)) {
+                    $order->update($upd);
+                }
+
+                $mockPayload = [
+                    'order_id'       => $order->shiprocket_order_id,
+                    'shipment_id'    => $d['shipments'][0]['id'] ?? $order->shiprocket_shipment_id,
+                    'current_status' => $rawStatus ?? $order->shiprocket_status,
+                    'awb'            => $awb ?? $order->shiprocket_awb,
+                ];
+                error_log("SYNC ATTEMPT 2 SUCCESS - Status: " . ($rawStatus ?? 'NULL'));
+                // Force 'ready to ship' if status is pickup related or AWB exists (AND NOT CANCELLED)
+                $normStatus = strtoupper($rawStatus ?? '');
+                $isCancelled = str_contains($normStatus, 'CANCEL');
+
+                if (!$isCancelled && (str_contains($normStatus, 'PICK') || str_contains($normStatus, 'AWB') || $awb)) {
+                    $order->update(['order_status' => 'ready to ship']);
+                }
+
+                $shiprocket->processWebhook($mockPayload);
+                $synced = true;
+                $statusMsg = "Status synced from Shiprocket Order Details: " . ($rawStatus ?? 'Details Fetched');
+                error_log("SYNC ATTEMPT 2 SUCCESS - Status: " . ($rawStatus ?? 'NULL') . " AWB: " . ($awb ?? 'NULL'));
             }
         }
 
-        if ($synced) {
-            return back()->with('success', $statusMsg);
-        }
-
-        return back()->with('error', $statusMsg);
+        return ['synced' => $synced, 'message' => $statusMsg];
     }
 
     public function saveDimensions(Request $request, Order $order)

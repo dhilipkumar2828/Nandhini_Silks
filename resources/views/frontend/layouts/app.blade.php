@@ -2025,6 +2025,12 @@
         });
     </script>
 
+    <!-- Floating WhatsApp Icon -->
+    <a href="https://wa.me/919363152822" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-whatsapp"></i>
+        <span class="tooltip-text">Chat with us on WhatsApp</span>
+    </a>
+
     @stack('scripts')
 </body>
 
